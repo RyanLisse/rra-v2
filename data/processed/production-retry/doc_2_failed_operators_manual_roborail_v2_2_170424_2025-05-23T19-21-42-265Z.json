@@ -1,0 +1,12 @@
+{
+  "json": {
+    "filename": "Operators manual_RoboRail V2.2_170424.pdf",
+    "path": "/Users/neo/Developer/vision-ragchat-app/data/pdf/Operators manual_RoboRail V2.2_170424.pdf",
+    "mimeType": "application/pdf",
+    "elements": [],
+    "processedAt": "2025-05-23T19:21:42.265Z",
+    "sessionId": "production-retry",
+    "error": "No elements returned from Unstructured.io API for Operators manual_RoboRail V2.2_170424.pdf",
+    "processingStatus": "failed"
+  }
+}

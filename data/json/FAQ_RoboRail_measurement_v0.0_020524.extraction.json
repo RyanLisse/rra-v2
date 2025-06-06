@@ -1,0 +1,1751 @@
+{
+  "markdown": "logo: HGG\n\nSummary : This image is a logo consisting of the letters \"HGG\" in white on a blue square background, with a stylized grey elliptical disc featuring a central white circle overlaid at the bottom right.\n\nDesign Elements :\n  • The letters \"HGG\" are uppercase, bold, and centered within a solid blue square.\n  • A large, light grey ellipse with a white circular cutout is positioned diagonally, partially overlapping the lower right of the blue square.\n  • The overall composition is geometric and modern, with a limited palette of blue, white, and grey.\n\nDimensions & Placement :\n  • Blue square occupies the majority of the image area.\n  • Elliptical disc is tilted and overlaps the lower right corner of the square, extending beyond its boundary.\n\nAnalysis : \n  • The logo uses a clean, sans-serif typeface and simple geometric shapes to convey a modern, professional identity. The elliptical disc may suggest motion, focus, or a technological theme. <!-- figure, from page 0 (l=0.084,t=0.023,r=0.192,b=0.112), with ID e10b0576-2aad-4f3a-8f2f-97b066dba9e7 -->\n\n**FAQ** RoboRail <!-- marginalia, from page 0 (l=0.751,t=0.032,r=0.911,b=0.060), with ID d01f330c-e11d-4740-a1f4-85153d8dea76 -->\n\nMeasurement instructions <!-- text, from page 0 (l=0.210,t=0.068,r=0.516,b=0.093), with ID 3945b058-c49f-4f43-9724-006560309cbd -->\n\nTable of contents\n\n1.  Introduction ..................................................................................................................................................2\n    1.1    Text indicators .................................................................................................................................2\n    1.2    Remote control | screen.............................................................................................................2\n    1.3    Responsible persons ..................................................................................................................2\n    1.4    Related documents .....................................................................................................................2\n    1.5    Safety .............................................................................................................................................2\n2.  Tools.............................................................................................................................................................3\n    2.1    Caliper.............................................................................................................................................3\n    2.2    Protractor.......................................................................................................................................5\n    2.3    Tape measure ...............................................................................................................................5\n3.  Measurements & data collection........................................................................................................8\n    3.1    Measurements .............................................................................................................................8\n    3.2    Diagnostic data collection .........................................................................................................8 <!-- text, from page 0 (l=0.086,t=0.123,r=0.915,b=0.477), with ID 9c85026e-9530-4003-9b8b-2033df2ff992 -->\n\nPage 1/10 <!-- marginalia, from page 0 (l=0.091,t=0.943,r=0.162,b=0.961), with ID 622151f0-1112-4f47-afc9-ce98812d7bc1 -->\n\nversion 0.0 |  2-5-2024 <!-- marginalia, from page 0 (l=0.761,t=0.944,r=0.910,b=0.961), with ID d52307c5-62f1-4717-9e5a-fbc7ddd38e6c -->\n\nlogo: HGG\n\nSummary : This image is a logo consisting of the letters \"HGG\" in white on a blue square background, with a stylized gray elliptical disc featuring a central white circle overlaid at the bottom right.\n\nDesign Elements :\n  • The letters \"HGG\" are uppercase, bold, and centered within a solid blue square.\n  • A large, light gray ellipse with a white circular cutout is positioned diagonally, overlapping the lower right portion of the blue square.\n  • The overall color palette is blue, white, and gray.\n\nDimensions & Placement :\n  • The blue square forms the main background.\n  • The ellipse is oriented diagonally from lower left to upper right, with its center near the bottom right of the square.\n\nAnalysis : \n  • The logo is simple and modern, with the elliptical disc possibly representing a stylized object or concept relevant to the brand \"HGG\". The use of blue and gray suggests a professional or corporate identity. <!-- figure, from page 0 (l=0.083,t=0.023,r=0.193,b=0.112), with ID c5225b39-edb4-46f1-b622-e796dd6f2b81 -->\n\nFAQ RoboRail <!-- text, from page 0 (l=0.749,t=0.031,r=0.912,b=0.060), with ID 5e62a1d9-17a5-4f59-bbc9-b46efb465d3d -->\n\nMeasurement instructions <!-- text, from page 0 (l=0.208,t=0.068,r=0.517,b=0.094), with ID 6c557c52-1bb8-46a8-a193-afc088dffea8 -->\n\n1.  **Introduction**\n\nIf you have problems with the cutting quality of the RoboRail machine, the technical service department of HGG may ask you to measure specific material and/or cuts. With the measurement results, together with a data collection of the machine, they can provide you targeted help to solve the problem. <!-- text, from page 0 (l=0.087,t=0.123,r=0.893,b=0.214), with ID e1fe8e72-8d3a-4a7c-8203-83bbab421d52 -->\n\nThis document describes the instructions to measure cuts in different shapes of metal profiles (refer to the images on page 10). <!-- text, from page 0 (l=0.088,t=0.226,r=0.890,b=0.266), with ID 378996ed-3fbc-46ec-9e29-eaeba7b6bde4 -->\n\n1.1  Text indicators\n\nIn this document:\n- Bullet points:  ▪  describe the steps to perform\n- Bullet points:  ➢  describe additional points of attention for use of the specific measurement tool\n- Bullet points:  ◆  refer to an image\n- _Text written in italics_:  gives an additional explanation or instruction\n- **Text written in bold**:  refers to instructions on the screen of the remote control <!-- text, from page 0 (l=0.087,t=0.279,r=0.902,b=0.422), with ID 83e46179-2f90-4871-a96a-b215b7c982f4 -->\n\n1.2   Remote control | screen\n\nYou must use the remote control to download a data collection for diagnostic purposes. This is the screen (on an adjustable arm) on the control unit. <!-- text, from page 0 (l=0.087,t=0.434,r=0.907,b=0.507), with ID e31049d7-f69b-479a-a34b-3bb59ada7a0c -->\n\n1.3 Responsible persons\n\nThe measurement procedures that are written in this document are reserved for operators, mechanics and authorised persons. <!-- text, from page 0 (l=0.088,t=0.521,r=0.892,b=0.591), with ID ef5aaee1-3eaf-4262-8233-985b394aac43 -->\n\n1.4  Related documents\n\n- RoboRail operator’s manual\n- FAQ RoboRail Calibration\n- FAQ RoboRail FAT\n- schematics, as appropriate\n- parts lists\n- components supplier instruction handbooks\n- documents, drawings, data sheets and declarations <!-- text, from page 0 (l=0.088,t=0.606,r=0.541,b=0.766), with ID 4c60800e-4c84-4878-bc91-d9d27b683b3a -->\n\nYou can find these documents on the Internet Customer Portal. <!-- text, from page 0 (l=0.090,t=0.779,r=0.566,b=0.799), with ID 430a4a05-2023-44b8-8907-ecb98bd20b32 -->\n\nSummary : This instructional figure communicates the requirement to wear specific personal protective equipment (PPE) when working with a machine, using both icons and text.\n\nillustration:\n# PPE Requirements :\n  • Three circular icons, each with a white pictogram on a dark blue background.\n  • First icon: safety boots.\n  • Second icon: protective gloves.\n  • Third icon: safety glasses.\n\n# Instructional Text :\n  • \"Wear personal protective equipment (PPE) when you work with the machine.\"\n\n# Spatial Relationships :\n  • Icons are arranged horizontally, left to right, preceding the instructional text.\n  • Text is aligned to the right of the icons.\n\nAnalysis :\n  • The figure visually reinforces the need for safety boots, gloves, and glasses, ensuring clear communication of essential PPE for machine operation. <!-- figure, from page 0 (l=0.089,t=0.812,r=0.850,b=0.907), with ID 108fffac-046f-4836-90c8-291f771b73f5 -->\n\nPage 2/10 <!-- marginalia, from page 0 (l=0.091,t=0.942,r=0.161,b=0.961), with ID 9f29d106-304a-4456-abdc-1d201c70ddbb -->\n\nversion 0.0 |  2-5-2024 <!-- marginalia, from page 0 (l=0.761,t=0.944,r=0.910,b=0.961), with ID d0329e4c-bade-4038-8054-eccf43209244 -->\n\nlogo: HGG\n\nVisible Text and Design :\n  • The logo consists of the letters \"HGG\" in bold, white, sans-serif font.\n  • The text is centered within a solid blue square background.\n  • A large, light grey, elliptical disc with a central circular cutout overlaps the lower right portion of the blue square, partially covering the letters \"G\" and \"G\".\n\nDimensions and Placement :\n  • The blue square forms the main background.\n  • The elliptical disc is oriented diagonally from lower left to upper right, with its center near the bottom right quadrant of the square.\n\nAnalysis :\n  • The logo uses a simple, modern design with high contrast between the white text and blue background.\n  • The elliptical disc may symbolize a disc, lens, or abstract object, but no explicit meaning is conveyed in the image alone. <!-- figure, from page 0 (l=0.081,t=0.023,r=0.193,b=0.112), with ID 041d426a-c4e9-4ad5-9b9c-80e5f40de471 -->\n\n**FAQ** RoboRail <!-- text, from page 0 (l=0.749,t=0.032,r=0.912,b=0.060), with ID 60b439b7-9db9-49bc-9931-e6cd0ba6e63c -->\n\nMeasurement instructions <!-- text, from page 0 (l=0.207,t=0.068,r=0.518,b=0.094), with ID 1ae1080e-6155-4f9b-9d51-1f557e8cd61b -->\n\n- inline figure: yellow triangle with black exclamation mark (warning symbol)\n\nMake sure to remain at a safe distance from moving parts of the machine. This also applies to persons who enter the work area.\nObey the safety instructions as written in the operator’s manual of the RoboRail. <!-- text, from page 0 (l=0.089,t=0.123,r=0.898,b=0.188), with ID b8b45b59-3047-49c2-8ce5-bdb666d6aab3 -->\n\n2.  Tools <!-- text, from page 0 (l=0.090,t=0.204,r=0.181,b=0.225), with ID 0560f3d5-f3a2-4c4e-92ce-caed6b7ad0a9 -->\n\nDepending on the size/type of the material/cut, you need one of the following measurement tools. <!-- text, from page 0 (l=0.089,t=0.240,r=0.830,b=0.262), with ID dfddb459-2220-4242-bbe4-2ee73781666a -->\n\n- 2.1   Caliper\n\nA caliper is an instrument that you use to measure:\n- the distance between two opposite sides of a material or cut\n- the inner diameter of a material or cut\n- the outer diameter of a material <!-- text, from page 0 (l=0.088,t=0.277,r=0.579,b=0.384), with ID 73efc6fe-4aa6-4828-9277-e8bed52c45b1 -->\n\nIt is applicable to measure cutting sizes and material with a maximum length of 300 mm (12\"). <!-- text, from page 0 (l=0.089,t=0.398,r=0.795,b=0.420), with ID 0c347044-1b5d-4ea5-bad1-17c9e04b4a83 -->\n\nSummary : This figure compares digital and analog calipers as measurement tools, showing images of each and specifying the preferred and alternative options along with their rated accuracy.\n\nphoto:  \n# Digital and Analog Caliper Comparison :\n\nPreferred Tool :  \n  • Digital caliper image shown in the top row.  \n  • Labeled as \"Preferred tool: digital\".  \n  • Rated accuracy specified as 0.1 mm (0.004”).\n\nAlternative Tool :  \n  • Analog caliper image shown in the second row.  \n  • Labeled as \"Alternative tool: analog\".\n\nTechnical Details :  \n  • Both calipers are depicted in side profile, showing the measurement jaws and scale/readout.  \n  • The digital caliper features an electronic display, while the analog caliper has a vernier scale.  \n  • Caption below images: \"Images: examples of a digital and analog caliper\".\n\nSpatial Relationships :  \n  • Digital caliper is positioned above the analog caliper in a two-row layout.  \n  • Text describing accuracy is aligned with the digital caliper.\n\nAnalysis :  \n  • The figure visually emphasizes the digital caliper as the preferred tool due to its specified accuracy, while the analog caliper is presented as an alternative.  \n  • The side-by-side comparison highlights the difference in readout mechanisms (digital vs. analog) and supports tool selection based on accuracy requirements. <!-- figure, from page 0 (l=0.090,t=0.431,r=0.919,b=0.605), with ID dd4a24d1-60e9-4932-8417-96ab193f6aa4 -->\n\nHow to use a caliper <!-- text, from page 0 (l=0.091,t=0.622,r=0.257,b=0.640), with ID f0d282c6-c21f-463c-93a5-0b7874c992f4 -->\n\n- ➤ If you use a digital caliper, also refer to the user manual of your specific type. <!-- text, from page 0 (l=0.090,t=0.656,r=0.697,b=0.678), with ID 1d1ff5d6-c295-4beb-841a-d5627875a5bb -->\n\nSummary : This is a labeled diagram of a digital caliper, showing all major components and their functions for measurement tasks.\n\nillustration:\n# Main Components :\n  • Internal jaws: used for measuring the internal dimensions of objects.\n  • External jaws: used for measuring the external dimensions of objects.\n  • Metric/inch button: toggles the measurement units between metric and inch.\n  • Locking screw: secures the sliding scale in place to hold a measurement.\n  • LCD display: digital screen showing the current measurement value.\n  • Scale: the main ruler-like part of the caliper, marked with measurement graduations.\n  • Power on/off: button to turn the caliper on or off.\n  • Zero setting: button to reset the measurement to zero at any position.\n  • Thumb wheel: used to smoothly slide the jaws for precise adjustment.\n  • Depth measuring blade: thin blade extending from the end, used for measuring depths.\n\n# Labels and Layout :\n  • Each component is clearly labeled with a red arrow pointing to its location on the caliper.\n  • The LCD display shows a sample reading of \"20.14 mm\".\n  • The diagram is oriented with the jaws on the left and the depth blade on the right.\n\n# Analysis :\n  • The diagram provides a comprehensive overview of a digital caliper's structure and controls, making it easy to identify each part and understand its function. The clear labeling supports quick reference for users learning to operate or identify parts of the tool. <!-- figure, from page 0 (l=0.094,t=0.694,r=0.507,b=0.823), with ID 60a199ed-222e-4a29-b94f-2ea18cfe1532 -->\n\nSummary : This labeled illustration shows the main parts and measurement scales of a vernier caliper, a precision measuring instrument used for internal, external, and depth measurements.\n\nillustration:\n# Main Components :\n  • Internal jaws: used for measuring the internal diameter of objects.\n  • External jaws: used for measuring the external diameter or width of objects.\n  • Locking screw: secures the movable jaw in place to maintain a measurement.\n  • Depth measuring blade: extends from the end of the caliper for measuring depths.\n\n# Measurement Scales :\n  • Imperial scale: marked in inches for measurements in the imperial system.\n  • Metric scale: marked in millimeters for measurements in the metric system.\n\n# Layout & Labels :\n  • All major parts are clearly labeled with arrows pointing to their respective locations on the caliper.\n  • The illustration is a side view, showing the full length of the caliper and its sliding mechanism.\n\n# Analysis :\n  • The figure provides a comprehensive overview of a vernier caliper’s structure and function, highlighting its dual-scale capability and multiple measurement features. The clear labeling supports easy identification and understanding of each component’s purpose. <!-- figure, from page 0 (l=0.510,t=0.695,r=0.918,b=0.823), with ID 62d80225-5831-468f-950d-14a939057769 -->\n\n- Make sure that you use a caliper of an appropriate length.\n- Use the locking screw to lock the position of the jaws.\n- Digital caliper: use the thumb wheel for fine adjustment of the jaws. <!-- text, from page 0 (l=0.088,t=0.840,r=0.634,b=0.896), with ID 6ac76f11-56f0-4b1b-a8f6-a99e0aa361fe -->\n\nPage 3/10 <!-- marginalia, from page 0 (l=0.091,t=0.942,r=0.161,b=0.961), with ID cafcb5b8-207e-4268-bd37-25cf0b4f1be2 -->\n\nversion 0.0 |  2-5-2024 <!-- marginalia, from page 0 (l=0.761,t=0.944,r=0.910,b=0.961), with ID 85f5ce40-7cb0-4930-9837-d803d385df0e -->\n\nlogo: HGG\n\nSummary : This image is a logo consisting of the letters \"HGG\" in white on a blue square background, with a stylized grey elliptical shape containing a white circle overlapping the lower part of the square.\n\nDesign Elements :\n  • The letters \"HGG\" are uppercase, bold, and centered within a solid blue square.\n  • A large, light grey ellipse with a white circular cutout overlaps the lower right portion of the blue square, extending beyond its boundaries.\n  • The overall composition is geometric and modern, with a limited palette of blue, grey, and white.\n\nDimensions & Placement :\n  • Blue square occupies the upper portion, with the ellipse partially outside the square's lower right.\n  • No additional text, taglines, or company names are present.\n\nAnalysis : \n  • The logo uses a simple, bold design with a strong color contrast to create a memorable visual identity. The elliptical shape may suggest motion or a dynamic element, but no explicit meaning is conveyed beyond the stylized initials \"HGG\". <!-- figure, from page 0 (l=0.082,t=0.023,r=0.193,b=0.112), with ID 18862007-4b9d-45ac-89d9-65546228e2b7 -->\n\n**FAQ** RoboRail <!-- text, from page 0 (l=0.750,t=0.032,r=0.912,b=0.060), with ID f8b69a5f-7b5f-46f4-9686-4ee46d363165 -->\n\nMeasurement instructions <!-- text, from page 0 (l=0.208,t=0.068,r=0.517,b=0.095), with ID 0417a014-8f00-45c9-8f08-2821836099a9 -->\n\n- To measure the inside of a material or cut (♦ Image 1):\n  - Put the internal jaws inside the material that you intend to measure. Extend the jaws to touch the material and lock them. <!-- text, from page 0 (l=0.088,t=0.122,r=0.854,b=0.177), with ID cc0cdd60-f414-4c9a-8ec5-c18210dbb82c -->\n\nSummary : This photograph shows the use of a digital caliper to measure the inside width of a metal object, with the digital display reading 30.06 mm.\n\nphoto:\nScene Overview :\n  • Main subject is a digital caliper being used to take an inside measurement of a rectangular metal object.\n  • The caliper is held by a left hand, with the jaws inserted into the inner gap of the object.\n  • The digital display is clearly visible and reads \"30.06 mm\".\n  • The background is a neutral surface, possibly a workbench or table.\n\nTechnical Details :\n  • The caliper is a digital model, with a display showing the measurement in millimeters.\n  • The measured value is 30.06 mm, as shown on the display and confirmed in the caption.\n  • The caliper's scale and adjustment wheel are visible.\n  • The metal object appears to be rusted or corroded, with a rough surface texture.\n\nSpatial Relationships :\n  • The caliper is oriented horizontally, with the jaws spanning the inner width of the metal object.\n  • The hand holding the caliper is in the lower left of the image, while the object is in the upper right.\n  • The digital display is centrally positioned for clear visibility.\n\nAnalysis :\n  • The image demonstrates the correct use of a digital caliper for inside measurements, with a precise reading of 30.06 mm.\n  • The clear display and hand positioning suggest a focus on measurement accuracy and technique. <!-- figure, from page 0 (l=0.090,t=0.190,r=0.339,b=0.480), with ID 19580db6-77e7-4b2a-8037-a4d619c05e14 -->\n\nTo measure the outside of a material (◆ Image 2 | ◆ Image 3):\n- Put the external jaws around the material that you intend to measure. Close the jaws and lock them. <!-- text, from page 0 (l=0.089,t=0.493,r=0.872,b=0.530), with ID 46b4646e-a8d0-4127-b54c-d183c1c880b0 -->\n\nSummary : This figure shows two photographs of a digital caliper being used to measure the outside dimensions of a rusted metal bracket, with the measured values displayed on the caliper screens and annotated below each image.\n\nphoto:\nScene Overview :\n  • Two side-by-side close-up photographs of a hand holding a digital caliper measuring the outside dimensions of a rusted metal bracket.\n  • The left image is labeled \"Image 2\" and the right image is labeled \"Image 3\".\n  • Both images are taken from an oblique angle, showing the caliper jaws in contact with the bracket and the digital display facing the camera.\n  • The background is a light-colored surface, possibly a workbench or sheet of paper.\n\nTechnical Details :\n  • The digital caliper display in Image 2 reads \"35.51 mm\".\n  • The digital caliper display in Image 3 reads \"100.51 mm\".\n  • Each image is annotated below with the following text:\n    – Image 2: \"Outside measurement [digital caliper | 35,51 mm]\"\n    – Image 3: \"Outside measurement [digital caliper | 100,51 mm]\"\n  • The caliper is a standard digital model with a metallic finish and a thumb wheel for adjustment.\n\nSpatial Relationships :\n  • In both images, the caliper is held in the foreground, with the bracket positioned between the jaws.\n  • The left image (Image 2) shows a smaller dimension being measured compared to the right image (Image 3), as indicated by the caliper readings and the visible jaw opening.\n  • The hand holding the caliper is visible in the lower part of each image, providing scale.\n\nAnalysis :\n  • The photographs document two different outside measurements of the same or similar metal bracket, with the measured values clearly displayed and annotated.\n  • The use of a digital caliper ensures precise measurement, and the images serve as visual evidence of the recorded dimensions (35.51 mm and 100.51 mm).\n  • The rust and wear on the bracket are visible, indicating it is likely a used or aged component. <!-- figure, from page 0 (l=0.089,t=0.541,r=0.578,b=0.832), with ID 2dc5a84f-1453-48ee-a0b8-fa280b5016a3 -->\n\n- Subsequently:\n- Read the measurement result on the display (digital caliper) or scale (analog caliper).\n- Record the measurement result. <!-- text, from page 0 (l=0.088,t=0.845,r=0.754,b=0.900), with ID ace23737-3e4b-44fc-bb56-f522c729220a -->\n\nPage 4/10 <!-- marginalia, from page 0 (l=0.090,t=0.942,r=0.162,b=0.961), with ID 5455a889-0dda-4430-84af-8f1cae55ea3d -->\n\nversion 0.0 | 2-5-2024 <!-- marginalia, from page 0 (l=0.761,t=0.944,r=0.910,b=0.961), with ID ba9ff2e6-8c45-4701-af40-dbb6ffc0bd89 -->\n\nlogo: HGG\n\nSummary : This image is a logo consisting of the letters \"HGG\" in white on a blue square background, with a stylized grey elliptical disc featuring a central white circle overlapping the lower portion of the square.\n\nDesign Elements :\n  • The letters \"HGG\" are uppercase, bold, and centered within a solid blue square.\n  • A large, light grey ellipse with a white circular cutout is positioned diagonally, overlapping the bottom right of the blue square.\n  • The overall composition is geometric and modern, with a limited palette of blue, white, and grey.\n\nDimensions & Placement :\n  • Blue square occupies the upper portion, with the ellipse extending beyond the lower edge.\n  • The ellipse is tilted, with its major axis running from lower left to upper right.\n\nAnalysis :\n  • The logo uses a clean, professional design with strong contrast between the blue background and white text.\n  • The elliptical disc may symbolize a disc, lens, or abstract object, adding a dynamic element to the otherwise static square and text. <!-- figure, from page 0 (l=0.083,t=0.023,r=0.192,b=0.112), with ID e2e5ade2-9776-4ebc-a855-0b5e4bd3536b -->\n\n**FAQ** RoboRail <!-- text, from page 0 (l=0.751,t=0.033,r=0.911,b=0.059), with ID e99e3609-75a4-4af9-920d-350eb8fbfff7 -->\n\nMeasurement instructions <!-- text, from page 0 (l=0.209,t=0.069,r=0.517,b=0.093), with ID 1f6a695f-5b34-48da-ad7a-13c95eae64f9 -->\n\n2.2 Protractor <!-- text, from page 0 (l=0.090,t=0.124,r=0.229,b=0.141), with ID 47a81561-4c57-4aec-aa7e-9670ce9aa7d2 -->\n\nA protractor is an instrument that you use to measure angles of the material. <!-- text, from page 0 (l=0.089,t=0.157,r=0.670,b=0.177), with ID d8100de4-a5dc-4388-a275-22094fffd5b0 -->\n\nSummary : This figure presents a comparison between digital and analog protractors, highlighting the preferred and alternative tools for angle measurement, along with their rated accuracy and example images.\n\nphoto:  \n# Preferred Tool : Digital Protractor\n  • Image of a digital protractor with a digital display.\n  • Labeled as \"Preferred tool: digital\".\n  • Stated rated accuracy: 0,1° (0.1°).\n\n# Alternative Tool : Analog Protractor\n  • Image of a traditional analog protractor with a pivoting arm.\n  • Labeled as \"Alternative tool: analog\".\n\n# Caption :\n  • Text below the images: \"Images: examples of a digital and analog protractor\".\n\n# Spatial Relationships :\n  • Digital protractor image is positioned above the analog protractor image.\n  • Both images are aligned in a two-row, two-column table format, with tool descriptions on the left and images on the right.\n\n# Analysis :\n  • The figure visually contrasts digital and analog protractors, emphasizing the higher accuracy (0.1°) of the digital tool and its status as the preferred option, while the analog tool is presented as an alternative. <!-- figure, from page 0 (l=0.089,t=0.189,r=0.920,b=0.394), with ID 2642c58c-74d4-47ad-90c1-4f8bfc503fa3 -->\n\n- **How to use a protractor**\n- ➤ If you use a digital protractor, also refer to the user manual of your specific type.\n- ➤ Make sure that you use a protractor of an appropriate length. <!-- text, from page 0 (l=0.088,t=0.408,r=0.724,b=0.482), with ID 43c643d0-4461-4346-b603-d81526900ee3 -->\n\n- To measure the angle of a material or cut (♦ Image 4 | ♦ Image 5):\n  - Line up the vertex of the angle with the dot at the center of the protractor.\n  - Line up one side of the angle with 0° on the protractor.\n  - Read the protractor to see where the other side of the angle crosses the number scale.\n  - Record the measurement result. <!-- text, from page 0 (l=0.088,t=0.495,r=0.774,b=0.584), with ID e64a406c-d5cc-45db-b53c-3b6e0043a1dd -->\n\nSummary : This figure presents two photographs comparing angle measurement methods using a digital protractor and an analog protractor, each with a specific measured value.\n\nphoto:\nScene Overview :\n  • The left image (Image 4) shows a close-up of a person using a digital protractor to measure the angle of a metal bracket, with the digital display reading 90.5°.\n  • The right image (Image 5) depicts a hand holding an analog protractor against a metal object, with the analog scale indicating an angle of 86°.\n  • Both images focus on the measurement process and the tools in use, with metal parts and brackets visible in the background.\n\nTechnical Details :\n  • Image 4: Digital protractor with a clear electronic display showing \"90.5°\"; the user is wearing gloves.\n  • Image 5: Analog protractor with a semicircular scale; the measured value is marked at \"86°\".\n  • No scale bars or additional measurement references are present.\n\nSpatial Relationships :\n  • In both images, the protractors are positioned at the intersection of two metal surfaces, emphasizing the angle being measured.\n  • The digital protractor is oriented horizontally, while the analog protractor is held vertically.\n\nAnalysis :\n  • The figure contrasts the use of digital and analog protractors for angle measurement, highlighting the precision and readability differences (digital: 90.5°, analog: 86°).\n  • The digital protractor provides a more precise, easily readable value, while the analog protractor requires manual reading from the scale. <!-- figure, from page 0 (l=0.091,t=0.598,r=0.579,b=0.759), with ID 360c9267-8461-4dfa-b78d-bc46127ea400 -->\n\n2.3   Tape measure\n\nA tape measure is a flexible ruler that you use to measure:\n-  the distance between two opposite sites of a material or cut\n-  the length of a material or cut\n-  the size of a material <!-- text, from page 0 (l=0.089,t=0.774,r=0.575,b=0.880), with ID 4eb71714-aed1-4866-bc08-66d458d34456 -->\n\nIt is applicable to measure cutting sizes and material with a length of 0,3 to 12 m (1 to 40 ft). <!-- text, from page 0 (l=0.090,t=0.894,r=0.779,b=0.915), with ID 915c3858-9a61-4606-9769-8c2866b5226e -->\n\nPage 5/10 <!-- marginalia, from page 0 (l=0.091,t=0.943,r=0.161,b=0.961), with ID 405640d7-5e8b-43d5-8db3-852ce082dc0c -->\n\nversion 0.0 |  2-5-2024 <!-- marginalia, from page 0 (l=0.761,t=0.944,r=0.910,b=0.960), with ID a30492ee-4704-45ef-93b0-8029a6bd3fd5 -->\n\nlogo: HGG\n\nSummary : This image is a logo consisting of the letters \"HGG\" in white on a blue square background, with a large, tilted, gray elliptical shape containing a white circular cutout overlapping the lower portion of the square.\n\nDesign Elements :\n  • The letters \"HGG\" are uppercase, bold, and centered within a solid blue square.\n  • A large, light gray ellipse with a white circular hole is overlaid diagonally across the lower part of the square, extending beyond the square's bottom left corner.\n  • The color palette is limited to blue, white, and gray.\n\nDimensions & Placement :\n  • The blue square occupies the majority of the image.\n  • The ellipse is oriented from lower left to upper right, with its center offset below the square's center.\n\nAnalysis : \n  • The logo uses a simple, modern design with geometric shapes and a limited color scheme, likely intended to convey professionalism and clarity. The elliptical element may represent a disc, lens, or abstract symbol associated with the brand \"HGG\". <!-- figure, from page 0 (l=0.083,t=0.023,r=0.193,b=0.112), with ID f965ed6b-73d1-49f7-81c8-ed7956cfb5a1 -->\n\n**FAQ** RoboRail <!-- text, from page 0 (l=0.749,t=0.032,r=0.912,b=0.060), with ID 1084995c-5ddd-4aa7-99ef-ef1b9ff10ff9 -->\n\nMeasurement instructions <!-- text, from page 0 (l=0.208,t=0.068,r=0.517,b=0.093), with ID 992c5350-9991-4d6b-9a5d-92646bb18859 -->\n\nSummary : This figure provides a visual and textual guide to the preferred tool for precise measurement, specifically a Class I retractable tape measure, including its labeled parts, regulatory tolerances, and special notes for USA users.\n\nphoto:  \nScene Overview : \n  • The main subject is a retractable tape measure, shown at an angle with the tape partially extended.\n  • The tape measure is black and yellow, with a visible thumb lock and metal hook.\n  • The image is annotated with red arrows and labels identifying the \"THUMB LOCK,\" \"TAPE,\" and \"HOOK.\"\n  • The setting is neutral, with no background distractions.\n\nTechnical Details : \n  • No scale bar or magnification is present.\n  • The image is accompanied by a caption: \"Image: example of a retractable tape measure.\"\n  • The tape measure is referenced as \"Class I according to EU Directive 2014/32/EU.\"\n  • Tolerances for Class I are specified: 0.3 mm at 2 m, 0.4 mm at 3 m, 0.6 mm at 5 m, 0.9 mm at 8 m, 1.1 mm at 10 m.\n  • For USA: maximum permitted tolerance is 1/16\" at 33 ft.\n\nSpatial Relationships : \n  • The thumb lock is located on the upper side of the tape measure.\n  • The tape extends horizontally from the body, with the hook at the end.\n  • Labels are placed with arrows pointing directly to each part.\n\nAnalysis : \n  • The figure clearly identifies the key components of a retractable tape measure and highlights the importance of using a high-accuracy tool for professional measurements.\n  • The regulatory tolerances and USA-specific note emphasize the precision required for professional use.\n  • The visual labeling aids in quick identification of functional parts for users unfamiliar with the tool. <!-- figure, from page 0 (l=0.089,t=0.121,r=0.921,b=0.316), with ID 1a1169fa-c0cb-41b1-bbc2-e711c22c0689 -->\n\n- **How to use a tape measure**\n- The temperature range for use of the tape measure is **20°C ± 8°C** (54 to 82°F). Do **not** exceed this range to prevent measurement errors due to shrink or expansion of the tape.\n- The hook at the end of the tape is ‘floating’ to provide both inside and outside measurements that are accurate.\n- The thumb lock is used to keep the tape in place at the desired length and stops it from automatically retracting back into its housing\n- Tape measures are available with a metric and/or an imperial scale;\n  - metric markings are displayed in mm, cm and m\n  - imperial markings are displayed in feet (F), inches and fractions of inches <!-- text, from page 0 (l=0.085,t=0.330,r=0.899,b=0.525), with ID 5f9eed46-09d1-47fa-b42a-ea5aadd18454 -->\n\n- To measure the inside of a material or cut (◆ Image 6):\n  - Put the hook at the inside of the material that you intend to measure.\n  - Extend the tape to the opposite site of the material or cut and lock it. <!-- text, from page 0 (l=0.087,t=0.536,r=0.652,b=0.594), with ID ff9becb4-cdfa-44ee-ba0b-e250946e2c0e -->\n\nSummary : This image documents the process of measuring the inside width of a rectangular cutout in a metal surface using a tape measure, with a recorded value of 29 mm.\n\nphoto:\nScene Overview :\n  • The main subject is a close-up view of a yellow tape measure being used to measure the inside width of a rectangular hole in a dark, rusted metal surface.\n  • The tape measure is inserted into the cutout, with the metal hook flush against one edge and the tape extending to the opposite edge.\n  • The measurement reading is clearly visible, showing the tape aligned at approximately the 29 mm mark.\n  • The image is well-lit, with the focus on the tape and the cutout.\n\nTechnical Details :\n  • The tape measure displays metric units (millimeters), with the 29 mm mark aligned with the inner edge of the cutout.\n  • The metal hook of the tape measure is visible and pressed against the left edge of the opening.\n  • The background consists of a textured, rusted metal surface.\n\nSpatial Relationships :\n  • The tape measure runs horizontally across the opening, with the measurement being taken from the inside edge to the inside edge of the cutout.\n  • The cutout is centrally positioned in the image, with the tape measure crossing its full width.\n\nAnalysis :\n  • The image provides clear visual evidence of the inside width of the cutout being 29 mm, as measured with a standard tape measure.\n  • The method shown is appropriate for obtaining inside measurements of rectangular openings in metal or similar materials. <!-- figure, from page 0 (l=0.090,t=0.603,r=0.341,b=0.804), with ID 8312fe48-1d81-45a1-9f37-761b0641ec83 -->\n\n- To measure the outside of a material (◆ Image 7):\n  - Put the hook at the outside of the material that you intend to measure.\n  - Extend the tape to the opposite site of the material and lock it. <!-- text, from page 0 (l=0.090,t=0.816,r=0.658,b=0.872), with ID 492130e4-d3c5-42ff-833d-f4d955926aab -->\n\nPage 6/10 <!-- marginalia, from page 0 (l=0.090,t=0.943,r=0.162,b=0.961), with ID 2032640a-1f29-45d1-9192-3ea14238dbfd -->\n\nversion 0.0 |  2-5-2024 <!-- marginalia, from page 0 (l=0.760,t=0.943,r=0.911,b=0.961), with ID 3700a757-d95d-479b-9777-ed7bd1a274fd -->\n\nSummary : This image is a logo featuring the letters \"HGG\" in white on a blue square background, with a stylized grey disc or ellipse containing a central white circle overlapping the lower part of the square.\n\nlogo: HGG\n\nDimensions & Layout :\n  • Blue square background.\n  • White uppercase letters \"HGG\" centered in the upper portion of the square.\n  • Large grey ellipse or disc with a central white circle, overlapping the lower part of the square and extending outside its bottom-left corner.\n\nText & Graphic Elements :\n  • Text: \"HGG\" in bold, sans-serif font.\n  • Graphic: Grey ellipse/disc with a white circular cutout.\n\nAnalysis :\n  • The logo combines bold, simple typography with a geometric shape, possibly representing a disc, lens, or abstract object, suggesting a modern or technical brand identity. <!-- figure, from page 0 (l=0.084,t=0.023,r=0.191,b=0.112), with ID 9e9f45ae-7bb5-4219-a72b-d55026ab39c3 -->\n\nFAQ RoboRail <!-- text, from page 0 (l=0.750,t=0.032,r=0.912,b=0.060), with ID 1fd44ade-5818-4958-9d68-5af6741262a7 -->\n\nMeasurement instructions <!-- text, from page 0 (l=0.209,t=0.068,r=0.516,b=0.093), with ID 0ed28f5a-400d-48ef-82eb-010207bac2aa -->\n\nSummary : This image documents the process of measuring the outside width of a metal block using a tape measure, with a specific measurement value highlighted.\n\nphoto:\nScene Overview :\n  • The main subject is a rectangular metal block with two circular holes and a central square cutout, viewed from above.\n  • A yellow tape measure is stretched horizontally across the top face of the block, with the measurement side facing up.\n  • The tape measure’s reading is clearly visible, showing a value of 10.5 mm aligned with the block’s right edge.\n  • Lighting is even, with the block and tape measure in sharp focus against a neutral background.\n\nTechnical Details :\n  • The tape measure displays both centimeter and millimeter markings, with the 10.5 mm mark aligned to the block’s edge.\n  • The block appears to be made of dark, rusted metal with visible machining marks.\n  • On-image annotation at the bottom reads: “Image 7  Outside measurement with tape measure [10,5 mm]”.\n\nSpatial Relationships :\n  • The tape measure is placed flush against the outermost faces of the block, indicating an outside measurement.\n  • The block is oriented so that the measured dimension is horizontal in the image.\n\nAnalysis :\n  • The image demonstrates a standard method for obtaining an outside measurement of a small metal part using a tape measure, with a precise value of 10.5 mm. The setup is clear and suitable for instructional or documentation purposes. <!-- figure, from page 0 (l=0.091,t=0.121,r=0.339,b=0.309), with ID 490dc20e-8eb5-46dd-a72b-e62975345291 -->\n\n- Subsequently:\n- Read the measurement result on the tape.\n- Record the measurement result.\n- Unlock the tape. <!-- text, from page 0 (l=0.088,t=0.322,r=0.444,b=0.394), with ID 2baf0882-d53e-4b4f-984e-6afa4b905b63 -->\n\nPage 7/10 <!-- marginalia, from page 0 (l=0.091,t=0.943,r=0.162,b=0.961), with ID 975f9a12-e869-4ece-a235-56862738883e -->\n\nversion 0.0 |  2-5-2024 <!-- marginalia, from page 0 (l=0.761,t=0.944,r=0.910,b=0.961), with ID e4d8d03c-42a0-4b7c-b1ea-cc1c500d2bab -->\n\nlogo: The image is a logo featuring the letters \"HGG\" in white on a blue square background, with a large, tilted, grey elliptical shape containing a white circular cutout overlapping the lower part of the square.\n\nAnalysis : \n• The logo uses a simple, bold sans-serif font for \"HGG\" to ensure clarity and recognizability.\n• The blue background conveys a sense of professionalism and trust.\n• The grey elliptical shape with a central cutout may symbolize a disc, lens, or abstract object, adding a distinctive visual element to the brand identity. <!-- figure, from page 0 (l=0.082,t=0.023,r=0.193,b=0.112), with ID 443d4c22-67ae-4f12-b8be-a8c3bdd6ec2a -->\n\nFAQ RoboRail <!-- marginalia, from page 0 (l=0.749,t=0.032,r=0.912,b=0.060), with ID 09b850a8-de2b-4178-8b69-3c3780b3f27b -->\n\nMeasurement instructions <!-- text, from page 0 (l=0.207,t=0.068,r=0.516,b=0.094), with ID da840ebf-755e-4cb9-a9a8-24b09c6cc155 -->\n\n3.  Measurements & data collection <!-- text, from page 0 (l=0.088,t=0.122,r=0.410,b=0.145), with ID 4911ff3b-0a87-44be-8704-a632e5a1a002 -->\n\n3.1   Measurements <!-- text, from page 0 (l=0.090,t=0.159,r=0.266,b=0.180), with ID ede84ccd-04b3-4f40-921c-d4577aa16fbf -->\n\nThe material that you measure must be free of burrs and slags to get accurate measurement results. <!-- text, from page 0 (l=0.090,t=0.193,r=0.842,b=0.213), with ID 4f0c01a1-9c4d-4e23-b45c-9b056dc713fe -->\n\n- If necessary, remove burrs and/or slags from the material.\n- Measure the material(s) and/or cut(s) as specified by HGG. According to the size and shape of material, use one of the tools as described in this document. <!-- text, from page 0 (l=0.089,t=0.228,r=0.892,b=0.281), with ID fbdda1a6-bf64-4cc1-a727-ff21c252f47a -->\n\n- ▶ To measure round and rectangular tubes/pipes, make sure to take the centerline distance (◆ Image 8). This is the distance related to the exact center of the material. <!-- text, from page 0 (l=0.088,t=0.296,r=0.887,b=0.333), with ID d58622c2-3bc9-4a60-abc4-7c55e7459a50 -->\n\nSummary : This illustration shows the graphical representation of the centerlines for both round and rectangular tubes or pipes, using dashed lines to indicate the center paths within the cross-sections.\n\nillustration:\n# Shapes Depicted :\n  • Left: A circle representing the cross-section of a round tube or pipe, with a dashed line forming a concentric circle inside the solid outer circle.\n  • Right: A square with rounded corners representing the cross-section of a rectangular (or square) tube or pipe, with a dashed line following the centerline path inside the solid outer square.\n\n# Line Styles :\n  • Solid blue lines outline the exterior of both the round and rectangular shapes.\n  • Dashed white lines indicate the centerlines within each shape, running parallel to the outer edges and equidistant from them.\n\n# Labels & Text :\n  • Below the images: “Image 8 Centerline of a round and rectangular tube/pipe”.\n\n# Spatial Relationships :\n  • The two shapes are horizontally aligned, with the round tube/pipe on the left and the rectangular tube/pipe on the right.\n  • Both centerlines are symmetrically placed within their respective shapes.\n\n# Analysis :\n  • The figure visually distinguishes the centerline conventions for round and rectangular tubes/pipes, using dashed lines to indicate the geometric center paths commonly referenced in technical drawings or engineering diagrams. <!-- figure, from page 0 (l=0.091,t=0.348,r=0.337,b=0.447), with ID c5e5d146-caaf-4481-8eb6-f54171d28f11 -->\n\n- ➢ To measure channels, flat bars and angles, take the longest length of the material/cut. <!-- text, from page 0 (l=0.089,t=0.460,r=0.764,b=0.481), with ID d226df14-0d23-43b5-baff-78b979d01ef7 -->\n\n3.2  Diagnostic data collection <!-- text, from page 0 (l=0.090,t=0.494,r=0.345,b=0.515), with ID 70ebac8c-3483-465d-8f1d-cbb08c65204f -->\n\nIn addition to the measurement results, HGG needs a download of relevant files. These data are necessary to examine the cause of the cutting problem. <!-- text, from page 0 (l=0.090,t=0.530,r=0.905,b=0.566), with ID a18441c5-ea50-4c0c-b409-58d02fe8b70f -->\n\n- On the screen do the procedure that follows:\n- In the **Advanced** menu: select **Generate data collection** (extension .7z).\n- In the **Description** box: enter the following information as complete as possible:\n  - the machine number; you can find this number on the type plate of the RoboRail\n  - a description of what went wrong\n  - when the problem started\n  - any other information that may be useful to HGG to solve the problem\n- In the **Additional files** box: add additional cutting files* from external applications. <!-- text, from page 0 (l=0.089,t=0.581,r=0.757,b=0.721), with ID f477a213-5dc4-4ff4-b14a-adbc5b4d5e73 -->\n\n*    Cutting files such as: ProCAM project (.pcd) / DSTV files (.dstv) / NC Data (.nc1) <!-- text, from page 0 (l=0.121,t=0.735,r=0.751,b=0.757), with ID e32de47d-cb80-422d-bc01-2e44d022ccc1 -->\n\n- Use the **Add** button and select the files with which there is a cutting problem; or\n- Drag and drop the files from and external application.\n\nSelect **Create Collection**. <!-- text, from page 0 (l=0.114,t=0.772,r=0.752,b=0.839), with ID 277d4884-9df6-4901-a673-cddf49125e5c -->\n\n- Subsequently:\n- • Take/collect one or more clear pictures of:\n  - error messages on the screen\n  - the material or cut with which there is a cutting problem <!-- text, from page 0 (l=0.090,t=0.857,r=0.576,b=0.927), with ID 72849861-a850-438b-b0ff-774263c7cf1b -->\n\nPage 8/10 <!-- marginalia, from page 0 (l=0.091,t=0.943,r=0.161,b=0.960), with ID e2044af2-b5f7-499c-b779-2416d0738c56 -->\n\nversion 0.0 | 2-5-2024 <!-- marginalia, from page 0 (l=0.762,t=0.944,r=0.909,b=0.960), with ID b32cd1b2-2ea0-494c-a616-9b833a3475b6 -->\n\nlogo: The image is a logo featuring the letters \"HGG\" in white on a blue square background, with a large, tilted, grey elliptical shape containing a white circular cutout overlapping the lower part of the square.\n\nAnalysis : \n• The logo uses a simple, bold colour scheme (blue, white, grey) and geometric shapes to create a modern, professional appearance.\n• The elliptical shape with a central cutout may suggest a disc or orbital motif, possibly referencing technology, science, or engineering themes. <!-- figure, from page 0 (l=0.082,t=0.023,r=0.193,b=0.112), with ID a6f17183-3bd2-4a76-98d6-4f2772c9d6d8 -->\n\nFAQ RoboRail <!-- text, from page 0 (l=0.750,t=0.031,r=0.912,b=0.060), with ID da368c4a-25e1-43ef-8b4d-75992cf299d2 -->\n\nMeasurement instructions <!-- text, from page 0 (l=0.208,t=0.068,r=0.519,b=0.095), with ID acf15768-7baf-422f-a088-d0b680573e53 -->\n\n-  Collect drawings and/or design files of the material with which there is a cutting problem.\n-  Make an even more extensive description of the cutting problem, if applicable. <!-- text, from page 0 (l=0.087,t=0.122,r=0.794,b=0.161), with ID 7ce7910f-cd5c-457a-987e-2b857c8380d7 -->\n\n*Now you are ready to send the downloaded and collected files to HGG. You can do this in several ways:*\n-  *Use an FTP server.*\n-  *Use a free File Transfer Protocol server. HGG recommends to use WeTransfer ([https://wetransfer.com/](https://wetransfer.com/)).* <!-- text, from page 0 (l=0.087,t=0.174,r=0.890,b=0.230), with ID 7e266e70-2b7b-44d9-afa5-d01df4520c59 -->\n\nSummary : This instructional figure provides step-by-step guidance for uploading files or folders and submitting them via an online form to the email address service@hgg.nl, including required fields and actions.\n\nflowchart:\nNodes :\n  • Upload files (rectangle) — with options to \"Or select a folder\"\n  • Email to (input field)\n  • Your email (input field)\n  • Title (input field)\n  • Message (input field)\n  • Transfer (button)\n  • Instructions (text nodes): \n    – Select + and add the collected files; or select a folder\n    – Enter service@hgg.nl\n    – Enter your own email address\n    – Enter your machine number\n    – Enter a short message or the name of your contact person at HGG\n    – Select Transfer\n\nConnectors :\n  • Sequential flow from uploading files/folder → filling out fields (email to, your email, title, message) → clicking Transfer.\n  • Instructional arrows (bulleted list) correspond to each step in the form.\n\nLayout :\n  • Left: vertical form with input fields and upload options.\n  • Right: bulleted step-by-step instructions, each with a left-pointing arrow indicating correspondence to the form fields.\n\nAnalysis :\n  • The figure clearly maps each form field to a specific instruction, ensuring users provide all necessary information for file transfer.\n  • The process is linear and unbranched, minimizing user confusion.\n  • The use of arrows and bolded keywords (e.g., Transfer) highlights required actions and fields. <!-- figure, from page 0 (l=0.119,t=0.241,r=0.873,b=0.460), with ID f90a96c4-6b0c-4335-94cd-b6050f00c8f3 -->\n\nPlease do not *not* send your files by email, because:\n-  most email firewalls will block unrecognized file formats\n-  most emails have a data limit of 10 MB or 15 MB <!-- text, from page 0 (l=0.118,t=0.471,r=0.574,b=0.525), with ID 531627e1-7747-46bd-834e-02d10f5e075f -->\n\n- Send the collected file to the HGG technical service department in the preferred way. <!-- text, from page 0 (l=0.089,t=0.540,r=0.758,b=0.560), with ID 576332c8-51fa-4627-bab6-ad1dad89d34f -->\n\nPage 9/10 <!-- marginalia, from page 0 (l=0.091,t=0.943,r=0.161,b=0.961), with ID de8aa665-9903-40f1-8609-f70bae3b5b49 -->\n\nversion 0.0 |  2-5-2024 <!-- marginalia, from page 0 (l=0.761,t=0.944,r=0.910,b=0.961), with ID 17c8d634-504f-44de-8e0f-ef569d5ce5e4 -->\n\nSummary : This is a logo featuring the letters \"HGG\" in white on a blue square background, with a stylized gray elliptical shape containing a white circle overlapping the lower portion of the square.\n\nlogo: HGG\n\nDesign Elements :\n  • Large white uppercase letters \"HGG\" centered within a solid blue square.\n  • A gray elliptical shape with a white circular cutout overlaps the lower part of the blue square, extending outside the square's bottom edge.\n  • No additional text, tagline, or company name visible.\n\nDimensions & Placement :\n  • Blue square occupies the majority of the image area.\n  • Elliptical shape is positioned diagonally, with its center below the \"G\" and its left edge extending beyond the square.\n\nAnalysis :\n  • The logo uses a simple, modern design with a strong color contrast (blue, white, gray).\n  • The elliptical shape may suggest motion, technology, or a stylized object, but no explicit meaning is provided in the image. <!-- figure, from page 0 (l=0.084,t=0.023,r=0.192,b=0.113), with ID b3533ce7-71e0-4030-a260-62e58b99d3db -->\n\n**FAQ** RoboRail <!-- text, from page 0 (l=0.750,t=0.033,r=0.912,b=0.060), with ID 6beb4da7-b234-44fe-96e8-98cd0c9e0a43 -->\n\nMeasurement instructions\n___ <!-- text, from page 0 (l=0.207,t=0.068,r=0.520,b=0.097), with ID 2bf76b7e-c0e9-481e-b3e7-ab90baef18d1 -->\n\nSummary : This illustration shows five common metal profile shapes, each represented by a blue outline and labeled with its corresponding name.\n\nillustration:\n# Metal Profile Shapes :\n  • Round tube/pipe: Depicted as a blue-outlined circle.\n  • Rectangular tube: Depicted as a blue-outlined rectangle with rounded corners.\n  • Channel: Depicted as a blue-outlined \"C\" shape.\n  • Flat bar: Depicted as a blue vertical rectangle.\n  • Angle: Depicted as a blue-outlined \"L\" shape.\n\n# Labels :\n  • Each shape is labeled below with its name: \"Round tube/pipe\", \"Rectangular tube\", \"Channel\", \"Flat bar\", and \"Angle\".\n\n# Design Encodings :\n  • All shapes are rendered in a consistent blue color.\n  • Simple, schematic representations with no additional dimensions or measurements.\n\n# Layout :\n  • Shapes are arranged horizontally in a single row, each with its label directly beneath.\n\nAnalysis :\n  • The illustration provides a clear visual reference for identifying and distinguishing between five standard metal profile cross-sections, useful for engineering, construction, or manufacturing contexts. <!-- figure, from page 0 (l=0.083,t=0.120,r=0.863,b=0.239), with ID 3dbf6c14-bca2-4a40-9cce-f4770844721f -->\n\nPage 10/10 <!-- marginalia, from page 0 (l=0.088,t=0.942,r=0.173,b=0.962), with ID af5760a2-114e-4d99-b0d2-914a7e32292c -->\n\nversion 0.0 |  2-5-2024 <!-- marginalia, from page 0 (l=0.758,t=0.943,r=0.912,b=0.962), with ID cf10626a-c92d-4fde-9a89-9e41074d19c7 -->",
+  "chunks": [
+    {
+      "text": "logo: HGG\n\nSummary : This image is a logo consisting of the letters \"HGG\" in white on a blue square background, with a stylized grey elliptical disc featuring a central white circle overlaid at the bottom right.\n\nDesign Elements :\n  • The letters \"HGG\" are uppercase, bold, and centered within a solid blue square.\n  • A large, light grey ellipse with a white circular cutout is positioned diagonally, partially overlapping the lower right of the blue square.\n  • The overall composition is geometric and modern, with a limited palette of blue, white, and grey.\n\nDimensions & Placement :\n  • Blue square occupies the majority of the image area.\n  • Elliptical disc is tilted and overlaps the lower right corner of the square, extending beyond its boundary.\n\nAnalysis : \n  • The logo uses a clean, sans-serif typeface and simple geometric shapes to convey a modern, professional identity. The elliptical disc may suggest motion, focus, or a technological theme.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08351810276508331,
+            "t": 0.022992275655269623,
+            "r": 0.1921321004629135,
+            "b": 0.11207156628370285
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "e10b0576-2aad-4f3a-8f2f-97b066dba9e7"
+    },
+    {
+      "text": "**FAQ** RoboRail",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.750715970993042,
+            "t": 0.031781941652297974,
+            "r": 0.9113816022872925,
+            "b": 0.059693843126297
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "d01f330c-e11d-4740-a1f4-85153d8dea76"
+    },
+    {
+      "text": "Measurement instructions",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.2096576690673828,
+            "t": 0.06812267750501633,
+            "r": 0.515941858291626,
+            "b": 0.0929889902472496
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "3945b058-c49f-4f43-9724-006560309cbd"
+    },
+    {
+      "text": "Table of contents\n\n1.  Introduction ..................................................................................................................................................2\n    1.1    Text indicators .................................................................................................................................2\n    1.2    Remote control | screen.............................................................................................................2\n    1.3    Responsible persons ..................................................................................................................2\n    1.4    Related documents .....................................................................................................................2\n    1.5    Safety .............................................................................................................................................2\n2.  Tools.............................................................................................................................................................3\n    2.1    Caliper.............................................................................................................................................3\n    2.2    Protractor.......................................................................................................................................5\n    2.3    Tape measure ...............................................................................................................................5\n3.  Measurements & data collection........................................................................................................8\n    3.1    Measurements .............................................................................................................................8\n    3.2    Diagnostic data collection .........................................................................................................8",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08643209934234619,
+            "t": 0.12309607863426208,
+            "r": 0.9152709245681763,
+            "b": 0.47704216837882996
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "9c85026e-9530-4003-9b8b-2033df2ff992"
+    },
+    {
+      "text": "Page 1/10",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.09051457792520523,
+            "t": 0.9427906274795532,
+            "r": 0.16193422675132751,
+            "b": 0.9611581563949585
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "622151f0-1112-4f47-afc9-ce98812d7bc1"
+    },
+    {
+      "text": "version 0.0 |  2-5-2024",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7611082792282104,
+            "t": 0.9436135292053223,
+            "r": 0.9097720384597778,
+            "b": 0.9610744714736938
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "d52307c5-62f1-4717-9e5a-fbc7ddd38e6c"
+    },
+    {
+      "text": "logo: HGG\n\nSummary : This image is a logo consisting of the letters \"HGG\" in white on a blue square background, with a stylized gray elliptical disc featuring a central white circle overlaid at the bottom right.\n\nDesign Elements :\n  • The letters \"HGG\" are uppercase, bold, and centered within a solid blue square.\n  • A large, light gray ellipse with a white circular cutout is positioned diagonally, overlapping the lower right portion of the blue square.\n  • The overall color palette is blue, white, and gray.\n\nDimensions & Placement :\n  • The blue square forms the main background.\n  • The ellipse is oriented diagonally from lower left to upper right, with its center near the bottom right of the square.\n\nAnalysis : \n  • The logo is simple and modern, with the elliptical disc possibly representing a stylized object or concept relevant to the brand \"HGG\". The use of blue and gray suggests a professional or corporate identity.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08250268548727036,
+            "t": 0.022875595837831497,
+            "r": 0.1928958296775818,
+            "b": 0.11163653433322906
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "c5225b39-edb4-46f1-b622-e796dd6f2b81"
+    },
+    {
+      "text": "FAQ RoboRail",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7491204142570496,
+            "t": 0.03117525577545166,
+            "r": 0.9120742678642273,
+            "b": 0.060078926384449005
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "5e62a1d9-17a5-4f59-bbc9-b46efb465d3d"
+    },
+    {
+      "text": "Measurement instructions",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.20755137503147125,
+            "t": 0.06755460053682327,
+            "r": 0.5173481106758118,
+            "b": 0.0940016433596611
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "6c557c52-1bb8-46a8-a193-afc088dffea8"
+    },
+    {
+      "text": "1.  **Introduction**\n\nIf you have problems with the cutting quality of the RoboRail machine, the technical service department of HGG may ask you to measure specific material and/or cuts. With the measurement results, together with a data collection of the machine, they can provide you targeted help to solve the problem.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08727133274078369,
+            "t": 0.12271609902381897,
+            "r": 0.8929598927497864,
+            "b": 0.21426549553871155
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "e1fe8e72-8d3a-4a7c-8203-83bbab421d52"
+    },
+    {
+      "text": "This document describes the instructions to measure cuts in different shapes of metal profiles (refer to the images on page 10).",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08788502216339111,
+            "t": 0.2260512113571167,
+            "r": 0.8901995420455933,
+            "b": 0.2664474844932556
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "378996ed-3fbc-46ec-9e29-eaeba7b6bde4"
+    },
+    {
+      "text": "1.1  Text indicators\n\nIn this document:\n- Bullet points:  ▪  describe the steps to perform\n- Bullet points:  ➢  describe additional points of attention for use of the specific measurement tool\n- Bullet points:  ◆  refer to an image\n- _Text written in italics_:  gives an additional explanation or instruction\n- **Text written in bold**:  refers to instructions on the screen of the remote control",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.0871993899345398,
+            "t": 0.27946731448173523,
+            "r": 0.9023637771606445,
+            "b": 0.4220978915691376
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "83e46179-2f90-4871-a96a-b215b7c982f4"
+    },
+    {
+      "text": "1.2   Remote control | screen\n\nYou must use the remote control to download a data collection for diagnostic purposes. This is the screen (on an adjustable arm) on the control unit.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08727490901947021,
+            "t": 0.4341849982738495,
+            "r": 0.9073285460472107,
+            "b": 0.5070639252662659
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "e31049d7-f69b-479a-a34b-3bb59ada7a0c"
+    },
+    {
+      "text": "1.3 Responsible persons\n\nThe measurement procedures that are written in this document are reserved for operators, mechanics and authorised persons.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08836138248443604,
+            "t": 0.5205522775650024,
+            "r": 0.8920003175735474,
+            "b": 0.5914217233657837
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "ef5aaee1-3eaf-4262-8233-985b394aac43"
+    },
+    {
+      "text": "1.4  Related documents\n\n- RoboRail operator’s manual\n- FAQ RoboRail Calibration\n- FAQ RoboRail FAT\n- schematics, as appropriate\n- parts lists\n- components supplier instruction handbooks\n- documents, drawings, data sheets and declarations",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08835265040397644,
+            "t": 0.6062968969345093,
+            "r": 0.5409775972366333,
+            "b": 0.7658693790435791
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "4c60800e-4c84-4878-bc91-d9d27b683b3a"
+    },
+    {
+      "text": "You can find these documents on the Internet Customer Portal.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08962379395961761,
+            "t": 0.7789300084114075,
+            "r": 0.5659113526344299,
+            "b": 0.798845112323761
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "430a4a05-2023-44b8-8907-ecb98bd20b32"
+    },
+    {
+      "text": "Summary : This instructional figure communicates the requirement to wear specific personal protective equipment (PPE) when working with a machine, using both icons and text.\n\nillustration:\n# PPE Requirements :\n  • Three circular icons, each with a white pictogram on a dark blue background.\n  • First icon: safety boots.\n  • Second icon: protective gloves.\n  • Third icon: safety glasses.\n\n# Instructional Text :\n  • \"Wear personal protective equipment (PPE) when you work with the machine.\"\n\n# Spatial Relationships :\n  • Icons are arranged horizontally, left to right, preceding the instructional text.\n  • Text is aligned to the right of the icons.\n\nAnalysis :\n  • The figure visually reinforces the need for safety boots, gloves, and glasses, ensuring clear communication of essential PPE for machine operation.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08894467353820801,
+            "t": 0.812364935874939,
+            "r": 0.8498380780220032,
+            "b": 0.9066901206970215
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "108fffac-046f-4836-90c8-291f771b73f5"
+    },
+    {
+      "text": "Page 2/10",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.09057590365409851,
+            "t": 0.942476212978363,
+            "r": 0.161126047372818,
+            "b": 0.9608405232429504
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "9f29d106-304a-4456-abdc-1d201c70ddbb"
+    },
+    {
+      "text": "version 0.0 |  2-5-2024",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7610401511192322,
+            "t": 0.9435213208198547,
+            "r": 0.9098326563835144,
+            "b": 0.9610875248908997
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "d0329e4c-bade-4038-8054-eccf43209244"
+    },
+    {
+      "text": "logo: HGG\n\nVisible Text and Design :\n  • The logo consists of the letters \"HGG\" in bold, white, sans-serif font.\n  • The text is centered within a solid blue square background.\n  • A large, light grey, elliptical disc with a central circular cutout overlaps the lower right portion of the blue square, partially covering the letters \"G\" and \"G\".\n\nDimensions and Placement :\n  • The blue square forms the main background.\n  • The elliptical disc is oriented diagonally from lower left to upper right, with its center near the bottom right quadrant of the square.\n\nAnalysis :\n  • The logo uses a simple, modern design with high contrast between the white text and blue background.\n  • The elliptical disc may symbolize a disc, lens, or abstract object, but no explicit meaning is conveyed in the image alone.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.0814964771270752,
+            "t": 0.022804632782936096,
+            "r": 0.19321075081825256,
+            "b": 0.11225022375583649
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "041d426a-c4e9-4ad5-9b9c-80e5f40de471"
+    },
+    {
+      "text": "**FAQ** RoboRail",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7493371367454529,
+            "t": 0.03153452277183533,
+            "r": 0.9119442105293274,
+            "b": 0.06021912395954132
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "60b439b7-9db9-49bc-9931-e6cd0ba6e63c"
+    },
+    {
+      "text": "Measurement instructions",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.20701174437999725,
+            "t": 0.06797710806131363,
+            "r": 0.5175455212593079,
+            "b": 0.09427496045827866
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "1ae1080e-6155-4f9b-9d51-1f557e8cd61b"
+    },
+    {
+      "text": "- inline figure: yellow triangle with black exclamation mark (warning symbol)\n\nMake sure to remain at a safe distance from moving parts of the machine. This also applies to persons who enter the work area.\nObey the safety instructions as written in the operator’s manual of the RoboRail.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08889570832252502,
+            "t": 0.1231776773929596,
+            "r": 0.8976328372955322,
+            "b": 0.1880074143409729
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "b8b45b59-3047-49c2-8ce5-bdb666d6aab3"
+    },
+    {
+      "text": "2.  Tools",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08971909433603287,
+            "t": 0.20433960855007172,
+            "r": 0.18142259120941162,
+            "b": 0.22507040202617645
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "0560f3d5-f3a2-4c4e-92ce-caed6b7ad0a9"
+    },
+    {
+      "text": "Depending on the size/type of the material/cut, you need one of the following measurement tools.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08915737271308899,
+            "t": 0.2401258647441864,
+            "r": 0.8296058177947998,
+            "b": 0.2617351710796356
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "dfddb459-2220-4242-bbe4-2ee73781666a"
+    },
+    {
+      "text": "- 2.1   Caliper\n\nA caliper is an instrument that you use to measure:\n- the distance between two opposite sides of a material or cut\n- the inner diameter of a material or cut\n- the outer diameter of a material",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08804221451282501,
+            "t": 0.2767409086227417,
+            "r": 0.5793726444244385,
+            "b": 0.38407444953918457
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "73efc6fe-4aa6-4828-9277-e8bed52c45b1"
+    },
+    {
+      "text": "It is applicable to measure cutting sizes and material with a maximum length of 300 mm (12\").",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08936691284179688,
+            "t": 0.39804020524024963,
+            "r": 0.7949361205101013,
+            "b": 0.42000189423561096
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "0c347044-1b5d-4ea5-bad1-17c9e04b4a83"
+    },
+    {
+      "text": "Summary : This figure compares digital and analog calipers as measurement tools, showing images of each and specifying the preferred and alternative options along with their rated accuracy.\n\nphoto:  \n# Digital and Analog Caliper Comparison :\n\nPreferred Tool :  \n  • Digital caliper image shown in the top row.  \n  • Labeled as \"Preferred tool: digital\".  \n  • Rated accuracy specified as 0.1 mm (0.004”).\n\nAlternative Tool :  \n  • Analog caliper image shown in the second row.  \n  • Labeled as \"Alternative tool: analog\".\n\nTechnical Details :  \n  • Both calipers are depicted in side profile, showing the measurement jaws and scale/readout.  \n  • The digital caliper features an electronic display, while the analog caliper has a vernier scale.  \n  • Caption below images: \"Images: examples of a digital and analog caliper\".\n\nSpatial Relationships :  \n  • Digital caliper is positioned above the analog caliper in a two-row layout.  \n  • Text describing accuracy is aligned with the digital caliper.\n\nAnalysis :  \n  • The figure visually emphasizes the digital caliper as the preferred tool due to its specified accuracy, while the analog caliper is presented as an alternative.  \n  • The side-by-side comparison highlights the difference in readout mechanisms (digital vs. analog) and supports tool selection based on accuracy requirements.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.0895894467830658,
+            "t": 0.43149811029434204,
+            "r": 0.9189116954803467,
+            "b": 0.6049229502677917
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "dd4a24d1-60e9-4932-8417-96ab193f6aa4"
+    },
+    {
+      "text": "How to use a caliper",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.09058232605457306,
+            "t": 0.6215192079544067,
+            "r": 0.256650447845459,
+            "b": 0.6403988599777222
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "f0d282c6-c21f-463c-93a5-0b7874c992f4"
+    },
+    {
+      "text": "- ➤ If you use a digital caliper, also refer to the user manual of your specific type.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08980834484100342,
+            "t": 0.6557555198669434,
+            "r": 0.6966127753257751,
+            "b": 0.6776890754699707
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "1d1ff5d6-c295-4beb-841a-d5627875a5bb"
+    },
+    {
+      "text": "Summary : This is a labeled diagram of a digital caliper, showing all major components and their functions for measurement tasks.\n\nillustration:\n# Main Components :\n  • Internal jaws: used for measuring the internal dimensions of objects.\n  • External jaws: used for measuring the external dimensions of objects.\n  • Metric/inch button: toggles the measurement units between metric and inch.\n  • Locking screw: secures the sliding scale in place to hold a measurement.\n  • LCD display: digital screen showing the current measurement value.\n  • Scale: the main ruler-like part of the caliper, marked with measurement graduations.\n  • Power on/off: button to turn the caliper on or off.\n  • Zero setting: button to reset the measurement to zero at any position.\n  • Thumb wheel: used to smoothly slide the jaws for precise adjustment.\n  • Depth measuring blade: thin blade extending from the end, used for measuring depths.\n\n# Labels and Layout :\n  • Each component is clearly labeled with a red arrow pointing to its location on the caliper.\n  • The LCD display shows a sample reading of \"20.14 mm\".\n  • The diagram is oriented with the jaws on the left and the depth blade on the right.\n\n# Analysis :\n  • The diagram provides a comprehensive overview of a digital caliper's structure and controls, making it easy to identify each part and understand its function. The clear labeling supports quick reference for users learning to operate or identify parts of the tool.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.09356661140918732,
+            "t": 0.6940262913703918,
+            "r": 0.5066176652908325,
+            "b": 0.823280394077301
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "60a199ed-222e-4a29-b94f-2ea18cfe1532"
+    },
+    {
+      "text": "Summary : This labeled illustration shows the main parts and measurement scales of a vernier caliper, a precision measuring instrument used for internal, external, and depth measurements.\n\nillustration:\n# Main Components :\n  • Internal jaws: used for measuring the internal diameter of objects.\n  • External jaws: used for measuring the external diameter or width of objects.\n  • Locking screw: secures the movable jaw in place to maintain a measurement.\n  • Depth measuring blade: extends from the end of the caliper for measuring depths.\n\n# Measurement Scales :\n  • Imperial scale: marked in inches for measurements in the imperial system.\n  • Metric scale: marked in millimeters for measurements in the metric system.\n\n# Layout & Labels :\n  • All major parts are clearly labeled with arrows pointing to their respective locations on the caliper.\n  • The illustration is a side view, showing the full length of the caliper and its sliding mechanism.\n\n# Analysis :\n  • The figure provides a comprehensive overview of a vernier caliper’s structure and function, highlighting its dual-scale capability and multiple measurement features. The clear labeling supports easy identification and understanding of each component’s purpose.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.5095648765563965,
+            "t": 0.6945162415504456,
+            "r": 0.9175757169723511,
+            "b": 0.8227946162223816
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "62d80225-5831-468f-950d-14a939057769"
+    },
+    {
+      "text": "- Make sure that you use a caliper of an appropriate length.\n- Use the locking screw to lock the position of the jaws.\n- Digital caliper: use the thumb wheel for fine adjustment of the jaws.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08843722939491272,
+            "t": 0.8398939967155457,
+            "r": 0.6339473724365234,
+            "b": 0.8964899182319641
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "6ac76f11-56f0-4b1b-a8f6-a99e0aa361fe"
+    },
+    {
+      "text": "Page 3/10",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.09071944653987885,
+            "t": 0.9423840045928955,
+            "r": 0.16143085062503815,
+            "b": 0.9612513780593872
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "cafcb5b8-207e-4268-bd37-25cf0b4f1be2"
+    },
+    {
+      "text": "version 0.0 |  2-5-2024",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7614409923553467,
+            "t": 0.9438359141349792,
+            "r": 0.9096294641494751,
+            "b": 0.960792601108551
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "85f5ce40-7cb0-4930-9837-d803d385df0e"
+    },
+    {
+      "text": "logo: HGG\n\nSummary : This image is a logo consisting of the letters \"HGG\" in white on a blue square background, with a stylized grey elliptical shape containing a white circle overlapping the lower part of the square.\n\nDesign Elements :\n  • The letters \"HGG\" are uppercase, bold, and centered within a solid blue square.\n  • A large, light grey ellipse with a white circular cutout overlaps the lower right portion of the blue square, extending beyond its boundaries.\n  • The overall composition is geometric and modern, with a limited palette of blue, grey, and white.\n\nDimensions & Placement :\n  • Blue square occupies the upper portion, with the ellipse partially outside the square's lower right.\n  • No additional text, taglines, or company names are present.\n\nAnalysis : \n  • The logo uses a simple, bold design with a strong color contrast to create a memorable visual identity. The elliptical shape may suggest motion or a dynamic element, but no explicit meaning is conveyed beyond the stylized initials \"HGG\".",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08240000903606415,
+            "t": 0.023186415433883667,
+            "r": 0.1927417665719986,
+            "b": 0.11212556064128876
+          },
+          "page": 3
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "18862007-4b9d-45ac-89d9-65546228e2b7"
+    },
+    {
+      "text": "**FAQ** RoboRail",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7498735189437866,
+            "t": 0.031832315027713776,
+            "r": 0.9117625951766968,
+            "b": 0.05979641526937485
+          },
+          "page": 3
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "f8b69a5f-7b5f-46f4-9686-4ee46d363165"
+    },
+    {
+      "text": "Measurement instructions",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.2077932506799698,
+            "t": 0.06809742003679276,
+            "r": 0.5165047645568848,
+            "b": 0.09457794576883316
+          },
+          "page": 3
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "0417a014-8f00-45c9-8f08-2821836099a9"
+    },
+    {
+      "text": "- To measure the inside of a material or cut (♦ Image 1):\n  - Put the internal jaws inside the material that you intend to measure. Extend the jaws to touch the material and lock them.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08756318688392639,
+            "t": 0.12238798290491104,
+            "r": 0.8539460897445679,
+            "b": 0.17727722227573395
+          },
+          "page": 3
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "cc0cdd60-f414-4c9a-8ec5-c18210dbb82c"
+    },
+    {
+      "text": "Summary : This photograph shows the use of a digital caliper to measure the inside width of a metal object, with the digital display reading 30.06 mm.\n\nphoto:\nScene Overview :\n  • Main subject is a digital caliper being used to take an inside measurement of a rectangular metal object.\n  • The caliper is held by a left hand, with the jaws inserted into the inner gap of the object.\n  • The digital display is clearly visible and reads \"30.06 mm\".\n  • The background is a neutral surface, possibly a workbench or table.\n\nTechnical Details :\n  • The caliper is a digital model, with a display showing the measurement in millimeters.\n  • The measured value is 30.06 mm, as shown on the display and confirmed in the caption.\n  • The caliper's scale and adjustment wheel are visible.\n  • The metal object appears to be rusted or corroded, with a rough surface texture.\n\nSpatial Relationships :\n  • The caliper is oriented horizontally, with the jaws spanning the inner width of the metal object.\n  • The hand holding the caliper is in the lower left of the image, while the object is in the upper right.\n  • The digital display is centrally positioned for clear visibility.\n\nAnalysis :\n  • The image demonstrates the correct use of a digital caliper for inside measurements, with a precise reading of 30.06 mm.\n  • The clear display and hand positioning suggest a focus on measurement accuracy and technique.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.09017109125852585,
+            "t": 0.1902897208929062,
+            "r": 0.338703989982605,
+            "b": 0.4800732135772705
+          },
+          "page": 3
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "19580db6-77e7-4b2a-8037-a4d619c05e14"
+    },
+    {
+      "text": "To measure the outside of a material (◆ Image 2 | ◆ Image 3):\n- Put the external jaws around the material that you intend to measure. Close the jaws and lock them.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08930081129074097,
+            "t": 0.49311041831970215,
+            "r": 0.8721587657928467,
+            "b": 0.5302654504776001
+          },
+          "page": 3
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "46b4646e-a8d0-4127-b54c-d183c1c880b0"
+    },
+    {
+      "text": "Summary : This figure shows two photographs of a digital caliper being used to measure the outside dimensions of a rusted metal bracket, with the measured values displayed on the caliper screens and annotated below each image.\n\nphoto:\nScene Overview :\n  • Two side-by-side close-up photographs of a hand holding a digital caliper measuring the outside dimensions of a rusted metal bracket.\n  • The left image is labeled \"Image 2\" and the right image is labeled \"Image 3\".\n  • Both images are taken from an oblique angle, showing the caliper jaws in contact with the bracket and the digital display facing the camera.\n  • The background is a light-colored surface, possibly a workbench or sheet of paper.\n\nTechnical Details :\n  • The digital caliper display in Image 2 reads \"35.51 mm\".\n  • The digital caliper display in Image 3 reads \"100.51 mm\".\n  • Each image is annotated below with the following text:\n    – Image 2: \"Outside measurement [digital caliper | 35,51 mm]\"\n    – Image 3: \"Outside measurement [digital caliper | 100,51 mm]\"\n  • The caliper is a standard digital model with a metallic finish and a thumb wheel for adjustment.\n\nSpatial Relationships :\n  • In both images, the caliper is held in the foreground, with the bracket positioned between the jaws.\n  • The left image (Image 2) shows a smaller dimension being measured compared to the right image (Image 3), as indicated by the caliper readings and the visible jaw opening.\n  • The hand holding the caliper is visible in the lower part of each image, providing scale.\n\nAnalysis :\n  • The photographs document two different outside measurements of the same or similar metal bracket, with the measured values clearly displayed and annotated.\n  • The use of a digital caliper ensures precise measurement, and the images serve as visual evidence of the recorded dimensions (35.51 mm and 100.51 mm).\n  • The rust and wear on the bracket are visible, indicating it is likely a used or aged component.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.0893365740776062,
+            "t": 0.541496992111206,
+            "r": 0.5776163339614868,
+            "b": 0.8319792747497559
+          },
+          "page": 3
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "2dc5a84f-1453-48ee-a0b8-fa280b5016a3"
+    },
+    {
+      "text": "- Subsequently:\n- Read the measurement result on the display (digital caliper) or scale (analog caliper).\n- Record the measurement result.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08825969696044922,
+            "t": 0.844504177570343,
+            "r": 0.7536931037902832,
+            "b": 0.9001418948173523
+          },
+          "page": 3
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "ace23737-3e4b-44fc-bb56-f522c729220a"
+    },
+    {
+      "text": "Page 4/10",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.09026747941970825,
+            "t": 0.9422075152397156,
+            "r": 0.16155418753623962,
+            "b": 0.9610878825187683
+          },
+          "page": 3
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "5455a889-0dda-4430-84af-8f1cae55ea3d"
+    },
+    {
+      "text": "version 0.0 | 2-5-2024",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7611912488937378,
+            "t": 0.9439636468887329,
+            "r": 0.9097716808319092,
+            "b": 0.9611155986785889
+          },
+          "page": 3
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "ba9ff2e6-8c45-4701-af40-dbb6ffc0bd89"
+    },
+    {
+      "text": "logo: HGG\n\nSummary : This image is a logo consisting of the letters \"HGG\" in white on a blue square background, with a stylized grey elliptical disc featuring a central white circle overlapping the lower portion of the square.\n\nDesign Elements :\n  • The letters \"HGG\" are uppercase, bold, and centered within a solid blue square.\n  • A large, light grey ellipse with a white circular cutout is positioned diagonally, overlapping the bottom right of the blue square.\n  • The overall composition is geometric and modern, with a limited palette of blue, white, and grey.\n\nDimensions & Placement :\n  • Blue square occupies the upper portion, with the ellipse extending beyond the lower edge.\n  • The ellipse is tilted, with its major axis running from lower left to upper right.\n\nAnalysis :\n  • The logo uses a clean, professional design with strong contrast between the blue background and white text.\n  • The elliptical disc may symbolize a disc, lens, or abstract object, adding a dynamic element to the otherwise static square and text.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08336301147937775,
+            "t": 0.02345253899693489,
+            "r": 0.19215570390224457,
+            "b": 0.11220809817314148
+          },
+          "page": 4
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "e2e5ade2-9776-4ebc-a855-0b5e4bd3536b"
+    },
+    {
+      "text": "**FAQ** RoboRail",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7506817579269409,
+            "t": 0.032590702176094055,
+            "r": 0.9110420942306519,
+            "b": 0.05940335988998413
+          },
+          "page": 4
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "e99e3609-75a4-4af9-920d-350eb8fbfff7"
+    },
+    {
+      "text": "Measurement instructions",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.20871156454086304,
+            "t": 0.06860323995351791,
+            "r": 0.5166068077087402,
+            "b": 0.09290792793035507
+          },
+          "page": 4
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "1f6a695f-5b34-48da-ad7a-13c95eae64f9"
+    },
+    {
+      "text": "2.2 Protractor",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.0897236242890358,
+            "t": 0.12442547082901001,
+            "r": 0.22874492406845093,
+            "b": 0.14147761464118958
+          },
+          "page": 4
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "47a81561-4c57-4aec-aa7e-9670ce9aa7d2"
+    },
+    {
+      "text": "A protractor is an instrument that you use to measure angles of the material.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08859747648239136,
+            "t": 0.15735432505607605,
+            "r": 0.670253574848175,
+            "b": 0.1773100197315216
+          },
+          "page": 4
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "d8100de4-a5dc-4388-a275-22094fffd5b0"
+    },
+    {
+      "text": "Summary : This figure presents a comparison between digital and analog protractors, highlighting the preferred and alternative tools for angle measurement, along with their rated accuracy and example images.\n\nphoto:  \n# Preferred Tool : Digital Protractor\n  • Image of a digital protractor with a digital display.\n  • Labeled as \"Preferred tool: digital\".\n  • Stated rated accuracy: 0,1° (0.1°).\n\n# Alternative Tool : Analog Protractor\n  • Image of a traditional analog protractor with a pivoting arm.\n  • Labeled as \"Alternative tool: analog\".\n\n# Caption :\n  • Text below the images: \"Images: examples of a digital and analog protractor\".\n\n# Spatial Relationships :\n  • Digital protractor image is positioned above the analog protractor image.\n  • Both images are aligned in a two-row, two-column table format, with tool descriptions on the left and images on the right.\n\n# Analysis :\n  • The figure visually contrasts digital and analog protractors, emphasizing the higher accuracy (0.1°) of the digital tool and its status as the preferred option, while the analog tool is presented as an alternative.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08918702602386475,
+            "t": 0.18905207514762878,
+            "r": 0.9202092885971069,
+            "b": 0.39374104142189026
+          },
+          "page": 4
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "2642c58c-74d4-47ad-90c1-4f8bfc503fa3"
+    },
+    {
+      "text": "- **How to use a protractor**\n- ➤ If you use a digital protractor, also refer to the user manual of your specific type.\n- ➤ Make sure that you use a protractor of an appropriate length.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.0876663327217102,
+            "t": 0.40781673789024353,
+            "r": 0.7236661314964294,
+            "b": 0.48245832324028015
+          },
+          "page": 4
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "43c643d0-4461-4346-b603-d81526900ee3"
+    },
+    {
+      "text": "- To measure the angle of a material or cut (♦ Image 4 | ♦ Image 5):\n  - Line up the vertex of the angle with the dot at the center of the protractor.\n  - Line up one side of the angle with 0° on the protractor.\n  - Read the protractor to see where the other side of the angle crosses the number scale.\n  - Record the measurement result.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08817368745803833,
+            "t": 0.49543091654777527,
+            "r": 0.7735660672187805,
+            "b": 0.5838935971260071
+          },
+          "page": 4
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "e64a406c-d5cc-45db-b53c-3b6e0043a1dd"
+    },
+    {
+      "text": "Summary : This figure presents two photographs comparing angle measurement methods using a digital protractor and an analog protractor, each with a specific measured value.\n\nphoto:\nScene Overview :\n  • The left image (Image 4) shows a close-up of a person using a digital protractor to measure the angle of a metal bracket, with the digital display reading 90.5°.\n  • The right image (Image 5) depicts a hand holding an analog protractor against a metal object, with the analog scale indicating an angle of 86°.\n  • Both images focus on the measurement process and the tools in use, with metal parts and brackets visible in the background.\n\nTechnical Details :\n  • Image 4: Digital protractor with a clear electronic display showing \"90.5°\"; the user is wearing gloves.\n  • Image 5: Analog protractor with a semicircular scale; the measured value is marked at \"86°\".\n  • No scale bars or additional measurement references are present.\n\nSpatial Relationships :\n  • In both images, the protractors are positioned at the intersection of two metal surfaces, emphasizing the angle being measured.\n  • The digital protractor is oriented horizontally, while the analog protractor is held vertically.\n\nAnalysis :\n  • The figure contrasts the use of digital and analog protractors for angle measurement, highlighting the precision and readability differences (digital: 90.5°, analog: 86°).\n  • The digital protractor provides a more precise, easily readable value, while the analog protractor requires manual reading from the scale.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.09067964553833008,
+            "t": 0.5983999967575073,
+            "r": 0.5787751078605652,
+            "b": 0.7589719295501709
+          },
+          "page": 4
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "360c9267-8461-4dfa-b78d-bc46127ea400"
+    },
+    {
+      "text": "2.3   Tape measure\n\nA tape measure is a flexible ruler that you use to measure:\n-  the distance between two opposite sites of a material or cut\n-  the length of a material or cut\n-  the size of a material",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08862835168838501,
+            "t": 0.774139940738678,
+            "r": 0.5751482248306274,
+            "b": 0.8797512650489807
+          },
+          "page": 4
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "4eb71714-aed1-4866-bc08-66d458d34456"
+    },
+    {
+      "text": "It is applicable to measure cutting sizes and material with a length of 0,3 to 12 m (1 to 40 ft).",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.09024333953857422,
+            "t": 0.8942236304283142,
+            "r": 0.7787477970123291,
+            "b": 0.9150167107582092
+          },
+          "page": 4
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "915c3858-9a61-4606-9769-8c2866b5226e"
+    },
+    {
+      "text": "Page 5/10",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.09100436419248581,
+            "t": 0.9426961541175842,
+            "r": 0.16117465496063232,
+            "b": 0.9605808854103088
+          },
+          "page": 4
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "405640d7-5e8b-43d5-8db3-852ce082dc0c"
+    },
+    {
+      "text": "version 0.0 |  2-5-2024",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7610884308815002,
+            "t": 0.9440650343894958,
+            "r": 0.9095922112464905,
+            "b": 0.9603375792503357
+          },
+          "page": 4
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "a30492ee-4704-45ef-93b0-8029a6bd3fd5"
+    },
+    {
+      "text": "logo: HGG\n\nSummary : This image is a logo consisting of the letters \"HGG\" in white on a blue square background, with a large, tilted, gray elliptical shape containing a white circular cutout overlapping the lower portion of the square.\n\nDesign Elements :\n  • The letters \"HGG\" are uppercase, bold, and centered within a solid blue square.\n  • A large, light gray ellipse with a white circular hole is overlaid diagonally across the lower part of the square, extending beyond the square's bottom left corner.\n  • The color palette is limited to blue, white, and gray.\n\nDimensions & Placement :\n  • The blue square occupies the majority of the image.\n  • The ellipse is oriented from lower left to upper right, with its center offset below the square's center.\n\nAnalysis : \n  • The logo uses a simple, modern design with geometric shapes and a limited color scheme, likely intended to convey professionalism and clarity. The elliptical element may represent a disc, lens, or abstract symbol associated with the brand \"HGG\".",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08346720039844513,
+            "t": 0.02342759072780609,
+            "r": 0.19283123314380646,
+            "b": 0.11245205998420715
+          },
+          "page": 5
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "f965ed6b-73d1-49f7-81c8-ed7956cfb5a1"
+    },
+    {
+      "text": "**FAQ** RoboRail",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7494660019874573,
+            "t": 0.03209860250353813,
+            "r": 0.9121081233024597,
+            "b": 0.06036390736699104
+          },
+          "page": 5
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "1084995c-5ddd-4aa7-99ef-ef1b9ff10ff9"
+    },
+    {
+      "text": "Measurement instructions",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.20794789493083954,
+            "t": 0.06801006942987442,
+            "r": 0.5173882246017456,
+            "b": 0.09325774759054184
+          },
+          "page": 5
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "992c5350-9991-4d6b-9a5d-92646bb18859"
+    },
+    {
+      "text": "Summary : This figure provides a visual and textual guide to the preferred tool for precise measurement, specifically a Class I retractable tape measure, including its labeled parts, regulatory tolerances, and special notes for USA users.\n\nphoto:  \nScene Overview : \n  • The main subject is a retractable tape measure, shown at an angle with the tape partially extended.\n  • The tape measure is black and yellow, with a visible thumb lock and metal hook.\n  • The image is annotated with red arrows and labels identifying the \"THUMB LOCK,\" \"TAPE,\" and \"HOOK.\"\n  • The setting is neutral, with no background distractions.\n\nTechnical Details : \n  • No scale bar or magnification is present.\n  • The image is accompanied by a caption: \"Image: example of a retractable tape measure.\"\n  • The tape measure is referenced as \"Class I according to EU Directive 2014/32/EU.\"\n  • Tolerances for Class I are specified: 0.3 mm at 2 m, 0.4 mm at 3 m, 0.6 mm at 5 m, 0.9 mm at 8 m, 1.1 mm at 10 m.\n  • For USA: maximum permitted tolerance is 1/16\" at 33 ft.\n\nSpatial Relationships : \n  • The thumb lock is located on the upper side of the tape measure.\n  • The tape extends horizontally from the body, with the hook at the end.\n  • Labels are placed with arrows pointing directly to each part.\n\nAnalysis : \n  • The figure clearly identifies the key components of a retractable tape measure and highlights the importance of using a high-accuracy tool for professional measurements.\n  • The regulatory tolerances and USA-specific note emphasize the precision required for professional use.\n  • The visual labeling aids in quick identification of functional parts for users unfamiliar with the tool.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08852854371070862,
+            "t": 0.1207762360572815,
+            "r": 0.9208621978759766,
+            "b": 0.3162992596626282
+          },
+          "page": 5
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "1a1169fa-c0cb-41b1-bbc2-e711c22c0689"
+    },
+    {
+      "text": "- **How to use a tape measure**\n- The temperature range for use of the tape measure is **20°C ± 8°C** (54 to 82°F). Do **not** exceed this range to prevent measurement errors due to shrink or expansion of the tape.\n- The hook at the end of the tape is ‘floating’ to provide both inside and outside measurements that are accurate.\n- The thumb lock is used to keep the tape in place at the desired length and stops it from automatically retracting back into its housing\n- Tape measures are available with a metric and/or an imperial scale;\n  - metric markings are displayed in mm, cm and m\n  - imperial markings are displayed in feet (F), inches and fractions of inches",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08544063568115234,
+            "t": 0.3304614722728729,
+            "r": 0.8986794352531433,
+            "b": 0.5246170163154602
+          },
+          "page": 5
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "5f9eed46-09d1-47fa-b42a-ea5aadd18454"
+    },
+    {
+      "text": "- To measure the inside of a material or cut (◆ Image 6):\n  - Put the hook at the inside of the material that you intend to measure.\n  - Extend the tape to the opposite site of the material or cut and lock it.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.0871659517288208,
+            "t": 0.5363327860832214,
+            "r": 0.6521698832511902,
+            "b": 0.593995988368988
+          },
+          "page": 5
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "ff9becb4-cdfa-44ee-ba0b-e250946e2c0e"
+    },
+    {
+      "text": "Summary : This image documents the process of measuring the inside width of a rectangular cutout in a metal surface using a tape measure, with a recorded value of 29 mm.\n\nphoto:\nScene Overview :\n  • The main subject is a close-up view of a yellow tape measure being used to measure the inside width of a rectangular hole in a dark, rusted metal surface.\n  • The tape measure is inserted into the cutout, with the metal hook flush against one edge and the tape extending to the opposite edge.\n  • The measurement reading is clearly visible, showing the tape aligned at approximately the 29 mm mark.\n  • The image is well-lit, with the focus on the tape and the cutout.\n\nTechnical Details :\n  • The tape measure displays metric units (millimeters), with the 29 mm mark aligned with the inner edge of the cutout.\n  • The metal hook of the tape measure is visible and pressed against the left edge of the opening.\n  • The background consists of a textured, rusted metal surface.\n\nSpatial Relationships :\n  • The tape measure runs horizontally across the opening, with the measurement being taken from the inside edge to the inside edge of the cutout.\n  • The cutout is centrally positioned in the image, with the tape measure crossing its full width.\n\nAnalysis :\n  • The image provides clear visual evidence of the inside width of the cutout being 29 mm, as measured with a standard tape measure.\n  • The method shown is appropriate for obtaining inside measurements of rectangular openings in metal or similar materials.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08969967067241669,
+            "t": 0.6033753156661987,
+            "r": 0.3409461975097656,
+            "b": 0.803901195526123
+          },
+          "page": 5
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "8312fe48-1d81-45a1-9f37-761b0641ec83"
+    },
+    {
+      "text": "- To measure the outside of a material (◆ Image 7):\n  - Put the hook at the outside of the material that you intend to measure.\n  - Extend the tape to the opposite site of the material and lock it.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08967551589012146,
+            "t": 0.8155792355537415,
+            "r": 0.6575053930282593,
+            "b": 0.8724107146263123
+          },
+          "page": 5
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "492130e4-d3c5-42ff-833d-f4d955926aab"
+    },
+    {
+      "text": "Page 6/10",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.0898970514535904,
+            "t": 0.9426401257514954,
+            "r": 0.1624806672334671,
+            "b": 0.9612084031105042
+          },
+          "page": 5
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "2032640a-1f29-45d1-9192-3ea14238dbfd"
+    },
+    {
+      "text": "version 0.0 |  2-5-2024",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7603110074996948,
+            "t": 0.9433578252792358,
+            "r": 0.910646915435791,
+            "b": 0.9612352848052979
+          },
+          "page": 5
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "3700a757-d95d-479b-9777-ed7bd1a274fd"
+    },
+    {
+      "text": "Summary : This image is a logo featuring the letters \"HGG\" in white on a blue square background, with a stylized grey disc or ellipse containing a central white circle overlapping the lower part of the square.\n\nlogo: HGG\n\nDimensions & Layout :\n  • Blue square background.\n  • White uppercase letters \"HGG\" centered in the upper portion of the square.\n  • Large grey ellipse or disc with a central white circle, overlapping the lower part of the square and extending outside its bottom-left corner.\n\nText & Graphic Elements :\n  • Text: \"HGG\" in bold, sans-serif font.\n  • Graphic: Grey ellipse/disc with a white circular cutout.\n\nAnalysis :\n  • The logo combines bold, simple typography with a geometric shape, possibly representing a disc, lens, or abstract object, suggesting a modern or technical brand identity.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.083924800157547,
+            "t": 0.023318514227867126,
+            "r": 0.1912975311279297,
+            "b": 0.11208628118038177
+          },
+          "page": 6
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "9e9f45ae-7bb5-4219-a72b-d55026ab39c3"
+    },
+    {
+      "text": "FAQ RoboRail",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7496054768562317,
+            "t": 0.031654272228479385,
+            "r": 0.9122410416603088,
+            "b": 0.060055915266275406
+          },
+          "page": 6
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "1fd44ade-5818-4958-9d68-5af6741262a7"
+    },
+    {
+      "text": "Measurement instructions",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.20931924879550934,
+            "t": 0.06797102838754654,
+            "r": 0.5159270167350769,
+            "b": 0.09345004707574844
+          },
+          "page": 6
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "0ed28f5a-400d-48ef-82eb-010207bac2aa"
+    },
+    {
+      "text": "Summary : This image documents the process of measuring the outside width of a metal block using a tape measure, with a specific measurement value highlighted.\n\nphoto:\nScene Overview :\n  • The main subject is a rectangular metal block with two circular holes and a central square cutout, viewed from above.\n  • A yellow tape measure is stretched horizontally across the top face of the block, with the measurement side facing up.\n  • The tape measure’s reading is clearly visible, showing a value of 10.5 mm aligned with the block’s right edge.\n  • Lighting is even, with the block and tape measure in sharp focus against a neutral background.\n\nTechnical Details :\n  • The tape measure displays both centimeter and millimeter markings, with the 10.5 mm mark aligned to the block’s edge.\n  • The block appears to be made of dark, rusted metal with visible machining marks.\n  • On-image annotation at the bottom reads: “Image 7  Outside measurement with tape measure [10,5 mm]”.\n\nSpatial Relationships :\n  • The tape measure is placed flush against the outermost faces of the block, indicating an outside measurement.\n  • The block is oriented so that the measured dimension is horizontal in the image.\n\nAnalysis :\n  • The image demonstrates a standard method for obtaining an outside measurement of a small metal part using a tape measure, with a precise value of 10.5 mm. The setup is clear and suitable for instructional or documentation purposes.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.09056124836206436,
+            "t": 0.12071745842695236,
+            "r": 0.3387075662612915,
+            "b": 0.3087517321109772
+          },
+          "page": 6
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "490dc20e-8eb5-46dd-a72b-e62975345291"
+    },
+    {
+      "text": "- Subsequently:\n- Read the measurement result on the tape.\n- Record the measurement result.\n- Unlock the tape.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08822338283061981,
+            "t": 0.32217279076576233,
+            "r": 0.4444728493690491,
+            "b": 0.39393511414527893
+          },
+          "page": 6
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "2baf0882-d53e-4b4f-984e-6afa4b905b63"
+    },
+    {
+      "text": "Page 7/10",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.09058713912963867,
+            "t": 0.9428941607475281,
+            "r": 0.16208139061927795,
+            "b": 0.9610691666603088
+          },
+          "page": 6
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "975f9a12-e869-4ece-a235-56862738883e"
+    },
+    {
+      "text": "version 0.0 |  2-5-2024",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7609605193138123,
+            "t": 0.943779706954956,
+            "r": 0.9099076390266418,
+            "b": 0.9608910083770752
+          },
+          "page": 6
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "e4d8d03c-42a0-4b7c-b1ea-cc1c500d2bab"
+    },
+    {
+      "text": "logo: The image is a logo featuring the letters \"HGG\" in white on a blue square background, with a large, tilted, grey elliptical shape containing a white circular cutout overlapping the lower part of the square.\n\nAnalysis : \n• The logo uses a simple, bold sans-serif font for \"HGG\" to ensure clarity and recognizability.\n• The blue background conveys a sense of professionalism and trust.\n• The grey elliptical shape with a central cutout may symbolize a disc, lens, or abstract object, adding a distinctive visual element to the brand identity.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08226704597473145,
+            "t": 0.02320178970694542,
+            "r": 0.19263118505477905,
+            "b": 0.11203593015670776
+          },
+          "page": 7
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "443d4c22-67ae-4f12-b8be-a8c3bdd6ec2a"
+    },
+    {
+      "text": "FAQ RoboRail",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7490081787109375,
+            "t": 0.03154230862855911,
+            "r": 0.9121191501617432,
+            "b": 0.05994994193315506
+          },
+          "page": 7
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "09b850a8-de2b-4178-8b69-3c3780b3f27b"
+    },
+    {
+      "text": "Measurement instructions",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.2070227414369583,
+            "t": 0.06801354885101318,
+            "r": 0.5159476399421692,
+            "b": 0.09362488985061646
+          },
+          "page": 7
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "da840ebf-755e-4cb9-a9a8-24b09c6cc155"
+    },
+    {
+      "text": "3.  Measurements & data collection",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08831058442592621,
+            "t": 0.12229751795530319,
+            "r": 0.41049766540527344,
+            "b": 0.1450536847114563
+          },
+          "page": 7
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "4911ff3b-0a87-44be-8704-a632e5a1a002"
+    },
+    {
+      "text": "3.1   Measurements",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08955468982458115,
+            "t": 0.15885961055755615,
+            "r": 0.26639676094055176,
+            "b": 0.1800786256790161
+          },
+          "page": 7
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "ede84ccd-04b3-4f40-921c-d4577aa16fbf"
+    },
+    {
+      "text": "The material that you measure must be free of burrs and slags to get accurate measurement results.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.0902230441570282,
+            "t": 0.1931619495153427,
+            "r": 0.8419394493103027,
+            "b": 0.21338899433612823
+          },
+          "page": 7
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "4f0c01a1-9c4d-4e23-b45c-9b056dc713fe"
+    },
+    {
+      "text": "- If necessary, remove burrs and/or slags from the material.\n- Measure the material(s) and/or cut(s) as specified by HGG. According to the size and shape of material, use one of the tools as described in this document.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08919289708137512,
+            "t": 0.22819679975509644,
+            "r": 0.8915685415267944,
+            "b": 0.2810019254684448
+          },
+          "page": 7
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "fbdda1a6-bf64-4cc1-a727-ff21c252f47a"
+    },
+    {
+      "text": "- ▶ To measure round and rectangular tubes/pipes, make sure to take the centerline distance (◆ Image 8). This is the distance related to the exact center of the material.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08837631344795227,
+            "t": 0.29590678215026855,
+            "r": 0.886967658996582,
+            "b": 0.3333735466003418
+          },
+          "page": 7
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "d58622c2-3bc9-4a60-abc4-7c55e7459a50"
+    },
+    {
+      "text": "Summary : This illustration shows the graphical representation of the centerlines for both round and rectangular tubes or pipes, using dashed lines to indicate the center paths within the cross-sections.\n\nillustration:\n# Shapes Depicted :\n  • Left: A circle representing the cross-section of a round tube or pipe, with a dashed line forming a concentric circle inside the solid outer circle.\n  • Right: A square with rounded corners representing the cross-section of a rectangular (or square) tube or pipe, with a dashed line following the centerline path inside the solid outer square.\n\n# Line Styles :\n  • Solid blue lines outline the exterior of both the round and rectangular shapes.\n  • Dashed white lines indicate the centerlines within each shape, running parallel to the outer edges and equidistant from them.\n\n# Labels & Text :\n  • Below the images: “Image 8 Centerline of a round and rectangular tube/pipe”.\n\n# Spatial Relationships :\n  • The two shapes are horizontally aligned, with the round tube/pipe on the left and the rectangular tube/pipe on the right.\n  • Both centerlines are symmetrically placed within their respective shapes.\n\n# Analysis :\n  • The figure visually distinguishes the centerline conventions for round and rectangular tubes/pipes, using dashed lines to indicate the geometric center paths commonly referenced in technical drawings or engineering diagrams.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.09146350622177124,
+            "t": 0.3479536473751068,
+            "r": 0.33676475286483765,
+            "b": 0.44689252972602844
+          },
+          "page": 7
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "c5e5d146-caaf-4481-8eb6-f54171d28f11"
+    },
+    {
+      "text": "- ➢ To measure channels, flat bars and angles, take the longest length of the material/cut.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.0894477367401123,
+            "t": 0.4598141014575958,
+            "r": 0.763559877872467,
+            "b": 0.4814096987247467
+          },
+          "page": 7
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "d226df14-0d23-43b5-baff-78b979d01ef7"
+    },
+    {
+      "text": "3.2  Diagnostic data collection",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.09013119339942932,
+            "t": 0.49433863162994385,
+            "r": 0.34505924582481384,
+            "b": 0.5148798227310181
+          },
+          "page": 7
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "70ebac8c-3483-465d-8f1d-cbb08c65204f"
+    },
+    {
+      "text": "In addition to the measurement results, HGG needs a download of relevant files. These data are necessary to examine the cause of the cutting problem.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.09048622846603394,
+            "t": 0.5301737785339355,
+            "r": 0.9049993753433228,
+            "b": 0.5655615329742432
+          },
+          "page": 7
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "a18441c5-ea50-4c0c-b409-58d02fe8b70f"
+    },
+    {
+      "text": "- On the screen do the procedure that follows:\n- In the **Advanced** menu: select **Generate data collection** (extension .7z).\n- In the **Description** box: enter the following information as complete as possible:\n  - the machine number; you can find this number on the type plate of the RoboRail\n  - a description of what went wrong\n  - when the problem started\n  - any other information that may be useful to HGG to solve the problem\n- In the **Additional files** box: add additional cutting files* from external applications.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08866345882415771,
+            "t": 0.5811765193939209,
+            "r": 0.7567150592803955,
+            "b": 0.7211838960647583
+          },
+          "page": 7
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "f477a213-5dc4-4ff4-b14a-adbc5b4d5e73"
+    },
+    {
+      "text": "*    Cutting files such as: ProCAM project (.pcd) / DSTV files (.dstv) / NC Data (.nc1)",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.12141481041908264,
+            "t": 0.7348982095718384,
+            "r": 0.7511160373687744,
+            "b": 0.7566393613815308
+          },
+          "page": 7
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "e32de47d-cb80-422d-bc01-2e44d022ccc1"
+    },
+    {
+      "text": "- Use the **Add** button and select the files with which there is a cutting problem; or\n- Drag and drop the files from and external application.\n\nSelect **Create Collection**.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.11384212970733643,
+            "t": 0.77180016040802,
+            "r": 0.7521705031394958,
+            "b": 0.839216947555542
+          },
+          "page": 7
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "277d4884-9df6-4901-a673-cddf49125e5c"
+    },
+    {
+      "text": "- Subsequently:\n- • Take/collect one or more clear pictures of:\n  - error messages on the screen\n  - the material or cut with which there is a cutting problem",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.0896560549736023,
+            "t": 0.8569176197052002,
+            "r": 0.5761224031448364,
+            "b": 0.927094578742981
+          },
+          "page": 7
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "72849861-a850-438b-b0ff-774263c7cf1b"
+    },
+    {
+      "text": "Page 8/10",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.09110955893993378,
+            "t": 0.9427042603492737,
+            "r": 0.16112013161182404,
+            "b": 0.9604993462562561
+          },
+          "page": 7
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "e2044af2-b5f7-499c-b779-2416d0738c56"
+    },
+    {
+      "text": "version 0.0 | 2-5-2024",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7617490291595459,
+            "t": 0.9442289471626282,
+            "r": 0.9091266393661499,
+            "b": 0.9604029059410095
+          },
+          "page": 7
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "b32cd1b2-2ea0-494c-a616-9b833a3475b6"
+    },
+    {
+      "text": "logo: The image is a logo featuring the letters \"HGG\" in white on a blue square background, with a large, tilted, grey elliptical shape containing a white circular cutout overlapping the lower part of the square.\n\nAnalysis : \n• The logo uses a simple, bold colour scheme (blue, white, grey) and geometric shapes to create a modern, professional appearance.\n• The elliptical shape with a central cutout may suggest a disc or orbital motif, possibly referencing technology, science, or engineering themes.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08205970376729965,
+            "t": 0.022939413785934448,
+            "r": 0.19266486167907715,
+            "b": 0.11209024488925934
+          },
+          "page": 8
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "a6f17183-3bd2-4a76-98d6-4f2772c9d6d8"
+    },
+    {
+      "text": "FAQ RoboRail",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7496767044067383,
+            "t": 0.03145331144332886,
+            "r": 0.9120781421661377,
+            "b": 0.05974750220775604
+          },
+          "page": 8
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "da368c4a-25e1-43ef-8b4d-75992cf299d2"
+    },
+    {
+      "text": "Measurement instructions",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.2081775963306427,
+            "t": 0.06823289394378662,
+            "r": 0.5189330577850342,
+            "b": 0.0949764996767044
+          },
+          "page": 8
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "acf15768-7baf-422f-a088-d0b680573e53"
+    },
+    {
+      "text": "-  Collect drawings and/or design files of the material with which there is a cutting problem.\n-  Make an even more extensive description of the cutting problem, if applicable.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08726298809051514,
+            "t": 0.12214688956737518,
+            "r": 0.794366717338562,
+            "b": 0.16062964498996735
+          },
+          "page": 8
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "7ce7910f-cd5c-457a-987e-2b857c8380d7"
+    },
+    {
+      "text": "*Now you are ready to send the downloaded and collected files to HGG. You can do this in several ways:*\n-  *Use an FTP server.*\n-  *Use a free File Transfer Protocol server. HGG recommends to use WeTransfer ([https://wetransfer.com/](https://wetransfer.com/)).*",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08742186427116394,
+            "t": 0.17375652492046356,
+            "r": 0.8900744915008545,
+            "b": 0.230056032538414
+          },
+          "page": 8
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "7e266e70-2b7b-44d9-afa5-d01df4520c59"
+    },
+    {
+      "text": "Summary : This instructional figure provides step-by-step guidance for uploading files or folders and submitting them via an online form to the email address service@hgg.nl, including required fields and actions.\n\nflowchart:\nNodes :\n  • Upload files (rectangle) — with options to \"Or select a folder\"\n  • Email to (input field)\n  • Your email (input field)\n  • Title (input field)\n  • Message (input field)\n  • Transfer (button)\n  • Instructions (text nodes): \n    – Select + and add the collected files; or select a folder\n    – Enter service@hgg.nl\n    – Enter your own email address\n    – Enter your machine number\n    – Enter a short message or the name of your contact person at HGG\n    – Select Transfer\n\nConnectors :\n  • Sequential flow from uploading files/folder → filling out fields (email to, your email, title, message) → clicking Transfer.\n  • Instructional arrows (bulleted list) correspond to each step in the form.\n\nLayout :\n  • Left: vertical form with input fields and upload options.\n  • Right: bulleted step-by-step instructions, each with a left-pointing arrow indicating correspondence to the form fields.\n\nAnalysis :\n  • The figure clearly maps each form field to a specific instruction, ensuring users provide all necessary information for file transfer.\n  • The process is linear and unbranched, minimizing user confusion.\n  • The use of arrows and bolded keywords (e.g., Transfer) highlights required actions and fields.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.11914283037185669,
+            "t": 0.2407614290714264,
+            "r": 0.8729215860366821,
+            "b": 0.4602668583393097
+          },
+          "page": 8
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "f90a96c4-6b0c-4335-94cd-b6050f00c8f3"
+    },
+    {
+      "text": "Please do not *not* send your files by email, because:\n-  most email firewalls will block unrecognized file formats\n-  most emails have a data limit of 10 MB or 15 MB",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.11824996769428253,
+            "t": 0.47085294127464294,
+            "r": 0.5740029811859131,
+            "b": 0.5248225331306458
+          },
+          "page": 8
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "531627e1-7747-46bd-834e-02d10f5e075f"
+    },
+    {
+      "text": "- Send the collected file to the HGG technical service department in the preferred way.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08933854103088379,
+            "t": 0.5397090315818787,
+            "r": 0.7580341100692749,
+            "b": 0.560448944568634
+          },
+          "page": 8
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "576332c8-51fa-4627-bab6-ad1dad89d34f"
+    },
+    {
+      "text": "Page 9/10",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.09056611359119415,
+            "t": 0.9428203105926514,
+            "r": 0.1614283174276352,
+            "b": 0.9612252712249756
+          },
+          "page": 8
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "de8aa665-9903-40f1-8609-f70bae3b5b49"
+    },
+    {
+      "text": "version 0.0 |  2-5-2024",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7607910633087158,
+            "t": 0.9435631036758423,
+            "r": 0.9099133014678955,
+            "b": 0.9610081911087036
+          },
+          "page": 8
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "17c8d634-504f-44de-8e0f-ef569d5ce5e4"
+    },
+    {
+      "text": "Summary : This is a logo featuring the letters \"HGG\" in white on a blue square background, with a stylized gray elliptical shape containing a white circle overlapping the lower portion of the square.\n\nlogo: HGG\n\nDesign Elements :\n  • Large white uppercase letters \"HGG\" centered within a solid blue square.\n  • A gray elliptical shape with a white circular cutout overlaps the lower part of the blue square, extending outside the square's bottom edge.\n  • No additional text, tagline, or company name visible.\n\nDimensions & Placement :\n  • Blue square occupies the majority of the image area.\n  • Elliptical shape is positioned diagonally, with its center below the \"G\" and its left edge extending beyond the square.\n\nAnalysis :\n  • The logo uses a simple, modern design with a strong color contrast (blue, white, gray).\n  • The elliptical shape may suggest motion, technology, or a stylized object, but no explicit meaning is provided in the image.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.0844932496547699,
+            "t": 0.023188535124063492,
+            "r": 0.1918962597846985,
+            "b": 0.11315980553627014
+          },
+          "page": 9
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "b3533ce7-71e0-4030-a260-62e58b99d3db"
+    },
+    {
+      "text": "**FAQ** RoboRail",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7502163052558899,
+            "t": 0.03253994882106781,
+            "r": 0.9115329384803772,
+            "b": 0.059974364936351776
+          },
+          "page": 9
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "6beb4da7-b234-44fe-96e8-98cd0c9e0a43"
+    },
+    {
+      "text": "Measurement instructions\n___",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.20665185153484344,
+            "t": 0.06826826184988022,
+            "r": 0.5201563239097595,
+            "b": 0.09674691408872604
+          },
+          "page": 9
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "2bf76b7e-c0e9-481e-b3e7-ab90baef18d1"
+    },
+    {
+      "text": "Summary : This illustration shows five common metal profile shapes, each represented by a blue outline and labeled with its corresponding name.\n\nillustration:\n# Metal Profile Shapes :\n  • Round tube/pipe: Depicted as a blue-outlined circle.\n  • Rectangular tube: Depicted as a blue-outlined rectangle with rounded corners.\n  • Channel: Depicted as a blue-outlined \"C\" shape.\n  • Flat bar: Depicted as a blue vertical rectangle.\n  • Angle: Depicted as a blue-outlined \"L\" shape.\n\n# Labels :\n  • Each shape is labeled below with its name: \"Round tube/pipe\", \"Rectangular tube\", \"Channel\", \"Flat bar\", and \"Angle\".\n\n# Design Encodings :\n  • All shapes are rendered in a consistent blue color.\n  • Simple, schematic representations with no additional dimensions or measurements.\n\n# Layout :\n  • Shapes are arranged horizontally in a single row, each with its label directly beneath.\n\nAnalysis :\n  • The illustration provides a clear visual reference for identifying and distinguishing between five standard metal profile cross-sections, useful for engineering, construction, or manufacturing contexts.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08330658078193665,
+            "t": 0.12031681090593338,
+            "r": 0.86260986328125,
+            "b": 0.23880258202552795
+          },
+          "page": 9
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "3dbf6c14-bca2-4a40-9cce-f4770844721f"
+    },
+    {
+      "text": "Page 10/10",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08826616406440735,
+            "t": 0.9422416090965271,
+            "r": 0.1728164553642273,
+            "b": 0.9623305201530457
+          },
+          "page": 9
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "af5760a2-114e-4d99-b0d2-914a7e32292c"
+    },
+    {
+      "text": "version 0.0 |  2-5-2024",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7584627270698547,
+            "t": 0.9427371621131897,
+            "r": 0.9121933579444885,
+            "b": 0.9623624682426453
+          },
+          "page": 9
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "cf10626a-c92d-4fde-9a89-9e41074d19c7"
+    }
+  ],
+  "extracted_schema": null,
+  "extraction_metadata": null
+}

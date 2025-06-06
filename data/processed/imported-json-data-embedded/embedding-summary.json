@@ -1,0 +1,64 @@
+{
+  "sessionId": "imported-json-data-embedded",
+  "sourceSession": "imported-json-data",
+  "embeddedAt": "2025-05-23T19:37:29.853Z",
+  "embeddingModel": "embed-english-v4.0",
+  "embeddingDimensions": 1024,
+  "totalDocuments": 7,
+  "successCount": 0,
+  "failureCount": 7,
+  "totalEmbeddings": 0,
+  "totalProcessingTimeMs": 1385,
+  "averageTimePerDoc": 197.85714285714286,
+  "documents": [
+    {
+      "filename": "doc_4_faq_roborail_chuck_alignment_calibration_v0_0_080424_2025-05-23T19-26-52-620Z.json",
+      "elements": 0,
+      "embeddings": 0,
+      "status": "failed",
+      "error": "NotFoundError\nStatus code: 404\nBody: {\n  \"message\": \"model 'embed-english-v4.0' not found, make sure the correct model ID was used and that you have access to the model.\"\n}"
+    },
+    {
+      "filename": "doc_5_faq_roborail_calibration_v0_0_290324_2025-05-23T19-26-52-620Z.json",
+      "elements": 0,
+      "embeddings": 0,
+      "status": "failed",
+      "error": "NotFoundError\nStatus code: 404\nBody: {\n  \"message\": \"model 'embed-english-v4.0' not found, make sure the correct model ID was used and that you have access to the model.\"\n}"
+    },
+    {
+      "filename": "doc_7_faq_data_collection_2025-05-23T19-26-52-621Z.json",
+      "elements": 0,
+      "embeddings": 0,
+      "status": "failed",
+      "error": "NotFoundError\nStatus code: 404\nBody: {\n  \"message\": \"model 'embed-english-v4.0' not found, make sure the correct model ID was used and that you have access to the model.\"\n}"
+    },
+    {
+      "filename": "doc_6_faq_no_communication_to_pmac_2025-05-23T19-26-52-621Z.json",
+      "elements": 0,
+      "embeddings": 0,
+      "status": "failed",
+      "error": "NotFoundError\nStatus code: 404\nBody: {\n  \"message\": \"model 'embed-english-v4.0' not found, make sure the correct model ID was used and that you have access to the model.\"\n}"
+    },
+    {
+      "filename": "doc_1_faq_roborail_measurement_v0_0_020524_2025-05-23T19-26-52-618Z.json",
+      "elements": 0,
+      "embeddings": 0,
+      "status": "failed",
+      "error": "NotFoundError\nStatus code: 404\nBody: {\n  \"message\": \"model 'embed-english-v4.0' not found, make sure the correct model ID was used and that you have access to the model.\"\n}"
+    },
+    {
+      "filename": "doc_3_confirm_the_calibration_2025-05-23T19-26-52-620Z.json",
+      "elements": 0,
+      "embeddings": 0,
+      "status": "failed",
+      "error": "NotFoundError\nStatus code: 404\nBody: {\n  \"message\": \"model 'embed-english-v4.0' not found, make sure the correct model ID was used and that you have access to the model.\"\n}"
+    },
+    {
+      "filename": "doc_2_operators_manual_roborail_v2_2_170424_2025-05-23T19-26-52-619Z.json",
+      "elements": 0,
+      "embeddings": 0,
+      "status": "failed",
+      "error": "NotFoundError\nStatus code: 404\nBody: {\n  \"message\": \"model 'embed-english-v4.0' not found, make sure the correct model ID was used and that you have access to the model.\"\n}"
+    }
+  ]
+}

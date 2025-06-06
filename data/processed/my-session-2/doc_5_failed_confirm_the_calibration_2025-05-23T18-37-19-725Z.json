@@ -1,0 +1,12 @@
+{
+  "json": {
+    "filename": "Confirm the calibration.pdf",
+    "path": "/Users/neo/Developer/vision-ragchat-app/data/pdf/Confirm the calibration.pdf",
+    "mimeType": "application/pdf",
+    "elements": [],
+    "processedAt": "2025-05-23T18:37:19.725Z",
+    "sessionId": "my-session-2",
+    "error": "No elements returned from Unstructured.io API for Confirm the calibration.pdf",
+    "processingStatus": "failed"
+  }
+}

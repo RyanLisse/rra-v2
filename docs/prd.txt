@@ -1,0 +1,164 @@
+# RAG Chat Application - Product Requirements Document
+
+## Project Overview
+
+### Vision
+Build a production-grade Retrieval Augmented Generation (RAG) chat application that enables knowledge workers to upload internal documents and query them through an intelligent chat interface with accurate, cited responses.
+
+### Core Value Proposition
+- Fast, accurate answers from internal knowledge base
+- Secure, auditable, and extensible platform
+- Modular architecture supporting multiple frontends
+- Enterprise-ready with comprehensive monitoring and testing
+
+## Target Users & Use Cases
+
+### Primary Users
+- **Knowledge Workers**: Internal teams needing secure, accurate document Q&A
+- **Administrators**: Managing document ingestion, access control, and system monitoring
+
+### Key Usage Scenarios
+1. **Document Upload & Processing**: Upload PDFs, DOCX, and other documents for semantic processing
+2. **Intelligent Chat**: Ask questions and receive contextually rich, cited answers
+3. **Document Management**: View, organize, and delete outdated documents
+4. **Conversation Management**: Save, resume, and manage chat conversations with auto-save drafts
+
+## Technical Architecture
+
+### Core Technology Stack
+- **Backend Framework & AI Orchestration**: Mastra AI (services, AI workflows, agent management)
+
+- **Database**: NeonDB (PostgreSQL with PGVector extension)
+- **ORM**: Drizzle ORM
+- **LLM**: Google Gemini 2.5 Flash
+- **Embeddings**: Cohere embed-v4.0 (multimodal)
+- **Reranking**: Cohere Rerank v3.0
+- **Document Parsing**: Custom pipeline (Mastra backend handles parsing of documents uploaded via scripts)
+- **Frontend**: Next.js 14 with App Router, Shadcn UI, Tailwind CSS, Tanstack Query
+- **Testing**: Vitest (unit/integration), DeepEval (RAG evaluation)
+- **Caching**: Multi-level (in-memory + Redis)
+
+### System Components
+
+#### Backend Services (Mastra AI)
+1. **UploadService**: Document upload handling with multipart form data
+2. **DocProcessingService**: Mastra service/workflow for parsing, chunking, embedding (handles uploads from processing scripts)
+3. **SearchService**: Hybrid search (vector + FTS) with reranking
+4. **ChatService**: Conversation management and RAG agent orchestration
+5. **DocMgmtService**: CRUD operations for document management
+6. **LLMService**: Gemini API wrapper with structured prompting
+
+#### Data Architecture
+- **NeonDB Tables**: documents, document_chunks, conversations, conversation_messages
+- **Vector Storage**: PGVector extension with HNSW indexing
+- **Object Storage**: Managed via Mastra integration or separate cloud storage for raw document files
+- **Caching Layer**: Redis + in-memory for embeddings
+
+#### AI Pipeline
+- **Document Processing**: Custom (Mastra backend) → Semantic chunking → Cohere embeddings
+- **RAG Retrieval**: Query embedding → Hybrid search → Cohere reranking → Context assembly
+- **Response Generation**: Gemini with structured prompts → Citation parsing → Follow-up generation
+
+## Functional Requirements
+
+### Document Management
+- **Upload Support**: PDF, DOCX, TXT files up to 50MB
+- **Metadata Handling**: Author, tags, department, access level
+- **Processing Pipeline**: Async processing with status tracking (queued → processing → processed → error)
+- **Semantic Chunking**: Context-aware chunking preserving document structure
+- **Multimodal Embeddings**: Text + image content via Cohere embed-v4.0
+
+### Search & Retrieval
+- **Hybrid Search**: Vector similarity + Full-text search with Reciprocal Rank Fusion (RRF)
+- **Reranking**: Cohere Rerank for relevance optimization
+- **Context Expansion**: Adjacent chunk retrieval for comprehensive context
+- **Filtering**: Document metadata, date ranges, access levels
+
+### Chat Interface
+- **Conversation Management**: Create, resume, auto-save drafts
+- **RAG Responses**: Contextual answers with inline citations
+- **Interactive Citations**: Hover cards with source details
+- **Follow-up Questions**: AI-generated conversation continuations
+- **History Pruning**: Intelligent conversation context management
+
+### Authentication & Security
+- **User Authentication**: Required for all endpoints
+- **Access Control**: User-scoped conversations and documents
+- **Secret Management**: API keys via environment variables or dedicated secrets manager
+- **Input Validation**: Server-side sanitization and validation
+
+## Technical Requirements
+
+### Performance & Scalability
+- **Response Time**: < 3 seconds for chat responses
+- **Concurrent Users**: Support 100+ simultaneous users
+- **Document Processing**: < 5 minutes for typical documents
+- **Caching**: 80%+ cache hit rate for embeddings
+
+### Quality & Testing
+- **Code Quality**: < 500 lines per file, no hardcoded secrets
+- **Test Coverage**: 80%+ with unit, integration, and RAG evaluation tests
+- **DeepEval Integration**: Semantic similarity and LLM rubric testing
+- **TDD Approach**: Test-first development for core components
+
+### Monitoring & Observability
+- **Custom Metrics**: Document processing time, embedding generation time, RAG retrieval scores, LLM response time, cache hit rates
+- **Structured Logging**: Comprehensive logging with context preservation
+- **Error Tracking**: Detailed error reporting and alerting
+- **Performance Monitoring**: Real-time metrics via Encore dashboard
+
+### Security & Compliance
+- **Data Protection**: HTTPS, input sanitization, least privilege access
+- **Secret Management**: Environment-based configuration
+- **Audit Trail**: Comprehensive logging for compliance
+- **Error Handling**: Graceful failure with user-friendly messages
+
+## Success Criteria
+
+### MVP Success Metrics
+1. **Functional Completeness**: End-to-end RAG chat flow operational
+2. **Code Quality**: All quality gates passed (linting, tests, security)
+3. **Performance**: Response times within SLA
+4. **Reliability**: 99%+ uptime for core services
+
+### User Experience Goals
+- **Accuracy**: Relevant, cited responses to user queries
+- **Usability**: Intuitive document upload and chat interface
+- **Responsiveness**: Fast, real-time chat experience
+- **Trust**: Clear source attribution and confidence indicators
+
+## Implementation Strategy
+
+### Development Approach
+- **Vertical Slices**: End-to-end feature delivery in 15 planned slices
+- **Modular Design**: Independent, reusable components
+- **Iterative Enhancement**: MVP first, then advanced features
+- **Quality Focus**: Continuous testing and code review
+
+### Deployment & Infrastructure
+- **Environment Strategy**: Local development, preview, production
+- **Resource Allocation**: Auto-scaling based on CPU/memory thresholds
+- **Configuration Management**: Environment-specific secrets and settings
+- **Monitoring Setup**: Custom metrics and alerting from day one
+
+### Risk Mitigation
+- **API Dependencies**: Graceful degradation for external service failures
+- **Data Consistency**: Transactional operations with rollback capabilities
+- **Performance**: Multi-level caching and optimization strategies
+- **Security**: Regular security reviews and dependency updates
+
+## Future Enhancements
+
+### Advanced Features
+- **Multi-language Support**: Internationalization for global teams
+- **Advanced Analytics**: Usage patterns and content insights
+- **Collaborative Features**: Shared conversations and annotations
+- **Integration APIs**: Third-party system connectivity
+
+### AI Improvements
+- **Custom Models**: Fine-tuned models for domain-specific knowledge
+- **Advanced Reasoning**: Multi-step reasoning and fact verification
+- **Feedback Learning**: User feedback integration for continuous improvement
+- **Multimodal Expansion**: Enhanced image and table understanding
+
+This PRD serves as the foundation for a comprehensive, production-ready RAG chat application that balances functionality, performance, and maintainability while providing a superior user experience for knowledge workers.

@@ -1,0 +1,73 @@
+import '@testing-library/jest-dom';
+import { vi } from 'vitest';
+
+// Mock environment variables for testing
+Object.defineProperty(process.env, 'NODE_ENV', {
+  value: 'test',
+  writable: true,
+});
+
+// Mock Next.js router
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+  useSearchParams: () => new URLSearchParams(),
+  usePathname: () => '/',
+}));
+
+// Mock next-auth
+vi.mock('next-auth/react', () => ({
+  useSession: () => ({
+    data: null,
+    status: 'unauthenticated',
+  }),
+  signIn: vi.fn(),
+  signOut: vi.fn(),
+}));
+
+// Mock AI SDK hooks for testing
+vi.mock('ai/react', () => ({
+  useChat: () => ({
+    messages: [],
+    input: '',
+    handleInputChange: vi.fn(),
+    handleSubmit: vi.fn(),
+    append: vi.fn(),
+    reload: vi.fn(),
+    stop: vi.fn(),
+    isLoading: false,
+  }),
+  useCompletion: () => ({
+    completion: '',
+    input: '',
+    handleInputChange: vi.fn(),
+    handleSubmit: vi.fn(),
+    complete: vi.fn(),
+    stop: vi.fn(),
+    isLoading: false,
+  }),
+}));
+
+// Silence console.warn during tests
+const originalWarn = console.warn;
+beforeAll(() => {
+  console.warn = (...args: any[]) => {
+    if (
+      typeof args[0] === 'string' &&
+      args[0].includes('React Hook useEffect has missing dependencies')
+    ) {
+      return;
+    }
+    originalWarn.call(console, ...args);
+  };
+});
+
+afterAll(() => {
+  console.warn = originalWarn;
+});

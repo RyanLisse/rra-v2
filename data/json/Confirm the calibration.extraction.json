@@ -1,0 +1,439 @@
+{
+  "markdown": "logo: HGG Profiling Equipment Internal Documentation\n\nSummary : This image is a logo for \"HGG Profiling Equipment\" with the tagline \"Internal Documentation\", featuring a blue square with the letters \"HGG\" and a stylized grey disc.\n\nLogo Elements : \n  • Company name: \"HGG Profiling Equipment\".\n  • Tagline: \"Internal Documentation\" in italicized grey text.\n  • Graphic: Blue square containing \"HGG\" in white, with a stylized grey disc and a small white dot.\n  • Font: Sans-serif, bold for company name, italic for tagline.\n  • Colour palette: Blue (#235293), grey, and white.\n\nDimensions & Placement : \n  • Blue square with logo graphic on the left.\n  • Text aligned to the right of the square, with company name above tagline.\n\nAnalysis : \n  • The logo uses a clean, professional design with a technical motif (disc) likely referencing profiling equipment. The blue and grey palette conveys reliability and industrial focus. <!-- figure, from page 0 (l=0.133,t=0.072,r=0.616,b=0.175), with ID 74c6d6f3-5129-49f7-b911-6334f60f3580 -->\n\nConfirm the calibration\n\nHow to check if the calibration was successfull <!-- text, from page 0 (l=0.217,t=0.292,r=0.779,b=0.382), with ID ab9a872c-46bf-46dd-afb3-a319ebf1d68b -->\n\nSummary : This image is a promotional or informational graphic for HGG, a company specializing in 3D profiling, featuring a large ship and stylized panels.\n\nphoto:\nScene Overview :\n  • Main subject is a large cargo or tanker ship on water, viewed from the front-right angle.\n  • The background includes a cityscape or port, partially obscured by haze or smoke.\n  • The left side of the image features five vertical, semi-transparent panels with abstract, technical illustrations in blue and orange hues, possibly representing different aspects of 3D profiling or industrial applications.\n  • The top left contains the HGG logo and the text: \"Specialists in 3D Profiling\".\n\nTechnical Details :\n  • No scale bar or measurement indicators are present.\n  • The image uses a cool-to-warm color palette, with blue and orange tones dominating the panels.\n  • The ship's name and some details are visible but not fully legible.\n\nSpatial Relationships :\n  • The ship occupies the right half of the image, with the panels arranged in a row on the left, partially overlapping the ship.\n  • The HGG logo and tagline are positioned in the upper left, above the panels.\n\nAnalysis :\n  • The composition emphasizes HGG's expertise in 3D profiling for maritime or industrial applications, using the ship as a central visual metaphor and the panels to suggest technical sophistication and a range of services. <!-- figure, from page 0 (l=0.177,t=0.402,r=0.823,b=0.708), with ID d27ba9e3-e7a8-45b6-abe6-6e39ed54472b -->\n\nJasper ten Hove\nVersion 1.0\n2024-05-16 <!-- text, from page 0 (l=0.135,t=0.848,r=0.290,b=0.918), with ID 4b9f72d2-bd0e-4af3-ba2d-f33ec21d6e87 -->\n\n1 Table of Contents\n\n1. Table of Contents .................................................................................................................... 1\n2. Document Information ........................................................................................................... 2\n    2.1    Document Management ............................................................................................. 2\n    2.2    Document History ...................................................................................................... 2\n    2.3    Related Documents .................................................................................................... 2\n    2.4    Who can use this document ..................................................................................... 2\n3. Perform a base calibration ..................................................................................................... 3\n4. Perform a tool calibration....................................................................................................... 3\n5. Verify the calibration ............................................................................................................... 3\n    5.1    Verify base z ............................................................................................................... 3\n    5.2    Verify conveyor Z ....................................................................................................... 3\n    5.3    Verify base X............................................................................................................... 3 <!-- text, from page 0 (l=0.055,t=0.049,r=0.943,b=0.383), with ID 1cd4c845-6d31-42af-acf4-3d7ca0ed9f3e -->\n\n*HGG Profiling Equipment – Confirm the calibration – v1.0 – 2024-05-16* <!-- marginalia, from page 0 (l=0.064,t=0.946,r=0.609,b=0.967), with ID b806b9db-6bb6-40b3-b157-03e43f04eebb -->\n\n1 <!-- marginalia, from page 0 (l=0.819,t=0.948,r=0.839,b=0.965), with ID ae6093b3-6632-4a32-a4a6-bbc38f859e58 -->\n\n2  Document Information <!-- text, from page 0 (l=0.058,t=0.050,r=0.500,b=0.091), with ID 23ea83d9-d51b-4cc8-bdbd-8938226b7057 -->\n\n2.1  Document Management <!-- text, from page 0 (l=0.062,t=0.099,r=0.451,b=0.128), with ID 65ed417d-4765-4114-93d7-29dcdf33adb4 -->\n\nPlease send any document errors or comments to:\n\nDocument Manager\n\n2.2  Document History <!-- text, from page 0 (l=0.063,t=0.134,r=0.934,b=0.209), with ID 361b0a6a-67c8-41ae-bf6c-424af07d896f -->\n\n<table>\n  <tr>\n    <th>Version</th>\n    <th>Changes</th>\n    <th>Authors</th>\n  </tr>\n  <tr>\n    <td>1.0</td>\n    <td>Initial version</td>\n    <td>Jasper ten Hove</td>\n  </tr>\n</table>\n\n2.3  Related Documents <!-- text, from page 0 (l=0.064,t=0.215,r=0.933,b=0.282), with ID 484fff75-1076-41f2-8c30-27e6c0ed6394 -->\n\n<table>\n  <tr>\n    <th>Version</th>\n    <th>Title</th>\n  </tr>\n  <tr>\n    <td></td>\n    <td>FAQ calibration</td>\n  </tr>\n  <tr>\n    <td></td>\n    <td></td>\n  </tr>\n</table> <!-- table, from page 0 (l=0.066,t=0.290,r=0.932,b=0.346), with ID a55e4ce6-c46d-42cc-bcc7-f3fe75d748e2 -->\n\n2.4  Who can use this document <!-- text, from page 0 (l=0.063,t=0.367,r=0.488,b=0.399), with ID b55f066b-8116-4086-8ab6-b4f50ded909d -->\n\nThis document is intended for HGG service engineers. <!-- text, from page 0 (l=0.065,t=0.405,r=0.481,b=0.426), with ID 512cc5de-42e8-4efd-8ae5-9722a5541c40 -->\n\n*HGG Profiling Equipment – Confirm the calibration – v1.0 – 2024-05-16* <!-- marginalia, from page 0 (l=0.065,t=0.946,r=0.609,b=0.967), with ID 91aad1b0-5531-4ff0-af52-b49891e2bcd3 -->\n\n2 <!-- marginalia, from page 0 (l=0.815,t=0.947,r=0.841,b=0.965), with ID d5a95aab-c5cc-4d9a-8714-d98b80d8b27d -->\n\n3  Perform a base calibration\n\nTo perform a base calibration you will need a square tube with very accurate dimensions. Preferably the provided calibration tube. <!-- text, from page 0 (l=0.060,t=0.050,r=0.936,b=0.137), with ID 15fb3e21-cc8f-49d2-b632-7f700515b7c5 -->\n\nNext you will need to follow the instructions on the calibration dialog. <!-- text, from page 0 (l=0.066,t=0.145,r=0.601,b=0.168), with ID 8fa047d9-5df6-4b00-a61b-286308e31d97 -->\n\n4  Perform a tool calibration\n\nTo perform the tool calibration please follow the instructions on the calibration in the calibration dialog. <!-- text, from page 0 (l=0.064,t=0.209,r=0.862,b=0.274), with ID ceb8dc1e-124f-46cb-b205-f7074e0c5de6 -->\n\nMake sure the tool sensor cover is removed before starting the calibration. Also make sure the 125Amp consumables are mounted. <!-- text, from page 0 (l=0.065,t=0.283,r=0.933,b=0.320), with ID b3b916bd-afe0-413e-b368-942353f1af29 -->\n\nWhen doing the calibration keep an eye on where the laser hits the tool. Make sure the laser hits the black part of the tool and not the white part. <!-- text, from page 0 (l=0.066,t=0.332,r=0.934,b=0.369), with ID d039a643-e1da-4e4f-9603-dd08ea4c8554 -->\n\n5  Verify the calibration <!-- text, from page 0 (l=0.063,t=0.411,r=0.467,b=0.448), with ID e12c2f9d-9bd9-4970-b2fb-ce996c00591f -->\n\n- 5.1   Verify base z\n\n- • To verify the base Z offset, program a square tube in ProCAM preferably use the provided calibration dialog.\n- • Load the generated file in the software and appraoch the material.\n- • Using an allenkey measure the distance between the torch and the material.\n- • Look into the current cutting table what the height should be.\n- • If the height is not correct adjust: machine calibration->robot base->Z. until the height is correct. <!-- text, from page 0 (l=0.064,t=0.460,r=0.894,b=0.609), with ID ac9c49fe-068d-493f-a5b4-713839e6a560 -->\n\n5.2  Verify conveyor Z\n\n- • Change the machine to conveyor mode.\n- • Program a channel with the dimensions of the used calibration material.\n- • Load the generated file in the software and approach the top of the material.\n- • Measure the distance between the torch and the material with an allenkey.\n- • Look into the current cutting table what the height should be.\n- • If it is not correct adjust: bogies-> centerline Z offset.  Until the height is correct <!-- text, from page 0 (l=0.066,t=0.615,r=0.740,b=0.764), with ID 52b2ca79-f55e-4a7e-b1fe-5d945c85d24d -->\n\n- 5.3 Verify base X\n- • Using the same file as in verify conveyor Z approach the material on the sides\n- • Look into the current cutting table what the height should be.\n- • Measure the distance on both sides, if the distance is not the same adjust: machine calibration->robot base->x until it is the same.\n  - ◦ If the distance on both sides is too small, the tool calibration should be done over. Also base Z will need to be reviewed after doing the tool calibration. <!-- text, from page 0 (l=0.066,t=0.771,r=0.908,b=0.916), with ID 5dd6a45a-d8ca-49b7-879e-057f35865376 -->\n\n*HGG Profiling Equipment – Confirm the calibration – v1.0 – 2024-05-16* <!-- marginalia, from page 0 (l=0.067,t=0.947,r=0.607,b=0.966), with ID bfe3ce4e-4e38-4095-9bf5-8eea827ad687 -->\n\n3 <!-- marginalia, from page 0 (l=0.818,t=0.948,r=0.838,b=0.963), with ID 946a3940-c5ef-41f7-bdf8-9636adb8d145 -->",
+  "chunks": [
+    {
+      "text": "logo: HGG Profiling Equipment Internal Documentation\n\nSummary : This image is a logo for \"HGG Profiling Equipment\" with the tagline \"Internal Documentation\", featuring a blue square with the letters \"HGG\" and a stylized grey disc.\n\nLogo Elements : \n  • Company name: \"HGG Profiling Equipment\".\n  • Tagline: \"Internal Documentation\" in italicized grey text.\n  • Graphic: Blue square containing \"HGG\" in white, with a stylized grey disc and a small white dot.\n  • Font: Sans-serif, bold for company name, italic for tagline.\n  • Colour palette: Blue (#235293), grey, and white.\n\nDimensions & Placement : \n  • Blue square with logo graphic on the left.\n  • Text aligned to the right of the square, with company name above tagline.\n\nAnalysis : \n  • The logo uses a clean, professional design with a technical motif (disc) likely referencing profiling equipment. The blue and grey palette conveys reliability and industrial focus.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.1331312209367752,
+            "t": 0.07228215783834457,
+            "r": 0.6158361434936523,
+            "b": 0.17481043934822083
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "74c6d6f3-5129-49f7-b911-6334f60f3580"
+    },
+    {
+      "text": "Confirm the calibration\n\nHow to check if the calibration was successfull",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.21744558215141296,
+            "t": 0.2923029959201813,
+            "r": 0.7791588306427002,
+            "b": 0.3822961747646332
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "ab9a872c-46bf-46dd-afb3-a319ebf1d68b"
+    },
+    {
+      "text": "Summary : This image is a promotional or informational graphic for HGG, a company specializing in 3D profiling, featuring a large ship and stylized panels.\n\nphoto:\nScene Overview :\n  • Main subject is a large cargo or tanker ship on water, viewed from the front-right angle.\n  • The background includes a cityscape or port, partially obscured by haze or smoke.\n  • The left side of the image features five vertical, semi-transparent panels with abstract, technical illustrations in blue and orange hues, possibly representing different aspects of 3D profiling or industrial applications.\n  • The top left contains the HGG logo and the text: \"Specialists in 3D Profiling\".\n\nTechnical Details :\n  • No scale bar or measurement indicators are present.\n  • The image uses a cool-to-warm color palette, with blue and orange tones dominating the panels.\n  • The ship's name and some details are visible but not fully legible.\n\nSpatial Relationships :\n  • The ship occupies the right half of the image, with the panels arranged in a row on the left, partially overlapping the ship.\n  • The HGG logo and tagline are positioned in the upper left, above the panels.\n\nAnalysis :\n  • The composition emphasizes HGG's expertise in 3D profiling for maritime or industrial applications, using the ship as a central visual metaphor and the panels to suggest technical sophistication and a range of services.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.17748400568962097,
+            "t": 0.40210357308387756,
+            "r": 0.8232617378234863,
+            "b": 0.7076116800308228
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "d27ba9e3-e7a8-45b6-abe6-6e39ed54472b"
+    },
+    {
+      "text": "Jasper ten Hove\nVersion 1.0\n2024-05-16",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.1351858377456665,
+            "t": 0.8476572632789612,
+            "r": 0.28987249732017517,
+            "b": 0.9180496335029602
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "4b9f72d2-bd0e-4af3-ba2d-f33ec21d6e87"
+    },
+    {
+      "text": "1 Table of Contents\n\n1. Table of Contents .................................................................................................................... 1\n2. Document Information ........................................................................................................... 2\n    2.1    Document Management ............................................................................................. 2\n    2.2    Document History ...................................................................................................... 2\n    2.3    Related Documents .................................................................................................... 2\n    2.4    Who can use this document ..................................................................................... 2\n3. Perform a base calibration ..................................................................................................... 3\n4. Perform a tool calibration....................................................................................................... 3\n5. Verify the calibration ............................................................................................................... 3\n    5.1    Verify base z ............................................................................................................... 3\n    5.2    Verify conveyor Z ....................................................................................................... 3\n    5.3    Verify base X............................................................................................................... 3",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.05478709936141968,
+            "t": 0.04914894700050354,
+            "r": 0.9425926208496094,
+            "b": 0.3829475939273834
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "1cd4c845-6d31-42af-acf4-3d7ca0ed9f3e"
+    },
+    {
+      "text": "*HGG Profiling Equipment – Confirm the calibration – v1.0 – 2024-05-16*",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.06430962681770325,
+            "t": 0.9455572366714478,
+            "r": 0.609107255935669,
+            "b": 0.9672952890396118
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "b806b9db-6bb6-40b3-b157-03e43f04eebb"
+    },
+    {
+      "text": "1",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.8186222314834595,
+            "t": 0.9478655457496643,
+            "r": 0.8386152982711792,
+            "b": 0.964569628238678
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "ae6093b3-6632-4a32-a4a6-bbc38f859e58"
+    },
+    {
+      "text": "2  Document Information",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.058320462703704834,
+            "t": 0.05048942193388939,
+            "r": 0.5001707077026367,
+            "b": 0.09087002277374268
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "23ea83d9-d51b-4cc8-bdbd-8938226b7057"
+    },
+    {
+      "text": "2.1  Document Management",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.062251344323158264,
+            "t": 0.09872265160083771,
+            "r": 0.45066553354263306,
+            "b": 0.12756526470184326
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "65ed417d-4765-4114-93d7-29dcdf33adb4"
+    },
+    {
+      "text": "Please send any document errors or comments to:\n\nDocument Manager\n\n2.2  Document History",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.06271421909332275,
+            "t": 0.13383805751800537,
+            "r": 0.9337213039398193,
+            "b": 0.2090339958667755
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "361b0a6a-67c8-41ae-bf6c-424af07d896f"
+    },
+    {
+      "text": "<table>\n  <tr>\n    <th>Version</th>\n    <th>Changes</th>\n    <th>Authors</th>\n  </tr>\n  <tr>\n    <td>1.0</td>\n    <td>Initial version</td>\n    <td>Jasper ten Hove</td>\n  </tr>\n</table>\n\n2.3  Related Documents",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.06436443328857422,
+            "t": 0.21459797024726868,
+            "r": 0.9331809878349304,
+            "b": 0.2824673652648926
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "484fff75-1076-41f2-8c30-27e6c0ed6394"
+    },
+    {
+      "text": "<table>\n  <tr>\n    <th>Version</th>\n    <th>Title</th>\n  </tr>\n  <tr>\n    <td></td>\n    <td>FAQ calibration</td>\n  </tr>\n  <tr>\n    <td></td>\n    <td></td>\n  </tr>\n</table>",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.06586453318595886,
+            "t": 0.289664089679718,
+            "r": 0.9323011636734009,
+            "b": 0.34600937366485596
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "table",
+      "chunk_id": "a55e4ce6-c46d-42cc-bcc7-f3fe75d748e2"
+    },
+    {
+      "text": "2.4  Who can use this document",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.06297771632671356,
+            "t": 0.36739495396614075,
+            "r": 0.48751598596572876,
+            "b": 0.39865997433662415
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "b55f066b-8116-4086-8ab6-b4f50ded909d"
+    },
+    {
+      "text": "This document is intended for HGG service engineers.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.06548228859901428,
+            "t": 0.4048040211200714,
+            "r": 0.4806964099407196,
+            "b": 0.4255889356136322
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "512cc5de-42e8-4efd-8ae5-9722a5541c40"
+    },
+    {
+      "text": "*HGG Profiling Equipment – Confirm the calibration – v1.0 – 2024-05-16*",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.06514370441436768,
+            "t": 0.9456211924552917,
+            "r": 0.6090736389160156,
+            "b": 0.9671708941459656
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "91aad1b0-5531-4ff0-af52-b49891e2bcd3"
+    },
+    {
+      "text": "2",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.8150686621665955,
+            "t": 0.9472073316574097,
+            "r": 0.8409001231193542,
+            "b": 0.96477210521698
+          },
+          "page": 2
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "d5a95aab-c5cc-4d9a-8714-d98b80d8b27d"
+    },
+    {
+      "text": "3  Perform a base calibration\n\nTo perform a base calibration you will need a square tube with very accurate dimensions. Preferably the provided calibration tube.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.06029674410820007,
+            "t": 0.050366129726171494,
+            "r": 0.9358299970626831,
+            "b": 0.1366128921508789
+          },
+          "page": 3
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "15fb3e21-cc8f-49d2-b632-7f700515b7c5"
+    },
+    {
+      "text": "Next you will need to follow the instructions on the calibration dialog.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.06567919254302979,
+            "t": 0.14540672302246094,
+            "r": 0.6005076766014099,
+            "b": 0.1675386130809784
+          },
+          "page": 3
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "8fa047d9-5df6-4b00-a61b-286308e31d97"
+    },
+    {
+      "text": "4  Perform a tool calibration\n\nTo perform the tool calibration please follow the instructions on the calibration in the calibration dialog.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.06403931975364685,
+            "t": 0.20890700817108154,
+            "r": 0.8615057468414307,
+            "b": 0.2737247943878174
+          },
+          "page": 3
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "ceb8dc1e-124f-46cb-b205-f7074e0c5de6"
+    },
+    {
+      "text": "Make sure the tool sensor cover is removed before starting the calibration. Also make sure the 125Amp consumables are mounted.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.06535455584526062,
+            "t": 0.2827155292034149,
+            "r": 0.9333282709121704,
+            "b": 0.32041463255882263
+          },
+          "page": 3
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "b3b916bd-afe0-413e-b368-942353f1af29"
+    },
+    {
+      "text": "When doing the calibration keep an eye on where the laser hits the tool. Make sure the laser hits the black part of the tool and not the white part.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.06606724858283997,
+            "t": 0.33155226707458496,
+            "r": 0.9336036443710327,
+            "b": 0.36944377422332764
+          },
+          "page": 3
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "d039a643-e1da-4e4f-9603-dd08ea4c8554"
+    },
+    {
+      "text": "5  Verify the calibration",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.06343896687030792,
+            "t": 0.41116657853126526,
+            "r": 0.46660494804382324,
+            "b": 0.4479855000972748
+          },
+          "page": 3
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "e12c2f9d-9bd9-4970-b2fb-ce996c00591f"
+    },
+    {
+      "text": "- 5.1   Verify base z\n\n- • To verify the base Z offset, program a square tube in ProCAM preferably use the provided calibration dialog.\n- • Load the generated file in the software and appraoch the material.\n- • Using an allenkey measure the distance between the torch and the material.\n- • Look into the current cutting table what the height should be.\n- • If the height is not correct adjust: machine calibration->robot base->Z. until the height is correct.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.06431910395622253,
+            "t": 0.45988595485687256,
+            "r": 0.8937113285064697,
+            "b": 0.6085805892944336
+          },
+          "page": 3
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "ac9c49fe-068d-493f-a5b4-713839e6a560"
+    },
+    {
+      "text": "5.2  Verify conveyor Z\n\n- • Change the machine to conveyor mode.\n- • Program a channel with the dimensions of the used calibration material.\n- • Load the generated file in the software and approach the top of the material.\n- • Measure the distance between the torch and the material with an allenkey.\n- • Look into the current cutting table what the height should be.\n- • If it is not correct adjust: bogies-> centerline Z offset.  Until the height is correct",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.0661105215549469,
+            "t": 0.6148730516433716,
+            "r": 0.7396420240402222,
+            "b": 0.7636518478393555
+          },
+          "page": 3
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "52b2ca79-f55e-4a7e-b1fe-5d945c85d24d"
+    },
+    {
+      "text": "- 5.3 Verify base X\n- • Using the same file as in verify conveyor Z approach the material on the sides\n- • Look into the current cutting table what the height should be.\n- • Measure the distance on both sides, if the distance is not the same adjust: machine calibration->robot base->x until it is the same.\n  - ◦ If the distance on both sides is too small, the tool calibration should be done over. Also base Z will need to be reviewed after doing the tool calibration.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.06602641940116882,
+            "t": 0.7709203362464905,
+            "r": 0.9083986282348633,
+            "b": 0.9163184762001038
+          },
+          "page": 3
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "5dd6a45a-d8ca-49b7-879e-057f35865376"
+    },
+    {
+      "text": "*HGG Profiling Equipment – Confirm the calibration – v1.0 – 2024-05-16*",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.06740805506706238,
+            "t": 0.9466061592102051,
+            "r": 0.6065037250518799,
+            "b": 0.966059684753418
+          },
+          "page": 3
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "bfe3ce4e-4e38-4095-9bf5-8eea827ad687"
+    },
+    {
+      "text": "3",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.8182896971702576,
+            "t": 0.9479600191116333,
+            "r": 0.838459312915802,
+            "b": 0.9633361101150513
+          },
+          "page": 3
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "946a3940-c5ef-41f7-bdf8-9636adb8d145"
+    }
+  ],
+  "extracted_schema": null,
+  "extraction_metadata": null
+}

@@ -1,0 +1,12 @@
+{
+  "json": {
+    "filename": "Operators manual_RoboRail V2.2_170424.pdf",
+    "path": "/Users/neo/Developer/vision-ragchat-app/data/pdf/Operators manual_RoboRail V2.2_170424.pdf",
+    "mimeType": "application/pdf",
+    "elements": [],
+    "processedAt": "2025-05-23T19:17:41.662Z",
+    "sessionId": "production-success",
+    "error": "Unexpected API response status or content-type: Status 200 Content-Type  Body \n[]",
+    "processingStatus": "failed"
+  }
+}

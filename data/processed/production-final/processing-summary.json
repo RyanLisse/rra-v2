@@ -1,0 +1,53 @@
+{
+  "sessionId": "production-final",
+  "processedAt": "2025-05-23T19:19:10.833Z",
+  "totalFiles": 7,
+  "successCount": 0,
+  "failureCount": 7,
+  "totalProcessingTimeMs": 63448,
+  "averageProcessingTimeMs": 9064,
+  "documents": [
+    {
+      "filename": "FAQ Data collection.pdf",
+      "status": "failed",
+      "elements": 0,
+      "error": "No elements returned from Unstructured.io API"
+    },
+    {
+      "filename": "Operators manual_RoboRail V2.2_170424.pdf",
+      "status": "failed",
+      "elements": 0,
+      "error": "No elements returned from Unstructured.io API"
+    },
+    {
+      "filename": "FAQ No communication to PMAC.pdf",
+      "status": "failed",
+      "elements": 0,
+      "error": "No elements returned from Unstructured.io API"
+    },
+    {
+      "filename": "FAQ_RoboRail_measurement_v0.0_020524.pdf",
+      "status": "failed",
+      "elements": 0,
+      "error": "No elements returned from Unstructured.io API"
+    },
+    {
+      "filename": "Confirm the calibration.pdf",
+      "status": "failed",
+      "elements": 0,
+      "error": "No elements returned from Unstructured.io API"
+    },
+    {
+      "filename": "FAQ_RoboRail_Chuck_alignment_calibration_v0.0_080424.pdf",
+      "status": "failed",
+      "elements": 0,
+      "error": "No elements returned from Unstructured.io API"
+    },
+    {
+      "filename": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+      "status": "failed",
+      "elements": 0,
+      "error": "No elements returned from Unstructured.io API"
+    }
+  ]
+}

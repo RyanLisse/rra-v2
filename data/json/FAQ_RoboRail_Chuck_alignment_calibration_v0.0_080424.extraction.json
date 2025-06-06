@@ -1,0 +1,359 @@
+{
+  "markdown": "logo: HGG\n\nSummary : This is a logo consisting of the letters \"HGG\" in white on a blue square background, with a stylized grey elliptical disc featuring a central hole, partially overlapping the lower part of the square.\n\nDesign Elements :\n  • The letters \"HGG\" are in a bold, sans-serif font, centered within a blue square.\n  • A grey ellipse with a white circular hole is positioned diagonally, overlapping the lower left corner of the blue square.\n  • The ellipse is rendered in a lighter grey, with the hole offset from the center.\n  • No additional text, tagline, or company name is present.\n\nDimensions & Placement :\n  • Blue square occupies the upper portion, with the ellipse extending beyond the lower left edge.\n  • The letters \"HGG\" are horizontally aligned and evenly spaced within the square.\n\nAnalysis : \n  • The logo uses a simple, modern design with a strong geometric motif.\n  • The blue and grey color scheme suggests professionalism and neutrality.\n  • The elliptical disc with a central hole may symbolize a mechanical or industrial theme, but no explicit meaning is provided in the image. <!-- figure, from page 0 (l=0.082,t=0.023,r=0.193,b=0.113), with ID 2d15ff98-2ee2-4071-98c5-8eaaa7c3d5d8 -->\n\nFAQ RoboRail <!-- text, from page 0 (l=0.749,t=0.031,r=0.912,b=0.060), with ID 00caf512-62e5-42d8-9eed-e264520f5028 -->\n\nCalibration <!-- text, from page 0 (l=0.195,t=0.067,r=0.539,b=0.094), with ID 591959c8-a584-4bda-ab9b-62fa7e4c5aaa -->\n\nANNEX <!-- text, from page 0 (l=0.837,t=0.123,r=0.915,b=0.143), with ID 8155fd68-8b7f-47a0-8dce-7560c9e040b6 -->\n\nThis document is a continuation of § 3.5 of the document FAQ RoboRail Calibration. <!-- text, from page 0 (l=0.081,t=0.146,r=0.919,b=0.176), with ID 594f231e-1c08-4703-b11c-fd781831a0b8 -->\n\n**Alignment calibration of the chucks**\n\n*You must do this calibration if the laser value during the* **Alignment calibration** *procedure changes more than 2 (mm).* <!-- text, from page 0 (l=0.086,t=0.195,r=0.908,b=0.268), with ID cb959f62-6a08-4154-aadd-31e75b28b9c2 -->\n\nNecessary tools:\n\nAllen key 3 mm   Some versions of the machine are attached with larger Allen screws or bolts. In that case you need another tool.\n\nWrench 24 <!-- text, from page 0 (l=0.087,t=0.282,r=0.906,b=0.383), with ID 6ffda751-5147-4f38-b259-cbed64b2b99d -->\n\n- To align the chucks, do the procedure that follows:\n  - *The cover of the trolley is attached with 2x3 Allen screws with washers at the front (left + right) and 2x3 at the back (left + right) (◆ Image 1).*\n  - Loosen the Allen screws (12 pcs) with the Allen key.\n  - Remove the cover of the trolley. <!-- text, from page 0 (l=0.087,t=0.397,r=0.909,b=0.485), with ID 6a086323-7f9e-4ade-964e-e42c5d574997 -->\n\n* _The rear chuck is attached with 2 bolts at both sides of the trolley. These are the bolts on the black plate (♦ Image 2)._\n* Loosen the 4 bolts **slightly** with the wrench. Make sure not to turn the bolts out too far.\n* This makes it possible to move the rear chuck manually.\n* Inspect the alignment of the front and rear chuck visually.\n* Slightly move the rear chuck to get it aligned with the front chuck. <!-- text, from page 0 (l=0.089,t=0.499,r=0.866,b=0.606), with ID fba3819e-7e7d-4f7a-9579-19900417039b -->\n\n*The preferred movement is to* *slide* *the rear chuck horizontally. If you must* *turn* *the chuck to align it, make sure not to twist the chucks relative to each other to avoid distortion of the material. Turn the chuck* *carefully* *and only if necessary.* <!-- text, from page 0 (l=0.089,t=0.618,r=0.900,b=0.674), with ID ece4959c-e2d3-49a2-ba5b-02f2ad8f6322 -->\n\n- • Make sure that the distance between the black plate and the orange material is equal over the entire length of the plate (◆ Image 3). This applies to the black plate on both sides of the trolley.\n- • Use the switch [Y+] on the control panel of the trolley (or the arrow button ◀◀ on the screen) to move the trolley fully forward.\n- • Keep an eye on the **Laser value** on the screen and move the trolley to the rear with switch [Y–] (or the arrow button ▶▶ on the screen). Make sure that the laser beam continues to hit the material. <!-- text, from page 0 (l=0.088,t=0.688,r=0.889,b=0.796), with ID fe9969cd-2ab7-4b58-9e3a-ba692931b027 -->\n\n- If the laser value **increases**:\n  - Move the rear chuck slightly to the left to align it with the front chuck.\n  - Inspect the alignment of the front and rear chuck visually. <!-- text, from page 0 (l=0.088,t=0.809,r=0.648,b=0.865), with ID 6a13bcfd-b529-4354-a907-53156c5899ee -->\n\n- If the laser value **decreases**:\n  - Move the rear chuck slightly to the right to align it with the front chuck.\n  - Inspect the alignment of the front and rear chuck visually. <!-- text, from page 0 (l=0.090,t=0.879,r=0.656,b=0.932), with ID 87785e11-6038-4178-bcac-663fe2703bc1 -->\n\nPage 1/2 <!-- marginalia, from page 0 (l=0.090,t=0.942,r=0.155,b=0.961), with ID f8585e59-d35d-4f73-b9f4-cf0e52979d52 -->\n\nversion 0.0 | 8-4-2024 <!-- marginalia, from page 0 (l=0.761,t=0.944,r=0.909,b=0.961), with ID 74a39a00-d696-4240-8d93-73750411e76a -->\n\nSummary : This image is a logo featuring the letters \"HGG\" in white on a blue square background, with a stylized grey oval shape containing a white circle overlapping the lower part of the square.\n\nlogo: HGG\n\nDesign Elements : \n  • Large white uppercase letters \"HGG\" centered within a solid blue square.\n  • A grey oval shape with a white circular cutout overlaps the lower portion of the blue square, extending beyond its bottom edge.\n  • No additional text, tagline, or company name visible.\n\nDimensions & Placement : \n  • Blue square occupies the upper portion of the image.\n  • Grey oval is diagonally oriented, partially outside the square, with the white circle near its center.\n\nAnalysis : \n  • The logo uses a simple, bold color scheme (blue, white, grey) and geometric shapes to create a modern, professional appearance. The oval and circle may suggest motion or focus, but no explicit meaning is conveyed beyond the stylized initials \"HGG\". <!-- figure, from page 0 (l=0.084,t=0.024,r=0.192,b=0.111), with ID 3a3fb96e-8744-4d3b-a795-c44e0bedae6d -->\n\n**FAQ** RoboRail <!-- marginalia, from page 0 (l=0.750,t=0.033,r=0.912,b=0.059), with ID 718d9987-f6ea-4392-8890-0fa41fa0b102 -->\n\nCalibration\n___ <!-- text, from page 0 (l=0.208,t=0.069,r=0.346,b=0.095), with ID d045f7ac-1607-44d0-88b8-e34bd6056f60 -->\n\n- Subsequently:\n- If necessary/desired: do the steps to move the trolley forward and rearward again and make sure that the **Laser value** on the screen remains below 2 (mm).\n- Tighten the bolts (2x2 pcs) to attach the rear chuck to the trolley.\n- Install the cover of the trolley with the Allen screws and washers.\n- Select **Return to home** on the screen. <!-- text, from page 0 (l=0.087,t=0.140,r=0.883,b=0.246), with ID a60159c2-6bf5-48da-b9ea-7c53b792bb3e -->\n\nSummary : This figure provides photographic instructions for adjusting and aligning a machine component, focusing on the use of Allen screws, bolts below a chuck, and ensuring equal spacing between parts.\n\nphoto:\nScene Overview :\n  • Three close-up color photographs of an orange and black industrial machine, arranged left to right.\n  • Each image is annotated with arrows, circles, or dashed lines to highlight specific hardware or alignment features.\n  • Lighting is even, with clear focus on mechanical details.\n\nTechnical Details :\n  • Image 1: Shows one set of three Allen screws (out of a total of 12) on the orange machine housing, with white arrows pointing to their locations.\n  • Image 2: Displays bolts located below the chuck on both sides, with a white oval encircling the relevant bolts.\n  • Image 3: Highlights the need for equal distance between a black plate and the orange material, using dashed lines and double-headed arrows to indicate the spacing.\n\nSpatial Relationships :\n  • Image 1: The Allen screws are positioned vertically on the side of the orange housing, adjacent to a metal rail.\n  • Image 2: The bolts are situated beneath a large black cylindrical chuck, with the orange housing visible below.\n  • Image 3: The black plate is mounted above the orange material, with bolts passing through and the spacing between components emphasized.\n\nAnalysis :\n  • The figure systematically documents the locations and adjustment points for securing and aligning the machine’s chuck assembly.\n  • Visual cues (arrows, circles, dashed lines) direct attention to critical fasteners and alignment requirements, supporting precise setup and maintenance.\n  • The emphasis on equal spacing in Image 3 suggests the importance of parallel alignment for proper machine function. <!-- figure, from page 0 (l=0.090,t=0.258,r=0.909,b=0.490), with ID 33ce6421-250a-4537-8b04-18f80b4060ef -->\n\nPage 2/2 <!-- marginalia, from page 0 (l=0.089,t=0.943,r=0.156,b=0.961), with ID 81028a03-c0ff-4f12-9d4c-f40f61043129 -->\n\nversion 0.0 | 8-4-2024 <!-- marginalia, from page 0 (l=0.759,t=0.944,r=0.911,b=0.962), with ID fe9e5ab0-b5fe-42a6-abc5-db38955fe5d9 -->",
+  "chunks": [
+    {
+      "text": "logo: HGG\n\nSummary : This is a logo consisting of the letters \"HGG\" in white on a blue square background, with a stylized grey elliptical disc featuring a central hole, partially overlapping the lower part of the square.\n\nDesign Elements :\n  • The letters \"HGG\" are in a bold, sans-serif font, centered within a blue square.\n  • A grey ellipse with a white circular hole is positioned diagonally, overlapping the lower left corner of the blue square.\n  • The ellipse is rendered in a lighter grey, with the hole offset from the center.\n  • No additional text, tagline, or company name is present.\n\nDimensions & Placement :\n  • Blue square occupies the upper portion, with the ellipse extending beyond the lower left edge.\n  • The letters \"HGG\" are horizontally aligned and evenly spaced within the square.\n\nAnalysis : \n  • The logo uses a simple, modern design with a strong geometric motif.\n  • The blue and grey color scheme suggests professionalism and neutrality.\n  • The elliptical disc with a central hole may symbolize a mechanical or industrial theme, but no explicit meaning is provided in the image.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08240389823913574,
+            "t": 0.02305721491575241,
+            "r": 0.19325634837150574,
+            "b": 0.11283428221940994
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "2d15ff98-2ee2-4071-98c5-8eaaa7c3d5d8"
+    },
+    {
+      "text": "FAQ RoboRail",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7492048144340515,
+            "t": 0.031394727528095245,
+            "r": 0.9116821885108948,
+            "b": 0.05956064909696579
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "00caf512-62e5-42d8-9eed-e264520f5028"
+    },
+    {
+      "text": "Calibration",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.19543041288852692,
+            "t": 0.06749098002910614,
+            "r": 0.5390660762786865,
+            "b": 0.09449663758277893
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "591959c8-a584-4bda-ab9b-62fa7e4c5aaa"
+    },
+    {
+      "text": "ANNEX",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.8371418714523315,
+            "t": 0.12297960370779037,
+            "r": 0.9145210981369019,
+            "b": 0.14319947361946106
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "8155fd68-8b7f-47a0-8dce-7560c9e040b6"
+    },
+    {
+      "text": "This document is a continuation of § 3.5 of the document FAQ RoboRail Calibration.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08146509528160095,
+            "t": 0.14625702798366547,
+            "r": 0.9187119007110596,
+            "b": 0.17554618418216705
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "594f231e-1c08-4703-b11c-fd781831a0b8"
+    },
+    {
+      "text": "**Alignment calibration of the chucks**\n\n*You must do this calibration if the laser value during the* **Alignment calibration** *procedure changes more than 2 (mm).*",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.085934579372406,
+            "t": 0.19476158916950226,
+            "r": 0.9084254503250122,
+            "b": 0.2679827809333801
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "cb959f62-6a08-4154-aadd-31e75b28b9c2"
+    },
+    {
+      "text": "Necessary tools:\n\nAllen key 3 mm   Some versions of the machine are attached with larger Allen screws or bolts. In that case you need another tool.\n\nWrench 24",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08672267198562622,
+            "t": 0.28174108266830444,
+            "r": 0.9062634706497192,
+            "b": 0.3825206756591797
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "6ffda751-5147-4f38-b259-cbed64b2b99d"
+    },
+    {
+      "text": "- To align the chucks, do the procedure that follows:\n  - *The cover of the trolley is attached with 2x3 Allen screws with washers at the front (left + right) and 2x3 at the back (left + right) (◆ Image 1).*\n  - Loosen the Allen screws (12 pcs) with the Allen key.\n  - Remove the cover of the trolley.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08745825290679932,
+            "t": 0.3965314030647278,
+            "r": 0.9086484313011169,
+            "b": 0.48488444089889526
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "6a086323-7f9e-4ade-964e-e42c5d574997"
+    },
+    {
+      "text": "* _The rear chuck is attached with 2 bolts at both sides of the trolley. These are the bolts on the black plate (♦ Image 2)._\n* Loosen the 4 bolts **slightly** with the wrench. Make sure not to turn the bolts out too far.\n* This makes it possible to move the rear chuck manually.\n* Inspect the alignment of the front and rear chuck visually.\n* Slightly move the rear chuck to get it aligned with the front chuck.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08909925818443298,
+            "t": 0.4988711178302765,
+            "r": 0.8660956621170044,
+            "b": 0.6063065528869629
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "fba3819e-7e7d-4f7a-9579-19900417039b"
+    },
+    {
+      "text": "*The preferred movement is to* *slide* *the rear chuck horizontally. If you must* *turn* *the chuck to align it, make sure not to twist the chucks relative to each other to avoid distortion of the material. Turn the chuck* *carefully* *and only if necessary.*",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08947661519050598,
+            "t": 0.6184794306755066,
+            "r": 0.8996208906173706,
+            "b": 0.6741852164268494
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "ece4959c-e2d3-49a2-ba5b-02f2ad8f6322"
+    },
+    {
+      "text": "- • Make sure that the distance between the black plate and the orange material is equal over the entire length of the plate (◆ Image 3). This applies to the black plate on both sides of the trolley.\n- • Use the switch [Y+] on the control panel of the trolley (or the arrow button ◀◀ on the screen) to move the trolley fully forward.\n- • Keep an eye on the **Laser value** on the screen and move the trolley to the rear with switch [Y–] (or the arrow button ▶▶ on the screen). Make sure that the laser beam continues to hit the material.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08841916918754578,
+            "t": 0.6877238750457764,
+            "r": 0.8887854814529419,
+            "b": 0.7957661151885986
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "fe9969cd-2ab7-4b58-9e3a-ba692931b027"
+    },
+    {
+      "text": "- If the laser value **increases**:\n  - Move the rear chuck slightly to the left to align it with the front chuck.\n  - Inspect the alignment of the front and rear chuck visually.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08775842189788818,
+            "t": 0.809421718120575,
+            "r": 0.6477168798446655,
+            "b": 0.8650690913200378
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "6a13bcfd-b529-4354-a907-53156c5899ee"
+    },
+    {
+      "text": "- If the laser value **decreases**:\n  - Move the rear chuck slightly to the right to align it with the front chuck.\n  - Inspect the alignment of the front and rear chuck visually.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08999094367027283,
+            "t": 0.8786438703536987,
+            "r": 0.6558936834335327,
+            "b": 0.9318723678588867
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "87785e11-6038-4178-bcac-663fe2703bc1"
+    },
+    {
+      "text": "Page 1/2",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.09008366614580154,
+            "t": 0.9423214197158813,
+            "r": 0.15543889999389648,
+            "b": 0.9607285261154175
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "f8585e59-d35d-4f73-b9f4-cf0e52979d52"
+    },
+    {
+      "text": "version 0.0 | 8-4-2024",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7613154053688049,
+            "t": 0.9437865018844604,
+            "r": 0.9094282984733582,
+            "b": 0.9608042240142822
+          },
+          "page": 0
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "74a39a00-d696-4240-8d93-73750411e76a"
+    },
+    {
+      "text": "Summary : This image is a logo featuring the letters \"HGG\" in white on a blue square background, with a stylized grey oval shape containing a white circle overlapping the lower part of the square.\n\nlogo: HGG\n\nDesign Elements : \n  • Large white uppercase letters \"HGG\" centered within a solid blue square.\n  • A grey oval shape with a white circular cutout overlaps the lower portion of the blue square, extending beyond its bottom edge.\n  • No additional text, tagline, or company name visible.\n\nDimensions & Placement : \n  • Blue square occupies the upper portion of the image.\n  • Grey oval is diagonally oriented, partially outside the square, with the white circle near its center.\n\nAnalysis : \n  • The logo uses a simple, bold color scheme (blue, white, grey) and geometric shapes to create a modern, professional appearance. The oval and circle may suggest motion or focus, but no explicit meaning is conveyed beyond the stylized initials \"HGG\".",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.0842791199684143,
+            "t": 0.023932240903377533,
+            "r": 0.19177591800689697,
+            "b": 0.1114984080195427
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "3a3fb96e-8744-4d3b-a795-c44e0bedae6d"
+    },
+    {
+      "text": "**FAQ** RoboRail",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7501600384712219,
+            "t": 0.03281685709953308,
+            "r": 0.911632239818573,
+            "b": 0.05894368141889572
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "718d9987-f6ea-4392-8890-0fa41fa0b102"
+    },
+    {
+      "text": "Calibration\n___",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.20779478549957275,
+            "t": 0.0687616690993309,
+            "r": 0.3459506034851074,
+            "b": 0.09466201812028885
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "d045f7ac-1607-44d0-88b8-e34bd6056f60"
+    },
+    {
+      "text": "- Subsequently:\n- If necessary/desired: do the steps to move the trolley forward and rearward again and make sure that the **Laser value** on the screen remains below 2 (mm).\n- Tighten the bolts (2x2 pcs) to attach the rear chuck to the trolley.\n- Install the cover of the trolley with the Allen screws and washers.\n- Select **Return to home** on the screen.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08669516444206238,
+            "t": 0.1403299868106842,
+            "r": 0.8827073574066162,
+            "b": 0.2456546425819397
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "text",
+      "chunk_id": "a60159c2-6bf5-48da-b9ea-7c53b792bb3e"
+    },
+    {
+      "text": "Summary : This figure provides photographic instructions for adjusting and aligning a machine component, focusing on the use of Allen screws, bolts below a chuck, and ensuring equal spacing between parts.\n\nphoto:\nScene Overview :\n  • Three close-up color photographs of an orange and black industrial machine, arranged left to right.\n  • Each image is annotated with arrows, circles, or dashed lines to highlight specific hardware or alignment features.\n  • Lighting is even, with clear focus on mechanical details.\n\nTechnical Details :\n  • Image 1: Shows one set of three Allen screws (out of a total of 12) on the orange machine housing, with white arrows pointing to their locations.\n  • Image 2: Displays bolts located below the chuck on both sides, with a white oval encircling the relevant bolts.\n  • Image 3: Highlights the need for equal distance between a black plate and the orange material, using dashed lines and double-headed arrows to indicate the spacing.\n\nSpatial Relationships :\n  • Image 1: The Allen screws are positioned vertically on the side of the orange housing, adjacent to a metal rail.\n  • Image 2: The bolts are situated beneath a large black cylindrical chuck, with the orange housing visible below.\n  • Image 3: The black plate is mounted above the orange material, with bolts passing through and the spacing between components emphasized.\n\nAnalysis :\n  • The figure systematically documents the locations and adjustment points for securing and aligning the machine’s chuck assembly.\n  • Visual cues (arrows, circles, dashed lines) direct attention to critical fasteners and alignment requirements, supporting precise setup and maintenance.\n  • The emphasis on equal spacing in Image 3 suggests the importance of parallel alignment for proper machine function.",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.09023568034172058,
+            "t": 0.2577965557575226,
+            "r": 0.9089411497116089,
+            "b": 0.49005523324012756
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "figure",
+      "chunk_id": "33ce6421-250a-4537-8b04-18f80b4060ef"
+    },
+    {
+      "text": "Page 2/2",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.08916334807872772,
+            "t": 0.9431618452072144,
+            "r": 0.156222864985466,
+            "b": 0.961125373840332
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "81028a03-c0ff-4f12-9d4c-f40f61043129"
+    },
+    {
+      "text": "version 0.0 | 8-4-2024",
+      "grounding": [
+        {
+          "box": {
+            "l": 0.7592359781265259,
+            "t": 0.9439287781715393,
+            "r": 0.9110183715820312,
+            "b": 0.9615281224250793
+          },
+          "page": 1
+        }
+      ],
+      "chunk_type": "marginalia",
+      "chunk_id": "fe9e5ab0-b5fe-42a6-abc5-db38955fe5d9"
+    }
+  ],
+  "extracted_schema": null,
+  "extraction_metadata": null
+}

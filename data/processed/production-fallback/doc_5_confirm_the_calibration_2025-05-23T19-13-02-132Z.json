@@ -1,0 +1,19 @@
+{
+  "filename": "Confirm the calibration.pdf",
+  "path": "/Users/neo/Developer/vision-ragchat-app/data/pdf/Confirm the calibration.pdf",
+  "mimeType": "application/pdf",
+  "elements": [
+    {
+      "type": "PlaceholderText",
+      "element_id": "c3094535-3235-4ad7-bb4b-8a06c50df9e9",
+      "text": "This is a placeholder for Confirm the calibration.pdf. To properly process PDFs, you need either:\n1. A valid Unstructured.io API key (sign up at https://unstructured.io)\n2. Install and use a local PDF parsing library like pdf-parse\n\nTo get an Unstructured API key:\n- Visit https://unstructured.io/developers\n- Sign up for a free account\n- Get your API key from the dashboard\n- Set it using: encore secret set --type local UnstructuredApiKey YOUR_KEY_HERE",
+      "metadata": {
+        "filename": "Confirm the calibration.pdf",
+        "page_number": 1
+      }
+    }
+  ],
+  "processedAt": "2025-05-23T19:13:02.132Z",
+  "sessionId": "production-fallback",
+  "processingStatus": "partial"
+}

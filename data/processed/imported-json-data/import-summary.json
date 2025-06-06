@@ -1,0 +1,45 @@
+{
+  "sessionId": "imported-json-data",
+  "importedAt": "2025-05-23T19:26:52.621Z",
+  "totalFiles": 7,
+  "successCount": 7,
+  "failureCount": 0,
+  "totalProcessingTimeMs": 5,
+  "documents": [
+    {
+      "filename": "FAQ_RoboRail_measurement_v0.0_020524.pdf",
+      "elements": 10,
+      "status": "success"
+    },
+    {
+      "filename": "Operators manual_RoboRail V2.2_170424.pdf",
+      "elements": 75,
+      "status": "success"
+    },
+    {
+      "filename": "Confirm the calibration.pdf",
+      "elements": 7,
+      "status": "success"
+    },
+    {
+      "filename": "FAQ_RoboRail_Chuck_alignment_calibration_v0.0_080424.pdf",
+      "elements": 1,
+      "status": "success"
+    },
+    {
+      "filename": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+      "elements": 17,
+      "status": "success"
+    },
+    {
+      "filename": "FAQ No communication to PMAC.pdf",
+      "elements": 1,
+      "status": "success"
+    },
+    {
+      "filename": "FAQ Data collection.pdf",
+      "elements": 1,
+      "status": "success"
+    }
+  ]
+}

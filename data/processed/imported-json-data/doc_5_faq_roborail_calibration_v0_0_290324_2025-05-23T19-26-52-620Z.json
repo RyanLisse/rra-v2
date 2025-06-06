@@ -1,0 +1,240 @@
+{
+  "filename": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+  "path": "/Users/neo/Developer/vision-ragchat-app/data/pdf/FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+  "mimeType": "application/pdf",
+  "elements": [
+    {
+      "type": "compositeelement",
+      "element_id": "2be1ffa200f7e368d600dcbdec2766e6",
+      "text": "  \n\nCalibration\n\nFAQ RoboRail\n\nTable of contents",
+      "metadata": {
+        "filename": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "page_number": 1,
+        "section": "Section 1",
+        "source": "documents/FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "type": "compositeelement",
+        "page": 1
+      }
+    },
+    {
+      "type": "table",
+      "element_id": "058f5d30c412c5bcf0bb9bfbfb9179d9",
+      "text": "1.1 1.2.1 1.2.2 1.2.3 1.3 1.4 1.5 3.2",
+      "metadata": {
+        "filename": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "page_number": 1,
+        "section": "Section 2",
+        "source": "documents/FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "type": "table",
+        "page": 1
+      }
+    },
+    {
+      "type": "compositeelement",
+      "element_id": "1698927260448de4efafe33ca3a76e79",
+      "text": "1.\n\nIntroduction .......................................................................................................................................... 2\n\nText indicators .................................................................................................................................. 2\n\n1.2 Controls ............................................................................................................................................. 2\n\nRemote control | screen .................................................................................................. 2\n\nControl panel | robot cell ................................................................................................. 2\n\nControl panel | trolley ...................................................................................................... 3\n\nResponsible persons ......................................................................................................................... 3\n\nRelated documents ........................................................................................................................... 3\n\nSafety ................................................................................................................................................ 3\n\n1.6 Components ...................................................................................................................................... 3\n\n1.7 Calibration types ............................................................................................................................... 3\n\n2. Troubleshooting ..................................................................................................................................... 4\n\n3. Calibration procedures ........................................................................................................................... 6\n\n3.1 Calibration of chuck rotation ............................................................................................................ 6\n\nTool calibration of the robot ............................................................................................................. 8\n\n3.3 Base calibration of the robot ............................................................................................................ 9\n\n3.4 Calibration of the trolley ................................................................................................................. 11\n\n3.5 Alignment calibration of the chucks ................................................................................................ 12\n\n3.6 Calibration of the infeed | home position ...................................................................................... 14\n\n3.7 Calibration of the infeed | material ................................................................................................ 15\n\nPage 1/18\n\nversion 0.0 | 29-3-2024\n\n  \n\nCalibration\n\nFAQ RoboRail",
+      "metadata": {
+        "filename": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "page_number": 1,
+        "section": "Section 3",
+        "source": "documents/FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "type": "compositeelement",
+        "page": 1
+      }
+    },
+    {
+      "type": "compositeelement",
+      "element_id": "b6b94da470c7579265b58cb62c1e0e4c",
+      "text": "1. Introduction\n\nThe RoboRail is a versatile machine that combines a plasma unit and a robot to cut metal profiles. The images on page 16 show an overview of the different shapes of material for use with the RoboRail.\n\nDue to certain reasons, it might be necessary to perform a calibration of the machine to maintain/repair its proper functioning. This document describes the calibration procedures of various components of the RoboRail.\n\n1.1 Text indicators\n\nIn this document: - Bullet points: ❖ ▪ - Bullet points: - Bullet points: ➢ - Bullet point: - -\n\nrefer to the § with the specified calibration procedure describe the steps to perform describe the result of the step(s) refers to an image at the bottom of the corresponding paragraph (§) gives a short explanation about the calibration refers to instructions on the screen of the remote control\n\n- Bullet points: > describe the result of the step(s)\n\nBullet point: a refers to an image at the bottom of the corresponding paragraph (§)\n\n- Text written in italics: gives a short explanation about the calibration\n\nText written in italics: Text written in bold:\n\n- Text written in bold: refers to instructions on the screen of the remote control\n\n1.2 Controls\n\n1.2.1 Remote control | screen\n\nThe calibration procedures are controlled by the remote control. This is the screen (on an adjustable arm) on the control unit. The remote control contains an emergency button ( calibration procedures to stop the RoboRail.\n\nDo not use the power on/off button on the control panel of the robot cell (refer to § 1.2.2) to stop the RoboRail during calibration to prevent loss of settings.\n\n1.2.2 Control panel | robot cell\n\nOn the side of the robot cell, underneath the control unit cabinet, there is a control panel with two key switches:\n\nPOWER   MAINTENANCE   OFF   ON         To de-energize  the RoboRail   To energize the  RoboRail   Maintenance  mode off   Maintenance  mode on  \n\n(ee >)\n\na v Y\n\nFor calibration purposes: - - Maintenance switch must be on (key to the right)\n\nIn the Maintenance mode the safety mechanisms of the cell door are overridden.\n\nPage 2/18\n\nversion 0.0 | 29-3-2024\n\n  \n\nCalibration\n\nFAQ RoboRail",
+      "metadata": {
+        "filename": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "page_number": 2,
+        "section": "Section 4",
+        "source": "documents/FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "type": "compositeelement",
+        "page": 2
+      }
+    },
+    {
+      "type": "compositeelement",
+      "element_id": "382966f8b28ba6c95b67776fc8756af4",
+      "text": "1.2.3 Control panel | trolley\n\nOn the trolley there is a control panel with two switches:",
+      "metadata": {
+        "filename": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "page_number": 3,
+        "section": "Section 5",
+        "source": "documents/FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "type": "compositeelement",
+        "page": 3
+      }
+    },
+    {
+      "type": "table",
+      "element_id": "1c13895e21eb4dec4fd9c26519881f70",
+      "text": "CHUCK CLAMP TROLLEY MOVE OFF To open the rear chuck ON To close the rear chuck Y+ To move the trolley to the front (to the front chuck) Y‒ To move the trolly to the rear (away from the front chuck)",
+      "metadata": {
+        "filename": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "page_number": 3,
+        "section": "Section 6",
+        "source": "documents/FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "type": "table",
+        "page": 3
+      }
+    },
+    {
+      "type": "compositeelement",
+      "element_id": "36357b3f28fc12a310289667b8a75e1a",
+      "text": "1.3 Responsible persons\n\nThe calibration procedures that are written in this document are exclusively reserved for mechanics.\n\n1.4 Related documents\n\nRoboRail operator’s manual - schematics, as appropriate - parts lists - components supplier instruction handbooks - documents, drawings, data sheets and declarations\n\nYou can find these documents on the Internet Customer Portal.\n\n1.5 Safety\n\nWear personal protective equipment (PPE) during the calibration procedure(s).\n\nDuring calibration, make sure to remain at a safe distance from moving parts of the machine. This also applies to persons who enter the work area.\n\nObey the safety instructions as written in the operator’s manual of the RoboRail.\n\n1.6 Components\n\nThe images on pages 16 to 18 show an overview of the main components of the RoboRail.\n\n1.7 Calibration types\n\nThis document describes the calibration procedure of the components that follow:\n\n- Rear chuck - Trolley\n\nRobot (base and tool) - Infeed table + sliders - Bogies\n\nPage 3/18\n\nversion 0.0 | 29-3-2024\n\n  \n\nCalibration\n\nFAQ RoboRail\n\n2. Troubleshooting",
+      "metadata": {
+        "filename": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "page_number": 3,
+        "section": "Section 7",
+        "source": "documents/FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "type": "compositeelement",
+        "page": 3
+      }
+    },
+    {
+      "type": "table",
+      "element_id": "964189e734134c6c3e8cc2552c4627b5",
+      "text": "# Problem / symptom Possible cause 1 Poor cutting quality Front chuck is not level Rear chuck is not level The front and rear chucks are not aligned Incorrect position of the robot Poor material quality 2 Incorrect product size Incorrect home position of the trolley Incorrect position of the robot, e.g. because it has hit something 3 The bogies are too low or too high to load the material Incorrect position of the trolley 4 Material on the Incorrect infeed position infeed table is not in the middle of the bogies Solution Calibration procedure Do a calibration of the chuck rotation (front chuck) ❖ § 3.1 Do a calibration of the chuck rotation (rear chuck) Do an alignment calibration of the chucks ❖ § 3.5 Do a tool calibration of the robot ❖ § 3.2 Do a base calibration of the robot ❖ § 3.3 Use material that complies with the specifications and tolerances; ▪ refer to the RoboRail operator’s manual Correct the differences in the material offset window on the remote control Do a calibration of the trolley ❖ § 3.4 Do a tool calibration of the robot ❖ § 3.2 Do a base calibration of the robot ❖ § 3.3 Do a calibration of the trolley ❖ § 3.4 Do a calibration of the infeed sliders ❖ § 3.6",
+      "metadata": {
+        "filename": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "page_number": 4,
+        "section": "Section 8",
+        "source": "documents/FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "type": "table",
+        "page": 4
+      }
+    },
+    {
+      "type": "compositeelement",
+      "element_id": "d29084433fb228ba951dad5b17febcff",
+      "text": "Page 4/18\n\nversion 0.0 | 29-3-2024\n\n  \n\nCalibration\n\nFAQ RoboRail",
+      "metadata": {
+        "filename": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "page_number": 4,
+        "section": "Section 9",
+        "source": "documents/FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "type": "compositeelement",
+        "page": 4
+      }
+    },
+    {
+      "type": "table",
+      "element_id": "873c295cf96a03af98b5e48faf30cc46",
+      "text": "# Problem / symptom Possible cause 5 Issues when loading the material: - it is not easy to center the material on the bogies Infeed position of the material is not defined and/or not correctly configured - material may fall from the bogies infeed sliders get stuck on the material when trying to retract any other problem to load the material - - 6 A crash against (a part of) the RoboRail A forklift truck or other vehicle has crashed into it Solution Do a calibration of the infeed position of the material Do a calibration of the part(s) that was/were affected by the crash Calibration procedure ❖ § 3.7 Depends on the specific part(s)",
+      "metadata": {
+        "filename": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "page_number": 5,
+        "section": "Section 10",
+        "source": "documents/FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "type": "table",
+        "page": 5
+      }
+    },
+    {
+      "type": "compositeelement",
+      "element_id": "a4d4c8f1cdf28ca66d4c3f6847585ec3",
+      "text": "Page 5/18\n\nversion 0.0 | 29-3-2024\n\n  \n\nCalibration\n\nFAQ RoboRail\n\n3. Calibration procedures\n\nTo go to the calibration menu: ▪ Put the RoboRail in Maintenance mode (refer to § 1.2.2). ▪ Select the Calibration button on the remote control.\n\nSubsequently: ▪ Select the desired calibration mode as explained below.\n\n3.1 Calibration of chuck rotation\n\nCalibration of the chuck rotation makes sure that the home position of both chucks is level. If one the chucks (or both chucks) is not level, it can have a negative effect on the cutting quality.\n\nThis calibration procedure applies to the front and rear chuck.\n\nNecessary tool:\n\nSpirit level\n\n=Ch=\n\nTo make sure that the home position of the chucks is level, do the procedure that follows: ▪ Make sure that a jaw set is installed on the chucks. ▪ Select Home chucks to put the chucks at their home position. ▪ Make sure that jaw no. 4 is on top ( Image 1). ▪ Put a spirit level in the middle of the chucks or on top of it (front: Image 1| rear: Image 2).\n\nIf one of the chucks (or both) is not level: ▪ ▪ Select Go to step 1 to go to the next screen. ▪ Select Home chucks to put the chucks at their home position. ▪ Select Go to step 2 to go to the next screen. ▪ Push the Emergency button on the remote control to stop the motors. ▪ Manually turn the chuck (or both) until it is level. ▪ Push the Emergency button again to release it. ▪ Push Reset and enable high power on the remote control (bottom center of the screen). ▪ Select Only press this button once the chucks are level! to confirm the position of the chuck. ▪ Select Go to step 3 to go to the next screen. ▪ Select Home chucks. ▪ Put again a spirit level in the middle of the chuck or on top of it.\n\nIf the chuck is level: ▪ Select DONE. ➢ The home position of the chuck is level.\n\nIf the chuck is still not level: ▪ Select Return to step 2. ▪ Repeat the calibration procedure as described above. ➢ The home position of the chuck is level.\n\nPage 6/18\n\nversion 0.0 | 29-3-2024\n\n  \n\nCalibration\n\nFAQ RoboRail\n\nIf you actually turned the chuck manually to put it level, you must redefine the base location of the robot.\n\nIn that case: ▪ Continue with § 3.3 to do a base calibration of the robot.\n\n4         Image 1  Level on top of the  front chuck; jaw no.  4 on top   Image 2  Level on top of the  rear chuck  \n\n4  \n\nPage 7/18\n\nversion 0.0 | 29-3-2024\n\n  \n\nCalibration\n\nFAQ RoboRail",
+      "metadata": {
+        "filename": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "page_number": 5,
+        "section": "Section 11",
+        "source": "documents/FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "type": "compositeelement",
+        "page": 5
+      }
+    },
+    {
+      "type": "compositeelement",
+      "element_id": "bc7da9295b32048a1438e6f2991d6182",
+      "text": "3.2 Tool calibration of the robot\n\nTool calibration makes sure that the robot exactly knows the position of the torch, including the distance of the torch above the material. This calibration procedure can be important if the torch is bent due to the heat of the cutting process.\n\nBefore you start: ▪ Make sure that there is no material inside the cutting cell. ▪ Make sure that you have equipped the torch with 125 A consumables ( Image 3).\n\n(Consumables of 65 A are 3 mm too short for calibration purposes.)\n\n▪ Make sure that the cutting cell is closed.\n\nIn case of large cutting faults (>10 mm / ⅜”) before calibration: ▪ Put the robot in Slow mode (bottom left of the screen) so you can stop it before it hits the sensor or the\n\n= Put the robot in Slow mode (bottom left of the screen) so you can stop it before it hits the sensor or the robot cell.\n\nrobot cell. If this happens during the calibration process: push the Emergency button on the remote control to stop the robot.\n\n=\n\nFor the tool calibration of the robot, do the procedure that follows: ▪ In the Calibration menu: select the button Tool calibration. ▪ Inside the cutting cell: remove the cover of the tool sensor. ▪ Select I have removed the sensor cover and equipped the 125amp consumables. ▪ Select Continue. ▪ Select Start tool calibration. ▪ Tool calibration consists of three moving and turning cycles to set the torch position offsets correctly. This\n\nvalue is automatically saved.\n\n▪ Make sure that the laser beam touches the black (=upper) part of the torch ( Image 4). If it touches the white (=lower) part of the torch: contact the HGG service department.\n\nWhen the tool calibration is completed: ▪ Select Done. ▪ Select Return to home. ▪ ➢ The torch position is correct.\n\nIf the tool calibration of the robot did not solve the problem: ▪ Continue with § 3.3 to do a base calibration of the robot.\n\n      Image 3  Consumables 125 A   Image 4  Laser position on  the torch  \n\nPage 8/18\n\nversion 0.0 | 29-3-2024\n\n  \n\nCalibration\n\nFAQ RoboRail",
+      "metadata": {
+        "filename": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "page_number": 8,
+        "section": "Section 12",
+        "source": "documents/FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "type": "compositeelement",
+        "page": 8
+      }
+    },
+    {
+      "type": "compositeelement",
+      "element_id": "939604209ea9eb2ffae6c4ebeea7d6ae",
+      "text": "3.3 Base calibration of the robot\n\nBase calibration makes sure that the 0 point of the robot is actually the 0 point. It sets the correct position of the robot related to the entire system.\n\nThe RoboRail is supplied with a tube (L = 2 m, 120 x 120 mm*) as reference part. If this tube is not available anymore, you must take an alternative square tube – with very accurate dimensions – that you use as a reference part. Dimensions of the alternative tube: min. 120 x 120 mm | max. 200 x 200 mm*\n\nFor USA:\n\ndimensions of the reference tube are L = 7 ft, 4 x 8”, thickness = ⅛” - dimensions of an alternative tube must be min. (min. 5 x 5” / max. 8 x 8”)\n\nBefore you start: ▪ Make sure that the conveyor mode plate is removed and that a regular chuck clamp is installed.\n\nFor the base calibration of the robot, do the procedure that follows: ▪ In the Calibration menu: select the button Base calibration. ▪ Select Go to step 1.\n\nIf you use the reference tube supplied with the RoboRail: ** ▪ Select Use default measurement tube.\n\n** For USA, if you did not receive the square tube but the 4 x 8” tube or if you did not receive any tube:\n\nskip this instruction and continue with the next (“If you use an alternative square tube:”) - enter the dimensions in mm (1” = 25.4 mm)\n\nIf you use an alternative square tube: ▪ Accurately measure the outside dimensions of the tube (height and width). ▪ Enter the height and the width of the tube (in mm) on the screen (or use the arrow keys to do so). Max.\n\n= Enter the height and the width of the tube (in mm) on the screen (or use the arrow keys to do so). Max. value: 200 mm.\n\nvalue: 200 mm. ▪ Select Submit values.\n\nSubsequently: ▪ Select Conveyor is removed to confirm that the conveyor mode plate is removed and that a regular\n\n= Select Conveyor is removed to confirm that the conveyor mode plate is removed and that a regular chuck clamp is installed.\n\nchuck clamp is installed. ▪ Select Open front chuck. ▪ On control panel of the trolley: set the switch CHUCK CLAMP to OFF to open the rear chuck. ▪ Slide the reference tube or the alternative tube into the machine. ▪ Select Close front chuck. ▪ On control panel of the trolley: set the switch CHUCK CLAMP to ON to close the rear chuck. ▪ Select Move trolley forward and/or Move Trolley backward to slide the tube into the robot cell.\n\n(Alternative: use the switch [Y+] / [Y‒] on the control panel of the trolley to move the trolley to the front / rear.)\n\n▪ Make sure that the tube is below the torch. ▪ Select Go to step 4. ▪ Select Start calibrating the base.\n\nPage 9/18\n\nversion 0.0 | 29-3-2024\n\n  ",
+      "metadata": {
+        "filename": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "page_number": 9,
+        "section": "Section 13",
+        "source": "documents/FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "type": "compositeelement",
+        "page": 9
+      }
+    },
+    {
+      "type": "compositeelement",
+      "element_id": "d529baad198cd353fbe212482b5abc1b",
+      "text": "Calibration\n\nFAQ RoboRail\n\n➢ The robot measures the position of the top and sides of the reference tube and defines the base location.\n\n➢ The remote control shows a pop-up message to confirm that the calibration was successful. ▪ When the machine completed the movement: select Done. ▪ Release the tube and remove it from the machine. ▪ Select Return to home to exit this calibration screen.\n\nPage 10/18\n\nversion 0.0 | 29-3-2024\n\n  \n\nCalibration\n\nFAQ RoboRail\n\n3.4 Calibration of the trolley\n\nCalibration of the trolley sets the correct position of the trolley related to the robot. If the home position of the trolley is not correct, it can cause incorrect product sizes.\n\nFor the calibration of the position of the trolley, do the procedure that follows: ▪ In the Calibration menu: select the button Trolley position calibration. ▪ Select Go to step 1. ▪ Select Home the trolley to move the trolley to the rear. ▪ Accurately measure the distance between the rear of the trolley and the hook ( Image 5). ▪ Enter the distance (in mm) on the screen (or use the arrow keys to do so). ▪ Select Submit values. ▪ Select Home trolley.\n\nSubsequently, to make sure that the home position of the trolley is correct: ▪ Accurately measure the distance between the rear of the trolley and the hook again.\n\nIf the distance = 35 mm (1⅜”): ➢ Calibration of the trolley was successful. ▪ Select Return to home.\n\nIf the distance is ≠ 35 mm (1⅜”): ▪ Repeat the calibration procedure.\n\nSubsequently: ▪ Continue with § 3.5 to align the front and rear chucks.\n\nImage 5 Distance between trolley and hook\n\nPage 11/18\n\nversion 0.0 | 29-3-2024\n\n  \n\nCalibration\n\nFAQ RoboRail",
+      "metadata": {
+        "filename": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "page_number": 10,
+        "section": "Section 14",
+        "source": "documents/FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "type": "compositeelement",
+        "page": 10
+      }
+    },
+    {
+      "type": "compositeelement",
+      "element_id": "49608537301da2465ca9f868ca1ee06a",
+      "text": "3.5 Alignment calibration of the chucks\n\nCalibration of the chucks makes sure that the front and rear chucks are aligned with each other. If they are not aligned, it can have a negative effect on the cutting quality.\n\nThe RoboRail is supplied with a tube (L = 2 m, 120 x 120 mm*) as reference part. If this tube is not available anymore, you must take an alternative square tube – with very accurate dimensions – that you use as a reference part. Dimensions of the alternative tube: min. 120 x 120 mm | max. 200 x 200 mm*\n\nFor USA:\n\ndimensions of the reference tube are L = 7 ft, 4 x 8”, thickness = ⅛” - dimensions of an alternative tube must be min. min. 5 x 5” / max. 8 x 8”\n\nTo verify if alignment of the front and rear chucks is necessary, do the procedure that follows: ▪ ▪ Select Continue.\n\nIf you use the reference tube supplied with the RoboRail: ** ▪ Enter profile width: 120,00 (mm) on the screen (or use the arrow keys to do so). ▪ Enter profile height: 120,00 (mm) on the screen (or use the arrow keys to do so). ▪ Enter Submit values.\n\n** For USA, if you did not receive the square tube but the 4 x 8” tube or if you did not receive any tube:\n\nskip this instruction and continue with the next (“If you use an alternative square tube:”) - enter the dimensions in mm (1” = 25.4 mm)\n\nIf you use an alternative square tube: ▪ Accurately measure the outside dimensions of the tube (height and width). ▪ Enter the width and the height of the tube (in mm) on the screen (or use the arrow keys to do so). Max.\n\n= Enter the width and the height of the tube (in mm) on the screen (or use the arrow keys to do so). Max. value: 200 mm.\n\nvalue: 200 mm. ▪ Select Submit values.\n\nSubsequently: ▪ Select Open front chuck. ▪ ▪ Select Close front chuck. ▪ Select Continue. ▪ Select Approach material. The field Laser value on the screen shows a certain value. ▪ Use the switch [Y+] on the control panel of the trolley (or the arrow button on the screen) to move\n\nthe trolley fully forward.\n\n▪ Keep an eye on the Laser value on the screen and move the trolley to the rear with switch [Y‒] (or the arrow button on the screen). Make sure that the laser beam continues to hit the material.\n\n▪ Select Finish.\n\nIf the laser value changes more than 2 (mm) you must align the chucks.\n\nPage 12/18\n\nversion 0.0 | 29-3-2024\n\n  \n\nCalibration\n\nFor the procedure to align the chucks: ▪ Contact the HGG service department.\n\nPage 13/18\n\nFAQ RoboRail\n\nversion 0.0 | 29-3-2024\n\n  \n\nCalibration\n\nFAQ RoboRail",
+      "metadata": {
+        "filename": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "page_number": 12,
+        "section": "Section 15",
+        "source": "documents/FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "type": "compositeelement",
+        "page": 12
+      }
+    },
+    {
+      "type": "compositeelement",
+      "element_id": "d5e7ff08655b937ed3e66a2736216236",
+      "text": "3.6 Calibration of the infeed | home position\n\nCalibration of the infeed table makes sure that the home position of the infeed sliders is correct. In this position the sliders put the material in the center of the bogies.\n\nNecessary tool:\n\n5\n\nMeasuring tape\n\nFor the calibration of the position of the infeed table, do the procedure that follows: ▪ ▪ Select Continue. ▪ Select Home infeed to move the infeed sliders to their home position. In this position the sliders are fully\n\nretracted and they are near the end stops.\n\n▪ Select Continue. ▪ Accurately measure the distance between the end of the slider and the end stop of the infeed table (this\n\nis the hook behind the slider) ( Image 6). It does not matter which slider you measure.\n\n▪ Enter the distance (in mm) on the screen (or use the arrow keys to do so). ▪ Select Submit value. ▪ Select Continue. ▪ Select Home infeed.\n\nSubsequently, to make sure that the home position of the sliders is correct: ▪ Accurately measure the distance between the end of the slider and the end stop of the infeed table\n\nagain.\n\nIf the distance = 5 mm (⅕”): ➢ Calibration of the infeed table was successful. ▪ Select Return to the main screen.\n\nIf the distance is ≠ 5 mm (⅕”): ▪ Select Go back to the previous step and repeat the procedure.\n\n      Side view  Image 6  Distance between end of slider and end  stop   Top view  \n\nPage 14/18\n\nversion 0.0 | 29-3-2024\n\n  \n\nCalibration\n\nFAQ RoboRail\n\n3.7 Calibration of the infeed | material\n\nThis calibration procedure sets the correct infeed position of the material. An incorrect position can cause problems to load the material and incorrect cutting positions.\n\nFor the calibration of the infeed position of the material, do the procedure that follows: ▪ In the Calibration menu: select the button Infeed material position calibration. ▪ Select Continue. ▪ Select Home infeed to put the infeed at its home position. ▪ Select Home trolley to move the trolley to the rear. This is a safe position of the trolley during the\n\ncalibration process.\n\n▪ Select Continue. ▪ Select Infeed forward and/or Infeed backward to move the infeed just after the centerline of the bogies ( Image 7). In this position the infeed sliders are at 1 to max. 5 mm (¹/25 to max. ⅕”) after the center of the bogies.\n\n▪ Select Submit position. ▪ Select Finish.\n\nImage 7 Position of the infeed sliders\n\nPage 15/18\n\nversion 0.0 | 29-3-2024\n\n  \n\nCalibration\n\nFAQ RoboRail\n\nMetal profiles | shapes\n\n               Round tube/pipe   Square tube   Channel   Flat bar   Angle  ",
+      "metadata": {
+        "filename": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "page_number": 14,
+        "section": "Section 16",
+        "source": "documents/FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "type": "compositeelement",
+        "page": 14
+      }
+    },
+    {
+      "type": "compositeelement",
+      "element_id": "c0324175d5ec8fecf2d37fb362fd86da",
+      "text": "Components\n\nMain components of the RoboRail (refer to the images below): A. Front chuck (#5) B. Trolley with rear chuck (#4) C. Infeed table (#16) D. Cutting cell (#13) E. Robot (#3) F. Torch G. Control unit (#9) H. Bogies (front / middle / rear) I. Conveyor mode plate J. Controls\n\nRemote control (#10) - -\n\nPower / maintenance switches Trolley controls\n\n& ES = = Fa ra al g =I Effective cutting\n\nSide view | left part\n\nPage 16/18\n\nversion 0.0 | 29-3-2024\n\n  \n\nCalibration\n\nFAQ RoboRail\n\n_____Height centering Profile jht - non rotating profiles “4 Minimum 25 [1\"] Maximum 0250 [10\"] i Te. Fs if Gee i (3-5) i! __ length 12192 [408\n\nSide view | right part\n\n3015 mm [9-10 880 mm 2-10 98\" 2352 mm f'-8 58\"] 4150 mm [99 14°]\n\nTop view | left part\n\n$250 mm (30-4 3/16\") 13832 mm [45'-4 9/16\"]\n\nTop view | right part\n\nPage 17/18\n\nversion 0.0 | 29-3-2024\n\n  \n\nCalibration\n\nConveyor mode plate\n\nPage 18/18\n\nFAQ RoboRail\n\nversion 0.0 | 29-3-2024",
+      "metadata": {
+        "filename": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "page_number": 16,
+        "section": "Section 17",
+        "source": "documents/FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "type": "compositeelement",
+        "page": 16
+      }
+    }
+  ],
+  "processedAt": "2025-05-23T19:26:52.620Z",
+  "sessionId": "imported-json-data",
+  "processingStatus": "success",
+  "statistics": {
+    "totalElements": 17,
+    "elementTypes": {
+      "compositeelement": 13,
+      "table": 4
+    },
+    "totalPages": 16,
+    "processingTimeMs": 0
+  }
+}

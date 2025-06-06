@@ -1,0 +1,65 @@
+{
+  "sessionId": "my-session-2-test",
+  "timestamp": "2025-05-23T18:55:19.565Z",
+  "totalFiles": 7,
+  "successCount": 0,
+  "failureCount": 7,
+  "results": [
+    {
+      "fileName": "FAQ Data collection.pdf",
+      "elementCount": 0,
+      "processingTime": 0,
+      "localFilePath": "data/processed/my-session-2-test/doc_1_failed_faq_data_collection_2025-05-23T18-54-56-247Z.json",
+      "error": "Failed to process document with all strategies: API error occurred: Status 401 Content-Type application/json Body \n{\"detail\":\"API key is malformed, please type the API key correctly in the header.\"}",
+      "status": "failed"
+    },
+    {
+      "fileName": "Operators manual_RoboRail V2.2_170424.pdf",
+      "elementCount": 0,
+      "processingTime": 0,
+      "localFilePath": "data/processed/my-session-2-test/doc_2_failed_operators_manual_roborail_v2_2_170424_2025-05-23T18-55-03-343Z.json",
+      "error": "Failed to process document with all strategies: Unexpected API response status or content-type: Status 200 Content-Type  Body \n[]",
+      "status": "failed"
+    },
+    {
+      "fileName": "FAQ No communication to PMAC.pdf",
+      "elementCount": 0,
+      "processingTime": 0,
+      "localFilePath": "data/processed/my-session-2-test/doc_3_failed_faq_no_communication_to_pmac_2025-05-23T18-55-05-905Z.json",
+      "error": "Failed to process document with all strategies: Unexpected API response status or content-type: Status 200 Content-Type  Body \n[]",
+      "status": "failed"
+    },
+    {
+      "fileName": "FAQ_RoboRail_measurement_v0.0_020524.pdf",
+      "elementCount": 0,
+      "processingTime": 0,
+      "localFilePath": "data/processed/my-session-2-test/doc_4_failed_faq_roborail_measurement_v0_0_020524_2025-05-23T18-55-08-904Z.json",
+      "error": "Failed to process document with all strategies: Unexpected API response status or content-type: Status 200 Content-Type  Body \n[]",
+      "status": "failed"
+    },
+    {
+      "fileName": "Confirm the calibration.pdf",
+      "elementCount": 0,
+      "processingTime": 0,
+      "localFilePath": "data/processed/my-session-2-test/doc_5_failed_confirm_the_calibration_2025-05-23T18-55-11-431Z.json",
+      "error": "Failed to process document with all strategies: Unexpected API response status or content-type: Status 200 Content-Type  Body \n[]",
+      "status": "failed"
+    },
+    {
+      "fileName": "FAQ_RoboRail_Chuck_alignment_calibration_v0.0_080424.pdf",
+      "elementCount": 0,
+      "processingTime": 0,
+      "localFilePath": "data/processed/my-session-2-test/doc_6_failed_faq_roborail_chuck_alignment_calibration_v0_0_080424_2025-05-23T18-55-14-328Z.json",
+      "error": "Failed to process document with all strategies: API error occurred: Status 401 Content-Type application/json Body \n{\"detail\":\"API key is malformed, please type the API key correctly in the header.\"}",
+      "status": "failed"
+    },
+    {
+      "fileName": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+      "elementCount": 0,
+      "processingTime": 0,
+      "localFilePath": "data/processed/my-session-2-test/doc_7_failed_faq_roborail_calibration_v0_0_290324_2025-05-23T18-55-19-564Z.json",
+      "error": "Failed to process document with all strategies: Unexpected API response status or content-type: Status 200 Content-Type  Body \n[]",
+      "status": "failed"
+    }
+  ]
+}

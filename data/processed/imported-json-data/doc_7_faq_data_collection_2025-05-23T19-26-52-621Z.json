@@ -1,0 +1,31 @@
+{
+  "filename": "FAQ Data collection.pdf",
+  "path": "/Users/neo/Developer/vision-ragchat-app/data/pdf/FAQ Data collection.pdf",
+  "mimeType": "application/pdf",
+  "elements": [
+    {
+      "type": "compositeelement",
+      "element_id": "d3d552d0a7238e281a5973cc476c1c4a",
+      "text": "Create diagnostic data collection\n\nWhenever there is a problem on your RoboRail machine, our technical support team is always ready to help you. Our team has several diagnostic tools at their disposal. To help you successfully it is very important that the following information is as complete as possible.\n\nStep 1. Advanced, Generate data collection\n\nStep 2. Create data collection following the questions in the screen:\n\nMachine number on the type plate, • Description of What went wrong, • When did the problem start, • Other information HGG might need\n\nStep 3. Add additional cutting files from external applications\n\nCreate data collection\n\nStep 4. Create collection\n\nSend to HGG\n\nYou are now ready to send the information to HGG. We advise you to use an FTP server rather than email. Most email firewalls will block unrecognized file formats, also most emails have a data limit of 10 Mb or sometimes 15 Mb per email.\n\nThere are several free File Transfer Protocol servers available, HGG recommends WeTransfer:\n\n• E mail to HGG: service@hgg.nl\n\n• Enter your own e-mail address\n\n• Enter your machine number in the ‘Message’ so that it can easily be identified by HGG.\n\nAdd your files. Click on the blue cross, browse to your files.\n\n+\n\n++\n\nFiles:\n\n+) Add your files Your email\n\nMost recent data collection file, e.g.: 2024_02_25- 12_13_24_341_.7z\n\n• Photos of the on-screen error messages.\n\n• Photos of the machine.\n\n• Photos of the part or cut that caused the problem.\n\n• A description of what went wrong.\n\n• Any drawings or design files of the part that caused the problem.",
+      "metadata": {
+        "filename": "FAQ Data collection.pdf",
+        "page_number": 1,
+        "section": "Section 1",
+        "source": "documents/FAQ Data collection.pdf",
+        "type": "compositeelement",
+        "page": 1
+      }
+    }
+  ],
+  "processedAt": "2025-05-23T19:26:52.621Z",
+  "sessionId": "imported-json-data",
+  "processingStatus": "success",
+  "statistics": {
+    "totalElements": 1,
+    "elementTypes": {
+      "compositeelement": 1
+    },
+    "totalPages": 1,
+    "processingTimeMs": 0
+  }
+}

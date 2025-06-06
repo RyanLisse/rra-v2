@@ -1,0 +1,65 @@
+{
+  "sessionId": "my-session-2",
+  "timestamp": "2025-05-23T18:37:59.601Z",
+  "totalFiles": 7,
+  "successCount": 0,
+  "failureCount": 7,
+  "results": [
+    {
+      "fileName": "FAQ Data collection.pdf",
+      "elementCount": 0,
+      "processingTime": 0,
+      "localFilePath": "data/processed/my-session-2/doc_1_failed_faq_data_collection_2025-05-23T18-35-30-375Z.json",
+      "error": "No elements returned from Unstructured.io API for FAQ Data collection.pdf",
+      "status": "failed"
+    },
+    {
+      "fileName": "Operators manual_RoboRail V2.2_170424.pdf",
+      "elementCount": 0,
+      "processingTime": 0,
+      "localFilePath": "data/processed/my-session-2/doc_2_failed_operators_manual_roborail_v2_2_170424_2025-05-23T18-36-42-710Z.json",
+      "error": "No elements returned from Unstructured.io API for Operators manual_RoboRail V2.2_170424.pdf",
+      "status": "failed"
+    },
+    {
+      "fileName": "FAQ No communication to PMAC.pdf",
+      "elementCount": 0,
+      "processingTime": 0,
+      "localFilePath": "data/processed/my-session-2/doc_3_failed_faq_no_communication_to_pmac_2025-05-23T18-36-51-686Z.json",
+      "error": "No elements returned from Unstructured.io API for FAQ No communication to PMAC.pdf",
+      "status": "failed"
+    },
+    {
+      "fileName": "FAQ_RoboRail_measurement_v0.0_020524.pdf",
+      "elementCount": 0,
+      "processingTime": 0,
+      "localFilePath": "data/processed/my-session-2/doc_4_failed_faq_roborail_measurement_v0_0_020524_2025-05-23T18-37-08-481Z.json",
+      "error": "No elements returned from Unstructured.io API for FAQ_RoboRail_measurement_v0.0_020524.pdf",
+      "status": "failed"
+    },
+    {
+      "fileName": "Confirm the calibration.pdf",
+      "elementCount": 0,
+      "processingTime": 0,
+      "localFilePath": "data/processed/my-session-2/doc_5_failed_confirm_the_calibration_2025-05-23T18-37-19-725Z.json",
+      "error": "No elements returned from Unstructured.io API for Confirm the calibration.pdf",
+      "status": "failed"
+    },
+    {
+      "fileName": "FAQ_RoboRail_Chuck_alignment_calibration_v0.0_080424.pdf",
+      "elementCount": 0,
+      "processingTime": 0,
+      "localFilePath": "data/processed/my-session-2/doc_6_failed_faq_roborail_chuck_alignment_calibration_v0_0_080424_2025-05-23T18-37-31-521Z.json",
+      "error": "No elements returned from Unstructured.io API for FAQ_RoboRail_Chuck_alignment_calibration_v0.0_080424.pdf",
+      "status": "failed"
+    },
+    {
+      "fileName": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+      "elementCount": 0,
+      "processingTime": 0,
+      "localFilePath": "data/processed/my-session-2/doc_7_failed_faq_roborail_calibration_v0_0_290324_2025-05-23T18-37-59-600Z.json",
+      "error": "No elements returned from Unstructured.io API for FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+      "status": "failed"
+    }
+  ]
+}

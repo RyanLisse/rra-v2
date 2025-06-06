@@ -1,0 +1,12 @@
+{
+  "json": {
+    "filename": "FAQ Data collection.pdf",
+    "path": "/Users/neo/Developer/vision-ragchat-app/data/pdf/FAQ Data collection.pdf",
+    "mimeType": "application/pdf",
+    "elements": [],
+    "processedAt": "2025-05-23T19:12:31.651Z",
+    "sessionId": "production-batch",
+    "error": "API error occurred: Status 401 Content-Type application/json Body \n{\"detail\":\"API key is malformed, please type the API key correctly in the header.\"}",
+    "processingStatus": "failed"
+  }
+}

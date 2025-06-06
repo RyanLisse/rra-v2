@@ -1,0 +1,12 @@
+{
+  "json": {
+    "filename": "FAQ_RoboRail_measurement_v0.0_020524.pdf",
+    "path": "/Users/neo/Developer/vision-ragchat-app/data/pdf/FAQ_RoboRail_measurement_v0.0_020524.pdf",
+    "mimeType": "application/pdf",
+    "elements": [],
+    "processedAt": "2025-05-23T19:17:42.121Z",
+    "sessionId": "production-success",
+    "error": "Unexpected API response status or content-type: Status 200 Content-Type  Body \n[]",
+    "processingStatus": "failed"
+  }
+}

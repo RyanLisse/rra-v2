@@ -1,0 +1,12 @@
+{
+  "json": {
+    "filename": "FAQ Data collection.pdf",
+    "path": "/Users/neo/Developer/vision-ragchat-app/data/pdf/FAQ Data collection.pdf",
+    "mimeType": "application/pdf",
+    "elements": [],
+    "processedAt": "2025-05-23T19:20:29.025Z",
+    "sessionId": "production-retry",
+    "error": "No elements returned from Unstructured.io API for FAQ Data collection.pdf",
+    "processingStatus": "failed"
+  }
+}

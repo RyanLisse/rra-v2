@@ -1,0 +1,53 @@
+{
+  "sessionId": "production-success",
+  "processedAt": "2025-05-23T19:17:42.976Z",
+  "totalFiles": 7,
+  "successCount": 0,
+  "failureCount": 7,
+  "totalProcessingTimeMs": 3863,
+  "averageProcessingTimeMs": 551.8571428571429,
+  "documents": [
+    {
+      "filename": "FAQ Data collection.pdf",
+      "status": "failed",
+      "elements": 0,
+      "error": "API error occurred: Status 401 Content-Type application/json Body \n{\"detail\":\"API key is malformed, please type the API key correctly in the header.\"}"
+    },
+    {
+      "filename": "Operators manual_RoboRail V2.2_170424.pdf",
+      "status": "failed",
+      "elements": 0,
+      "error": "Unexpected API response status or content-type: Status 200 Content-Type  Body \n[]"
+    },
+    {
+      "filename": "FAQ No communication to PMAC.pdf",
+      "status": "failed",
+      "elements": 0,
+      "error": "Unexpected API response status or content-type: Status 200 Content-Type  Body \n[]"
+    },
+    {
+      "filename": "FAQ_RoboRail_measurement_v0.0_020524.pdf",
+      "status": "failed",
+      "elements": 0,
+      "error": "Unexpected API response status or content-type: Status 200 Content-Type  Body \n[]"
+    },
+    {
+      "filename": "Confirm the calibration.pdf",
+      "status": "failed",
+      "elements": 0,
+      "error": "Unexpected API response status or content-type: Status 200 Content-Type  Body \n[]"
+    },
+    {
+      "filename": "FAQ_RoboRail_Chuck_alignment_calibration_v0.0_080424.pdf",
+      "status": "failed",
+      "elements": 0,
+      "error": "API error occurred: Status 401 Content-Type application/json Body \n{\"detail\":\"API key is malformed, please type the API key correctly in the header.\"}"
+    },
+    {
+      "filename": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+      "status": "failed",
+      "elements": 0,
+      "error": "Unexpected API response status or content-type: Status 200 Content-Type  Body \n[]"
+    }
+  ]
+}

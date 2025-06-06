@@ -1,0 +1,110 @@
+{
+  "filename": "Confirm the calibration.pdf",
+  "path": "/Users/neo/Developer/vision-ragchat-app/data/pdf/Confirm the calibration.pdf",
+  "mimeType": "application/pdf",
+  "elements": [
+    {
+      "type": "compositeelement",
+      "element_id": "aeb200bbfe45d23c89f57faba9fc57f8",
+      "text": "HGG Profiling Equipment Internal Documentation\n\nConfirm the calibration\n\nHow to check if the calibration was successfull\n\nSpecialists in3DP.\n\nJasper ten Hove Version 1.0 2024-05-16\n\n1 Table of Contents",
+      "metadata": {
+        "filename": "Confirm the calibration.pdf",
+        "page_number": 1,
+        "section": "Section 1",
+        "source": "documents/Confirm the calibration.pdf",
+        "type": "compositeelement",
+        "page": 1
+      }
+    },
+    {
+      "type": "table",
+      "element_id": "f2b953c6b0b1bd3d35a541eac38e8d0a",
+      "text": "Table of Contents ................................................................................................................................... 1 2.1 Document Management ............................................................................................................... 2 2.2 Document History ......................................................................................................................... 2 2.3 Related Documents ....................................................................................................................... 2 2.4 Who can use this document ......................................................................................................... 2 Perform a base calibration ..................................................................................................................... 3 Perform a tool calibration....................................................................................................................... 3 Verify the calibration .............................................................................................................................. 3 5.1 Verify base z .................................................................................................................................. 3 5.2 Verify conveyor Z .......................................................................................................................... 3 5.3 Verify base X .................................................................................................................................. 3",
+      "metadata": {
+        "filename": "Confirm the calibration.pdf",
+        "page_number": 2,
+        "section": "Section 2",
+        "source": "documents/Confirm the calibration.pdf",
+        "type": "table",
+        "page": 2
+      }
+    },
+    {
+      "type": "compositeelement",
+      "element_id": "8df4ec3689e15e6af357d27e7c8dcd27",
+      "text": "1\n\n2 Document Information ........................................................................................................................... 2\n\n3\n\n4\n\n5\n\nHGG Profiling Equipment – Confirm the calibration – v1.0 – 2024-05-16\n\n1\n\n2 Document Information\n\n2.1 Document Management\n\nPlease send any document errors or comments to:\n\nDocument Manager 2.2 Document History",
+      "metadata": {
+        "filename": "Confirm the calibration.pdf",
+        "page_number": 2,
+        "section": "Section 3",
+        "source": "documents/Confirm the calibration.pdf",
+        "type": "compositeelement",
+        "page": 2
+      }
+    },
+    {
+      "type": "table",
+      "element_id": "26b74160a3e99aa3b92fd3bea1f8d4dd",
+      "text": "Authors Jasper ten Hove",
+      "metadata": {
+        "filename": "Confirm the calibration.pdf",
+        "page_number": 3,
+        "section": "Section 4",
+        "source": "documents/Confirm the calibration.pdf",
+        "type": "table",
+        "page": 3
+      }
+    },
+    {
+      "type": "compositeelement",
+      "element_id": "e727c92eef38732a5914552472d57b63",
+      "text": "Version Changes 1.0 Initial version 2.3 Related Documents",
+      "metadata": {
+        "filename": "Confirm the calibration.pdf",
+        "page_number": 3,
+        "section": "Section 5",
+        "source": "documents/Confirm the calibration.pdf",
+        "type": "compositeelement",
+        "page": 3
+      }
+    },
+    {
+      "type": "table",
+      "element_id": "0f2dcf087bc0de324e40f3a605c127fa",
+      "text": "Version Title FAQ calibration",
+      "metadata": {
+        "filename": "Confirm the calibration.pdf",
+        "page_number": 3,
+        "section": "Section 6",
+        "source": "documents/Confirm the calibration.pdf",
+        "type": "table",
+        "page": 3
+      }
+    },
+    {
+      "type": "compositeelement",
+      "element_id": "66a27ffc809d2b831169974ab94c7dd4",
+      "text": "2.4 Who can use this document\n\nThis document is intended for HGG service engineers.\n\nHGG Profiling Equipment – Confirm the calibration – v1.0 – 2024-05-16\n\n2\n\n3 Perform a base calibration\n\nTo perform a base calibration you will need a square tube with very accurate dimensions. Preferably the provided calibration tube.\n\nNext you will need to follow the instructions on the calibration dialog.\n\n4 Perform a tool calibration\n\nTo perform the tool calibration please follow the instructions on the calibration in the calibration dialog.\n\nMake sure the tool sensor cover is removed before starting the calibration. Also make sure the 125Amp consumables are mounted.\n\nWhen doing the calibration keep an eye on where the laser hits the tool. Make sure the laser hits the black part of the tool and not the white part.\n\n5 Verify the calibration\n\n5.1 Verify base z\n\n• To verify the base Z offset, program a square tube in ProCAM preferably use the provided calibration\n\ndialog. Load the generated file in the software and apparoach the material.\n\n• Using an allenkey measure the distance between the torch and the material. • •\n\nLook into the current cutting table what the height should be. If the height is not correct adjust: machine calibration->robot base->Z. until the height is correct.\n\n5.2 Verify conveyor Z\n\nChange the machine to conveyor mode. • Program a channel with the dimensions of the used calibration material. • • Measure the distance between the torch and the material with an allenkey. • •\n\nLook into the current cutting table what the height should be. If it is not correct adjust: bogies-> centerline Z offset. Until the height is correct\n\n5.3 Verify base X\n\nUsing the same file as in verify conveyor Z approach the material on the sides • • Measure the distance on both sides, if the distance is not the same adjust: machine calibration->robot\n\nbase->x until it is the same.\n\nIf the distance on both sides is too small, the tool calibration should be done over. Also base Z will need to be reviewed after doing the tool calibration.\n\nHGG Profiling Equipment – Confirm the calibration – v1.0 – 2024-05-16\n\n3",
+      "metadata": {
+        "filename": "Confirm the calibration.pdf",
+        "page_number": 3,
+        "section": "Section 7",
+        "source": "documents/Confirm the calibration.pdf",
+        "type": "compositeelement",
+        "page": 3
+      }
+    }
+  ],
+  "processedAt": "2025-05-23T19:26:52.620Z",
+  "sessionId": "imported-json-data",
+  "processingStatus": "success",
+  "statistics": {
+    "totalElements": 7,
+    "elementTypes": {
+      "compositeelement": 4,
+      "table": 3
+    },
+    "totalPages": 3,
+    "processingTimeMs": 0
+  }
+}

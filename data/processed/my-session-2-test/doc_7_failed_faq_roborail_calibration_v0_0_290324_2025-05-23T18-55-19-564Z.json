@@ -1,0 +1,12 @@
+{
+  "json": {
+    "filename": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+    "path": "/Users/neo/Developer/vision-ragchat-app/data/pdf/FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+    "mimeType": "application/pdf",
+    "elements": [],
+    "processedAt": "2025-05-23T18:55:19.563Z",
+    "sessionId": "my-session-2-test",
+    "error": "Failed to process document with all strategies: Unexpected API response status or content-type: Status 200 Content-Type  Body \n[]",
+    "processingStatus": "failed"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "json": {
+    "filename": "FAQ No communication to PMAC.pdf",
+    "path": "/Users/neo/Developer/vision-ragchat-app/data/pdf/FAQ No communication to PMAC.pdf",
+    "mimeType": "application/pdf",
+    "elements": [],
+    "processedAt": "2025-05-23T18:55:05.905Z",
+    "sessionId": "my-session-2-test",
+    "error": "Failed to process document with all strategies: Unexpected API response status or content-type: Status 200 Content-Type  Body \n[]",
+    "processingStatus": "failed"
+  }
+}
