@@ -1,9 +1,12 @@
 import { describe, test, expect, beforeAll, afterAll } from 'vitest';
-import { setupNeonTestBranching, getTestDatabaseUrl } from '@/tests/config/neon-branch-setup';
+import {
+  setupNeonTestBranching,
+  getTestDatabaseUrl,
+} from '@/tests/config/neon-branch-setup';
 
 /**
  * Example test file demonstrating Neon database branching
- * 
+ *
  * This test suite will:
  * 1. Create a dedicated test branch before running
  * 2. Run all tests against the isolated branch
@@ -20,10 +23,10 @@ describe('Neon Branching Example', () => {
   test('should have isolated database environment', () => {
     // This test runs against its own dedicated database branch
     const dbUrl = getTestDatabaseUrl();
-    
+
     expect(dbUrl).toBeDefined();
     expect(typeof dbUrl).toBe('string');
-    
+
     // If Neon branching is enabled, URL should contain neon.tech
     if (process.env.USE_NEON_BRANCHING === 'true') {
       expect(dbUrl).toContain('neon.tech');
@@ -33,7 +36,7 @@ describe('Neon Branching Example', () => {
   test('database operations are isolated', async () => {
     // Each test suite gets its own database state
     // No interference from other test suites
-    
+
     // Example database operation (mocked for this example)
     const mockDatabaseOperation = async () => {
       // This would be your actual database call
@@ -50,7 +53,7 @@ describe('Neon Branching Example', () => {
     // Verify that the test environment is properly configured
     expect(process.env.NODE_ENV).toBe('test');
     expect(process.env.POSTGRES_URL).toBeDefined();
-    
+
     if (process.env.USE_NEON_BRANCHING === 'true') {
       expect(process.env.NEON_API_KEY).toBeDefined();
       expect(process.env.NEON_PROJECT_ID).toBeDefined();
@@ -82,10 +85,10 @@ describe('Integration Test with Database', () => {
     // 1. Clean database state (no data from other tests)
     // 2. Latest schema from migrations
     // 3. Isolated environment for concurrent test execution
-    
+
     const dbUrl = getTestDatabaseUrl();
     expect(dbUrl).toBeDefined();
-    
+
     // Your integration test logic here
     // Example: Create user, test authentication, verify data persistence
   });
@@ -94,7 +97,7 @@ describe('Integration Test with Database', () => {
     // Tests within the same suite share the same branch
     // So state persists between tests in this suite
     // But is isolated from other suites
-    
+
     expect(getTestDatabaseUrl()).toBeDefined();
   });
 });

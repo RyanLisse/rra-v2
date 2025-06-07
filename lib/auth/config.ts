@@ -30,7 +30,7 @@ export const auth = betterAuth({
     },
   },
   plugins: [
-    nextCookies(), 
+    nextCookies(),
     anonymous({
       onUserCreated: async (user) => {
         // Set the type to 'guest' for anonymous users
@@ -39,7 +39,7 @@ export const auth = betterAuth({
           type: 'guest',
         };
       },
-    })
+    }),
   ],
   user: {
     additionalFields: {

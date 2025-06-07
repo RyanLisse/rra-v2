@@ -446,14 +446,18 @@ async function applyResultFacets(results: any[], facets: any): Promise<any[]> {
   // Filter by element types (e.g., only paragraphs, titles, tables)
   if (facets.elementTypes && facets.elementTypes.length > 0) {
     filteredResults = filteredResults.filter((result) => {
-      return result.elementType && facets.elementTypes.includes(result.elementType);
+      return (
+        result.elementType && facets.elementTypes.includes(result.elementType)
+      );
     });
   }
 
   // Filter by page numbers
   if (facets.pageNumbers && facets.pageNumbers.length > 0) {
     filteredResults = filteredResults.filter((result) => {
-      return result.pageNumber && facets.pageNumbers.includes(result.pageNumber);
+      return (
+        result.pageNumber && facets.pageNumbers.includes(result.pageNumber)
+      );
     });
   }
 
@@ -467,7 +471,8 @@ async function applyResultFacets(results: any[], facets: any): Promise<any[]> {
 
       // If bounding box specified, check if result bbox intersects
       if (facets.spatialSearch.bbox && result.bbox) {
-        const [searchX1, searchY1, searchX2, searchY2] = facets.spatialSearch.bbox;
+        const [searchX1, searchY1, searchX2, searchY2] =
+          facets.spatialSearch.bbox;
         const [resultX1, resultY1, resultX2, resultY2] = result.bbox;
 
         // Check if bounding boxes intersect

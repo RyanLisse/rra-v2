@@ -2,12 +2,12 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import * as schema from '@/lib/db/schema';
-import type { 
-  SeederConfig, 
-  SeederResult, 
-  DatabaseSnapshot, 
+import type {
+  SeederConfig,
+  SeederResult,
+  DatabaseSnapshot,
   DatabaseState,
-  PerformanceMetrics
+  PerformanceMetrics,
 } from '../factories/types';
 
 /**
@@ -34,13 +34,13 @@ export abstract class BaseSeeder {
    */
   async runMigrations(): Promise<void> {
     const startTime = Date.now();
-    
+
     try {
       await migrate(this.db, { migrationsFolder: './lib/db/migrations' });
-      
+
       const executionTime = Date.now() - startTime;
       this.recordMetrics('migration', 'schema', 0, executionTime);
-      
+
       console.log(`✓ Migrations completed in ${executionTime}ms`);
     } catch (error) {
       console.error('✗ Migration failed:', error);
@@ -53,12 +53,12 @@ export abstract class BaseSeeder {
    */
   async cleanDatabase(): Promise<void> {
     const startTime = Date.now();
-    
+
     try {
       // Order matters due to foreign key constraints
       const tablesToClean = [
         'DocumentEmbedding',
-        'DocumentChunk', 
+        'DocumentChunk',
         'DocumentContent',
         'RAGDocument',
         'Suggestion',
@@ -82,8 +82,13 @@ export abstract class BaseSeeder {
       }
 
       const executionTime = Date.now() - startTime;
-      this.recordMetrics('delete', 'all_tables', tablesToClean.length, executionTime);
-      
+      this.recordMetrics(
+        'delete',
+        'all_tables',
+        tablesToClean.length,
+        executionTime,
+      );
+
       console.log(`✓ Database cleaned in ${executionTime}ms`);
     } catch (error) {
       console.error('✗ Database cleanup failed:', error);
@@ -96,10 +101,10 @@ export abstract class BaseSeeder {
    */
   async createSnapshot(): Promise<DatabaseSnapshot> {
     const startTime = Date.now();
-    
+
     try {
       const tables = await this.getTableCounts();
-      
+
       const snapshot: DatabaseSnapshot = {
         id: `snapshot_${Date.now()}`,
         branchId: this.config.branchId,
@@ -113,8 +118,13 @@ export abstract class BaseSeeder {
       };
 
       const executionTime = Date.now() - startTime;
-      this.recordMetrics('select', 'snapshot', Object.keys(tables).length, executionTime);
-      
+      this.recordMetrics(
+        'select',
+        'snapshot',
+        Object.keys(tables).length,
+        executionTime,
+      );
+
       console.log(`✓ Snapshot created: ${snapshot.id}`);
       return snapshot;
     } catch (error) {
@@ -128,11 +138,11 @@ export abstract class BaseSeeder {
    */
   async restoreSnapshot(snapshot: DatabaseSnapshot): Promise<void> {
     console.log(`🔄 Restoring to snapshot: ${snapshot.id}`);
-    
+
     // For now, we'll clean and re-seed
     // In a production system, you might want to implement point-in-time recovery
     await this.cleanDatabase();
-    
+
     console.log(`✓ Restored to snapshot: ${snapshot.id}`);
   }
 
@@ -197,17 +207,22 @@ export abstract class BaseSeeder {
         .where(() => null); // This would check for null embeddings
 
       if (chunksWithoutEmbeddings.length > 0) {
-        issues.push(`Found ${chunksWithoutEmbeddings.length} chunks without embeddings`);
+        issues.push(
+          `Found ${chunksWithoutEmbeddings.length} chunks without embeddings`,
+        );
       }
 
       // Check for invalid data
       const users = await this.db.select().from(schema.user).limit(10);
-      const invalidUsers = users.filter(user => !user.email && !user.isAnonymous);
-      
-      if (invalidUsers.length > 0) {
-        issues.push(`Found ${invalidUsers.length} invalid users (no email and not anonymous)`);
-      }
+      const invalidUsers = users.filter(
+        (user) => !user.email && !user.isAnonymous,
+      );
 
+      if (invalidUsers.length > 0) {
+        issues.push(
+          `Found ${invalidUsers.length} invalid users (no email and not anonymous)`,
+        );
+      }
     } catch (error) {
       issues.push(`Database verification failed: ${error}`);
     }
@@ -256,20 +271,23 @@ export abstract class BaseSeeder {
    * Initialize database connection
    */
   protected initializeDatabase(): void {
-    const databaseUrl = this.config.databaseUrl || 
-      process.env.TEST_DATABASE_URL || 
+    const databaseUrl =
+      this.config.databaseUrl ||
+      process.env.TEST_DATABASE_URL ||
       process.env.DATABASE_URL ||
       'postgresql://test:test@localhost:5432/test_db';
 
-    this.connection = postgres(databaseUrl, { 
+    this.connection = postgres(databaseUrl, {
       max: 10,
       idle_timeout: 20,
       connect_timeout: 10,
     });
-    
+
     this.db = drizzle(this.connection, { schema });
-    
-    console.log(`📊 Database initialized: ${this.config.environment} environment`);
+
+    console.log(
+      `📊 Database initialized: ${this.config.environment} environment`,
+    );
     if (this.config.branchId) {
       console.log(`🌿 Branch ID: ${this.config.branchId}`);
     }
@@ -282,7 +300,7 @@ export abstract class BaseSeeder {
     operationType: 'insert' | 'select' | 'update' | 'delete' | 'migration',
     tableName: string,
     rowCount: number,
-    executionTime: number
+    executionTime: number,
   ): void {
     const metrics: PerformanceMetrics = {
       operationType,
@@ -303,13 +321,15 @@ export abstract class BaseSeeder {
   protected async batchInsert<T>(
     table: any,
     data: T[],
-    batchSize: number = 1000
+    batchSize: number = 1000,
   ): Promise<void> {
     const tableName = table._.name || 'unknown';
     const totalRows = data.length;
     let insertedRows = 0;
 
-    console.log(`📥 Inserting ${totalRows} rows into ${tableName} (batch size: ${batchSize})`);
+    console.log(
+      `📥 Inserting ${totalRows} rows into ${tableName} (batch size: ${batchSize})`,
+    );
 
     for (let i = 0; i < data.length; i += batchSize) {
       const batch = data.slice(i, i + batchSize);
@@ -318,18 +338,22 @@ export abstract class BaseSeeder {
       try {
         await this.db.insert(table).values(batch);
         const executionTime = Date.now() - startTime;
-        
+
         insertedRows += batch.length;
         this.recordMetrics('insert', tableName, batch.length, executionTime);
-        
-        console.log(`  ✓ Inserted batch ${Math.ceil((i + 1) / batchSize)}/${Math.ceil(totalRows / batchSize)} (${insertedRows}/${totalRows} rows)`);
+
+        console.log(
+          `  ✓ Inserted batch ${Math.ceil((i + 1) / batchSize)}/${Math.ceil(totalRows / batchSize)} (${insertedRows}/${totalRows} rows)`,
+        );
       } catch (error) {
         console.error(`  ✗ Batch insert failed for ${tableName}:`, error);
         throw error;
       }
     }
 
-    console.log(`✅ Completed inserting ${insertedRows} rows into ${tableName}`);
+    console.log(
+      `✅ Completed inserting ${insertedRows} rows into ${tableName}`,
+    );
   }
 
   /**
@@ -338,10 +362,10 @@ export abstract class BaseSeeder {
   protected generateResult(
     success: boolean,
     rowsCreated: Record<string, number>,
-    errors?: Error[]
+    errors?: Error[],
   ): SeederResult {
     const totalTime = this.metrics.reduce((sum, m) => sum + m.executionTime, 0);
-    const peakMemory = Math.max(...this.metrics.map(m => m.memoryUsage));
+    const peakMemory = Math.max(...this.metrics.map((m) => m.memoryUsage));
 
     return {
       success,

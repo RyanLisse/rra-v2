@@ -1,13 +1,13 @@
 /**
  * Inngest Module Exports
- * 
+ *
  * This is the main entry point for the Inngest module.
  * It exports all the necessary types, utilities, and client configuration
  * for use throughout the application.
  */
 
 // Core client and configuration
-export { inngest, createEvent, type InngestClient } from "./client";
+export { inngest, createEvent, type InngestClient } from './client';
 
 // Type definitions
 export {
@@ -24,11 +24,10 @@ export {
   type EventPayload,
   type EventName,
   type EventMap,
-  
   // Constants
   EVENT_NAMES,
   DocumentStatus,
-} from "./types";
+} from './types';
 
 // Utility functions
 export {
@@ -48,7 +47,7 @@ export {
   isDocumentProcessed,
   isDocumentFailed,
   getNextExpectedStatus,
-} from "./utils";
+} from './utils';
 
 // Functions will be exported here as they are created
 // export { processDocumentUpload } from "./functions/process-document-upload";
@@ -60,5 +59,5 @@ export {
 /**
  * Default export for convenience
  */
-import { inngest as inngestClient } from "./client";
+import { inngest as inngestClient } from './client';
 export default inngestClient;

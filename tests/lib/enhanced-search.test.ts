@@ -1,7 +1,12 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { db } from '@/lib/db';
 import { vectorSearchService } from '@/lib/search/vector-search';
-import { ragDocument, documentChunk, documentEmbedding, user } from '@/lib/db/schema';
+import {
+  ragDocument,
+  documentChunk,
+  documentEmbedding,
+  user,
+} from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
 describe('Enhanced Search with ADE Metadata', () => {
@@ -54,7 +59,8 @@ describe('Enhanced Search with ADE Metadata', () => {
         {
           documentId: testDocumentId,
           chunkIndex: '1',
-          content: 'This paragraph explains the calibration process for RoboRail systems',
+          content:
+            'This paragraph explains the calibration process for RoboRail systems',
           elementType: 'paragraph',
           pageNumber: 1,
           bbox: [100, 250, 400, 300],
@@ -81,12 +87,14 @@ describe('Enhanced Search with ADE Metadata', () => {
       ])
       .returning();
 
-    testChunkIds = chunks.map(chunk => chunk.id);
+    testChunkIds = chunks.map((chunk) => chunk.id);
 
     // Create mock embeddings for each chunk
-    const embeddings = testChunkIds.map(chunkId => ({
+    const embeddings = testChunkIds.map((chunkId) => ({
       chunkId,
-      embedding: JSON.stringify(Array.from({ length: 1024 }, () => Math.random())),
+      embedding: JSON.stringify(
+        Array.from({ length: 1024 }, () => Math.random()),
+      ),
       model: 'test-embed-model',
     }));
 
@@ -97,11 +105,15 @@ describe('Enhanced Search with ADE Metadata', () => {
     // Clean up test data in reverse order
     if (testChunkIds.length > 0) {
       for (const chunkId of testChunkIds) {
-        await db.delete(documentEmbedding).where(eq(documentEmbedding.chunkId, chunkId));
+        await db
+          .delete(documentEmbedding)
+          .where(eq(documentEmbedding.chunkId, chunkId));
       }
     }
     if (testDocumentId) {
-      await db.delete(documentChunk).where(eq(documentChunk.documentId, testDocumentId));
+      await db
+        .delete(documentChunk)
+        .where(eq(documentChunk.documentId, testDocumentId));
       await db.delete(ragDocument).where(eq(ragDocument.id, testDocumentId));
     }
     if (testUserId) {
@@ -117,7 +129,7 @@ describe('Enhanced Search with ADE Metadata', () => {
         limit: 10,
         threshold: 0.0, // Low threshold to get all results
         elementTypes: ['title'], // Only title elements
-      }
+      },
     );
 
     expect(results.results).toHaveLength(1);
@@ -133,11 +145,11 @@ describe('Enhanced Search with ADE Metadata', () => {
         limit: 10,
         threshold: 0.0, // Low threshold to get all results
         pageNumbers: [2], // Only page 2
-      }
+      },
     );
 
     expect(results.results).toHaveLength(2);
-    results.results.forEach(result => {
+    results.results.forEach((result) => {
       expect(result.pageNumber).toBe(2);
     });
   });
@@ -151,7 +163,7 @@ describe('Enhanced Search with ADE Metadata', () => {
         threshold: 0.0,
         elementTypes: ['paragraph'],
         pageNumbers: [2],
-      }
+      },
     );
 
     expect(results.results).toHaveLength(1);
@@ -167,16 +179,16 @@ describe('Enhanced Search with ADE Metadata', () => {
       {
         limit: 10,
         threshold: 0.0,
-      }
+      },
     );
 
     expect(results.results.length).toBeGreaterThan(0);
-    
+
     const firstResult = results.results[0];
     expect(firstResult).toHaveProperty('elementType');
     expect(firstResult).toHaveProperty('pageNumber');
     expect(firstResult).toHaveProperty('bbox');
-    
+
     // Verify bbox is an array with coordinates
     expect(Array.isArray(firstResult.bbox)).toBe(true);
     expect(firstResult.bbox).toHaveLength(4);
@@ -190,11 +202,11 @@ describe('Enhanced Search with ADE Metadata', () => {
         limit: 10,
         threshold: 0.0,
         elementTypes: ['paragraph'],
-      }
+      },
     );
 
     expect(results.results.length).toBeGreaterThan(0);
-    results.results.forEach(result => {
+    results.results.forEach((result) => {
       expect(result.elementType).toBe('paragraph');
     });
   });
@@ -205,7 +217,7 @@ describe('Enhanced Search with ADE Metadata', () => {
       spatialSearch: {
         pageNumber: 1,
         bbox: [90, 190, 410, 310], // Overlaps with title and first paragraph
-      }
+      },
     };
 
     // Simulate the spatial filtering logic from applyResultFacets
@@ -216,16 +228,17 @@ describe('Enhanced Search with ADE Metadata', () => {
         limit: 10,
         threshold: 0.0,
         pageNumbers: [facets.spatialSearch.pageNumber],
-      }
+      },
     );
 
-    const spatiallyFilteredResults = allResults.results.filter(result => {
+    const spatiallyFilteredResults = allResults.results.filter((result) => {
       if (result.pageNumber !== facets.spatialSearch.pageNumber) {
         return false;
       }
 
       if (facets.spatialSearch.bbox && result.bbox) {
-        const [searchX1, searchY1, searchX2, searchY2] = facets.spatialSearch.bbox;
+        const [searchX1, searchY1, searchX2, searchY2] =
+          facets.spatialSearch.bbox;
         const [resultX1, resultY1, resultX2, resultY2] = result.bbox;
 
         // Check if bounding boxes intersect
@@ -253,7 +266,7 @@ describe('Enhanced Search with ADE Metadata', () => {
         limit: 10,
         threshold: 0.0,
         elementTypes: ['header'], // Non-existent element type
-      }
+      },
     );
 
     expect(results.results).toHaveLength(0);
@@ -268,7 +281,7 @@ describe('Enhanced Search with ADE Metadata', () => {
         threshold: 0.0,
         elementTypes: [], // Empty array should not filter
         pageNumbers: [], // Empty array should not filter
-      }
+      },
     );
 
     expect(results.results.length).toBeGreaterThan(0);

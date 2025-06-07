@@ -11,31 +11,40 @@ describe('ADE Helpers', () => {
 
   beforeAll(async () => {
     // Create test user
-    const testUser = await db.insert(user).values({
-      email: 'test-ade-helpers@example.com',
-      name: 'ADE Helpers Test User',
-      type: 'regular',
-      isAnonymous: false,
-    }).returning();
+    const testUser = await db
+      .insert(user)
+      .values({
+        email: 'test-ade-helpers@example.com',
+        name: 'ADE Helpers Test User',
+        type: 'regular',
+        isAnonymous: false,
+      })
+      .returning();
     testUserId = testUser[0].id;
 
     // Create test document
-    const testDoc = await db.insert(ragDocument).values({
-      fileName: 'test-ade-helpers-document.pdf',
-      originalName: 'test-ade-helpers-document.pdf',
-      filePath: '/test/path/test-ade-helpers-document.pdf',
-      mimeType: 'application/pdf',
-      fileSize: '2048',
-      status: 'uploaded',
-      uploadedBy: testUserId,
-    }).returning();
+    const testDoc = await db
+      .insert(ragDocument)
+      .values({
+        fileName: 'test-ade-helpers-document.pdf',
+        originalName: 'test-ade-helpers-document.pdf',
+        filePath: '/test/path/test-ade-helpers-document.pdf',
+        mimeType: 'application/pdf',
+        fileSize: '2048',
+        status: 'uploaded',
+        uploadedBy: testUserId,
+      })
+      .returning();
     testDocumentId = testDoc[0].id;
   });
 
   afterAll(async () => {
     // Clean up test data
     for (const chunkId of createdChunkIds) {
-      await db.delete(ragDocument).where(eq(ragDocument.id, chunkId)).catch(() => {});
+      await db
+        .delete(ragDocument)
+        .where(eq(ragDocument.id, chunkId))
+        .catch(() => {});
     }
     await db.delete(ragDocument).where(eq(ragDocument.id, testDocumentId));
     await db.delete(user).where(eq(user.id, testUserId));
@@ -80,13 +89,19 @@ describe('ADE Helpers', () => {
 
     createdChunkIds.push(titleChunk.id, paragraphChunk.id);
 
-    const titleChunks = await ADEChunkHelpers.getChunksByElementType(testDocumentId, 'title');
-    const foundTitles = titleChunks.filter(chunk => 
-      chunk.id === titleChunk.id || createdChunkIds.includes(chunk.id)
+    const titleChunks = await ADEChunkHelpers.getChunksByElementType(
+      testDocumentId,
+      'title',
+    );
+    const foundTitles = titleChunks.filter(
+      (chunk) =>
+        chunk.id === titleChunk.id || createdChunkIds.includes(chunk.id),
     );
 
     expect(foundTitles.length).toBeGreaterThanOrEqual(1);
-    expect(foundTitles.every(chunk => chunk.elementType === 'title')).toBe(true);
+    expect(foundTitles.every((chunk) => chunk.elementType === 'title')).toBe(
+      true,
+    );
   });
 
   it('should get chunks by page number', async () => {
@@ -100,8 +115,11 @@ describe('ADE Helpers', () => {
 
     createdChunkIds.push(page2Chunk.id);
 
-    const page2Chunks = await ADEChunkHelpers.getChunksByPage(testDocumentId, 2);
-    const foundChunk = page2Chunks.find(chunk => chunk.id === page2Chunk.id);
+    const page2Chunks = await ADEChunkHelpers.getChunksByPage(
+      testDocumentId,
+      2,
+    );
+    const foundChunk = page2Chunks.find((chunk) => chunk.id === page2Chunk.id);
 
     expect(foundChunk).toBeDefined();
     expect(foundChunk?.pageNumber).toBe(2);
@@ -135,13 +153,16 @@ describe('ADE Helpers', () => {
 
     createdChunkIds.push(titleChunk.id, headerChunk.id, figureChunk.id);
 
-    const structure = await ADEChunkHelpers.getDocumentStructure(testDocumentId);
+    const structure =
+      await ADEChunkHelpers.getDocumentStructure(testDocumentId);
 
     expect(structure.titles.length).toBeGreaterThanOrEqual(1);
     expect(structure.headers.length).toBeGreaterThanOrEqual(1);
     expect(structure.structure.length).toBeGreaterThanOrEqual(2);
 
-    const foundTitle = structure.titles.find(chunk => chunk.id === titleChunk.id);
+    const foundTitle = structure.titles.find(
+      (chunk) => chunk.id === titleChunk.id,
+    );
     expect(foundTitle?.content).toBe('Main Title');
   });
 
@@ -187,12 +208,15 @@ describe('ADE Helpers', () => {
 
     createdChunkIds.push(titleChunk.id, paragraphChunk.id);
 
-    const context = await ADEChunkHelpers.generateEnrichedContext(testDocumentId, {
-      includePageNumbers: true,
-      includeElementTypes: true,
-      includeStructuralContext: true,
-      maxChunks: 10,
-    });
+    const context = await ADEChunkHelpers.generateEnrichedContext(
+      testDocumentId,
+      {
+        includePageNumbers: true,
+        includeElementTypes: true,
+        includeStructuralContext: true,
+        maxChunks: 10,
+      },
+    );
 
     expect(context).toContain('Document Structure:');
     expect(context).toContain('Document Title');
@@ -205,8 +229,18 @@ describe('ADE Helpers', () => {
     // Valid formats
     expect(ADEChunkHelpers.validateBoundingBox(null)).toBe(true);
     expect(ADEChunkHelpers.validateBoundingBox([0, 0, 100, 100])).toBe(true);
-    expect(ADEChunkHelpers.validateBoundingBox({ x1: 0, y1: 0, x2: 100, y2: 100 })).toBe(true);
-    expect(ADEChunkHelpers.validateBoundingBox({ x1: 0, y1: 0, x2: 100, y2: 100, confidence: 0.95 })).toBe(true);
+    expect(
+      ADEChunkHelpers.validateBoundingBox({ x1: 0, y1: 0, x2: 100, y2: 100 }),
+    ).toBe(true);
+    expect(
+      ADEChunkHelpers.validateBoundingBox({
+        x1: 0,
+        y1: 0,
+        x2: 100,
+        y2: 100,
+        confidence: 0.95,
+      }),
+    ).toBe(true);
 
     // Invalid formats
     expect(ADEChunkHelpers.validateBoundingBox([0, 0, 100])).toBe(false);
@@ -248,13 +282,17 @@ describe('ADE Helpers', () => {
     createdChunkIds.push(chunk1.id, chunk2.id);
 
     // Get chunks in top-left region
-    const topLeftChunks = await ADEChunkHelpers.getChunksInRegion(testDocumentId, 1, {
-      maxX: 150,
-      maxY: 150,
-    });
+    const topLeftChunks = await ADEChunkHelpers.getChunksInRegion(
+      testDocumentId,
+      1,
+      {
+        maxX: 150,
+        maxY: 150,
+      },
+    );
 
-    const foundChunk1 = topLeftChunks.find(chunk => chunk.id === chunk1.id);
-    const foundChunk2 = topLeftChunks.find(chunk => chunk.id === chunk2.id);
+    const foundChunk1 = topLeftChunks.find((chunk) => chunk.id === chunk1.id);
+    const foundChunk2 = topLeftChunks.find((chunk) => chunk.id === chunk2.id);
 
     expect(foundChunk1).toBeDefined();
     expect(foundChunk2).toBeUndefined(); // Should not be in top-left region

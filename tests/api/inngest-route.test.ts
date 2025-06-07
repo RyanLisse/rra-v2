@@ -42,7 +42,7 @@ describe('Inngest API Route Tests', () => {
   describe('HTTP Handler Setup', () => {
     it('should export HTTP handlers for Inngest webhook', async () => {
       const route = await import('@/app/api/inngest/route');
-      
+
       expect(route.POST).toBeDefined();
       expect(typeof route.POST).toBe('function');
       expect(route.GET).toBeDefined();
@@ -53,17 +53,17 @@ describe('Inngest API Route Tests', () => {
 
     it('should handle function registration via GET request', async () => {
       const { GET } = await import('@/app/api/inngest/route');
-      
+
       const request = createMockRequest('http://localhost:3000/api/inngest', {
         method: 'GET',
         headers: {
           'User-Agent': 'Inngest/1.0',
         },
       });
-      
+
       const response = await GET(request);
       expect(response.status).toBe(200);
-      
+
       const data = await response.json();
       // More flexible test - just verify it's a valid JSON response
       expect(data).toBeDefined();
@@ -72,7 +72,7 @@ describe('Inngest API Route Tests', () => {
 
     it('should handle function invocation via POST request', async () => {
       const { POST } = await import('@/app/api/inngest/route');
-      
+
       const request = createMockRequest('http://localhost:3000/api/inngest', {
         method: 'POST',
         headers: {
@@ -94,12 +94,14 @@ describe('Inngest API Route Tests', () => {
 
       const response = await POST(request);
       // Allow any success status or client error (since we don't have real Inngest setup)
-      expect([200, 201, 202, 400, 401, 403, 500].includes(response.status)).toBe(true);
+      expect(
+        [200, 201, 202, 400, 401, 403, 500].includes(response.status),
+      ).toBe(true);
     });
 
     it('should handle introspection via PUT request', async () => {
       const { PUT } = await import('@/app/api/inngest/route');
-      
+
       const request = createMockRequest('http://localhost:3000/api/inngest', {
         method: 'PUT',
         headers: {
@@ -118,9 +120,9 @@ describe('Inngest API Route Tests', () => {
     it('should register document processing functions', async () => {
       const handler = await import('@/lib/inngest/handler');
       const { inngestHandler } = handler;
-      
+
       expect(inngestHandler).toBeDefined();
-      
+
       // Test that the handler exports the correct HTTP methods
       expect(inngestHandler.GET).toBeDefined();
       expect(inngestHandler.POST).toBeDefined();
@@ -128,11 +130,13 @@ describe('Inngest API Route Tests', () => {
     });
 
     it('should validate function configurations', async () => {
-      const { validateInngestConfig, getInngestConfig } = await import('@/lib/inngest/client');
-      
+      const { validateInngestConfig, getInngestConfig } = await import(
+        '@/lib/inngest/client'
+      );
+
       const config = getInngestConfig();
       expect(() => validateInngestConfig(config)).not.toThrow();
-      
+
       expect(config).toHaveProperty('id');
       expect(config).toHaveProperty('name');
       expect(config).toHaveProperty('eventKey');
@@ -142,7 +146,7 @@ describe('Inngest API Route Tests', () => {
   describe('Environment Configuration', () => {
     it('should use development configuration in test environment', async () => {
       const { getInngestConfig } = await import('@/lib/inngest/client');
-      
+
       const config = getInngestConfig();
       expect(config.isDev).toBe(true);
       expect(config.env).toBe('development');
@@ -151,11 +155,11 @@ describe('Inngest API Route Tests', () => {
     it('should handle missing environment variables gracefully', async () => {
       delete process.env.INNGEST_EVENT_KEY;
       delete process.env.INNGEST_SIGNING_KEY;
-      
+
       const { getInngestConfig } = await import('@/lib/inngest/client');
-      
+
       expect(() => getInngestConfig()).not.toThrow();
-      
+
       const config = getInngestConfig();
       expect(config.eventKey).toBeDefined(); // Should have fallback
     });
@@ -164,7 +168,7 @@ describe('Inngest API Route Tests', () => {
   describe('Error Handling', () => {
     it('should handle invalid request formats', async () => {
       const { POST } = await import('@/app/api/inngest/route');
-      
+
       const request = createMockRequest('http://localhost:3000/api/inngest', {
         method: 'POST',
         headers: {
@@ -181,7 +185,7 @@ describe('Inngest API Route Tests', () => {
 
     it('should handle missing User-Agent header', async () => {
       const { GET } = await import('@/app/api/inngest/route');
-      
+
       const request = createMockRequest('http://localhost:3000/api/inngest', {
         method: 'GET',
         headers: {
@@ -198,7 +202,7 @@ describe('Inngest API Route Tests', () => {
   describe('Response Format Validation', () => {
     it('should return correct response format for successful execution', async () => {
       const { GET } = await import('@/app/api/inngest/route');
-      
+
       const request = createMockRequest('http://localhost:3000/api/inngest', {
         method: 'GET',
         headers: {
@@ -217,7 +221,7 @@ describe('Inngest API Route Tests', () => {
 
     it('should include proper headers in responses', async () => {
       const { GET } = await import('@/app/api/inngest/route');
-      
+
       const request = createMockRequest('http://localhost:3000/api/inngest', {
         method: 'GET',
         headers: {
@@ -226,7 +230,7 @@ describe('Inngest API Route Tests', () => {
       });
 
       const response = await GET(request);
-      
+
       // More flexible header validation - just check that headers exist
       expect(response.headers).toBeDefined();
       const contentType = response.headers.get('Content-Type');
@@ -239,15 +243,16 @@ describe('Inngest API Route Tests', () => {
   describe('Integration with Inngest Client', () => {
     it('should use configured Inngest client', async () => {
       const { inngest, sendEvent } = await import('@/lib/inngest/client');
-      
+
       expect(inngest).toBeDefined();
       expect(sendEvent).toBeDefined();
       expect(typeof sendEvent).toBe('function');
     });
 
     it('should validate event schemas', async () => {
-      const { DocumentUploadEventSchema, DocumentProcessingEventSchema } = await import('@/lib/inngest/types');
-      
+      const { DocumentUploadEventSchema, DocumentProcessingEventSchema } =
+        await import('@/lib/inngest/types');
+
       const validUploadEvent = {
         name: 'document/upload.completed' as const,
         data: {
@@ -260,9 +265,11 @@ describe('Inngest API Route Tests', () => {
           documentType: 'application/pdf',
         },
       };
-      
-      expect(() => DocumentUploadEventSchema.parse(validUploadEvent)).not.toThrow();
-      
+
+      expect(() =>
+        DocumentUploadEventSchema.parse(validUploadEvent),
+      ).not.toThrow();
+
       const validProcessingEvent = {
         name: 'document/processing.started' as const,
         data: {
@@ -272,8 +279,10 @@ describe('Inngest API Route Tests', () => {
           startedAt: new Date().toISOString(),
         },
       };
-      
-      expect(() => DocumentProcessingEventSchema.parse(validProcessingEvent)).not.toThrow();
+
+      expect(() =>
+        DocumentProcessingEventSchema.parse(validProcessingEvent),
+      ).not.toThrow();
     });
   });
 });

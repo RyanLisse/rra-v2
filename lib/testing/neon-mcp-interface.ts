@@ -48,7 +48,7 @@ export class NeonMCPInterface {
     try {
       // This would be the actual MCP call:
       // return await mcp__Neon__list_projects({});
-      
+
       // Simulated response for development
       return {
         projects: [
@@ -61,9 +61,9 @@ export class NeonMCPInterface {
             proxy_host: 'gwc.azure.neon.tech',
             created_at: '2025-05-23T13:04:16Z',
             updated_at: '2025-06-07T09:57:10Z',
-            owner_id: '8146c85f-1398-4e57-8596-c269ebb1ee4c'
-          }
-        ]
+            owner_id: '8146c85f-1398-4e57-8596-c269ebb1ee4c',
+          },
+        ],
       };
     } catch (error) {
       throw new Error(`Failed to list projects: ${error}`);
@@ -77,7 +77,7 @@ export class NeonMCPInterface {
     try {
       // This would be the actual MCP call:
       // return await mcp__Neon__describe_project({ params: { projectId } });
-      
+
       // Simulated response
       return {
         id: projectId,
@@ -90,9 +90,9 @@ export class NeonMCPInterface {
             current_state: 'ready',
             created_at: '2025-05-23T13:04:16Z',
             updated_at: '2025-06-07T10:10:20Z',
-            primary: true
-          }
-        ]
+            primary: true,
+          },
+        ],
       };
     } catch (error) {
       throw new Error(`Failed to describe project ${projectId}: ${error}`);
@@ -104,12 +104,12 @@ export class NeonMCPInterface {
    */
   static async createBranch(
     projectId: string,
-    branchName?: string
+    branchName?: string,
   ): Promise<MCPNeonBranchCreateResponse> {
     try {
       // This would be the actual MCP call:
       // return await mcp__Neon__create_branch({ params: { projectId, branchName } });
-      
+
       // Simulated response
       const branchId = `br-${Math.random().toString(36).substring(2, 15)}`;
       return {
@@ -120,8 +120,8 @@ export class NeonMCPInterface {
           current_state: 'creating',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-          primary: false
-        }
+          primary: false,
+        },
       };
     } catch (error) {
       throw new Error(`Failed to create branch: ${error}`);
@@ -131,13 +131,18 @@ export class NeonMCPInterface {
   /**
    * Delete a branch
    */
-  static async deleteBranch(projectId: string, branchId: string): Promise<void> {
+  static async deleteBranch(
+    projectId: string,
+    branchId: string,
+  ): Promise<void> {
     try {
       // This would be the actual MCP call:
       // return await mcp__Neon__delete_branch({ params: { projectId, branchId } });
-      
+
       // Simulated implementation
-      console.log(`Simulated: Deleting branch ${branchId} from project ${projectId}`);
+      console.log(
+        `Simulated: Deleting branch ${branchId} from project ${projectId}`,
+      );
     } catch (error) {
       throw new Error(`Failed to delete branch ${branchId}: ${error}`);
     }
@@ -150,21 +155,21 @@ export class NeonMCPInterface {
     projectId: string,
     branchId?: string,
     databaseName?: string,
-    roleName?: string
+    roleName?: string,
   ): Promise<MCPNeonConnectionResponse> {
     try {
       // This would be the actual MCP call:
       // return await mcp__Neon__get_connection_string({
       //   params: { projectId, branchId, databaseName, roleName }
       // });
-      
+
       // Simulated response
       const dbName = databaseName || 'neondb';
       const role = roleName || 'neondb_owner';
       const host = 'gwc.azure.neon.tech';
-      
+
       return {
-        connection_string: `postgresql://${role}:password@${host}/${dbName}?sslmode=require`
+        connection_string: `postgresql://${role}:password@${host}/${dbName}?sslmode=require`,
       };
     } catch (error) {
       throw new Error(`Failed to get connection string: ${error}`);
@@ -178,19 +183,19 @@ export class NeonMCPInterface {
     projectId: string,
     sql: string,
     branchId?: string,
-    databaseName?: string
+    databaseName?: string,
   ): Promise<any> {
     try {
       // This would be the actual MCP call:
       // return await mcp__Neon__run_sql({
       //   params: { projectId, sql, branchId, databaseName }
       // });
-      
+
       // Simulated response
       return {
         query: sql,
         result: 'Simulated execution result',
-        rows_affected: 0
+        rows_affected: 0,
       };
     } catch (error) {
       throw new Error(`Failed to execute SQL: ${error}`);
@@ -204,19 +209,19 @@ export class NeonMCPInterface {
     projectId: string,
     sqlStatements: string[],
     branchId?: string,
-    databaseName?: string
+    databaseName?: string,
   ): Promise<any> {
     try {
       // This would be the actual MCP call:
       // return await mcp__Neon__run_sql_transaction({
       //   params: { projectId, sqlStatements, branchId, databaseName }
       // });
-      
+
       // Simulated response
       return {
         statements: sqlStatements,
         results: sqlStatements.map(() => ({ rows_affected: 0 })),
-        transaction_status: 'committed'
+        transaction_status: 'committed',
       };
     } catch (error) {
       throw new Error(`Failed to execute transaction: ${error}`);
@@ -248,13 +253,15 @@ export class EnvironmentUtils {
     const isBrowser = typeof window !== 'undefined';
     const isTest = process.env.NODE_ENV === 'test';
     const isProduction = process.env.NODE_ENV === 'production';
-    const hasNeonCredentials = !!(process.env.NEON_API_KEY || process.env.NEON_PROJECT_ID);
+    const hasNeonCredentials = !!(
+      process.env.NEON_API_KEY || process.env.NEON_PROJECT_ID
+    );
 
     return {
       isBrowser,
       isTest,
       isProduction,
-      hasNeonCredentials
+      hasNeonCredentials,
     };
   }
 
@@ -273,7 +280,7 @@ export class EnvironmentUtils {
 
     return {
       valid: missing.length === 0,
-      missing
+      missing,
     };
   }
 }

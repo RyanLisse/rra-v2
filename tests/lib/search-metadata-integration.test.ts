@@ -25,10 +25,7 @@ describe('Search Metadata Integration', () => {
         bbox: documentChunk.bbox,
       })
       .from(documentEmbedding)
-      .innerJoin(
-        documentChunk,
-        eq(documentEmbedding.chunkId, documentChunk.id),
-      )
+      .innerJoin(documentChunk, eq(documentEmbedding.chunkId, documentChunk.id))
       .innerJoin(ragDocument, eq(documentChunk.documentId, ragDocument.id));
 
     // The query object should have the right structure
@@ -63,41 +60,43 @@ describe('Search Metadata Integration', () => {
         searchBbox: [100, 200, 300, 250],
         resultBbox: [150, 210, 250, 240],
         shouldIntersect: true,
-        description: 'overlapping boxes'
+        description: 'overlapping boxes',
       },
       {
         searchBbox: [100, 200, 300, 250],
         resultBbox: [350, 210, 450, 240],
         shouldIntersect: false,
-        description: 'non-overlapping boxes'
+        description: 'non-overlapping boxes',
       },
       {
         searchBbox: [100, 200, 300, 250],
         resultBbox: [200, 225, 250, 235],
         shouldIntersect: true,
-        description: 'result box inside search box'
+        description: 'result box inside search box',
       },
       {
         searchBbox: [200, 225, 250, 235],
         resultBbox: [100, 200, 300, 250],
         shouldIntersect: true,
-        description: 'search box inside result box'
+        description: 'search box inside result box',
       },
     ];
 
-    testCases.forEach(({ searchBbox, resultBbox, shouldIntersect, description }) => {
-      const [searchX1, searchY1, searchX2, searchY2] = searchBbox;
-      const [resultX1, resultY1, resultX2, resultY2] = resultBbox;
+    testCases.forEach(
+      ({ searchBbox, resultBbox, shouldIntersect, description }) => {
+        const [searchX1, searchY1, searchX2, searchY2] = searchBbox;
+        const [resultX1, resultY1, resultX2, resultY2] = resultBbox;
 
-      const intersects = !(
-        searchX2 < resultX1 ||
-        searchX1 > resultX2 ||
-        searchY2 < resultY1 ||
-        searchY1 > resultY2
-      );
+        const intersects = !(
+          searchX2 < resultX1 ||
+          searchX1 > resultX2 ||
+          searchY2 < resultY1 ||
+          searchY1 > resultY2
+        );
 
-      expect(intersects).toBe(shouldIntersect, `Failed for ${description}`);
-    });
+        expect(intersects).toBe(shouldIntersect, `Failed for ${description}`);
+      },
+    );
   });
 
   it('should properly handle empty filter arrays', () => {
@@ -135,10 +134,10 @@ describe('Search Metadata Integration', () => {
   it('should handle facet counts aggregation correctly', () => {
     // Test the logic for counting element types and page numbers
     const mockElementTypeCounts = {
-      'paragraph': 150,
-      'title': 25,
-      'table_text': 30,
-      'list_item': 45,
+      paragraph: 150,
+      title: 25,
+      table_text: 30,
+      list_item: 45,
     };
 
     const mockPageNumberCounts = {
@@ -151,17 +150,19 @@ describe('Search Metadata Integration', () => {
     // Verify structure
     expect(Object.keys(mockElementTypeCounts)).toContain('paragraph');
     expect(Object.keys(mockElementTypeCounts)).toContain('title');
-    expect(Object.keys(mockPageNumberCounts).every(key => !isNaN(Number(key)))).toBe(true);
+    expect(
+      Object.keys(mockPageNumberCounts).every((key) => !isNaN(Number(key))),
+    ).toBe(true);
   });
 
   it('should support relevance scoring adjustments based on element type', () => {
     // Test concept for future enhancement: different scoring weights for different element types
     const elementTypeWeights = {
-      'title': 1.5,      // Titles should be weighted higher
-      'paragraph': 1.0,   // Standard weight
-      'table_text': 1.2,  // Tables slightly higher (structured data)
-      'list_item': 0.9,   // Lists slightly lower
-      'footer': 0.7,      // Footers much lower relevance
+      title: 1.5, // Titles should be weighted higher
+      paragraph: 1.0, // Standard weight
+      table_text: 1.2, // Tables slightly higher (structured data)
+      list_item: 0.9, // Lists slightly lower
+      footer: 0.7, // Footers much lower relevance
     };
 
     // Simulate score adjustment

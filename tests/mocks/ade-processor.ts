@@ -1,5 +1,8 @@
 import type { AdeElement, AdeOutput, AdeProcessRequest } from '@/lib/ade/types';
-import { createAdeTestDataFactory, createMockAdeApiResponse } from '../fixtures/ade-test-data';
+import {
+  createAdeTestDataFactory,
+  createMockAdeApiResponse,
+} from '../fixtures/ade-test-data';
 
 /**
  * Mock ADE processor for testing enhanced RAG pipeline
@@ -22,23 +25,25 @@ export class MockAdeProcessor {
    */
   async processDocument(request: AdeProcessRequest): Promise<AdeOutput> {
     // Simulate processing delay
-    await new Promise(resolve => setTimeout(resolve, this.processingDelay));
+    await new Promise((resolve) => setTimeout(resolve, this.processingDelay));
 
     // Simulate occasional failures
     if (Math.random() > this.successRate) {
-      throw new Error(`ADE processing failed for document ${request.documentId}`);
+      throw new Error(
+        `ADE processing failed for document ${request.documentId}`,
+      );
     }
 
     // Determine document characteristics from file path
     const characteristics = this.analyzeDocumentPath(request.filePath);
-    
+
     return this.testDataFactory.createAdeOutput(
       request.documentId,
       characteristics.pageCount,
       characteristics.elementsPerPage,
       {
         confidence: characteristics.confidence,
-        processingTimeMs: this.processingDelay + (Math.random() * 1000),
+        processingTimeMs: this.processingDelay + Math.random() * 1000,
       },
     );
   }
@@ -48,11 +53,11 @@ export class MockAdeProcessor {
    */
   async processBatch(requests: AdeProcessRequest[]): Promise<AdeOutput[]> {
     const results: AdeOutput[] = [];
-    
+
     // Process in parallel with some realistic delay
     const promises = requests.map(async (request, index) => {
       // Stagger the requests slightly
-      await new Promise(resolve => setTimeout(resolve, index * 50));
+      await new Promise((resolve) => setTimeout(resolve, index * 50));
       return this.processDocument(request);
     });
 
@@ -67,18 +72,20 @@ export class MockAdeProcessor {
     elementTypes: Array<AdeElement['type']>,
     pageRange?: { start: number; end: number },
   ): Promise<AdeElement[]> {
-    await new Promise(resolve => setTimeout(resolve, this.processingDelay / 2));
+    await new Promise((resolve) =>
+      setTimeout(resolve, this.processingDelay / 2),
+    );
 
-    const pageCount = pageRange ? (pageRange.end - pageRange.start + 1) : 10;
+    const pageCount = pageRange ? pageRange.end - pageRange.start + 1 : 10;
     const startPage = pageRange?.start ?? 1;
-    
+
     const elements: AdeElement[] = [];
-    
+
     for (let page = startPage; page < startPage + pageCount; page++) {
       elementTypes.forEach((elementType, index) => {
         // Create 1-2 elements of each requested type per page
         const count = Math.floor(Math.random() * 2) + 1;
-        
+
         for (let i = 0; i < count; i++) {
           elements.push(
             this.testDataFactory.createAdeElement(elementType, page, {
@@ -99,7 +106,7 @@ export class MockAdeProcessor {
     request: AdeProcessRequest,
     scenario: 'simple' | 'complex' | 'table_heavy' | 'figure_heavy' | 'mixed',
   ): Promise<AdeOutput> {
-    await new Promise(resolve => setTimeout(resolve, this.processingDelay));
+    await new Promise((resolve) => setTimeout(resolve, this.processingDelay));
 
     const scenarioConfigs = {
       simple: {
@@ -111,7 +118,15 @@ export class MockAdeProcessor {
       complex: {
         pageCount: 15,
         elementsPerPage: 12,
-        elementTypes: ['title', 'paragraph', 'list_item', 'table', 'figure', 'header', 'footer'],
+        elementTypes: [
+          'title',
+          'paragraph',
+          'list_item',
+          'table',
+          'figure',
+          'header',
+          'footer',
+        ],
         confidence: 0.85,
       },
       table_heavy: {
@@ -151,7 +166,7 @@ export class MockAdeProcessor {
         const elementType = config.elementTypes[
           Math.floor(Math.random() * config.elementTypes.length)
         ] as AdeElement['type'];
-        
+
         elements.push(
           this.testDataFactory.createAdeElement(elementType, page, {
             id: `${scenario}_${elementType}_${page}_${i}`,
@@ -164,7 +179,7 @@ export class MockAdeProcessor {
     return {
       documentId: request.documentId,
       elements,
-      processingTimeMs: this.processingDelay + (elements.length * 10),
+      processingTimeMs: this.processingDelay + elements.length * 10,
       totalElements: elements.length,
       pageCount: config.pageCount,
       confidence: config.confidence,
@@ -197,20 +212,26 @@ export class MockAdeProcessor {
     };
 
     const config = qualityConfigs[quality];
-    await new Promise(resolve => setTimeout(resolve, config.processingTime));
+    await new Promise((resolve) => setTimeout(resolve, config.processingTime));
 
     const baseOutput = await this.processDocument(request);
-    
+
     // Adjust elements based on quality
-    const adjustedElements = baseOutput.elements.map(element => ({
+    const adjustedElements = baseOutput.elements.map((element) => ({
       ...element,
-      confidence: Math.min(1.0, (element.confidence || 0.8) * config.detectionAccuracy),
+      confidence: Math.min(
+        1.0,
+        (element.confidence || 0.8) * config.detectionAccuracy,
+      ),
     }));
 
     // Remove some elements for lower quality (simulate missed detections)
-    const finalElements = quality === 'low' 
-      ? adjustedElements.filter(() => Math.random() < config.detectionAccuracy)
-      : adjustedElements;
+    const finalElements =
+      quality === 'low'
+        ? adjustedElements.filter(
+            () => Math.random() < config.detectionAccuracy,
+          )
+        : adjustedElements;
 
     return {
       ...baseOutput,
@@ -225,14 +246,22 @@ export class MockAdeProcessor {
    */
   async processWithError(
     request: AdeProcessRequest,
-    errorType: 'timeout' | 'rate_limit' | 'invalid_format' | 'service_unavailable',
+    errorType:
+      | 'timeout'
+      | 'rate_limit'
+      | 'invalid_format'
+      | 'service_unavailable',
   ): Promise<never> {
-    await new Promise(resolve => setTimeout(resolve, this.processingDelay / 2));
+    await new Promise((resolve) =>
+      setTimeout(resolve, this.processingDelay / 2),
+    );
 
     const errors = {
       timeout: new Error('ADE processing timeout after 30 seconds'),
       rate_limit: new Error('Rate limit exceeded, retry after 60 seconds'),
-      invalid_format: new Error('Unsupported document format or corrupted file'),
+      invalid_format: new Error(
+        'Unsupported document format or corrupted file',
+      ),
       service_unavailable: new Error('ADE service temporarily unavailable'),
     };
 
@@ -268,7 +297,7 @@ export class MockAdeProcessor {
     confidence: number;
   } {
     const fileName = filePath.toLowerCase();
-    
+
     // Determine document type from filename
     if (fileName.includes('manual') || fileName.includes('guide')) {
       return {
@@ -342,7 +371,9 @@ export class MockAdeProcessor {
 /**
  * Factory for creating configured mock processors
  */
-export const createMockAdeProcessor = (scenario?: 'fast' | 'slow' | 'unreliable' | 'perfect') => {
+export const createMockAdeProcessor = (
+  scenario?: 'fast' | 'slow' | 'unreliable' | 'perfect',
+) => {
   const configs = {
     fast: { processingDelay: 50, successRate: 0.95 },
     slow: { processingDelay: 500, successRate: 0.9 },
@@ -389,7 +420,9 @@ export const adeTestUtils = {
   /**
    * Validate ADE output structure
    */
-  validateAdeOutput: (output: AdeOutput): { valid: boolean; errors: string[] } => {
+  validateAdeOutput: (
+    output: AdeOutput,
+  ): { valid: boolean; errors: string[] } => {
     const errors: string[] = [];
 
     if (!output.documentId) {
@@ -409,13 +442,19 @@ export const adeTestUtils = {
         if (!element.pageNumber || element.pageNumber < 1) {
           errors.push(`Element ${index} invalid pageNumber`);
         }
-        if (element.confidence && (element.confidence < 0 || element.confidence > 1)) {
+        if (
+          element.confidence &&
+          (element.confidence < 0 || element.confidence > 1)
+        ) {
           errors.push(`Element ${index} invalid confidence value`);
         }
       });
     }
 
-    if (output.totalElements !== undefined && output.totalElements !== output.elements.length) {
+    if (
+      output.totalElements !== undefined &&
+      output.totalElements !== output.elements.length
+    ) {
       errors.push('totalElements does not match elements array length');
     }
 
@@ -443,8 +482,13 @@ export const adeTestUtils = {
     return {
       duration: endTime - startTime,
       documentsProcessed: requests.length,
-      elementsExtracted: results.reduce((sum, result) => sum + result.elements.length, 0),
-      averageConfidence: results.reduce((sum, result) => sum + (result.confidence || 0), 0) / results.length,
+      elementsExtracted: results.reduce(
+        (sum, result) => sum + result.elements.length,
+        0,
+      ),
+      averageConfidence:
+        results.reduce((sum, result) => sum + (result.confidence || 0), 0) /
+        results.length,
       memoryUsage: {
         heapUsedDelta: endMemory.heapUsed - startMemory.heapUsed,
         heapTotalDelta: endMemory.heapTotal - startMemory.heapTotal,

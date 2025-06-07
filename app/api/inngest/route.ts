@@ -1,13 +1,13 @@
-import { inngestHandler } from "@/lib/inngest/handler";
+import { inngestHandler } from '@/lib/inngest/handler';
 
 /**
  * Inngest API Route Handler
- * 
+ *
  * This route handles all Inngest communication including:
  * - Function registration (GET)
- * - Function execution (POST) 
+ * - Function execution (POST)
  * - Introspection (PUT)
- * 
+ *
  * The handler is configured in @/lib/inngest/handler.ts
  */
 

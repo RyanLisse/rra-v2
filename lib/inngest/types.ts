@@ -4,31 +4,31 @@ import { z } from 'zod';
  * Document Status Constants (for existing system)
  */
 export const DocumentStatus = {
-  UPLOADED: "uploaded",
-  PROCESSING: "processing", 
-  TEXT_EXTRACTED: "text_extracted",
-  CHUNKED: "chunked",
-  EMBEDDED: "embedded",
-  PROCESSED: "processed",
-  UPLOAD_FAILED: "upload_failed",
-  TEXT_EXTRACTION_FAILED: "text_extraction_failed",
-  CHUNKING_FAILED: "chunking_failed",
-  EMBEDDING_FAILED: "embedding_failed",
-  PROCESSING_FAILED: "processing_failed",
+  UPLOADED: 'uploaded',
+  PROCESSING: 'processing',
+  TEXT_EXTRACTED: 'text_extracted',
+  CHUNKED: 'chunked',
+  EMBEDDED: 'embedded',
+  PROCESSED: 'processed',
+  UPLOAD_FAILED: 'upload_failed',
+  TEXT_EXTRACTION_FAILED: 'text_extraction_failed',
+  CHUNKING_FAILED: 'chunking_failed',
+  EMBEDDING_FAILED: 'embedding_failed',
+  PROCESSING_FAILED: 'processing_failed',
 } as const;
 
 /**
  * Event Names (for existing system)
  */
 export const EVENT_NAMES = {
-  DOCUMENT_UPLOADED: "document.uploaded",
-  DOCUMENT_TEXT_EXTRACTED: "document.text-extracted", 
-  DOCUMENT_CHUNKED: "document.chunked",
-  DOCUMENT_EMBEDDED: "document.embedded",
-  DOCUMENT_PROCESSED: "document.processed",
-  DOCUMENT_PROCESSING_FAILED: "document.processing-failed",
-  DOCUMENT_DELETED: "document.deleted",
-  BATCH_PROCESSING: "batch.processing",
+  DOCUMENT_UPLOADED: 'document.uploaded',
+  DOCUMENT_TEXT_EXTRACTED: 'document.text-extracted',
+  DOCUMENT_CHUNKED: 'document.chunked',
+  DOCUMENT_EMBEDDED: 'document.embedded',
+  DOCUMENT_PROCESSED: 'document.processed',
+  DOCUMENT_PROCESSING_FAILED: 'document.processing-failed',
+  DOCUMENT_DELETED: 'document.deleted',
+  BATCH_PROCESSING: 'batch.processing',
 } as const;
 
 /**
@@ -89,7 +89,7 @@ export interface DocumentProcessedPayload extends BaseEventPayload {
   documentId: string;
   processedAt: string;
   totalDuration: number;
-  status: typeof DocumentStatus[keyof typeof DocumentStatus];
+  status: (typeof DocumentStatus)[keyof typeof DocumentStatus];
 }
 
 /**
@@ -128,7 +128,7 @@ export interface BatchProcessingPayload extends BaseEventPayload {
 /**
  * Union type for all event payloads
  */
-export type EventPayload = 
+export type EventPayload =
   | DocumentUploadedPayload
   | DocumentTextExtractedPayload
   | DocumentChunkedPayload
@@ -141,7 +141,7 @@ export type EventPayload =
 /**
  * Event names type
  */
-export type EventName = typeof EVENT_NAMES[keyof typeof EVENT_NAMES];
+export type EventName = (typeof EVENT_NAMES)[keyof typeof EVENT_NAMES];
 
 /**
  * Event map for type safety
@@ -178,10 +178,12 @@ export type InngestConfig = z.infer<typeof InngestConfigSchema>;
 export const InngestEventSchema = z.object({
   name: z.string().min(1, 'Event name is required'),
   data: z.record(z.any()),
-  user: z.object({
-    id: z.string(),
-    email: z.string().optional(),
-  }).optional(),
+  user: z
+    .object({
+      id: z.string(),
+      email: z.string().optional(),
+    })
+    .optional(),
   timestamp: z.number().optional(),
   ts: z.number().optional(),
 });
@@ -202,10 +204,12 @@ export const DocumentUploadEventSchema = z.object({
     uploadedAt: z.string(),
     documentType: z.string(),
   }),
-  user: z.object({
-    id: z.string(),
-    email: z.string().optional(),
-  }).optional(),
+  user: z
+    .object({
+      id: z.string(),
+      email: z.string().optional(),
+    })
+    .optional(),
   timestamp: z.number().optional(),
 });
 
@@ -219,14 +223,18 @@ export const DocumentProcessingEventSchema = z.object({
     userId: z.string(),
     startedAt: z.string(),
   }),
-  user: z.object({
-    id: z.string(),
-    email: z.string().optional(),
-  }).optional(),
+  user: z
+    .object({
+      id: z.string(),
+      email: z.string().optional(),
+    })
+    .optional(),
   timestamp: z.number().optional(),
 });
 
-export type DocumentProcessingEvent = z.infer<typeof DocumentProcessingEventSchema>;
+export type DocumentProcessingEvent = z.infer<
+  typeof DocumentProcessingEventSchema
+>;
 
 export const DocumentCompletedEventSchema = z.object({
   name: z.literal('document/processing.completed'),
@@ -238,14 +246,18 @@ export const DocumentCompletedEventSchema = z.object({
     success: z.boolean(),
     errorMessage: z.string().optional(),
   }),
-  user: z.object({
-    id: z.string(),
-    email: z.string().optional(),
-  }).optional(),
+  user: z
+    .object({
+      id: z.string(),
+      email: z.string().optional(),
+    })
+    .optional(),
   timestamp: z.number().optional(),
 });
 
-export type DocumentCompletedEvent = z.infer<typeof DocumentCompletedEventSchema>;
+export type DocumentCompletedEvent = z.infer<
+  typeof DocumentCompletedEventSchema
+>;
 
 /**
  * TDD System - RAG processing event schemas
@@ -260,10 +272,12 @@ export const RagQueryEventSchema = z.object({
     executedAt: z.string(),
     responseTime: z.number(),
   }),
-  user: z.object({
-    id: z.string(),
-    email: z.string().optional(),
-  }).optional(),
+  user: z
+    .object({
+      id: z.string(),
+      email: z.string().optional(),
+    })
+    .optional(),
   timestamp: z.number().optional(),
 });
 
@@ -288,23 +302,31 @@ export type InngestHealth = z.infer<typeof InngestHealthSchema>;
 export const InngestFunctionSchema = z.object({
   id: z.string(),
   name: z.string(),
-  triggers: z.array(z.object({
-    event: z.string(),
-    expression: z.string().optional(),
-  })),
-  concurrency: z.object({
-    limit: z.number().optional(),
-    scope: z.enum(['account', 'environment', 'function']).optional(),
-  }).optional(),
-  debounce: z.object({
-    period: z.string(),
-    key: z.string().optional(),
-  }).optional(),
-  rateLimit: z.object({
-    limit: z.number(),
-    period: z.string(),
-    key: z.string().optional(),
-  }).optional(),
+  triggers: z.array(
+    z.object({
+      event: z.string(),
+      expression: z.string().optional(),
+    }),
+  ),
+  concurrency: z
+    .object({
+      limit: z.number().optional(),
+      scope: z.enum(['account', 'environment', 'function']).optional(),
+    })
+    .optional(),
+  debounce: z
+    .object({
+      period: z.string(),
+      key: z.string().optional(),
+    })
+    .optional(),
+  rateLimit: z
+    .object({
+      limit: z.number(),
+      period: z.string(),
+      key: z.string().optional(),
+    })
+    .optional(),
 });
 
 export type InngestFunction = z.infer<typeof InngestFunctionSchema>;
@@ -312,7 +334,10 @@ export type InngestFunction = z.infer<typeof InngestFunctionSchema>;
 /**
  * TDD System - Union type for all document events
  */
-export type TDDDocumentEvent = DocumentUploadEvent | DocumentProcessingEvent | DocumentCompletedEvent;
+export type TDDDocumentEvent =
+  | DocumentUploadEvent
+  | DocumentProcessingEvent
+  | DocumentCompletedEvent;
 
 /**
  * TDD System - Union type for all supported events
@@ -329,4 +354,4 @@ export const EventNames = {
   RAG_QUERY_EXECUTED: 'rag/query.executed',
 } as const;
 
-export type TDDEventName = typeof EventNames[keyof typeof EventNames];
+export type TDDEventName = (typeof EventNames)[keyof typeof EventNames];

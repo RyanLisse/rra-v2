@@ -5,13 +5,13 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
   // Load environment variables
   const env = loadEnv(mode, process.cwd(), '');
-  
+
   // Configure for minimal test suite with enhanced Neon support
   const isNeonEnabled = env.USE_NEON_BRANCHING === 'true';
   const baseTimeout = isNeonEnabled ? 180000 : 120000; // Even longer for integration tests
   const hookTimeout = isNeonEnabled ? 180000 : 120000;
   const teardownTimeout = isNeonEnabled ? 90000 : 60000;
-  
+
   // Very conservative thread limits for integration tests
   const maxThreads = isNeonEnabled ? 1 : 2; // Sequential for Neon to avoid conflicts
 
@@ -36,7 +36,7 @@ export default defineConfig(({ mode }) => {
       testTimeout: parseInt(env.VITEST_TIMEOUT) || baseTimeout,
       hookTimeout: parseInt(env.VITEST_HOOK_TIMEOUT) || hookTimeout,
       teardownTimeout: teardownTimeout,
-      
+
       // Conservative configuration for integration tests
       pool: 'threads',
       poolOptions: {
@@ -47,26 +47,27 @@ export default defineConfig(({ mode }) => {
           isolate: true, // Always isolate for integration tests
         },
       },
-      
+
       // Always run sequentially for integration tests to avoid conflicts
       sequence: {
         concurrent: false,
         shuffle: false,
         setupTimeout: hookTimeout,
       },
-      
+
       // Force isolation for clean database state
       isolate: true,
-      
+
       // Enhanced reporting for integration tests
-      reporter: env.CI 
-        ? ['verbose', 'json']
-        : ['verbose'],
-      
+      reporter: env.CI ? ['verbose', 'json'] : ['verbose'],
+
       outputFile: {
-        json: path.join(env.TEST_METRICS_OUTPUT_DIR || './test-results', 'vitest-minimal-report.json'),
+        json: path.join(
+          env.TEST_METRICS_OUTPUT_DIR || './test-results',
+          'vitest-minimal-report.json',
+        ),
       },
-      
+
       // Enhanced environment setup for integration tests
       env: {
         ...env,
@@ -85,18 +86,21 @@ export default defineConfig(({ mode }) => {
         ENABLE_BRANCH_METRICS: 'true',
         ENABLE_REQUEST_LOGGING: env.ENABLE_REQUEST_LOGGING || 'true',
       },
-      
+
       // No retries for integration tests to avoid cascading failures
       retry: 0,
-      
+
       // Enhanced logging
       logHeapUsage: true,
-      
+
       // Coverage configuration for integration tests
       coverage: {
         provider: 'v8',
         reporter: ['text', 'json'],
-        reportsDirectory: path.join(env.TEST_METRICS_OUTPUT_DIR || './test-results', 'coverage-minimal'),
+        reportsDirectory: path.join(
+          env.TEST_METRICS_OUTPUT_DIR || './test-results',
+          'coverage-minimal',
+        ),
         exclude: [
           'node_modules/**',
           '.next/**',
@@ -123,13 +127,13 @@ export default defineConfig(({ mode }) => {
         ],
       },
     },
-    
+
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
       },
     },
-    
+
     // Define constants for integration tests
     define: {
       __TEST_ENV__: JSON.stringify('integration'),

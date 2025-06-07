@@ -26,7 +26,7 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
       purpose: 'performance-benchmarking',
       tags: ['performance', 'vector-search', 'benchmarks'],
       waitForReady: true,
-      timeoutMs: 120000
+      timeoutMs: 120000,
     });
 
     if (branchResult.success && branchResult.data) {
@@ -40,9 +40,11 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
 
   afterEach(async () => {
     if (testBranch) {
-      await neonClient.deleteTestBranch(testBranch.branchName).catch(error =>
-        console.warn('Failed to cleanup test branch:', error)
-      );
+      await neonClient
+        .deleteTestBranch(testBranch.branchName)
+        .catch((error) =>
+          console.warn('Failed to cleanup test branch:', error),
+        );
       testBranch = null;
     }
   });
@@ -64,15 +66,22 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
       for (const batchSize of batchSizes) {
         // Create chunks and embeddings
         const chunks = factory.createDocumentChunks(document.id, batchSize);
-        const embeddings = chunks.map(chunk => factory.createDocumentEmbedding(chunk.id));
+        const embeddings = chunks.map((chunk) =>
+          factory.createDocumentEmbedding(chunk.id),
+        );
 
-        const { duration: chunkInsertTime, memoryUsage: chunkMemory } = await measurePerformance(async () => {
-          return testUtils.insertDocumentChunks(chunks, testBranch!.branchId);
-        });
+        const { duration: chunkInsertTime, memoryUsage: chunkMemory } =
+          await measurePerformance(async () => {
+            return testUtils.insertDocumentChunks(chunks, testBranch!.branchId);
+          });
 
-        const { duration: embeddingInsertTime, memoryUsage: embeddingMemory } = await measurePerformance(async () => {
-          return testUtils.insertDocumentEmbeddings(embeddings, testBranch!.branchId);
-        });
+        const { duration: embeddingInsertTime, memoryUsage: embeddingMemory } =
+          await measurePerformance(async () => {
+            return testUtils.insertDocumentEmbeddings(
+              embeddings,
+              testBranch!.branchId,
+            );
+          });
 
         performanceResults.push({
           batchSize,
@@ -81,7 +90,8 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
           totalTime: chunkInsertTime + embeddingInsertTime,
           chunkMemoryUsed: chunkMemory.heapUsed,
           embeddingMemoryUsed: embeddingMemory.heapUsed,
-          throughputPerSecond: batchSize / ((chunkInsertTime + embeddingInsertTime) / 1000)
+          throughputPerSecond:
+            batchSize / ((chunkInsertTime + embeddingInsertTime) / 1000),
         });
 
         // Clean up for next iteration to isolate measurements
@@ -89,11 +99,11 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
           `DELETE FROM document_embeddings WHERE chunk_id IN (
             SELECT id FROM document_chunks WHERE document_id = '${document.id}'
           )`,
-          testBranch.branchId
+          testBranch.branchId,
         );
         await neonClient.executeSql(
           `DELETE FROM document_chunks WHERE document_id = '${document.id}'`,
-          testBranch.branchId
+          testBranch.branchId,
         );
       }
 
@@ -106,13 +116,16 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
         expect(result.throughputPerSecond).toBeGreaterThan(10); // At least 10 items/second
 
         // Log performance metrics
-        console.log(`Batch Size: ${result.batchSize}, Throughput: ${result.throughputPerSecond.toFixed(2)} items/sec`);
+        console.log(
+          `Batch Size: ${result.batchSize}, Throughput: ${result.throughputPerSecond.toFixed(2)} items/sec`,
+        );
       });
 
       // Verify throughput scaling
       const smallBatchThroughput = performanceResults[0].throughputPerSecond;
-      const largeBatchThroughput = performanceResults[performanceResults.length - 1].throughputPerSecond;
-      
+      const largeBatchThroughput =
+        performanceResults[performanceResults.length - 1].throughputPerSecond;
+
       // Large batches should have similar or better throughput
       expect(largeBatchThroughput).toBeGreaterThan(smallBatchThroughput * 0.5);
     });
@@ -127,22 +140,40 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
       const documentCount = 5;
       const chunksPerDocument = 200;
       const documents = factory.createDocuments(user.id, documentCount);
-      
-      await Promise.all(documents.map(doc => 
-        testUtils.insertDocument(doc, testBranch!.branchId)
-      ));
+
+      await Promise.all(
+        documents.map((doc) =>
+          testUtils.insertDocument(doc, testBranch!.branchId),
+        ),
+      );
 
       // Process documents concurrently
-      const { result: concurrentResults, duration: totalDuration, memoryUsage } = await measurePerformance(async () => {
+      const {
+        result: concurrentResults,
+        duration: totalDuration,
+        memoryUsage,
+      } = await measurePerformance(async () => {
         const documentOperations = documents.map(async (doc, docIndex) => {
-          const chunks = factory.createDocumentChunks(doc.id, chunksPerDocument);
-          const embeddings = chunks.map(chunk => factory.createDocumentEmbedding(chunk.id));
+          const chunks = factory.createDocumentChunks(
+            doc.id,
+            chunksPerDocument,
+          );
+          const embeddings = chunks.map((chunk) =>
+            factory.createDocumentEmbedding(chunk.id),
+          );
 
           // Insert chunks and embeddings for this document
           await testUtils.insertDocumentChunks(chunks, testBranch!.branchId);
-          await testUtils.insertDocumentEmbeddings(embeddings, testBranch!.branchId);
+          await testUtils.insertDocumentEmbeddings(
+            embeddings,
+            testBranch!.branchId,
+          );
 
-          return { documentId: doc.id, chunkCount: chunks.length, embeddingCount: embeddings.length };
+          return {
+            documentId: doc.id,
+            chunkCount: chunks.length,
+            embeddingCount: embeddings.length,
+          };
         });
 
         return Promise.all(documentOperations);
@@ -156,15 +187,19 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
       // Verify all data was inserted
       const totalChunksResult = await neonClient.executeSql(
         'SELECT COUNT(*) as count FROM document_chunks',
-        testBranch.branchId
+        testBranch.branchId,
       );
       const totalEmbeddingsResult = await neonClient.executeSql(
         'SELECT COUNT(*) as count FROM document_embeddings',
-        testBranch.branchId
+        testBranch.branchId,
       );
 
-      expect(parseInt(totalChunksResult.data?.results?.[0]?.count || '0')).toBe(documentCount * chunksPerDocument);
-      expect(parseInt(totalEmbeddingsResult.data?.results?.[0]?.count || '0')).toBe(documentCount * chunksPerDocument);
+      expect(parseInt(totalChunksResult.data?.results?.[0]?.count || '0')).toBe(
+        documentCount * chunksPerDocument,
+      );
+      expect(
+        parseInt(totalEmbeddingsResult.data?.results?.[0]?.count || '0'),
+      ).toBe(documentCount * chunksPerDocument);
 
       // Measure throughput
       const totalItems = documentCount * chunksPerDocument;
@@ -192,16 +227,19 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
         // Create high-dimensional embeddings
         const { duration, memoryUsage } = await measurePerformance(async () => {
           for (const chunk of chunks) {
-            const largeEmbedding = Array.from({ length: dimension }, () => Math.random() * 2 - 1);
+            const largeEmbedding = Array.from(
+              { length: dimension },
+              () => Math.random() * 2 - 1,
+            );
             const embedding = factory.createDocumentEmbedding(chunk.id, {
               embedding: JSON.stringify(largeEmbedding),
-              model: `test-model-${dimension}d`
+              model: `test-model-${dimension}d`,
             });
 
             await neonClient.executeSql(
               `INSERT INTO document_embeddings (id, chunk_id, embedding_text, model, created_at) 
                VALUES ('${embedding.id}', '${embedding.chunkId}', '${embedding.embedding.replace(/'/g, "''")}', '${embedding.model}', NOW())`,
-              testBranch!.branchId
+              testBranch!.branchId,
             );
           }
         });
@@ -211,7 +249,7 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
           duration,
           memoryUsed: memoryUsage.heapUsed,
           memoryPerEmbedding: memoryUsage.heapUsed / 100,
-          processingRate: 100 / (duration / 1000)
+          processingRate: 100 / (duration / 1000),
         });
 
         // Clean up for next iteration
@@ -219,11 +257,11 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
           `DELETE FROM document_embeddings WHERE chunk_id IN (
             SELECT id FROM document_chunks WHERE document_id = '${document.id}'
           )`,
-          testBranch.branchId
+          testBranch.branchId,
         );
         await neonClient.executeSql(
           `DELETE FROM document_chunks WHERE document_id = '${document.id}'`,
-          testBranch.branchId
+          testBranch.branchId,
         );
       }
 
@@ -233,13 +271,18 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
         expect(result.memoryUsed).toBeLessThan(500 * 1024 * 1024); // Under 500MB
         expect(result.processingRate).toBeGreaterThan(5); // At least 5 embeddings/second
 
-        console.log(`Dimension: ${result.dimension}, Memory per embedding: ${(result.memoryPerEmbedding / 1024).toFixed(2)} KB`);
+        console.log(
+          `Dimension: ${result.dimension}, Memory per embedding: ${(result.memoryPerEmbedding / 1024).toFixed(2)} KB`,
+        );
       });
 
       // Memory usage should scale reasonably with dimension
       const smallDimMemory = memoryResults[0].memoryPerEmbedding;
-      const largeDimMemory = memoryResults[memoryResults.length - 1].memoryPerEmbedding;
-      const dimensionRatio = embeddingDimensions[embeddingDimensions.length - 1] / embeddingDimensions[0];
+      const largeDimMemory =
+        memoryResults[memoryResults.length - 1].memoryPerEmbedding;
+      const dimensionRatio =
+        embeddingDimensions[embeddingDimensions.length - 1] /
+        embeddingDimensions[0];
       const memoryRatio = largeDimMemory / smallDimMemory;
 
       // Memory scaling should be roughly proportional to dimension increase
@@ -258,43 +301,56 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
       const documentCount = 3;
       const chunksPerDocument = 1000; // Larger dataset
       const documents = factory.createDocuments(user.id, documentCount);
-      
+
       // Set up test data
       const { duration: setupDuration } = await measurePerformance(async () => {
         for (const doc of documents) {
           await testUtils.insertDocument(doc, testBranch!.branchId);
-          
-          const chunks = factory.createDocumentChunks(doc.id, chunksPerDocument);
+
+          const chunks = factory.createDocumentChunks(
+            doc.id,
+            chunksPerDocument,
+          );
           await testUtils.insertDocumentChunks(chunks, testBranch.branchId);
-          
-          const embeddings = chunks.map(chunk => factory.createDocumentEmbedding(chunk.id));
-          await testUtils.insertDocumentEmbeddings(embeddings, testBranch.branchId);
+
+          const embeddings = chunks.map((chunk) =>
+            factory.createDocumentEmbedding(chunk.id),
+          );
+          await testUtils.insertDocumentEmbeddings(
+            embeddings,
+            testBranch.branchId,
+          );
         }
       });
 
-      console.log(`Setup completed in ${setupDuration}ms for ${documentCount * chunksPerDocument} embeddings`);
+      console.log(
+        `Setup completed in ${setupDuration}ms for ${documentCount * chunksPerDocument} embeddings`,
+      );
 
       // Test various search patterns
       const searchTests = [
         {
           name: 'Simple Retrieval',
-          query: 'SELECT c.*, e.model FROM document_chunks c JOIN document_embeddings e ON c.id = e.chunk_id ORDER BY c.index LIMIT 10',
-          expectedResults: 10
+          query:
+            'SELECT c.*, e.model FROM document_chunks c JOIN document_embeddings e ON c.id = e.chunk_id ORDER BY c.index LIMIT 10',
+          expectedResults: 10,
         },
         {
           name: 'Filtered Search',
           query: `SELECT c.*, e.model FROM document_chunks c JOIN document_embeddings e ON c.id = e.chunk_id WHERE e.model = 'cohere-embed-v4.0' LIMIT 20`,
-          expectedResults: { min: 0, max: 20 }
+          expectedResults: { min: 0, max: 20 },
         },
         {
           name: 'Paginated Results',
-          query: 'SELECT c.*, e.model FROM document_chunks c JOIN document_embeddings e ON c.id = e.chunk_id ORDER BY c.created_at DESC LIMIT 50 OFFSET 100',
-          expectedResults: 50
+          query:
+            'SELECT c.*, e.model FROM document_chunks c JOIN document_embeddings e ON c.id = e.chunk_id ORDER BY c.created_at DESC LIMIT 50 OFFSET 100',
+          expectedResults: 50,
         },
         {
           name: 'Aggregated Search',
-          query: 'SELECT e.model, COUNT(*) as count FROM document_embeddings e GROUP BY e.model ORDER BY count DESC',
-          expectedResults: { min: 1, max: 10 }
+          query:
+            'SELECT e.model, COUNT(*) as count FROM document_embeddings e GROUP BY e.model ORDER BY count DESC',
+          expectedResults: { min: 1, max: 10 },
         },
         {
           name: 'Complex Join Search',
@@ -304,26 +360,28 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
                   LEFT JOIN document_embeddings e ON c.id = e.chunk_id 
                   GROUP BY d.id, d.name 
                   ORDER BY chunk_count DESC`,
-          expectedResults: documentCount
-        }
+          expectedResults: documentCount,
+        },
       ];
 
       const searchResults = [];
 
       for (const test of searchTests) {
-        const { result, duration, memoryUsage } = await measurePerformance(async () => {
-          return neonClient.executeSql(test.query, testBranch!.branchId);
-        });
+        const { result, duration, memoryUsage } = await measurePerformance(
+          async () => {
+            return neonClient.executeSql(test.query, testBranch!.branchId);
+          },
+        );
 
         const resultCount = result.data?.results?.length || 0;
-        
+
         searchResults.push({
           name: test.name,
           duration,
           resultCount,
           memoryUsed: memoryUsage.heapUsed,
           success: result.success,
-          throughput: resultCount / (duration / 1000)
+          throughput: resultCount / (duration / 1000),
         });
 
         // Verify result expectations
@@ -336,24 +394,30 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
       }
 
       // Performance assertions
-      searchResults.forEach(result => {
+      searchResults.forEach((result) => {
         expect(result.success).toBe(true);
         expect(result.duration).toBeLessThan(10000); // Under 10 seconds
         expect(result.memoryUsed).toBeLessThan(100 * 1024 * 1024); // Under 100MB per search
         expect(result.throughput).toBeGreaterThan(1); // At least 1 result/second
 
-        console.log(`${result.name}: ${result.duration}ms, ${result.resultCount} results, ${result.throughput.toFixed(2)} results/sec`);
+        console.log(
+          `${result.name}: ${result.duration}ms, ${result.resultCount} results, ${result.throughput.toFixed(2)} results/sec`,
+        );
       });
 
       // Test concurrent searches
-      const { duration: concurrentDuration } = await measurePerformance(async () => {
-        const concurrentSearches = searchTests.slice(0, 3).map(test => 
-          neonClient.executeSql(test.query, testBranch!.branchId)
-        );
-        
-        const results = await Promise.all(concurrentSearches);
-        return results.every(r => r.success);
-      });
+      const { duration: concurrentDuration } = await measurePerformance(
+        async () => {
+          const concurrentSearches = searchTests
+            .slice(0, 3)
+            .map((test) =>
+              neonClient.executeSql(test.query, testBranch!.branchId),
+            );
+
+          const results = await Promise.all(concurrentSearches);
+          return results.every((r) => r.success);
+        },
+      );
 
       expect(concurrentDuration).toBeLessThan(15000); // Concurrent searches under 15 seconds
     });
@@ -369,41 +433,48 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
       const scalingResults = [];
 
       for (const size of datasetSizes) {
-        const document = factory.createDocument(user.id, { name: `Scaling Test ${size}` });
+        const document = factory.createDocument(user.id, {
+          name: `Scaling Test ${size}`,
+        });
         await testUtils.insertDocument(document, testBranch.branchId);
 
         // Setup data for this size
         const { duration: setupTime } = await measurePerformance(async () => {
           const chunks = factory.createDocumentChunks(document.id, size);
           await testUtils.insertDocumentChunks(chunks, testBranch!.branchId);
-          
-          const embeddings = chunks.map(chunk => factory.createDocumentEmbedding(chunk.id));
-          await testUtils.insertDocumentEmbeddings(embeddings, testBranch!.branchId);
+
+          const embeddings = chunks.map((chunk) =>
+            factory.createDocumentEmbedding(chunk.id),
+          );
+          await testUtils.insertDocumentEmbeddings(
+            embeddings,
+            testBranch!.branchId,
+          );
         });
 
         // Test various search operations
         const searchOperations = [
           {
             name: 'index_scan',
-            query: `SELECT COUNT(*) FROM document_chunks WHERE document_id = '${document.id}'`
+            query: `SELECT COUNT(*) FROM document_chunks WHERE document_id = '${document.id}'`,
           },
           {
             name: 'join_search',
-            query: `SELECT c.*, e.model FROM document_chunks c JOIN document_embeddings e ON c.id = e.chunk_id WHERE c.document_id = '${document.id}' LIMIT 20`
+            query: `SELECT c.*, e.model FROM document_chunks c JOIN document_embeddings e ON c.id = e.chunk_id WHERE c.document_id = '${document.id}' LIMIT 20`,
           },
           {
             name: 'filtered_search',
-            query: `SELECT c.* FROM document_chunks c JOIN document_embeddings e ON c.id = e.chunk_id WHERE c.document_id = '${document.id}' AND e.model LIKE 'cohere%' LIMIT 10`
-          }
+            query: `SELECT c.* FROM document_chunks c JOIN document_embeddings e ON c.id = e.chunk_id WHERE c.document_id = '${document.id}' AND e.model LIKE 'cohere%' LIMIT 10`,
+          },
         ];
 
         const operationResults = {};
-        
+
         for (const operation of searchOperations) {
           const { duration } = await measurePerformance(async () => {
             return neonClient.executeSql(operation.query, testBranch!.branchId);
           });
-          
+
           operationResults[operation.name] = duration;
         }
 
@@ -411,7 +482,7 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
           datasetSize: size,
           setupTime,
           searchTimes: operationResults,
-          scalingFactor: size / datasetSizes[0]
+          scalingFactor: size / datasetSizes[0],
         });
       }
 
@@ -421,15 +492,17 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
           const prevResult = scalingResults[index - 1];
           const dataScalingFactor = result.datasetSize / prevResult.datasetSize;
 
-          Object.keys(result.searchTimes).forEach(operation => {
+          Object.keys(result.searchTimes).forEach((operation) => {
             const currentTime = result.searchTimes[operation];
             const prevTime = prevResult.searchTimes[operation];
             const timeScalingFactor = currentTime / prevTime;
 
             // Search time should scale sub-linearly (better than O(n))
             expect(timeScalingFactor).toBeLessThan(dataScalingFactor * 1.5);
-            
-            console.log(`${operation} at size ${result.datasetSize}: ${currentTime}ms (${timeScalingFactor.toFixed(2)}x scaling)`);
+
+            console.log(
+              `${operation} at size ${result.datasetSize}: ${currentTime}ms (${timeScalingFactor.toFixed(2)}x scaling)`,
+            );
           });
         }
       });
@@ -439,7 +512,7 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
       const lastResult = scalingResults[scalingResults.length - 1];
       const finalDataScaling = lastResult.datasetSize / firstResult.datasetSize;
 
-      Object.keys(firstResult.searchTimes).forEach(operation => {
+      Object.keys(firstResult.searchTimes).forEach((operation) => {
         const firstTime = firstResult.searchTimes[operation];
         const lastTime = lastResult.searchTimes[operation];
         const timeScaling = lastTime / firstTime;
@@ -462,67 +535,82 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
       const initialChunks = factory.createDocumentChunks(document.id, 1000);
       await testUtils.insertDocumentChunks(initialChunks, testBranch.branchId);
 
-      const initialEmbeddings = initialChunks.map(chunk => factory.createDocumentEmbedding(chunk.id));
-      await testUtils.insertDocumentEmbeddings(initialEmbeddings, testBranch.branchId);
+      const initialEmbeddings = initialChunks.map((chunk) =>
+        factory.createDocumentEmbedding(chunk.id),
+      );
+      await testUtils.insertDocumentEmbeddings(
+        initialEmbeddings,
+        testBranch.branchId,
+      );
 
       // Test performance with concurrent reads and writes
       const operationCount = 50;
-      const { result: operationResults, duration: totalDuration } = await measurePerformance(async () => {
-        const operations = [];
+      const { result: operationResults, duration: totalDuration } =
+        await measurePerformance(async () => {
+          const operations = [];
 
-        for (let i = 0; i < operationCount; i++) {
-          if (i % 3 === 0) {
-            // Insert new data
-            operations.push(async () => {
-              const newChunk = factory.createDocumentChunk(document.id, 1000 + i);
-              await neonClient.executeSql(
-                `INSERT INTO document_chunks (id, document_id, content, index, metadata, created_at) 
+          for (let i = 0; i < operationCount; i++) {
+            if (i % 3 === 0) {
+              // Insert new data
+              operations.push(async () => {
+                const newChunk = factory.createDocumentChunk(
+                  document.id,
+                  1000 + i,
+                );
+                await neonClient.executeSql(
+                  `INSERT INTO document_chunks (id, document_id, content, index, metadata, created_at) 
                  VALUES ('${newChunk.id}', '${newChunk.documentId}', '${newChunk.content.replace(/'/g, "''")}', ${newChunk.index}, '{}', NOW())`,
-                testBranch!.branchId
-              );
-              
-              const newEmbedding = factory.createDocumentEmbedding(newChunk.id);
-              await neonClient.executeSql(
-                `INSERT INTO document_embeddings (id, chunk_id, embedding_text, model, created_at) 
+                  testBranch!.branchId,
+                );
+
+                const newEmbedding = factory.createDocumentEmbedding(
+                  newChunk.id,
+                );
+                await neonClient.executeSql(
+                  `INSERT INTO document_embeddings (id, chunk_id, embedding_text, model, created_at) 
                  VALUES ('${newEmbedding.id}', '${newEmbedding.chunkId}', '${newEmbedding.embedding.replace(/'/g, "''")}', '${newEmbedding.model}', NOW())`,
-                testBranch!.branchId
-              );
-            });
-          } else if (i % 3 === 1) {
-            // Update existing data
-            operations.push(async () => {
-              const randomIndex = Math.floor(Math.random() * 1000);
-              await neonClient.executeSql(
-                `UPDATE document_chunks SET content = 'Updated content ${i}' WHERE document_id = '${document.id}' AND index = ${randomIndex}`,
-                testBranch!.branchId
-              );
-            });
-          } else {
-            // Search operations
-            operations.push(async () => {
-              return neonClient.executeSql(
-                `SELECT c.*, e.model FROM document_chunks c 
+                  testBranch!.branchId,
+                );
+              });
+            } else if (i % 3 === 1) {
+              // Update existing data
+              operations.push(async () => {
+                const randomIndex = Math.floor(Math.random() * 1000);
+                await neonClient.executeSql(
+                  `UPDATE document_chunks SET content = 'Updated content ${i}' WHERE document_id = '${document.id}' AND index = ${randomIndex}`,
+                  testBranch!.branchId,
+                );
+              });
+            } else {
+              // Search operations
+              operations.push(async () => {
+                return neonClient.executeSql(
+                  `SELECT c.*, e.model FROM document_chunks c 
                  JOIN document_embeddings e ON c.id = e.chunk_id 
                  WHERE c.document_id = '${document.id}' 
                  ORDER BY c.index DESC LIMIT 10 OFFSET ${i * 2}`,
-                testBranch!.branchId
-              );
-            });
+                  testBranch!.branchId,
+                );
+              });
+            }
           }
-        }
 
-        return Promise.allSettled(operations.map(op => op()));
-      });
+          return Promise.allSettled(operations.map((op) => op()));
+        });
 
       // Verify operation success rates
-      const successfulOps = operationResults.filter(result => result.status === 'fulfilled').length;
+      const successfulOps = operationResults.filter(
+        (result) => result.status === 'fulfilled',
+      ).length;
       const successRate = successfulOps / operationCount;
 
       expect(successRate).toBeGreaterThan(0.9); // 90% success rate
       expect(totalDuration).toBeLessThan(60000); // Complete in under 1 minute
 
       // Verify final data integrity
-      const integrityResult = await testUtils.verifyDataIntegrity(testBranch.branchId);
+      const integrityResult = await testUtils.verifyDataIntegrity(
+        testBranch.branchId,
+      );
       expect(integrityResult.success).toBe(true);
 
       const checks = integrityResult.data?.results || [];
@@ -530,7 +618,9 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
         expect(check.status).toBe('PASS');
       });
 
-      console.log(`Mixed operations: ${successRate * 100}% success rate, ${totalDuration}ms total time`);
+      console.log(
+        `Mixed operations: ${successRate * 100}% success rate, ${totalDuration}ms total time`,
+      );
     });
   });
 
@@ -549,9 +639,14 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
       const { duration: setupDuration } = await measurePerformance(async () => {
         const chunks = factory.createDocumentChunks(document.id, totalChunks);
         await testUtils.insertDocumentChunks(chunks, testBranch!.branchId);
-        
-        const embeddings = chunks.map(chunk => factory.createDocumentEmbedding(chunk.id));
-        await testUtils.insertDocumentEmbeddings(embeddings, testBranch!.branchId);
+
+        const embeddings = chunks.map((chunk) =>
+          factory.createDocumentEmbedding(chunk.id),
+        );
+        await testUtils.insertDocumentEmbeddings(
+          embeddings,
+          testBranch!.branchId,
+        );
       });
 
       console.log(`Setup ${totalChunks} chunks in ${setupDuration}ms`);
@@ -562,38 +657,39 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
       let totalProcessed = 0;
       const pageTimes = [];
 
-      const { duration: streamingDuration, memoryUsage } = await measurePerformance(async () => {
-        for (let page = 0; page < totalPages; page++) {
-          const pageStart = Date.now();
-          
-          const pageResult = await neonClient.executeSql(
-            `SELECT c.*, e.model, e.embedding_text 
+      const { duration: streamingDuration, memoryUsage } =
+        await measurePerformance(async () => {
+          for (let page = 0; page < totalPages; page++) {
+            const pageStart = Date.now();
+
+            const pageResult = await neonClient.executeSql(
+              `SELECT c.*, e.model, e.embedding_text 
              FROM document_chunks c 
              JOIN document_embeddings e ON c.id = e.chunk_id 
              WHERE c.document_id = '${document.id}' 
              ORDER BY c.index 
              LIMIT ${pageSize} OFFSET ${page * pageSize}`,
-            testBranch!.branchId
-          );
+              testBranch!.branchId,
+            );
 
-          const pageEnd = Date.now();
-          const pageTime = pageEnd - pageStart;
-          pageTimes.push(pageTime);
+            const pageEnd = Date.now();
+            const pageTime = pageEnd - pageStart;
+            pageTimes.push(pageTime);
 
-          expect(pageResult.success).toBe(true);
-          const results = pageResult.data?.results || [];
-          totalProcessed += results.length;
+            expect(pageResult.success).toBe(true);
+            const results = pageResult.data?.results || [];
+            totalProcessed += results.length;
 
-          // Simulate processing results
-          results.forEach((result: any) => {
-            expect(result.id).toBeDefined();
-            expect(result.content).toBeDefined();
-            expect(result.embedding_text).toBeDefined();
-          });
-        }
+            // Simulate processing results
+            results.forEach((result: any) => {
+              expect(result.id).toBeDefined();
+              expect(result.content).toBeDefined();
+              expect(result.embedding_text).toBeDefined();
+            });
+          }
 
-        return totalProcessed;
-      });
+          return totalProcessed;
+        });
 
       // Verify streaming performance
       expect(totalProcessed).toBe(totalChunks);
@@ -601,14 +697,17 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
       expect(memoryUsage.heapUsed).toBeLessThan(300 * 1024 * 1024); // Under 300MB
 
       // Analyze page timing consistency
-      const avgPageTime = pageTimes.reduce((sum, time) => sum + time, 0) / pageTimes.length;
+      const avgPageTime =
+        pageTimes.reduce((sum, time) => sum + time, 0) / pageTimes.length;
       const maxPageTime = Math.max(...pageTimes);
       const minPageTime = Math.min(...pageTimes);
 
       expect(maxPageTime).toBeLessThan(5000); // No page takes more than 5 seconds
       expect(maxPageTime - minPageTime).toBeLessThan(avgPageTime * 3); // Consistent timing
 
-      console.log(`Streaming: ${totalProcessed} items in ${streamingDuration}ms, avg page time: ${avgPageTime.toFixed(2)}ms`);
+      console.log(
+        `Streaming: ${totalProcessed} items in ${streamingDuration}ms, avg page time: ${avgPageTime.toFixed(2)}ms`,
+      );
     });
 
     it('should optimize index usage for vector operations', async () => {
@@ -628,8 +727,13 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
         const chunks = factory.createDocumentChunks(doc.id, chunksPerDoc[i]);
         await testUtils.insertDocumentChunks(chunks, testBranch.branchId);
 
-        const embeddings = chunks.map(chunk => factory.createDocumentEmbedding(chunk.id));
-        await testUtils.insertDocumentEmbeddings(embeddings, testBranch.branchId);
+        const embeddings = chunks.map((chunk) =>
+          factory.createDocumentEmbedding(chunk.id),
+        );
+        await testUtils.insertDocumentEmbeddings(
+          embeddings,
+          testBranch.branchId,
+        );
       }
 
       // Test index effectiveness with different query patterns
@@ -637,25 +741,26 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
         {
           name: 'Document ID Index',
           query: 'SELECT COUNT(*) FROM document_chunks WHERE document_id = $1',
-          parameter: documents[2].id
+          parameter: documents[2].id,
         },
         {
           name: 'Chunk Index Range',
-          query: 'SELECT COUNT(*) FROM document_chunks WHERE document_id = $1 AND index BETWEEN 50 AND 150',
-          parameter: documents[3].id
+          query:
+            'SELECT COUNT(*) FROM document_chunks WHERE document_id = $1 AND index BETWEEN 50 AND 150',
+          parameter: documents[3].id,
         },
         {
           name: 'Embedding Model Filter',
           query: 'SELECT COUNT(*) FROM document_embeddings WHERE model = $1',
-          parameter: 'cohere-embed-v4.0'
+          parameter: 'cohere-embed-v4.0',
         },
         {
           name: 'Join Performance',
           query: `SELECT COUNT(*) FROM document_chunks c 
                   JOIN document_embeddings e ON c.id = e.chunk_id 
                   WHERE c.document_id = $1`,
-          parameter: documents[4].id
-        }
+          parameter: documents[4].id,
+        },
       ];
 
       const indexResults = [];
@@ -671,17 +776,19 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
           name: test.name,
           duration,
           success: result.success,
-          resultCount: parseInt(result.data?.results?.[0]?.count || '0')
+          resultCount: parseInt(result.data?.results?.[0]?.count || '0'),
         });
       }
 
       // Verify index performance
-      indexResults.forEach(result => {
+      indexResults.forEach((result) => {
         expect(result.success).toBe(true);
         expect(result.duration).toBeLessThan(2000); // Under 2 seconds with proper indexing
         expect(result.resultCount).toBeGreaterThan(0);
 
-        console.log(`${result.name}: ${result.duration}ms, ${result.resultCount} results`);
+        console.log(
+          `${result.name}: ${result.duration}ms, ${result.resultCount} results`,
+        );
       });
 
       // Test query plan analysis (if supported)
@@ -691,11 +798,13 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
          JOIN document_embeddings e ON c.id = e.chunk_id 
          WHERE c.document_id = '${documents[0].id}' 
          LIMIT 10`,
-        testBranch.branchId
+        testBranch.branchId,
       );
 
       if (explainResult.success) {
-        console.log('Query plan available - indexes being utilized effectively');
+        console.log(
+          'Query plan available - indexes being utilized effectively',
+        );
       }
     });
 
@@ -712,51 +821,79 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
       const chunks = factory.createDocumentChunks(document.id, 1000);
       await testUtils.insertDocumentChunks(chunks, testBranch.branchId);
 
-      const embeddings = chunks.map(chunk => factory.createDocumentEmbedding(chunk.id));
+      const embeddings = chunks.map((chunk) =>
+        factory.createDocumentEmbedding(chunk.id),
+      );
       await testUtils.insertDocumentEmbeddings(embeddings, testBranch.branchId);
 
       // Verify initial state
-      const initialStats = await testUtils.getTestDataStats(testBranch.branchId);
-      expect(parseInt(initialStats.data?.results?.[0]?.chunk_count || '0')).toBe(1000);
-      expect(parseInt(initialStats.data?.results?.[0]?.embedding_count || '0')).toBe(1000);
+      const initialStats = await testUtils.getTestDataStats(
+        testBranch.branchId,
+      );
+      expect(
+        parseInt(initialStats.data?.results?.[0]?.chunk_count || '0'),
+      ).toBe(1000);
+      expect(
+        parseInt(initialStats.data?.results?.[0]?.embedding_count || '0'),
+      ).toBe(1000);
 
       // Test cascading deletion performance
-      const { duration: deleteDuration } = await measurePerformance(async () => {
-        await neonClient.executeSql(
-          `DELETE FROM rag_documents WHERE id = '${document.id}'`,
-          testBranch!.branchId
-        );
-      });
+      const { duration: deleteDuration } = await measurePerformance(
+        async () => {
+          await neonClient.executeSql(
+            `DELETE FROM rag_documents WHERE id = '${document.id}'`,
+            testBranch!.branchId,
+          );
+        },
+      );
 
       // Verify cleanup completed
       const finalStats = await testUtils.getTestDataStats(testBranch.branchId);
-      expect(parseInt(finalStats.data?.results?.[0]?.chunk_count || '0')).toBe(0);
-      expect(parseInt(finalStats.data?.results?.[0]?.embedding_count || '0')).toBe(0);
+      expect(parseInt(finalStats.data?.results?.[0]?.chunk_count || '0')).toBe(
+        0,
+      );
+      expect(
+        parseInt(finalStats.data?.results?.[0]?.embedding_count || '0'),
+      ).toBe(0);
 
       // Performance assertions
       expect(deleteDuration).toBeLessThan(10000); // Cleanup under 10 seconds
 
-      console.log(`Cascade deletion of 1000 chunks and embeddings completed in ${deleteDuration}ms`);
+      console.log(
+        `Cascade deletion of 1000 chunks and embeddings completed in ${deleteDuration}ms`,
+      );
 
       // Test memory cleanup by creating and destroying data multiple times
-      const { memoryUsage: finalMemory } = await measurePerformance(async () => {
-        for (let cycle = 0; cycle < 5; cycle++) {
-          const tempDoc = factory.createDocument(user.id, { name: `Temp Doc ${cycle}` });
-          await testUtils.insertDocument(tempDoc, testBranch!.branchId);
+      const { memoryUsage: finalMemory } = await measurePerformance(
+        async () => {
+          for (let cycle = 0; cycle < 5; cycle++) {
+            const tempDoc = factory.createDocument(user.id, {
+              name: `Temp Doc ${cycle}`,
+            });
+            await testUtils.insertDocument(tempDoc, testBranch!.branchId);
 
-          const tempChunks = factory.createDocumentChunks(tempDoc.id, 200);
-          await testUtils.insertDocumentChunks(tempChunks, testBranch!.branchId);
+            const tempChunks = factory.createDocumentChunks(tempDoc.id, 200);
+            await testUtils.insertDocumentChunks(
+              tempChunks,
+              testBranch!.branchId,
+            );
 
-          const tempEmbeddings = tempChunks.map(chunk => factory.createDocumentEmbedding(chunk.id));
-          await testUtils.insertDocumentEmbeddings(tempEmbeddings, testBranch!.branchId);
+            const tempEmbeddings = tempChunks.map((chunk) =>
+              factory.createDocumentEmbedding(chunk.id),
+            );
+            await testUtils.insertDocumentEmbeddings(
+              tempEmbeddings,
+              testBranch!.branchId,
+            );
 
-          // Clean up immediately
-          await neonClient.executeSql(
-            `DELETE FROM rag_documents WHERE id = '${tempDoc.id}'`,
-            testBranch!.branchId
-          );
-        }
-      });
+            // Clean up immediately
+            await neonClient.executeSql(
+              `DELETE FROM rag_documents WHERE id = '${tempDoc.id}'`,
+              testBranch!.branchId,
+            );
+          }
+        },
+      );
 
       // Memory should not accumulate significantly
       expect(finalMemory.heapUsed).toBeLessThan(200 * 1024 * 1024); // Under 200MB

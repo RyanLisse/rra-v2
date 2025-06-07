@@ -5,7 +5,8 @@ import { getMessageByErrorCode } from '@/lib/errors';
 
 const documentsCreatedByAda: Array<Document> = [];
 
-test.describe.serial('/api/document', () => {
+test.describe
+  .serial('/api/document', () => {
     test('Ada cannot retrieve a document without specifying an id', async ({
       adaContext,
     }) => {
@@ -207,4 +208,4 @@ test.describe.serial('/api/document', () => {
       const documentsRetrieved = await response.json();
       expect(documentsRetrieved).toHaveLength(1);
     });
-});
+  });

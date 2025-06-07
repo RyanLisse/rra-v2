@@ -170,9 +170,17 @@ export const createChatMessage = (overrides?: any) => ({
   ...overrides,
 });
 
-export const createChatRequest = (chatId: string, messageContent?: string, overrides?: any) => ({
+export const createChatRequest = (
+  chatId: string,
+  messageContent?: string,
+  overrides?: any,
+) => ({
   id: chatId,
-  message: createChatMessage(messageContent ? { parts: [{ type: 'text', text: messageContent }] } : undefined),
+  message: createChatMessage(
+    messageContent
+      ? { parts: [{ type: 'text', text: messageContent }] }
+      : undefined,
+  ),
   selectedChatModel: 'chat-model',
   selectedVisibilityType: 'private' as const,
   ...overrides,
@@ -221,11 +229,11 @@ export const createPerformanceDataFactory = () => {
       const embedding = new Array(dimension);
       const clusterCount = 10;
       const clusterSize = dimension / clusterCount;
-      
+
       for (let cluster = 0; cluster < clusterCount; cluster++) {
         const clusterMean = (Math.random() - 0.5) * 2; // -1 to 1
         const clusterStd = 0.3 + Math.random() * 0.4; // 0.3 to 0.7
-        
+
         for (let i = 0; i < clusterSize; i++) {
           const index = cluster * clusterSize + i;
           if (index < dimension) {
@@ -236,41 +244,48 @@ export const createPerformanceDataFactory = () => {
           }
         }
       }
-      
+
       return embedding;
     },
 
-    createSearchableEmbedding: (dimension: number = 1536, patternId: number = 0) => {
+    createSearchableEmbedding: (
+      dimension: number = 1536,
+      patternId: number = 0,
+    ) => {
       // Create embeddings with specific patterns for search testing
       const embedding = new Array(dimension);
       const patternPhase = (patternId * Math.PI * 2) / 10; // 10 different patterns
-      
+
       for (let i = 0; i < dimension; i++) {
-        const baseValue = Math.sin((i / dimension) * Math.PI * 4 + patternPhase) * 0.5;
+        const baseValue =
+          Math.sin((i / dimension) * Math.PI * 4 + patternPhase) * 0.5;
         const noise = (Math.random() - 0.5) * 0.3;
         embedding[i] = baseValue + noise;
       }
-      
+
       return embedding;
     },
 
     createLargeTestFile: (name: string, type: string, size: number): File => {
       const content = new Uint8Array(size);
-      
+
       // Add realistic file header based on type
       if (type === 'application/pdf') {
         // PDF header
-        content.set([0x25, 0x50, 0x44, 0x46, 0x2D, 0x31, 0x2E, 0x34]); // %PDF-1.4
-      } else if (type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        content.set([0x25, 0x50, 0x44, 0x46, 0x2d, 0x31, 0x2e, 0x34]); // %PDF-1.4
+      } else if (
+        type ===
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      ) {
         // DOCX header (ZIP)
-        content.set([0x50, 0x4B, 0x03, 0x04]);
+        content.set([0x50, 0x4b, 0x03, 0x04]);
       }
-      
+
       // Fill with semi-realistic content patterns
       for (let i = 8; i < size; i++) {
         if (i % 1000 === 0) {
           // Add some structure markers every 1KB
-          content[i] = 0x0A; // Newline
+          content[i] = 0x0a; // Newline
         } else if (i % 100 === 0) {
           // Add spaces for readability
           content[i] = 0x20; // Space
@@ -287,16 +302,19 @@ export const createPerformanceDataFactory = () => {
       const sizeBytes = sizeMB * 1024 * 1024;
       const data = new ArrayBuffer(sizeBytes);
       const view = new Uint8Array(data);
-      
+
       // Fill with pattern to simulate real data
       for (let i = 0; i < sizeBytes; i++) {
         view[i] = i % 256;
       }
-      
+
       return data;
     },
 
-    createConcurrentOperations: (count: number, operationFn: (index: number) => Promise<any>) => {
+    createConcurrentOperations: (
+      count: number,
+      operationFn: (index: number) => Promise<any>,
+    ) => {
       return Array.from({ length: count }, (_, i) => operationFn(i));
     },
 

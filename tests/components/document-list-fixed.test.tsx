@@ -1,7 +1,10 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { DocumentList } from '@/components/document-list';
-import type { ManagedDocumentView, DocumentStats } from '@/app/(chat)/documents/actions';
+import type {
+  ManagedDocumentView,
+  DocumentStats,
+} from '@/app/(chat)/documents/actions';
 
 // Create manual mocks
 const mockToast = {
@@ -26,7 +29,8 @@ vi.mock('@/app/(chat)/documents/actions', () => ({
   getManagedDocuments: () => mockDocumentActions.getManagedDocuments(),
   getDocumentStats: () => mockDocumentActions.getDocumentStats(),
   deleteDocument: (id: string) => mockDocumentActions.deleteDocument(id),
-  getDocumentDetails: (id: string) => mockDocumentActions.getDocumentDetails(id),
+  getDocumentDetails: (id: string) =>
+    mockDocumentActions.getDocumentDetails(id),
 }));
 
 vi.mock('@/components/document-detail', () => ({

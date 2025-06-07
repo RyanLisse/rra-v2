@@ -346,7 +346,9 @@ export const documentChunk = pgTable(
       table.chunkIndex,
     ),
     // Add indexes for the new ADE metadata fields
-    elementTypeIdx: index('document_chunk_element_type_idx').on(table.elementType),
+    elementTypeIdx: index('document_chunk_element_type_idx').on(
+      table.elementType,
+    ),
     pageNumberIdx: index('document_chunk_page_number_idx').on(table.pageNumber),
     docPageIdx: index('document_chunk_doc_page_idx').on(
       table.documentId,

@@ -1,10 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { BaseFactory } from './base-factory';
-import type { 
-  FactoryOptions,
-  DocumentInsert,
-  SuggestionInsert
-} from './types';
+import type { FactoryOptions, DocumentInsert, SuggestionInsert } from './types';
 
 /**
  * Document factory for creating test artifact document data
@@ -17,13 +13,16 @@ export class DocumentFactory extends BaseFactory<DocumentInsert> {
 
     const document: DocumentInsert = {
       id: this.generateId(),
-      createdAt: this.generateTimestamp(baseTime, -faker.number.int({ min: 0, max: 30 * 24 * 60 })),
-      title: realistic ? 
-        this.generateDocumentTitle(kind) : 
-        `Test Document ${faker.string.alphanumeric(8)}`,
-      content: realistic ? 
-        this.generateDocumentContent(kind) : 
-        'Test document content',
+      createdAt: this.generateTimestamp(
+        baseTime,
+        -faker.number.int({ min: 0, max: 30 * 24 * 60 }),
+      ),
+      title: realistic
+        ? this.generateDocumentTitle(kind)
+        : `Test Document ${faker.string.alphanumeric(8)}`,
+      content: realistic
+        ? this.generateDocumentContent(kind)
+        : 'Test document content',
       kind,
       userId: options?.overrides?.userId || this.generateId(),
     };
@@ -50,8 +49,13 @@ export class DocumentFactory extends BaseFactory<DocumentInsert> {
    * Create code document
    */
   createCodeDocument(options?: FactoryOptions): DocumentInsert {
-    const language = faker.helpers.arrayElement(['javascript', 'python', 'typescript', 'sql']);
-    
+    const language = faker.helpers.arrayElement([
+      'javascript',
+      'python',
+      'typescript',
+      'sql',
+    ]);
+
     return this.create({
       ...options,
       overrides: {
@@ -119,9 +123,11 @@ export class DocumentFactory extends BaseFactory<DocumentInsert> {
           'Research Findings',
           'Implementation Plan',
         ]);
-      
+
       case 'code':
-        const codePrefix = language ? `${language.charAt(0).toUpperCase() + language.slice(1)} ` : '';
+        const codePrefix = language
+          ? `${language.charAt(0).toUpperCase() + language.slice(1)} `
+          : '';
         return faker.helpers.arrayElement([
           `${codePrefix}API Implementation`,
           `${codePrefix}Database Schema`,
@@ -130,7 +136,7 @@ export class DocumentFactory extends BaseFactory<DocumentInsert> {
           `${codePrefix}Configuration`,
           `${codePrefix}Integration Script`,
         ]);
-      
+
       case 'image':
         return faker.helpers.arrayElement([
           'System Architecture Diagram',
@@ -140,7 +146,7 @@ export class DocumentFactory extends BaseFactory<DocumentInsert> {
           'Component Mockup',
           'Process Flowchart',
         ]);
-      
+
       case 'sheet':
         return faker.helpers.arrayElement([
           'Project Budget Analysis',
@@ -150,7 +156,7 @@ export class DocumentFactory extends BaseFactory<DocumentInsert> {
           'Timeline Schedule',
           'Cost Breakdown',
         ]);
-      
+
       default:
         return `${kind.charAt(0).toUpperCase() + kind.slice(1)} Document`;
     }
@@ -179,8 +185,13 @@ export class DocumentFactory extends BaseFactory<DocumentInsert> {
     content.push(faker.lorem.paragraph(3) + '\n');
 
     for (let i = 0; i < sections; i++) {
-      content.push(`## ${faker.helpers.arrayElement(['Overview', 'Requirements', 'Implementation', 'Testing', 'Deployment', 'Maintenance'])}\n`);
-      content.push(faker.lorem.paragraphs(faker.number.int({ min: 1, max: 3 }), '\n\n') + '\n');
+      content.push(
+        `## ${faker.helpers.arrayElement(['Overview', 'Requirements', 'Implementation', 'Testing', 'Deployment', 'Maintenance'])}\n`,
+      );
+      content.push(
+        faker.lorem.paragraphs(faker.number.int({ min: 1, max: 3 }), '\n\n') +
+          '\n',
+      );
 
       // Sometimes add lists
       if (faker.datatype.boolean({ probability: 0.4 })) {
@@ -196,8 +207,10 @@ export class DocumentFactory extends BaseFactory<DocumentInsert> {
   }
 
   private generateCodeContent(language?: string): string {
-    const lang = language || faker.helpers.arrayElement(['javascript', 'python', 'typescript']);
-    
+    const lang =
+      language ||
+      faker.helpers.arrayElement(['javascript', 'python', 'typescript']);
+
     const codeTemplates = {
       javascript: `// ${faker.hacker.phrase()}
 class ${faker.helpers.arrayElement(['Service', 'Manager', 'Controller', 'Utility'])} {
@@ -252,35 +265,58 @@ export class ${faker.helpers.arrayElement(['Service', 'Manager', 'Controller'])}
 }`,
     };
 
-    return codeTemplates[lang as keyof typeof codeTemplates] || codeTemplates.javascript;
+    return (
+      codeTemplates[lang as keyof typeof codeTemplates] ||
+      codeTemplates.javascript
+    );
   }
 
   private generateImageContent(): string {
     // For image documents, content might be SVG or image metadata
-    return JSON.stringify({
-      type: 'image',
-      format: faker.helpers.arrayElement(['svg', 'png', 'jpg']),
-      width: faker.number.int({ min: 400, max: 1920 }),
-      height: faker.number.int({ min: 300, max: 1080 }),
-      description: faker.lorem.sentence(),
-      elements: Array.from({ length: faker.number.int({ min: 2, max: 8 }) }, () => ({
-        type: faker.helpers.arrayElement(['rectangle', 'circle', 'text', 'arrow']),
-        x: faker.number.int({ min: 0, max: 800 }),
-        y: faker.number.int({ min: 0, max: 600 }),
-        properties: {
-          color: faker.color.hex(),
-          text: faker.hacker.noun(),
-        },
-      })),
-    }, null, 2);
+    return JSON.stringify(
+      {
+        type: 'image',
+        format: faker.helpers.arrayElement(['svg', 'png', 'jpg']),
+        width: faker.number.int({ min: 400, max: 1920 }),
+        height: faker.number.int({ min: 300, max: 1080 }),
+        description: faker.lorem.sentence(),
+        elements: Array.from(
+          { length: faker.number.int({ min: 2, max: 8 }) },
+          () => ({
+            type: faker.helpers.arrayElement([
+              'rectangle',
+              'circle',
+              'text',
+              'arrow',
+            ]),
+            x: faker.number.int({ min: 0, max: 800 }),
+            y: faker.number.int({ min: 0, max: 600 }),
+            properties: {
+              color: faker.color.hex(),
+              text: faker.hacker.noun(),
+            },
+          }),
+        ),
+      },
+      null,
+      2,
+    );
   }
 
   private generateSheetContent(): string {
     const rows = faker.number.int({ min: 5, max: 20 });
     const cols = faker.number.int({ min: 3, max: 8 });
-    
-    const headers = Array.from({ length: cols }, () => 
-      faker.helpers.arrayElement(['Name', 'Value', 'Date', 'Status', 'Count', 'Amount', 'Category'])
+
+    const headers = Array.from({ length: cols }, () =>
+      faker.helpers.arrayElement([
+        'Name',
+        'Value',
+        'Date',
+        'Status',
+        'Count',
+        'Amount',
+        'Category',
+      ]),
     );
 
     const data = Array.from({ length: rows }, () =>
@@ -295,7 +331,12 @@ export class ${faker.helpers.arrayElement(['Service', 'Manager', 'Controller'])}
           case 'Date':
             return faker.date.recent().toISOString().split('T')[0];
           case 'Status':
-            return faker.helpers.arrayElement(['Active', 'Inactive', 'Pending', 'Complete']);
+            return faker.helpers.arrayElement([
+              'Active',
+              'Inactive',
+              'Pending',
+              'Complete',
+            ]);
           case 'Count':
             return faker.number.int({ min: 1, max: 100 });
           case 'Category':
@@ -303,23 +344,27 @@ export class ${faker.helpers.arrayElement(['Service', 'Manager', 'Controller'])}
           default:
             return faker.lorem.word();
         }
-      })
+      }),
     );
 
-    return JSON.stringify({
-      headers,
-      data,
-      metadata: {
-        title: faker.company.catchPhrase(),
-        created: new Date().toISOString(),
-        format: 'spreadsheet',
+    return JSON.stringify(
+      {
+        headers,
+        data,
+        metadata: {
+          title: faker.company.catchPhrase(),
+          created: new Date().toISOString(),
+          format: 'spreadsheet',
+        },
       },
-    }, null, 2);
+      null,
+      2,
+    );
   }
 
   private generateCollaborativeContent(): string {
     const baseContent = this.generateTextContent();
-    
+
     // Add collaboration markers
     const collaborativeElements = [
       '\n<!-- Comment: Need to add more details here - @user1 -->',
@@ -328,7 +373,12 @@ export class ${faker.helpers.arrayElement(['Service', 'Manager', 'Controller'])}
       '\n<!-- TODO: Update with latest API changes -->',
     ];
 
-    return baseContent + faker.helpers.arrayElements(collaborativeElements, { min: 1, max: 3 }).join('\n');
+    return (
+      baseContent +
+      faker.helpers
+        .arrayElements(collaborativeElements, { min: 1, max: 3 })
+        .join('\n')
+    );
   }
 }
 
@@ -349,7 +399,10 @@ export class SuggestionFactory extends BaseFactory<SuggestionInsert> {
       description: this.generateSuggestionDescription(),
       isResolved: faker.datatype.boolean({ probability: 0.3 }),
       userId: options?.overrides?.userId || this.generateId(),
-      createdAt: this.generateTimestamp(new Date(), -faker.number.int({ min: 0, max: 24 * 60 })),
+      createdAt: this.generateTimestamp(
+        new Date(),
+        -faker.number.int({ min: 0, max: 24 * 60 }),
+      ),
     };
 
     return this.applyOverrides(suggestion, options?.overrides);
@@ -362,9 +415,9 @@ export class SuggestionFactory extends BaseFactory<SuggestionInsert> {
     return this.create({
       ...options,
       overrides: {
-        originalText: "This are incorrect grammar",
-        suggestedText: "This is incorrect grammar",
-        description: "Grammar correction: Subject-verb agreement",
+        originalText: 'This are incorrect grammar',
+        suggestedText: 'This is incorrect grammar',
+        description: 'Grammar correction: Subject-verb agreement',
         ...options?.overrides,
       },
     });
@@ -377,9 +430,9 @@ export class SuggestionFactory extends BaseFactory<SuggestionInsert> {
     return this.create({
       ...options,
       overrides: {
-        originalText: "The implementation of the feature is done by the team",
-        suggestedText: "The team implemented the feature",
-        description: "Style improvement: Use active voice",
+        originalText: 'The implementation of the feature is done by the team',
+        suggestedText: 'The team implemented the feature',
+        description: 'Style improvement: Use active voice',
         ...options?.overrides,
       },
     });
@@ -413,14 +466,14 @@ export class SuggestionFactory extends BaseFactory<SuggestionInsert> {
 
   private generateSuggestionDescription(): string {
     const descriptions = [
-      "Grammar correction: Fix subject-verb agreement",
-      "Style improvement: Use active voice",
-      "Clarity enhancement: Simplify complex sentence",
-      "Consistency fix: Match document style guide",
-      "Brevity improvement: Remove redundant words",
-      "Technical accuracy: Update terminology",
-      "Formatting fix: Correct heading structure",
-      "Link update: Fix broken reference",
+      'Grammar correction: Fix subject-verb agreement',
+      'Style improvement: Use active voice',
+      'Clarity enhancement: Simplify complex sentence',
+      'Consistency fix: Match document style guide',
+      'Brevity improvement: Remove redundant words',
+      'Technical accuracy: Update terminology',
+      'Formatting fix: Correct heading structure',
+      'Link update: Fix broken reference',
     ];
 
     return faker.helpers.arrayElement(descriptions);

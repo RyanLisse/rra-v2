@@ -56,7 +56,7 @@ export abstract class BaseFactory<T> {
    */
   protected generateTimestamp(
     baseTime: Date = new Date(),
-    offsetMinutes: number = 0
+    offsetMinutes: number = 0,
   ): Date {
     return new Date(baseTime.getTime() + offsetMinutes * 60 * 1000);
   }
@@ -64,11 +64,16 @@ export abstract class BaseFactory<T> {
   /**
    * Generate realistic file sizes
    */
-  protected generateFileSize(type: 'small' | 'medium' | 'large' = 'medium'): string {
+  protected generateFileSize(
+    type: 'small' | 'medium' | 'large' = 'medium',
+  ): string {
     const sizes = {
       small: faker.number.int({ min: 1024, max: 100 * 1024 }), // 1KB-100KB
       medium: faker.number.int({ min: 100 * 1024, max: 10 * 1024 * 1024 }), // 100KB-10MB
-      large: faker.number.int({ min: 10 * 1024 * 1024, max: 100 * 1024 * 1024 }), // 10MB-100MB
+      large: faker.number.int({
+        min: 10 * 1024 * 1024,
+        max: 100 * 1024 * 1024,
+      }), // 10MB-100MB
     };
     return sizes[type].toString();
   }
@@ -77,7 +82,9 @@ export abstract class BaseFactory<T> {
    * Generate realistic embeddings
    */
   protected generateEmbedding(dimensions: number = 1536): number[] {
-    return Array.from({ length: dimensions }, () => faker.number.float({ min: -1, max: 1 }));
+    return Array.from({ length: dimensions }, () =>
+      faker.number.float({ min: -1, max: 1 }),
+    );
   }
 
   /**
@@ -91,26 +98,31 @@ export abstract class BaseFactory<T> {
   /**
    * Generate realistic content based on type
    */
-  protected generateContent(type: 'chat' | 'document' | 'chunk' | 'email'): string {
+  protected generateContent(
+    type: 'chat' | 'document' | 'chunk' | 'email',
+  ): string {
     switch (type) {
       case 'chat':
         return faker.helpers.arrayElement([
-          "Hello! How can I help you today?",
+          'Hello! How can I help you today?',
           "I'm looking for information about...",
-          "Can you explain how to...",
+          'Can you explain how to...',
           "What's the best way to...",
-          "I need assistance with...",
+          'I need assistance with...',
         ]);
-      
+
       case 'document':
-        return faker.lorem.paragraphs(faker.number.int({ min: 3, max: 10 }), '\n\n');
-      
+        return faker.lorem.paragraphs(
+          faker.number.int({ min: 3, max: 10 }),
+          '\n\n',
+        );
+
       case 'chunk':
         return faker.lorem.paragraph(faker.number.int({ min: 3, max: 8 }));
-      
+
       case 'email':
         return faker.internet.email();
-      
+
       default:
         return faker.lorem.sentence();
     }
@@ -119,7 +131,9 @@ export abstract class BaseFactory<T> {
   /**
    * Generate realistic metadata
    */
-  protected generateMetadata(type: 'document' | 'chunk' | 'user'): Record<string, any> {
+  protected generateMetadata(
+    type: 'document' | 'chunk' | 'user',
+  ): Record<string, any> {
     switch (type) {
       case 'document':
         return {
@@ -130,16 +144,20 @@ export abstract class BaseFactory<T> {
           processingVersion: '1.0.0',
           extractedAt: new Date().toISOString(),
         };
-      
+
       case 'chunk':
         return {
           chunkMethod: 'semantic',
           overlapTokens: faker.number.int({ min: 0, max: 50 }),
-          semanticScore: faker.number.float({ min: 0.1, max: 1.0, fractionDigits: 3 }),
+          semanticScore: faker.number.float({
+            min: 0.1,
+            max: 1.0,
+            fractionDigits: 3,
+          }),
           containsCodeBlocks: faker.datatype.boolean(),
           containsTables: faker.datatype.boolean(),
         };
-      
+
       case 'user':
         return {
           preferences: {
@@ -152,7 +170,7 @@ export abstract class BaseFactory<T> {
             step: faker.number.int({ min: 1, max: 5 }),
           },
         };
-      
+
       default:
         return {};
     }
@@ -168,7 +186,8 @@ export abstract class BaseFactory<T> {
       hex.slice(0, 8),
       hex.slice(8, 12),
       '4' + hex.slice(12, 15), // Version 4 UUID
-      ((parseInt(hex.slice(15, 16), 16) & 0x3) | 0x8).toString(16) + hex.slice(16, 19),
+      ((parseInt(hex.slice(15, 16), 16) & 0x3) | 0x8).toString(16) +
+        hex.slice(16, 19),
       hex.slice(19, 31),
     ].join('-');
   }
@@ -180,7 +199,7 @@ export abstract class BaseFactory<T> {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32-bit integer
     }
     return Math.abs(hash);
@@ -200,7 +219,9 @@ export class FactoryRegistry {
   static get<T>(name: string): BaseFactory<T> {
     const factory = this.factories.get(name);
     if (!factory) {
-      throw new Error(`Factory '${name}' not found. Available factories: ${Array.from(this.factories.keys()).join(', ')}`);
+      throw new Error(
+        `Factory '${name}' not found. Available factories: ${Array.from(this.factories.keys()).join(', ')}`,
+      );
     }
     return factory;
   }
@@ -225,7 +246,7 @@ export class BatchCreator {
     factory: BaseFactory<T>,
     totalCount: number,
     batchSize: number = 1000,
-    onBatch?: (batch: T[], progress: number) => Promise<void>
+    onBatch?: (batch: T[], progress: number) => Promise<void>,
   ): Promise<T[]> {
     const allItems: T[] = [];
     const batches = Math.ceil(totalCount / batchSize);
@@ -237,7 +258,7 @@ export class BatchCreator {
 
       const batch = factory.createBatch({
         count,
-        customizer: (index) => ({ 
+        customizer: (index) => ({
           batchIndex: i,
           itemIndex: start + index,
         }),
@@ -251,7 +272,7 @@ export class BatchCreator {
 
       // Allow garbage collection between batches
       if (i < batches - 1) {
-        await new Promise(resolve => setImmediate(resolve));
+        await new Promise((resolve) => setImmediate(resolve));
       }
     }
 
@@ -264,16 +285,16 @@ export class BatchCreator {
   static async createParallel<T>(
     factory: BaseFactory<T>,
     counts: number[],
-    concurrency: number = 3
+    concurrency: number = 3,
   ): Promise<T[][]> {
     const results: T[][] = [];
-    
+
     for (let i = 0; i < counts.length; i += concurrency) {
       const batch = counts.slice(i, i + concurrency);
-      const promises = batch.map(count => 
-        Promise.resolve(factory.createBatch({ count }))
+      const promises = batch.map((count) =>
+        Promise.resolve(factory.createBatch({ count })),
       );
-      
+
       const batchResults = await Promise.all(promises);
       results.push(...batchResults);
     }

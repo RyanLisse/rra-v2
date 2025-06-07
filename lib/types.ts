@@ -39,17 +39,17 @@ export interface EnhancedChatSource {
   elementType?: string | null;
   pageNumber?: number | null;
   bbox?: any;
-  
+
   // Enhanced document metadata
   documentId: string;
   fileName?: string;
   uploadedAt?: Date;
-  
+
   // Enhanced structural metadata from ADE
   elementId?: string; // ADE element identifier
   confidence?: number; // ADE confidence score
   metadata?: Record<string, any>; // Additional element metadata
-  
+
   // Context assembly metadata
   contextIndex: number; // Position in context list
   tokenCount?: number; // Estimated tokens for this source
@@ -82,7 +82,7 @@ export interface ChatMessage {
 }
 
 // Document processing pipeline types
-export type DocumentStatus = 
+export type DocumentStatus =
   | 'uploaded'
   | 'processing'
   | 'text_extracted'
@@ -112,7 +112,7 @@ export interface RagConfig {
     chunkOverlap: number;
     preserveStructure: boolean;
   };
-  
+
   // Embedding configuration
   embedding: {
     provider: 'cohere' | 'openai' | 'custom';
@@ -120,7 +120,7 @@ export interface RagConfig {
     dimensions: number;
     batchSize: number;
   };
-  
+
   // Search configuration
   search: {
     defaultLimit: number;
@@ -130,7 +130,7 @@ export interface RagConfig {
     rerankTopK: number;
     maxContextTokens: number;
   };
-  
+
   // ADE processing configuration
   ade: {
     enabled: boolean;
@@ -201,7 +201,9 @@ export class DocumentProcessingError extends RagError {
 }
 
 // Utility types
-export type AsyncResult<T> = Promise<{ success: true; data: T } | { success: false; error: string }>;
+export type AsyncResult<T> = Promise<
+  { success: true; data: T } | { success: false; error: string }
+>;
 
 export interface PaginatedResponse<T> {
   data: T[];

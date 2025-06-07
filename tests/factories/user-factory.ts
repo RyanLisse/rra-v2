@@ -1,11 +1,11 @@
 import { faker } from '@faker-js/faker';
 import { BaseFactory } from './base-factory';
-import type { 
-  FactoryOptions, 
-  UserInsert, 
-  SessionInsert, 
+import type {
+  FactoryOptions,
+  UserInsert,
+  SessionInsert,
   AccountInsert,
-  CompleteUser 
+  CompleteUser,
 } from './types';
 
 /**
@@ -18,29 +18,36 @@ export class UserFactory extends BaseFactory<UserInsert> {
 
     const user: UserInsert = {
       id: this.generateId(),
-      email: realistic ? 
-        faker.internet.email() : 
-        `test-${faker.string.alphanumeric(8)}@example.com`,
-      password: realistic ? 
-        faker.internet.password({ length: 12 }) : 
-        'test-password-123',
-      emailVerified: realistic ? 
-        faker.datatype.boolean({ probability: 0.8 }) : 
-        true,
-      image: realistic && faker.datatype.boolean({ probability: 0.3 }) ? 
-        faker.image.avatar() : 
-        null,
-      name: realistic ? 
-        faker.person.fullName() : 
-        `Test User ${faker.string.alphanumeric(4)}`,
+      email: realistic
+        ? faker.internet.email()
+        : `test-${faker.string.alphanumeric(8)}@example.com`,
+      password: realistic
+        ? faker.internet.password({ length: 12 })
+        : 'test-password-123',
+      emailVerified: realistic
+        ? faker.datatype.boolean({ probability: 0.8 })
+        : true,
+      image:
+        realistic && faker.datatype.boolean({ probability: 0.3 })
+          ? faker.image.avatar()
+          : null,
+      name: realistic
+        ? faker.person.fullName()
+        : `Test User ${faker.string.alphanumeric(4)}`,
       type: faker.helpers.weightedArrayElement([
         { weight: 70, value: 'regular' },
         { weight: 25, value: 'premium' },
         { weight: 5, value: 'admin' },
       ]),
       isAnonymous: false,
-      createdAt: this.generateTimestamp(baseTime, -faker.number.int({ min: 1, max: 365 * 24 * 60 })),
-      updatedAt: this.generateTimestamp(baseTime, -faker.number.int({ min: 0, max: 24 * 60 })),
+      createdAt: this.generateTimestamp(
+        baseTime,
+        -faker.number.int({ min: 1, max: 365 * 24 * 60 }),
+      ),
+      updatedAt: this.generateTimestamp(
+        baseTime,
+        -faker.number.int({ min: 0, max: 24 * 60 }),
+      ),
     };
 
     return this.applyOverrides(user, options?.overrides);
@@ -102,7 +109,10 @@ export class UserFactory extends BaseFactory<UserInsert> {
       ...options,
       overrides: {
         emailVerified: true,
-        updatedAt: this.generateTimestamp(now, -faker.number.int({ min: 0, max: 60 })), // Updated recently
+        updatedAt: this.generateTimestamp(
+          now,
+          -faker.number.int({ min: 0, max: 60 }),
+        ), // Updated recently
         ...options?.overrides,
       },
     });
@@ -113,7 +123,10 @@ export class UserFactory extends BaseFactory<UserInsert> {
     return this.create({
       ...options,
       overrides: {
-        updatedAt: this.generateTimestamp(now, -faker.number.int({ min: 30 * 24 * 60, max: 365 * 24 * 60 })), // Not updated in 30+ days
+        updatedAt: this.generateTimestamp(
+          now,
+          -faker.number.int({ min: 30 * 24 * 60, max: 365 * 24 * 60 }),
+        ), // Not updated in 30+ days
         ...options?.overrides,
       },
     });
@@ -126,7 +139,10 @@ export class UserFactory extends BaseFactory<UserInsert> {
 export class SessionFactory extends BaseFactory<SessionInsert> {
   create(options?: FactoryOptions): SessionInsert {
     const baseTime = new Date();
-    const createdAt = this.generateTimestamp(baseTime, -faker.number.int({ min: 0, max: 24 * 60 }));
+    const createdAt = this.generateTimestamp(
+      baseTime,
+      -faker.number.int({ min: 0, max: 24 * 60 }),
+    );
     const expiresAt = this.generateTimestamp(createdAt, 30 * 24 * 60); // 30 days from creation
 
     const session: SessionInsert = {
@@ -137,7 +153,10 @@ export class SessionFactory extends BaseFactory<SessionInsert> {
       ipAddress: faker.internet.ip(),
       userAgent: faker.internet.userAgent(),
       createdAt,
-      updatedAt: this.generateTimestamp(createdAt, faker.number.int({ min: 0, max: 60 })),
+      updatedAt: this.generateTimestamp(
+        createdAt,
+        faker.number.int({ min: 0, max: 60 }),
+      ),
     };
 
     return this.applyOverrides(session, options?.overrides);
@@ -177,7 +196,12 @@ export class SessionFactory extends BaseFactory<SessionInsert> {
  */
 export class AccountFactory extends BaseFactory<AccountInsert> {
   create(options?: FactoryOptions): AccountInsert {
-    const provider = faker.helpers.arrayElement(['google', 'github', 'discord', 'microsoft']);
+    const provider = faker.helpers.arrayElement([
+      'google',
+      'github',
+      'discord',
+      'microsoft',
+    ]);
     const baseTime = new Date();
 
     const account: AccountInsert = {
@@ -186,17 +210,26 @@ export class AccountFactory extends BaseFactory<AccountInsert> {
       accountId: faker.string.alphanumeric(16),
       providerId: provider,
       accessToken: faker.string.alphanumeric(128),
-      refreshToken: faker.datatype.boolean({ probability: 0.8 }) ? 
-        faker.string.alphanumeric(128) : null,
-      idToken: faker.datatype.boolean({ probability: 0.6 }) ? 
-        faker.string.alphanumeric(256) : null,
+      refreshToken: faker.datatype.boolean({ probability: 0.8 })
+        ? faker.string.alphanumeric(128)
+        : null,
+      idToken: faker.datatype.boolean({ probability: 0.6 })
+        ? faker.string.alphanumeric(256)
+        : null,
       accessTokenExpiresAt: this.generateTimestamp(baseTime, 60), // 1 hour from now
-      refreshTokenExpiresAt: faker.datatype.boolean({ probability: 0.8 }) ? 
-        this.generateTimestamp(baseTime, 30 * 24 * 60) : null, // 30 days from now
+      refreshTokenExpiresAt: faker.datatype.boolean({ probability: 0.8 })
+        ? this.generateTimestamp(baseTime, 30 * 24 * 60)
+        : null, // 30 days from now
       scope: this.generateScopeForProvider(provider),
       password: null, // OAuth accounts don't have passwords
-      createdAt: this.generateTimestamp(baseTime, -faker.number.int({ min: 1, max: 365 * 24 * 60 })),
-      updatedAt: this.generateTimestamp(baseTime, -faker.number.int({ min: 0, max: 24 * 60 })),
+      createdAt: this.generateTimestamp(
+        baseTime,
+        -faker.number.int({ min: 1, max: 365 * 24 * 60 }),
+      ),
+      updatedAt: this.generateTimestamp(
+        baseTime,
+        -faker.number.int({ min: 0, max: 24 * 60 }),
+      ),
     };
 
     return this.applyOverrides(account, options?.overrides);
@@ -237,7 +270,7 @@ export class CompleteUserFactory extends BaseFactory<CompleteUser> {
 
   create(options?: FactoryOptions): CompleteUser {
     const user = this.userFactory.create(options);
-    
+
     const sessionCount = faker.number.int({ min: 0, max: 3 });
     const sessions = this.sessionFactory.createBatch({
       count: sessionCount,
@@ -269,7 +302,7 @@ export class CompleteUserFactory extends BaseFactory<CompleteUser> {
    */
   createActiveUser(options?: FactoryOptions): CompleteUser {
     const user = this.userFactory.createActiveUser(options);
-    
+
     // Active users have more sessions
     const sessions = this.sessionFactory.createBatch({
       count: faker.number.int({ min: 2, max: 5 }),
@@ -296,10 +329,12 @@ export class CompleteUserFactory extends BaseFactory<CompleteUser> {
    */
   createMinimal(options?: FactoryOptions): CompleteUser {
     const user = this.userFactory.create(options);
-    
+
     return {
       user,
-      sessions: [this.sessionFactory.createActive({ overrides: { userId: user.id } })],
+      sessions: [
+        this.sessionFactory.createActive({ overrides: { userId: user.id } }),
+      ],
       accounts: [],
       chats: [],
       documents: [],

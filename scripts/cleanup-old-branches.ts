@@ -2,11 +2,14 @@
 /**
  * Enhanced Test Branch Cleanup Script with Age-Based Policies
  * Usage: bun run scripts/cleanup-old-branches.ts [options]
- * 
+ *
  * Provides advanced cleanup with age-based policies, tag filtering, and safety checks
  */
 
-import { EnhancedNeonApiClient, type CleanupFilters } from '../lib/testing/neon-api-client';
+import {
+  EnhancedNeonApiClient,
+  type CleanupFilters,
+} from '../lib/testing/neon-api-client';
 import { config } from 'dotenv';
 import { resolve } from 'path';
 import { writeFile } from 'fs/promises';
@@ -69,7 +72,7 @@ const DEFAULT_POLICIES: CleanupPolicy[] = [
     excludeTags: ['keep', 'production'],
     includeTags: [],
     preservePrimary: true,
-    priority: 1
+    priority: 1,
   },
   {
     name: 'unit-test',
@@ -79,7 +82,7 @@ const DEFAULT_POLICIES: CleanupPolicy[] = [
     excludeTags: ['keep', 'long-running'],
     includeTags: ['unit'],
     preservePrimary: true,
-    priority: 2
+    priority: 2,
   },
   {
     name: 'integration-test',
@@ -89,7 +92,7 @@ const DEFAULT_POLICIES: CleanupPolicy[] = [
     excludeTags: ['keep', 'long-running'],
     includeTags: ['integration'],
     preservePrimary: true,
-    priority: 3
+    priority: 3,
   },
   {
     name: 'e2e-test',
@@ -99,7 +102,7 @@ const DEFAULT_POLICIES: CleanupPolicy[] = [
     excludeTags: ['keep', 'long-running'],
     includeTags: ['e2e'],
     preservePrimary: true,
-    priority: 4
+    priority: 4,
   },
   {
     name: 'general-test',
@@ -109,7 +112,7 @@ const DEFAULT_POLICIES: CleanupPolicy[] = [
     excludeTags: ['keep', 'production', 'long-running'],
     includeTags: [],
     preservePrimary: true,
-    priority: 5
+    priority: 5,
   },
   {
     name: 'old-test',
@@ -119,17 +122,21 @@ const DEFAULT_POLICIES: CleanupPolicy[] = [
     excludeTags: ['keep', 'production'],
     includeTags: [],
     preservePrimary: true,
-    priority: 6
-  }
+    priority: 6,
+  },
 ];
 
-function parseArgs(): Partial<CleanupConfig> & { help?: boolean; policies?: string } {
+function parseArgs(): Partial<CleanupConfig> & {
+  help?: boolean;
+  policies?: string;
+} {
   const args = process.argv.slice(2);
-  const result: Partial<CleanupConfig> & { help?: boolean; policies?: string } = {};
+  const result: Partial<CleanupConfig> & { help?: boolean; policies?: string } =
+    {};
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    
+
     if (arg === '--help' || arg === '-h') {
       result.help = true;
     } else if (arg === '--dry-run') {
@@ -165,7 +172,7 @@ function getDefaultConfig(): CleanupConfig {
     forceCleanup: false,
     verbose: false,
     interactive: false,
-    safetyChecks: true
+    safetyChecks: true,
   };
 }
 
@@ -227,19 +234,22 @@ Environment Variables Required:
 `);
 }
 
-function selectPolicies(policyNames: string, allPolicies: CleanupPolicy[]): CleanupPolicy[] {
+function selectPolicies(
+  policyNames: string,
+  allPolicies: CleanupPolicy[],
+): CleanupPolicy[] {
   if (!policyNames) {
     return allPolicies;
   }
 
-  const requestedPolicies = policyNames.split(',').map(name => name.trim());
+  const requestedPolicies = policyNames.split(',').map((name) => name.trim());
   const selectedPolicies = requestedPolicies
-    .map(name => allPolicies.find(p => p.name === name))
+    .map((name) => allPolicies.find((p) => p.name === name))
     .filter((policy): policy is CleanupPolicy => policy !== undefined);
 
   if (selectedPolicies.length !== requestedPolicies.length) {
-    const missing = requestedPolicies.filter(name => 
-      !allPolicies.some(p => p.name === name)
+    const missing = requestedPolicies.filter(
+      (name) => !allPolicies.some((p) => p.name === name),
     );
     console.warn(`⚠️  Unknown policies: ${missing.join(', ')}`);
   }
@@ -249,7 +259,7 @@ function selectPolicies(policyNames: string, allPolicies: CleanupPolicy[]): Clea
 
 async function performSafetyChecks(
   client: EnhancedNeonApiClient,
-  config: CleanupConfig
+  config: CleanupConfig,
 ): Promise<string[]> {
   const warnings: string[] = [];
 
@@ -267,29 +277,37 @@ async function performSafetyChecks(
 
     // Check recent activity
     const logs = client.getOperationLogs(50);
-    const recentFailures = logs.filter(log => 
-      !log.success && 
-      Date.now() - new Date(log.metadata.timestamp).getTime() < 30 * 60 * 1000 // 30 minutes
+    const recentFailures = logs.filter(
+      (log) =>
+        !log.success &&
+        Date.now() - new Date(log.metadata.timestamp).getTime() <
+          30 * 60 * 1000, // 30 minutes
     );
 
     if (recentFailures.length > 5) {
-      warnings.push(`High recent failure rate: ${recentFailures.length} failures in last 30 minutes`);
+      warnings.push(
+        `High recent failure rate: ${recentFailures.length} failures in last 30 minutes`,
+      );
     }
 
     // Check branch statistics
     const statsResult = await client.getBranchStatistics();
     if (statsResult.success && statsResult.data) {
       const stats = statsResult.data;
-      
+
       if (stats.test_branches > 50) {
-        warnings.push(`High number of test branches: ${stats.test_branches} (consider selective cleanup)`);
+        warnings.push(
+          `High number of test branches: ${stats.test_branches} (consider selective cleanup)`,
+        );
       }
-      
-      if (stats.total_size_bytes > 10 * 1024 * 1024 * 1024) { // 10GB
-        warnings.push(`Large total size: ${Math.round(stats.total_size_bytes / 1024 / 1024 / 1024)}GB`);
+
+      if (stats.total_size_bytes > 10 * 1024 * 1024 * 1024) {
+        // 10GB
+        warnings.push(
+          `Large total size: ${Math.round(stats.total_size_bytes / 1024 / 1024 / 1024)}GB`,
+        );
       }
     }
-
   } catch (error) {
     warnings.push(`Safety check failed: ${error}`);
   }
@@ -300,15 +318,15 @@ async function performSafetyChecks(
 async function applyCleanupPolicy(
   client: EnhancedNeonApiClient,
   policy: CleanupPolicy,
-  config: CleanupConfig
+  config: CleanupConfig,
 ): Promise<CleanupResult> {
   const startTime = Date.now();
-  
+
   console.log(`\n🧹 Applying policy: ${policy.name}`);
   console.log(`   Description: ${policy.description}`);
   console.log(`   Max age: ${policy.maxAgeHours} hours`);
   console.log(`   Pattern: ${policy.namePattern}`);
-  
+
   if (config.verbose) {
     console.log(`   Exclude tags: ${policy.excludeTags.join(', ') || 'none'}`);
     console.log(`   Include tags: ${policy.includeTags.join(', ') || 'any'}`);
@@ -321,7 +339,7 @@ async function applyCleanupPolicy(
     excludeTags: policy.excludeTags,
     includeTags: policy.includeTags,
     preservePrimary: policy.preservePrimary,
-    dryRun: config.dryRun
+    dryRun: config.dryRun,
   };
 
   const result = await client.cleanupTestBranches(filters);
@@ -334,12 +352,12 @@ async function applyCleanupPolicy(
       failed: [],
       skipped: [],
       duration,
-      errors: [{ branch: 'unknown', error: result.error || 'Unknown error' }]
+      errors: [{ branch: 'unknown', error: result.error || 'Unknown error' }],
     };
   }
 
   const { deleted, failed, skipped } = result.data!;
-  
+
   console.log(`   ✅ Deleted: ${deleted.length}`);
   console.log(`   ❌ Failed: ${failed.length}`);
   console.log(`   ⏭️  Skipped: ${skipped.length}`);
@@ -359,35 +377,39 @@ async function applyCleanupPolicy(
     failed,
     skipped,
     duration,
-    errors: failed.map(branch => ({ branch, error: 'Deletion failed' }))
+    errors: failed.map((branch) => ({ branch, error: 'Deletion failed' })),
   };
 }
 
 async function confirmCleanup(
   policies: CleanupPolicy[],
-  config: CleanupConfig
+  config: CleanupConfig,
 ): Promise<boolean> {
   if (!config.interactive || config.forceCleanup) {
     return true;
   }
 
   console.log('\n❓ Cleanup Confirmation:');
-  console.log(`   Policies: ${policies.map(p => p.name).join(', ')}`);
+  console.log(`   Policies: ${policies.map((p) => p.name).join(', ')}`);
   console.log(`   Dry run: ${config.dryRun}`);
   console.log(`   Parallel: ${config.parallel}`);
   console.log('');
 
   // In a real implementation, you'd use a proper prompt library
   // For now, we'll just return true for non-interactive mode
-  console.log('⚠️  Interactive mode not fully implemented - proceeding with cleanup');
+  console.log(
+    '⚠️  Interactive mode not fully implemented - proceeding with cleanup',
+  );
   return true;
 }
 
-async function cleanupBranches(config: CleanupConfig): Promise<DetailedCleanupReport> {
+async function cleanupBranches(
+  config: CleanupConfig,
+): Promise<DetailedCleanupReport> {
   const startTime = Date.now();
-  
+
   console.log('🧹 Enhanced Test Branch Cleanup');
-  console.log(`   Policies: ${config.policies.map(p => p.name).join(', ')}`);
+  console.log(`   Policies: ${config.policies.map((p) => p.name).join(', ')}`);
   console.log(`   Dry run: ${config.dryRun}`);
   console.log(`   Parallel: ${config.parallel}`);
   console.log(`   Safety checks: ${config.safetyChecks}`);
@@ -402,24 +424,27 @@ async function cleanupBranches(config: CleanupConfig): Promise<DetailedCleanupRe
   const client = new EnhancedNeonApiClient({
     rateLimitConfig: {
       maxRequestsPerMinute: 120,
-      burstLimit: config.maxConcurrency + 5
+      burstLimit: config.maxConcurrency + 5,
     },
     retryConfig: {
       maxRetries: 2,
       baseDelayMs: 1000,
-      maxDelayMs: 8000
-    }
+      maxDelayMs: 8000,
+    },
   });
 
   // Perform safety checks
   const safetyWarnings = await performSafetyChecks(client, config);
-  
+
   if (safetyWarnings.length > 0) {
     console.log('⚠️  Safety Warnings:');
-    safetyWarnings.forEach(warning => console.log(`   • ${warning}`));
+    safetyWarnings.forEach((warning) => console.log(`   • ${warning}`));
     console.log('');
-    
-    if (!config.forceCleanup && safetyWarnings.some(w => w.includes('Cannot access'))) {
+
+    if (
+      !config.forceCleanup &&
+      safetyWarnings.some((w) => w.includes('Cannot access'))
+    ) {
       throw new Error('Critical safety check failed. Use --force to override.');
     }
   }
@@ -433,26 +458,28 @@ async function cleanupBranches(config: CleanupConfig): Promise<DetailedCleanupRe
 
   // Apply policies
   const results: CleanupResult[] = [];
-  
+
   if (config.parallel) {
     console.log('⚡ Applying policies in parallel...');
-    const promises = config.policies.map(policy => 
-      applyCleanupPolicy(client, policy, config)
+    const promises = config.policies.map((policy) =>
+      applyCleanupPolicy(client, policy, config),
     );
     const policyResults = await Promise.allSettled(promises);
-    
+
     policyResults.forEach((result, index) => {
       if (result.status === 'fulfilled') {
         results.push(result.value);
       } else {
-        console.error(`❌ Policy ${config.policies[index].name} failed: ${result.reason}`);
+        console.error(
+          `❌ Policy ${config.policies[index].name} failed: ${result.reason}`,
+        );
         results.push({
           policy: config.policies[index].name,
           deleted: [],
           failed: [],
           skipped: [],
           duration: 0,
-          errors: [{ branch: 'unknown', error: String(result.reason) }]
+          errors: [{ branch: 'unknown', error: String(result.reason) }],
         });
       }
     });
@@ -470,7 +497,7 @@ async function cleanupBranches(config: CleanupConfig): Promise<DetailedCleanupRe
           failed: [],
           skipped: [],
           duration: 0,
-          errors: [{ branch: 'unknown', error: String(error) }]
+          errors: [{ branch: 'unknown', error: String(error) }],
         });
       }
     }
@@ -490,7 +517,7 @@ async function cleanupBranches(config: CleanupConfig): Promise<DetailedCleanupRe
     duration,
     config,
     timestamp: new Date().toISOString(),
-    safetyWarnings
+    safetyWarnings,
   };
 
   console.log('\n🎉 Cleanup Summary:');
@@ -500,7 +527,9 @@ async function cleanupBranches(config: CleanupConfig): Promise<DetailedCleanupRe
   console.log(`   ⏱️  Duration: ${Math.round(duration / 1000)}s`);
 
   if (totalFailed > 0) {
-    console.log('\n❌ Some deletions failed. Check the detailed results above.');
+    console.log(
+      '\n❌ Some deletions failed. Check the detailed results above.',
+    );
   }
 
   return report;
@@ -515,7 +544,7 @@ async function main() {
   }
 
   const config = { ...getDefaultConfig(), ...args };
-  
+
   // Select policies
   if (args.policies) {
     config.policies = selectPolicies(args.policies, DEFAULT_POLICIES);
@@ -527,7 +556,10 @@ async function main() {
   }
 
   // Validation
-  if (config.maxConcurrency && (config.maxConcurrency < 1 || config.maxConcurrency > 20)) {
+  if (
+    config.maxConcurrency &&
+    (config.maxConcurrency < 1 || config.maxConcurrency > 20)
+  ) {
     console.error('❌ Error: maxConcurrency must be between 1 and 20');
     process.exit(1);
   }
@@ -541,14 +573,19 @@ async function main() {
     }
 
     if (!report.success) {
-      console.log('\n⚠️  Some branches failed to delete. Check the report for details.');
+      console.log(
+        '\n⚠️  Some branches failed to delete. Check the report for details.',
+      );
       process.exit(1);
     }
 
     console.log('\n💡 Next steps:');
-    console.log('   • Check remaining branches: bun run scripts/test-branch-status.ts');
-    console.log('   • Monitor performance: bun run scripts/neon-test-branch-manager.ts stats');
-
+    console.log(
+      '   • Check remaining branches: bun run scripts/test-branch-status.ts',
+    );
+    console.log(
+      '   • Monitor performance: bun run scripts/neon-test-branch-manager.ts stats',
+    );
   } catch (error) {
     console.error('❌ Cleanup failed:', error);
     if (config.verbose) {
@@ -558,7 +595,7 @@ async function main() {
   }
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error('❌ Unexpected error:', error);
   process.exit(1);
 });

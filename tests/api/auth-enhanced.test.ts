@@ -28,15 +28,15 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
       purpose: 'api-route-testing',
       tags: ['auth', 'api', 'isolated'],
       waitForReady: true,
-      timeoutMs: 60000
+      timeoutMs: 60000,
     });
 
     if (branchResult.success && branchResult.data) {
       testBranch = branchResult.data;
-      
+
       // Set up database connection for this test
       process.env.POSTGRES_URL = testBranch.connectionString;
-      
+
       // Initialize test schema and seed data
       await testUtils.setupTestSchema(testBranch.branchId);
       await testUtils.seedBasicData(testBranch.branchId);
@@ -46,9 +46,11 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
   afterEach(async () => {
     // Cleanup test branch
     if (testBranch) {
-      await neonClient.deleteTestBranch(testBranch.branchName).catch(error =>
-        console.warn('Failed to cleanup test branch:', error)
-      );
+      await neonClient
+        .deleteTestBranch(testBranch.branchName)
+        .catch((error) =>
+          console.warn('Failed to cleanup test branch:', error),
+        );
       testBranch = null;
     }
   });
@@ -62,14 +64,14 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
       // Create test user using factory
       const userData = factory.createUser({
         email: 'test@example.com',
-        name: 'Test User'
+        name: 'Test User',
       });
 
       // Insert user into test database
       const createUserResult = await neonClient.executeSql(
         `INSERT INTO users (id, email, name, created_at, updated_at) 
          VALUES ('${userData.id}', '${userData.email}', '${userData.name}', NOW(), NOW())`,
-        testBranch.branchId
+        testBranch.branchId,
       );
 
       expect(createUserResult.success).toBe(true);
@@ -88,7 +90,7 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
       // Replace the actual handler with our mock
       vi.doMock('@/app/api/auth/[...all]/route', () => ({
         POST: mockHandler,
-        GET: vi.fn()
+        GET: vi.fn(),
       }));
 
       const request = createMockRequest(
@@ -108,7 +110,7 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
       // Verify user exists in test database
       const userCheckResult = await neonClient.executeSql(
         `SELECT id, email, name FROM users WHERE email = '${userData.email}'`,
-        testBranch.branchId
+        testBranch.branchId,
       );
 
       expect(userCheckResult.success).toBe(true);
@@ -122,7 +124,7 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
 
       const newUserData = factory.createUser({
         email: 'newuser@example.com',
-        name: 'New User'
+        name: 'New User',
       });
 
       // Mock handler for sign up
@@ -138,7 +140,7 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
 
       vi.doMock('@/app/api/auth/[...all]/route', () => ({
         POST: mockHandler,
-        GET: vi.fn()
+        GET: vi.fn(),
       }));
 
       const request = createMockRequest(
@@ -160,7 +162,7 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
       const insertResult = await neonClient.executeSql(
         `INSERT INTO users (id, email, name, created_at, updated_at) 
          VALUES ('${newUserData.id}', '${newUserData.email}', '${newUserData.name}', NOW(), NOW())`,
-        testBranch.branchId
+        testBranch.branchId,
       );
 
       expect(insertResult.success).toBe(true);
@@ -168,7 +170,7 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
       // Verify user was created
       const verifyResult = await neonClient.executeSql(
         `SELECT COUNT(*) as count FROM users WHERE email = '${newUserData.email}'`,
-        testBranch.branchId
+        testBranch.branchId,
       );
 
       expect(verifyResult.success).toBe(true);
@@ -189,7 +191,7 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
 
       vi.doMock('@/app/api/auth/[...all]/route', () => ({
         POST: mockHandler,
-        GET: vi.fn()
+        GET: vi.fn(),
       }));
 
       const request = createMockRequest(
@@ -213,7 +215,7 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
       const logResult = await neonClient.executeSql(
         `INSERT INTO auth_logs (email, attempt_type, success, ip_address, created_at) 
          VALUES ('test@example.com', 'signin', false, '127.0.0.1', NOW())`,
-        testBranch.branchId
+        testBranch.branchId,
       );
 
       expect(logResult.success).toBe(true);
@@ -221,7 +223,7 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
       // Verify log was created
       const logCheckResult = await neonClient.executeSql(
         'SELECT COUNT(*) as count FROM auth_logs WHERE success = false',
-        testBranch.branchId
+        testBranch.branchId,
       );
 
       expect(logCheckResult.success).toBe(true);
@@ -254,7 +256,7 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
 
       vi.doMock('@/app/api/auth/[...all]/route', () => ({
         POST: vi.fn(),
-        GET: mockHandler
+        GET: mockHandler,
       }));
 
       const request = createMockRequest(
@@ -276,7 +278,7 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
       // Verify session exists in database
       const sessionCheckResult = await neonClient.executeSql(
         `SELECT user_id, token FROM sessions WHERE token = '${sessionData.token}' AND expires_at > NOW()`,
-        testBranch.branchId
+        testBranch.branchId,
       );
 
       expect(sessionCheckResult.success).toBe(true);
@@ -291,7 +293,7 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
       // Create expired session
       const userData = factory.createUser();
       const expiredSession = factory.createSession(userData.id, {
-        expiresAt: new Date(Date.now() - 24 * 60 * 60 * 1000) // 24 hours ago
+        expiresAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // 24 hours ago
       });
 
       await testUtils.insertUser(userData, testBranch.branchId);
@@ -305,7 +307,7 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
 
       vi.doMock('@/app/api/auth/[...all]/route', () => ({
         POST: vi.fn(),
-        GET: mockHandler
+        GET: mockHandler,
       }));
 
       const request = createMockRequest(
@@ -323,7 +325,7 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
       // Clean up expired sessions
       const cleanupResult = await neonClient.executeSql(
         'DELETE FROM sessions WHERE expires_at < NOW()',
-        testBranch.branchId
+        testBranch.branchId,
       );
 
       expect(cleanupResult.success).toBe(true);
@@ -331,7 +333,7 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
       // Verify expired session was removed
       const sessionCheckResult = await neonClient.executeSql(
         `SELECT COUNT(*) as count FROM sessions WHERE token = '${expiredSession.token}'`,
-        testBranch.branchId
+        testBranch.branchId,
       );
 
       expect(sessionCheckResult.data?.results?.[0]?.count).toBe('0');
@@ -348,8 +350,8 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
       const timeWindow = new Date(Date.now() - 5 * 60 * 1000); // 5 minutes ago
 
       // Simulate multiple attempts
-      const attempts = Array.from({ length: 10 }, (_, i) => 
-        factory.createRateLimitEntry(clientIp, 'signin')
+      const attempts = Array.from({ length: 10 }, (_, i) =>
+        factory.createRateLimitEntry(clientIp, 'signin'),
       );
 
       // Insert rate limit attempts
@@ -364,11 +366,13 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
          WHERE ip_address = '${clientIp}' 
            AND endpoint = 'signin' 
            AND created_at > NOW() - INTERVAL '5 minutes'`,
-        testBranch.branchId
+        testBranch.branchId,
       );
 
       expect(rateLimitResult.success).toBe(true);
-      const attemptCount = parseInt(rateLimitResult.data?.results?.[0]?.attempt_count || '0');
+      const attemptCount = parseInt(
+        rateLimitResult.data?.results?.[0]?.attempt_count || '0',
+      );
       expect(attemptCount).toBeGreaterThan(5);
 
       // Mock rate limit response
@@ -380,7 +384,7 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
 
       vi.doMock('@/app/api/auth/[...all]/route', () => ({
         POST: mockHandler,
-        GET: vi.fn()
+        GET: vi.fn(),
       }));
 
       const request = createMockRequest(
@@ -392,8 +396,8 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
             password: 'password123',
           },
           headers: {
-            'X-Forwarded-For': clientIp
-          }
+            'X-Forwarded-For': clientIp,
+          },
         },
       );
 
@@ -409,22 +413,22 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
       }
 
       const performanceTests = [];
-      
+
       // Run multiple authentication attempts and measure performance
       for (let i = 0; i < 10; i++) {
         const userData = factory.createUser({
-          email: `test${i}@example.com`
+          email: `test${i}@example.com`,
         });
 
         const startTime = Date.now();
-        
+
         // Insert user
         await testUtils.insertUser(userData, testBranch.branchId);
-        
+
         // Simulate authentication
         const authResult = await neonClient.executeSql(
           `SELECT id, email FROM users WHERE email = '${userData.email}'`,
-          testBranch.branchId
+          testBranch.branchId,
         );
 
         const endTime = Date.now();
@@ -434,14 +438,20 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
           userId: userData.id,
           email: userData.email,
           duration,
-          success: authResult.success
+          success: authResult.success,
         });
       }
 
       // Analyze performance metrics
-      const averageDuration = performanceTests.reduce((sum, test) => sum + test.duration, 0) / performanceTests.length;
-      const maxDuration = Math.max(...performanceTests.map(test => test.duration));
-      const successRate = performanceTests.filter(test => test.success).length / performanceTests.length;
+      const averageDuration =
+        performanceTests.reduce((sum, test) => sum + test.duration, 0) /
+        performanceTests.length;
+      const maxDuration = Math.max(
+        ...performanceTests.map((test) => test.duration),
+      );
+      const successRate =
+        performanceTests.filter((test) => test.success).length /
+        performanceTests.length;
 
       expect(averageDuration).toBeLessThan(1000); // Less than 1 second average
       expect(maxDuration).toBeLessThan(5000); // Less than 5 seconds max
@@ -453,7 +463,7 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
          (test_suite, operation, avg_duration_ms, max_duration_ms, success_rate, sample_size, created_at)
          VALUES 
          ('auth-api-tests', 'authentication', ${averageDuration}, ${maxDuration}, ${successRate}, ${performanceTests.length}, NOW())`,
-        testBranch.branchId
+        testBranch.branchId,
       );
 
       expect(metricsResult.success).toBe(true);

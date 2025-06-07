@@ -101,7 +101,7 @@ export class NeonTestBranchManager {
       databaseName?: string;
       roleName?: string;
       pooled?: boolean;
-    }
+    },
   ): Promise<TestBranchInfo> {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const branchName = `test-${testSuiteName}-${timestamp}-${randomUUID().slice(0, 8)}`;
@@ -113,7 +113,7 @@ export class NeonTestBranchManager {
         {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${this.apiKey}`,
+            Authorization: `Bearer ${this.apiKey}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
@@ -127,30 +127,34 @@ export class NeonTestBranchManager {
               },
             ],
           }),
-        }
+        },
       );
 
       if (!response.ok) {
         const error = await response.text();
-        throw new Error(`Failed to create test branch: ${response.status} ${error}`);
+        throw new Error(
+          `Failed to create test branch: ${response.status} ${error}`,
+        );
       }
 
       const data: CreateBranchResponse = await response.json();
-      
+
       // Wait for branch to be ready
       await this.waitForBranchReady(data.branch.id);
 
       // Get connection details
       const connectionUri = data.connection_uris[0];
-      const database = options?.databaseName || connectionUri.connection_parameters.database;
-      const role = options?.roleName || connectionUri.connection_parameters.role;
+      const database =
+        options?.databaseName || connectionUri.connection_parameters.database;
+      const role =
+        options?.roleName || connectionUri.connection_parameters.role;
 
       // Build connection strings
       const connectionString = this.buildConnectionString(
         connectionUri.connection_parameters.host,
         database,
         role,
-        false
+        false,
       );
 
       const pooledConnectionString = options?.pooled
@@ -158,7 +162,7 @@ export class NeonTestBranchManager {
             connectionUri.connection_parameters.pooler_host,
             database,
             role,
-            true
+            true,
           )
         : undefined;
 
@@ -193,14 +197,16 @@ export class NeonTestBranchManager {
         {
           method: 'DELETE',
           headers: {
-            'Authorization': `Bearer ${this.apiKey}`,
+            Authorization: `Bearer ${this.apiKey}`,
           },
-        }
+        },
       );
 
       if (!response.ok && response.status !== 404) {
         const error = await response.text();
-        throw new Error(`Failed to delete test branch: ${response.status} ${error}`);
+        throw new Error(
+          `Failed to delete test branch: ${response.status} ${error}`,
+        );
       }
 
       if (branchInfo) {
@@ -217,7 +223,7 @@ export class NeonTestBranchManager {
    */
   async deleteAllTestBranches(): Promise<void> {
     const deletePromises = Array.from(this.branches.values()).map((branch) =>
-      this.deleteTestBranch(branch.branchId)
+      this.deleteTestBranch(branch.branchId),
     );
 
     await Promise.allSettled(deletePromises);
@@ -233,9 +239,9 @@ export class NeonTestBranchManager {
         `${this.apiBaseUrl}/projects/${this.projectId}/branches`,
         {
           headers: {
-            'Authorization': `Bearer ${this.apiKey}`,
+            Authorization: `Bearer ${this.apiKey}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -261,7 +267,7 @@ export class NeonTestBranchManager {
       const maxAgeMs = maxAgeHours * 60 * 60 * 1000;
 
       const testBranches = branches.filter(
-        (branch) => branch.name.startsWith('test-') && !branch.primary
+        (branch) => branch.name.startsWith('test-') && !branch.primary,
       );
 
       const deletePromises = testBranches
@@ -286,7 +292,10 @@ export class NeonTestBranchManager {
   /**
    * Gets the connection string for a branch
    */
-  getConnectionString(branchName: string, pooled: boolean = false): string | undefined {
+  getConnectionString(
+    branchName: string,
+    pooled: boolean = false,
+  ): string | undefined {
     const branch = this.branches.get(branchName);
     if (!branch) return undefined;
     return pooled ? branch.pooledConnectionString : branch.connectionString;
@@ -297,7 +306,7 @@ export class NeonTestBranchManager {
    */
   private async waitForBranchReady(
     branchId: string,
-    maxWaitMs: number = 60000
+    maxWaitMs: number = 60000,
   ): Promise<void> {
     const startTime = Date.now();
     const pollInterval = 1000; // 1 second
@@ -308,9 +317,9 @@ export class NeonTestBranchManager {
           `${this.apiBaseUrl}/projects/${this.projectId}/branches/${branchId}`,
           {
             headers: {
-              'Authorization': `Bearer ${this.apiKey}`,
+              Authorization: `Bearer ${this.apiKey}`,
             },
-          }
+          },
         );
 
         if (response.ok) {
@@ -326,7 +335,9 @@ export class NeonTestBranchManager {
       await new Promise((resolve) => setTimeout(resolve, pollInterval));
     }
 
-    throw new Error(`Branch ${branchId} did not become ready within ${maxWaitMs}ms`);
+    throw new Error(
+      `Branch ${branchId} did not become ready within ${maxWaitMs}ms`,
+    );
   }
 
   /**
@@ -336,7 +347,7 @@ export class NeonTestBranchManager {
     host: string,
     database: string,
     role: string,
-    pooled: boolean
+    pooled: boolean,
   ): string {
     const params = new URLSearchParams({
       sslmode: 'require',
@@ -365,7 +376,7 @@ export function getTestBranchManager(): NeonTestBranchManager {
 
     if (!apiKey || !projectId) {
       throw new Error(
-        'NEON_API_KEY and NEON_PROJECT_ID environment variables must be set for test branching'
+        'NEON_API_KEY and NEON_PROJECT_ID environment variables must be set for test branching',
       );
     }
 
@@ -387,7 +398,7 @@ export function getTestBranchManager(): NeonTestBranchManager {
  */
 export async function withTestBranch<T>(
   testSuiteName: string,
-  fn: (connectionString: string) => Promise<T>
+  fn: (connectionString: string) => Promise<T>,
 ): Promise<T> {
   const manager = getTestBranchManager();
   const branch = await manager.createTestBranch(testSuiteName);

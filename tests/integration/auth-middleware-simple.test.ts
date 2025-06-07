@@ -6,11 +6,11 @@ import { measurePerformance } from '../utils/test-helpers';
 
 describe('Auth Middleware Integration Tests (Simplified)', () => {
   let testContext: Awaited<ReturnType<typeof setupNeonBranch>>;
-  
+
   beforeEach(async () => {
     testContext = await setupNeonBranch('auth-middleware-test');
   });
-  
+
   afterEach(async () => {
     await testContext.cleanup();
   });
@@ -21,7 +21,7 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
 
       // Create real user
       const { user } = await testContext.factories.createUserWithAuth();
-      
+
       // Create session
       const sessionData = {
         id: randomUUID(),
@@ -34,8 +34,11 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
         updatedAt: new Date(),
       };
 
-      const [session] = await db.insert(schema.session).values(sessionData).returning();
-      
+      const [session] = await db
+        .insert(schema.session)
+        .values(sessionData)
+        .returning();
+
       expect(session.id).toBe(sessionData.id);
       expect(session.userId).toBe(user.id);
       expect(session.token).toBe(sessionData.token);
@@ -73,11 +76,8 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
 
       // Query for active sessions only
       const activeSessions = await db.query.session.findMany({
-        where: (s, { and, eq, gte }) => 
-          and(
-            eq(s.userId, user.id),
-            gte(s.expiresAt, new Date())
-          ),
+        where: (s, { and, eq, gte }) =>
+          and(eq(s.userId, user.id), gte(s.expiresAt, new Date())),
       });
 
       expect(activeSessions).toHaveLength(0);
@@ -97,11 +97,8 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
       await db.insert(schema.session).values(validSession);
 
       const currentSessions = await db.query.session.findMany({
-        where: (s, { and, eq, gte }) => 
-          and(
-            eq(s.userId, user.id),
-            gte(s.expiresAt, new Date())
-          ),
+        where: (s, { and, eq, gte }) =>
+          and(eq(s.userId, user.id), gte(s.expiresAt, new Date())),
       });
 
       expect(currentSessions).toHaveLength(1);
@@ -114,23 +111,26 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
       const { user } = await testContext.factories.createUserWithAuth();
 
       // Create multiple sessions concurrently
-      const sessionPromises = Array.from({ length: 5 }, (_, i) => 
-        db.insert(schema.session).values({
-          id: randomUUID(),
-          userId: user.id,
-          token: `concurrent-${randomUUID()}-${i}`,
-          expiresAt: new Date(Date.now() + 60 * 60 * 1000),
-          ipAddress: '127.0.0.1',
-          userAgent: `test-agent-${i}`,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }).returning()
+      const sessionPromises = Array.from({ length: 5 }, (_, i) =>
+        db
+          .insert(schema.session)
+          .values({
+            id: randomUUID(),
+            userId: user.id,
+            token: `concurrent-${randomUUID()}-${i}`,
+            expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+            ipAddress: '127.0.0.1',
+            userAgent: `test-agent-${i}`,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          })
+          .returning(),
       );
 
       const results = await Promise.all(sessionPromises);
 
       expect(results).toHaveLength(5);
-      expect(results.every(r => r.length === 1)).toBe(true);
+      expect(results.every((r) => r.length === 1)).toBe(true);
 
       // Verify all sessions were created
       const allSessions = await db.query.session.findMany({
@@ -161,17 +161,17 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
         updatedAt: new Date(),
       };
 
-      const [session] = await db.insert(schema.session).values(sessionData).returning();
+      const [session] = await db
+        .insert(schema.session)
+        .values(sessionData)
+        .returning();
 
       expect(session.csrfToken).toBe(csrfToken);
 
       // Validate CSRF token lookup
       const validSession = await db.query.session.findFirst({
-        where: (s, { and, eq }) => 
-          and(
-            eq(s.token, sessionData.token),
-            eq(s.csrfToken, csrfToken)
-          ),
+        where: (s, { and, eq }) =>
+          and(eq(s.token, sessionData.token), eq(s.csrfToken, csrfToken)),
       });
 
       expect(validSession).toBeDefined();
@@ -196,13 +196,16 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
         updatedAt: new Date(),
       };
 
-      const [session] = await db.insert(schema.session).values(sessionData).returning();
+      const [session] = await db
+        .insert(schema.session)
+        .values(sessionData)
+        .returning();
 
       // Update CSRF token
       const newToken = `csrf-new-${randomUUID()}`;
       await db
         .update(schema.session)
-        .set({ 
+        .set({
           csrfToken: newToken,
           updatedAt: new Date(),
         })
@@ -238,11 +241,11 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
 
       // Check rate limit count
       const recentAttempts = await db.query.rateLimitLog.findMany({
-        where: (log, { and, eq, gte }) => 
+        where: (log, { and, eq, gte }) =>
           and(
             eq(log.userId, user.id),
             eq(log.endpoint, endpoint),
-            gte(log.createdAt, new Date(Date.now() - 60 * 1000)) // Last minute
+            gte(log.createdAt, new Date(Date.now() - 60 * 1000)), // Last minute
           ),
       });
 
@@ -278,7 +281,10 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
       // Cleanup old entries
       await db
         .delete(schema.rateLimitLog)
-        .where(schema.rateLimitLog.createdAt < new Date(Date.now() - 24 * 60 * 60 * 1000));
+        .where(
+          schema.rateLimitLog.createdAt <
+            new Date(Date.now() - 24 * 60 * 60 * 1000),
+        );
 
       const remainingEntries = await db.query.rateLimitLog.findMany({
         where: (log, { eq }) => eq(log.userId, user.id),
@@ -310,7 +316,10 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
         updatedAt: new Date(),
       };
 
-      const [account] = await db.insert(schema.account).values(accountData).returning();
+      const [account] = await db
+        .insert(schema.account)
+        .values(accountData)
+        .returning();
 
       expect(account.providerId).toBe('google');
       expect(account.userId).toBe(user.id);
@@ -393,11 +402,8 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
         // Query performance
         const queryStart = Date.now();
         const activeSessions = await db.query.session.findMany({
-          where: (s, { and, eq, gte }) => 
-            and(
-              eq(s.userId, user.id),
-              gte(s.expiresAt, new Date())
-            ),
+          where: (s, { and, eq, gte }) =>
+            and(eq(s.userId, user.id), gte(s.expiresAt, new Date())),
           limit: 50,
         });
         const queryDuration = Date.now() - queryStart;

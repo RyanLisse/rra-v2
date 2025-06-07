@@ -2,10 +2,10 @@ import { smoothStream, streamText } from 'ai';
 import { myProvider } from '@/lib/ai/providers';
 import { createDocumentHandler } from '@/lib/artifacts/server';
 import { updateDocumentPrompt } from '@/lib/ai/prompts';
-import { 
-  retrieveContextAndSources, 
+import {
+  retrieveContextAndSources,
   createStructuredSystemPrompt,
-  ELEMENT_TYPE_PRIORITIES 
+  ELEMENT_TYPE_PRIORITIES,
 } from '@/lib/ai/context-formatter';
 
 export const textDocumentHandler = createDocumentHandler<'text'>({
@@ -14,24 +14,30 @@ export const textDocumentHandler = createDocumentHandler<'text'>({
     let draftContent = '';
 
     // Try to retrieve relevant context from user's documents
-    let contextualSystemPrompt = 'Write about the given topic. Markdown is supported. Use headings wherever appropriate.';
+    let contextualSystemPrompt =
+      'Write about the given topic. Markdown is supported. Use headings wherever appropriate.';
     let enhancedPrompt = title;
 
     if (session?.user?.id) {
       try {
         // Retrieve context with prioritization for conceptual content
-        const contextResult = await retrieveContextAndSources(title, session.user.id, {
-          limit: 8,
-          threshold: 0.3,
-          prioritizeElementTypes: ELEMENT_TYPE_PRIORITIES.conceptual,
-          maxContextTokens: 2000,
-        });
+        const contextResult = await retrieveContextAndSources(
+          title,
+          session.user.id,
+          {
+            limit: 8,
+            threshold: 0.3,
+            prioritizeElementTypes: ELEMENT_TYPE_PRIORITIES.conceptual,
+            maxContextTokens: 2000,
+          },
+        );
 
         if (contextResult.sources.length > 0) {
           // Create structured system prompt aware of document context
-          contextualSystemPrompt = createStructuredSystemPrompt(true) + 
+          contextualSystemPrompt =
+            createStructuredSystemPrompt(true) +
             '\n\nWhen writing about the topic, incorporate relevant information from the provided context documents. Use the structural information to create well-organized content with appropriate headings, tables, and lists where relevant.';
-          
+
           // Enhance the prompt with context
           enhancedPrompt = `Topic: ${title}
 

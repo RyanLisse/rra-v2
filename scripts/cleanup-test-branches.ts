@@ -76,11 +76,11 @@ async function main() {
 
   try {
     const manager = getTestBranchManager();
-    
+
     // List all branches first
     const branches = await manager.listBranches();
     const testBranches = branches.filter(
-      branch => branch.name.startsWith('test-') && !branch.primary
+      (branch) => branch.name.startsWith('test-') && !branch.primary,
     );
 
     if (testBranches.length === 0) {
@@ -89,7 +89,7 @@ async function main() {
     }
 
     console.log(`📋 Found ${testBranches.length} test branches:`);
-    
+
     const now = new Date();
     const maxAgeMs = args.maxAgeHours * 60 * 60 * 1000;
     const branchesToDelete = [];
@@ -97,13 +97,13 @@ async function main() {
     for (const branch of testBranches) {
       const createdAt = new Date(branch.created_at);
       const age = now.getTime() - createdAt.getTime();
-      const ageHours = Math.round(age / (60 * 60 * 1000) * 10) / 10;
-      
+      const ageHours = Math.round((age / (60 * 60 * 1000)) * 10) / 10;
+
       const shouldDelete = age > maxAgeMs;
       const status = shouldDelete ? '🗑️  DELETE' : '⏰ KEEP';
-      
+
       console.log(`   ${status} ${branch.name} (${ageHours}h old)`);
-      
+
       if (shouldDelete) {
         branchesToDelete.push(branch);
       }
@@ -147,14 +147,13 @@ async function main() {
     if (failed > 0) {
       console.log(`   ❌ Failed: ${failed} branches`);
     }
-
   } catch (error) {
     console.error('❌ Error during cleanup:', error);
     process.exit(1);
   }
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error('❌ Unexpected error:', error);
   process.exit(1);
 });

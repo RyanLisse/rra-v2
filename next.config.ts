@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
       // Resolve aliases for module resolution
       resolveAlias: {
         // Tree-shake lodash
-        'lodash': 'lodash-es',
+        lodash: 'lodash-es',
       },
     },
   },

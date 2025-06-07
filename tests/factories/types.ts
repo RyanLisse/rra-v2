@@ -46,9 +46,13 @@ export type ChatInsert = InferInsertModel<typeof schema.chat>;
 export type MessageInsert = InferInsertModel<typeof schema.message>;
 export type DocumentInsert = InferInsertModel<typeof schema.document>;
 export type RAGDocumentInsert = InferInsertModel<typeof schema.ragDocument>;
-export type DocumentContentInsert = InferInsertModel<typeof schema.documentContent>;
+export type DocumentContentInsert = InferInsertModel<
+  typeof schema.documentContent
+>;
 export type DocumentChunkInsert = InferInsertModel<typeof schema.documentChunk>;
-export type DocumentEmbeddingInsert = InferInsertModel<typeof schema.documentEmbedding>;
+export type DocumentEmbeddingInsert = InferInsertModel<
+  typeof schema.documentEmbedding
+>;
 export type SessionInsert = InferInsertModel<typeof schema.session>;
 export type AccountInsert = InferInsertModel<typeof schema.account>;
 export type VoteInsert = InferInsertModel<typeof schema.vote>;
@@ -106,7 +110,9 @@ export interface PerformanceScenario extends TestScenario {
 export type FactoryMethod<T> = (options?: FactoryOptions) => T;
 export type BatchFactoryMethod<T> = (options: BatchFactoryOptions) => T[];
 export type AsyncFactoryMethod<T> = (options?: FactoryOptions) => Promise<T>;
-export type AsyncBatchFactoryMethod<T> = (options: BatchFactoryOptions) => Promise<T[]>;
+export type AsyncBatchFactoryMethod<T> = (
+  options: BatchFactoryOptions,
+) => Promise<T[]>;
 
 /**
  * Database seeding types

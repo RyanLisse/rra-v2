@@ -12,7 +12,8 @@ describe('Search Enhancement Integration', () => {
         chunkId: 'chunk-123',
         documentId: 'doc-456',
         documentTitle: 'RoboRail Calibration Manual.pdf',
-        content: 'This paragraph explains the calibration process for RoboRail systems',
+        content:
+          'This paragraph explains the calibration process for RoboRail systems',
         similarity: 0.85,
         metadata: { source: 'manual' },
         chunkIndex: 5,
@@ -30,12 +31,12 @@ describe('Search Enhancement Integration', () => {
       expect(mockSearchResult).toHaveProperty('similarity');
       expect(mockSearchResult).toHaveProperty('metadata');
       expect(mockSearchResult).toHaveProperty('chunkIndex');
-      
+
       // Verify enhanced ADE metadata fields
       expect(mockSearchResult).toHaveProperty('elementType');
       expect(mockSearchResult).toHaveProperty('pageNumber');
       expect(mockSearchResult).toHaveProperty('bbox');
-      
+
       // Verify types
       expect(typeof mockSearchResult.elementType).toBe('string');
       expect(typeof mockSearchResult.pageNumber).toBe('number');
@@ -48,7 +49,8 @@ describe('Search Enhancement Integration', () => {
         chunkId: 'chunk-789',
         documentId: 'doc-012',
         documentTitle: 'Legacy Document.pdf',
-        content: 'This is content from a legacy document without ADE processing',
+        content:
+          'This is content from a legacy document without ADE processing',
         similarity: 0.75,
         metadata: {},
         chunkIndex: 0,
@@ -82,7 +84,9 @@ describe('Search Enhancement Integration', () => {
       };
 
       expect(facetOptions.pageNumbers).toEqual([1, 2, 5, 10]);
-      expect(facetOptions.pageNumbers.every(page => typeof page === 'number')).toBe(true);
+      expect(
+        facetOptions.pageNumbers.every((page) => typeof page === 'number'),
+      ).toBe(true);
     });
 
     it('should support spatial search within pages', () => {
@@ -95,8 +99,12 @@ describe('Search Enhancement Integration', () => {
 
       expect(spatialFacet.spatialSearch.pageNumber).toBe(3);
       expect(spatialFacet.spatialSearch.bbox).toHaveLength(4);
-      expect(spatialFacet.spatialSearch.bbox[0]).toBeLessThan(spatialFacet.spatialSearch.bbox[2]); // x1 < x2
-      expect(spatialFacet.spatialSearch.bbox[1]).toBeLessThan(spatialFacet.spatialSearch.bbox[3]); // y1 < y2
+      expect(spatialFacet.spatialSearch.bbox[0]).toBeLessThan(
+        spatialFacet.spatialSearch.bbox[2],
+      ); // x1 < x2
+      expect(spatialFacet.spatialSearch.bbox[1]).toBeLessThan(
+        spatialFacet.spatialSearch.bbox[3],
+      ); // y1 < y2
     });
   });
 
@@ -181,12 +189,17 @@ describe('Search Enhancement Integration', () => {
       ];
 
       const targetElementTypes = ['paragraph', 'title'];
-      const filteredResults = mockResults.filter(result => 
-        result.elementType && targetElementTypes.includes(result.elementType)
+      const filteredResults = mockResults.filter(
+        (result) =>
+          result.elementType && targetElementTypes.includes(result.elementType),
       );
 
       expect(filteredResults).toHaveLength(2);
-      expect(filteredResults.every(r => targetElementTypes.includes(r.elementType!))).toBe(true);
+      expect(
+        filteredResults.every((r) =>
+          targetElementTypes.includes(r.elementType!),
+        ),
+      ).toBe(true);
     });
 
     it('should properly filter results by page number', () => {
@@ -199,12 +212,15 @@ describe('Search Enhancement Integration', () => {
       ];
 
       const targetPageNumbers = [1, 3];
-      const filteredResults = mockResults.filter(result => 
-        result.pageNumber && targetPageNumbers.includes(result.pageNumber)
+      const filteredResults = mockResults.filter(
+        (result) =>
+          result.pageNumber && targetPageNumbers.includes(result.pageNumber),
       );
 
       expect(filteredResults).toHaveLength(3); // Two from page 1, one from page 3
-      expect(filteredResults.every(r => targetPageNumbers.includes(r.pageNumber!))).toBe(true);
+      expect(
+        filteredResults.every((r) => targetPageNumbers.includes(r.pageNumber!)),
+      ).toBe(true);
     });
 
     it('should combine multiple filter criteria', () => {
@@ -219,16 +235,22 @@ describe('Search Enhancement Integration', () => {
       const elementTypeFilter = ['paragraph', 'title'];
       const pageNumberFilter = [1];
 
-      const filteredResults = mockResults.filter(result => 
-        result.elementType && elementTypeFilter.includes(result.elementType) &&
-        result.pageNumber && pageNumberFilter.includes(result.pageNumber)
+      const filteredResults = mockResults.filter(
+        (result) =>
+          result.elementType &&
+          elementTypeFilter.includes(result.elementType) &&
+          result.pageNumber &&
+          pageNumberFilter.includes(result.pageNumber),
       );
 
       expect(filteredResults).toHaveLength(2); // paragraph and title from page 1
-      expect(filteredResults.every(r => 
-        elementTypeFilter.includes(r.elementType!) && 
-        pageNumberFilter.includes(r.pageNumber!)
-      )).toBe(true);
+      expect(
+        filteredResults.every(
+          (r) =>
+            elementTypeFilter.includes(r.elementType!) &&
+            pageNumberFilter.includes(r.pageNumber!),
+        ),
+      ).toBe(true);
     });
   });
 
@@ -268,15 +290,21 @@ describe('Search Enhancement Integration', () => {
       ];
 
       // Transform to the format expected by the API
-      const elementTypeFacets = elementTypeCounts.reduce((acc, row) => {
-        acc[row.elementType] = row.count;
-        return acc;
-      }, {} as Record<string, number>);
+      const elementTypeFacets = elementTypeCounts.reduce(
+        (acc, row) => {
+          acc[row.elementType] = row.count;
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
 
-      const pageNumberFacets = pageNumberCounts.reduce((acc, row) => {
-        acc[row.pageNumber] = row.count;
-        return acc;
-      }, {} as Record<number, number>);
+      const pageNumberFacets = pageNumberCounts.reduce(
+        (acc, row) => {
+          acc[row.pageNumber] = row.count;
+          return acc;
+        },
+        {} as Record<number, number>,
+      );
 
       expect(elementTypeFacets.paragraph).toBe(250);
       expect(elementTypeFacets.title).toBe(45);
@@ -292,7 +320,7 @@ describe('Search Enhancement Integration', () => {
         documentId: 'legacy-doc-456',
         documentTitle: 'Legacy Document.pdf',
         content: 'Legacy content without ADE processing',
-        similarity: 0.70,
+        similarity: 0.7,
         metadata: {},
         chunkIndex: 3,
         // ADE metadata fields may be undefined for legacy data

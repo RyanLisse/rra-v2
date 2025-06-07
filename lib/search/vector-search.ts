@@ -670,7 +670,13 @@ export class VectorSearchService {
       pageNumbers?: number[];
     } = {},
   ): Promise<{ results: SearchResult[] }> {
-    const { limit = 10, documentIds, useAdvancedQuery = true, elementTypes, pageNumbers } = options;
+    const {
+      limit = 10,
+      documentIds,
+      useAdvancedQuery = true,
+      elementTypes,
+      pageNumbers,
+    } = options;
 
     // Optimize query for full-text search
     let optimizedQuery = query;
@@ -973,7 +979,13 @@ export class VectorSearchService {
       pageNumbers?: number[];
     } = {},
   ): Promise<HybridSearchResponse> {
-    const { maxSteps = 3, minResultsPerStep = 3, documentIds, elementTypes, pageNumbers } = options;
+    const {
+      maxSteps = 3,
+      minResultsPerStep = 3,
+      documentIds,
+      elementTypes,
+      pageNumbers,
+    } = options;
 
     let currentQuery = query;
     const allResults: HybridSearchResult[] = [];
@@ -1279,19 +1291,16 @@ export class VectorSearch {
         embedding: documentEmbedding,
       })
       .from(documentChunk)
-      .innerJoin(
-        ragDocument,
-        eq(documentChunk.documentId, ragDocument.id)
-      )
+      .innerJoin(ragDocument, eq(documentChunk.documentId, ragDocument.id))
       .innerJoin(
         documentEmbedding,
-        eq(documentChunk.id, documentEmbedding.chunkId)
+        eq(documentChunk.id, documentEmbedding.chunkId),
       )
       .where(
         and(
           eq(ragDocument.uploadedBy, userId),
-          eq(ragDocument.status, 'processed')
-        )
+          eq(ragDocument.status, 'processed'),
+        ),
       )
       .limit(limit);
 
@@ -1299,7 +1308,7 @@ export class VectorSearch {
     const results = chunks.map((row, index) => ({
       id: row.chunk.id,
       content: row.chunk.content,
-      score: Math.max(threshold, 1 - (index * 0.1)),
+      score: Math.max(threshold, 1 - index * 0.1),
       document: {
         id: row.document.id,
         title: row.document.originalName,
@@ -1313,7 +1322,7 @@ export class VectorSearch {
     }));
 
     return {
-      results: results.filter(r => r.score >= threshold),
+      results: results.filter((r) => r.score >= threshold),
       totalFound: results.length,
       query,
     };
@@ -1327,7 +1336,7 @@ export class VectorSearch {
     db: any;
   }) {
     const { rerankTopK = 5, ...searchParams } = params;
-    
+
     // Get initial results
     const searchResults = await this.search({
       ...searchParams,
@@ -1339,7 +1348,7 @@ export class VectorSearch {
       .slice(0, rerankTopK)
       .map((result, index) => ({
         ...result,
-        rerankScore: result.score + (0.1 * (rerankTopK - index)),
+        rerankScore: result.score + 0.1 * (rerankTopK - index),
       }))
       .sort((a, b) => b.rerankScore! - a.rerankScore!);
 

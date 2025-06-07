@@ -5,7 +5,8 @@ import { getMessageByErrorCode } from '@/lib/errors';
 
 const chatIdsCreatedByAda: Array<string> = [];
 
-test.describe.serial('/api/chat', () => {
+test.describe
+  .serial('/api/chat', () => {
     test('Ada cannot invoke a chat generation with empty request body', async ({
       adaContext,
     }) => {
@@ -337,4 +338,4 @@ test.describe.serial('/api/chat', () => {
 
       expect(firstResponseContent).toEqual(secondResponseContent);
     });
-});
+  });

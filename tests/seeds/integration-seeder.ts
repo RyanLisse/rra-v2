@@ -12,7 +12,7 @@ import type { SeederResult } from '../factories/types';
 export class IntegrationSeeder extends BaseSeeder {
   async seed(): Promise<SeederResult> {
     console.log('🔗 Starting integration test seeding...');
-    
+
     const startTime = Date.now();
     const rowsCreated: Record<string, number> = {};
     const errors: Error[] = [];
@@ -33,7 +33,7 @@ export class IntegrationSeeder extends BaseSeeder {
       // Verify the data
       const verification = await this.verifyDatabaseState();
       if (!verification.valid) {
-        verification.issues.forEach(issue => {
+        verification.issues.forEach((issue) => {
           errors.push(new Error(issue));
         });
       }
@@ -41,8 +41,11 @@ export class IntegrationSeeder extends BaseSeeder {
       const executionTime = Date.now() - startTime;
       console.log(`✅ Integration seeding completed in ${executionTime}ms`);
 
-      return this.generateResult(true, rowsCreated, errors.length > 0 ? errors : undefined);
-
+      return this.generateResult(
+        true,
+        rowsCreated,
+        errors.length > 0 ? errors : undefined,
+      );
     } catch (error) {
       console.error('❌ Integration seeding failed:', error);
       errors.push(error instanceof Error ? error : new Error(String(error)));
@@ -53,7 +56,9 @@ export class IntegrationSeeder extends BaseSeeder {
   /**
    * Create user workflows for integration testing
    */
-  private async createUserWorkflows(rowsCreated: Record<string, number>): Promise<void> {
+  private async createUserWorkflows(
+    rowsCreated: Record<string, number>,
+  ): Promise<void> {
     console.log('Creating user workflows...');
 
     // Create different user types for testing authentication flows
@@ -129,20 +134,20 @@ export class IntegrationSeeder extends BaseSeeder {
     ];
 
     // Insert user data
-    const users = workflows.map(w => w.user.user);
+    const users = workflows.map((w) => w.user.user);
     await this.batchInsert(schema.user, users);
     rowsCreated.users = users.length;
 
     // Insert sessions
-    const sessions = workflows.flatMap(w => w.user.sessions);
+    const sessions = workflows.flatMap((w) => w.user.sessions);
     await this.batchInsert(schema.session, sessions);
     rowsCreated.sessions = sessions.length;
 
     // Insert accounts (OAuth accounts for some users)
     const accounts = workflows
-      .filter(w => w.scenario === 'oauth' || w.scenario === 'premium')
-      .flatMap(w => w.user.accounts);
-    
+      .filter((w) => w.scenario === 'oauth' || w.scenario === 'premium')
+      .flatMap((w) => w.user.accounts);
+
     if (accounts.length > 0) {
       await this.batchInsert(schema.account, accounts);
       rowsCreated.accounts = accounts.length;
@@ -154,11 +159,15 @@ export class IntegrationSeeder extends BaseSeeder {
   /**
    * Create RAG pipeline test data
    */
-  private async createRAGPipeline(rowsCreated: Record<string, number>): Promise<void> {
+  private async createRAGPipeline(
+    rowsCreated: Record<string, number>,
+  ): Promise<void> {
     console.log('Creating RAG pipeline test data...');
 
     // Get existing users
-    const users = await this.db.select({ id: schema.user.id }).from(schema.user);
+    const users = await this.db
+      .select({ id: schema.user.id })
+      .from(schema.user);
     if (users.length === 0) return;
 
     // Create documents in different stages of processing
@@ -193,14 +202,18 @@ export class IntegrationSeeder extends BaseSeeder {
         });
 
         documents.push(completeDoc.document);
-        
+
         // Only create content/chunks/embeddings for processed stages
-        if (['text_extracted', 'chunked', 'embedded', 'processed'].includes(stage.status)) {
+        if (
+          ['text_extracted', 'chunked', 'embedded', 'processed'].includes(
+            stage.status,
+          )
+        ) {
           contents.push(completeDoc.content);
-          
+
           if (['chunked', 'embedded', 'processed'].includes(stage.status)) {
             chunks.push(...completeDoc.chunks);
-            
+
             if (['embedded', 'processed'].includes(stage.status)) {
               embeddings.push(...completeDoc.embeddings);
             }
@@ -228,13 +241,17 @@ export class IntegrationSeeder extends BaseSeeder {
       rowsCreated.documentEmbeddings = embeddings.length;
     }
 
-    console.log(`✓ Created ${documents.length} documents in various processing stages`);
+    console.log(
+      `✓ Created ${documents.length} documents in various processing stages`,
+    );
   }
 
   /**
    * Create chat flows for testing
    */
-  private async createChatFlows(rowsCreated: Record<string, number>): Promise<void> {
+  private async createChatFlows(
+    rowsCreated: Record<string, number>,
+  ): Promise<void> {
     console.log('Creating chat flows...');
 
     // Get existing users
@@ -246,25 +263,28 @@ export class IntegrationSeeder extends BaseSeeder {
       // Simple Q&A chat
       {
         type: 'simple',
-        user: users.find(u => u.email === 'newuser@integration.test') || users[0],
+        user:
+          users.find((u) => u.email === 'newuser@integration.test') || users[0],
         count: 2,
       },
       // Complex chat with artifacts
       {
         type: 'complex',
-        user: users.find(u => u.email === 'premium@integration.test') || users[1],
+        user:
+          users.find((u) => u.email === 'premium@integration.test') || users[1],
         count: 1,
       },
       // Public collaborative chat
       {
         type: 'public',
-        user: users.find(u => u.email === 'admin@integration.test') || users[2],
+        user:
+          users.find((u) => u.email === 'admin@integration.test') || users[2],
         count: 1,
       },
       // Anonymous user chat
       {
         type: 'anonymous',
-        user: users.find(u => u.isAnonymous) || users[3],
+        user: users.find((u) => u.isAnonymous) || users[3],
         count: 1,
       },
     ];
@@ -277,7 +297,7 @@ export class IntegrationSeeder extends BaseSeeder {
     for (const scenario of chatScenarios) {
       for (let i = 0; i < scenario.count; i++) {
         let completeChat;
-        
+
         switch (scenario.type) {
           case 'simple':
             completeChat = completeChatFactory.createSimple({
@@ -290,7 +310,7 @@ export class IntegrationSeeder extends BaseSeeder {
               },
             });
             break;
-          
+
           case 'complex':
             completeChat = completeChatFactory.createComplex({
               overrides: {
@@ -302,7 +322,7 @@ export class IntegrationSeeder extends BaseSeeder {
               },
             });
             break;
-          
+
           case 'public':
             completeChat = completeChatFactory.createComplex({
               overrides: {
@@ -314,7 +334,7 @@ export class IntegrationSeeder extends BaseSeeder {
               },
             });
             break;
-          
+
           case 'anonymous':
             completeChat = completeChatFactory.createSimple({
               overrides: {
@@ -326,7 +346,7 @@ export class IntegrationSeeder extends BaseSeeder {
               },
             });
             break;
-          
+
           default:
             continue;
         }
@@ -355,13 +375,17 @@ export class IntegrationSeeder extends BaseSeeder {
       rowsCreated.streams = streams.length;
     }
 
-    console.log(`✓ Created ${chats.length} chat flows with ${messages.length} messages`);
+    console.log(
+      `✓ Created ${chats.length} chat flows with ${messages.length} messages`,
+    );
   }
 
   /**
    * Create API-specific test data
    */
-  private async createAPITestData(rowsCreated: Record<string, number>): Promise<void> {
+  private async createAPITestData(
+    rowsCreated: Record<string, number>,
+  ): Promise<void> {
     console.log('Creating API test data...');
 
     // Get existing users and documents for artifact creation
@@ -376,7 +400,7 @@ export class IntegrationSeeder extends BaseSeeder {
 
     for (let i = 0; i < 5; i++) {
       const user = users[i % users.length];
-      
+
       // Text artifact
       const textDoc = {
         id: `integration-text-${i + 1}`,
@@ -426,7 +450,9 @@ export class IntegrationSeeder extends BaseSeeder {
       rowsCreated.suggestions = suggestions.length;
     }
 
-    console.log(`✓ Created ${artifactDocuments.length} artifact documents and ${suggestions.length} suggestions`);
+    console.log(
+      `✓ Created ${artifactDocuments.length} artifact documents and ${suggestions.length} suggestions`,
+    );
   }
 }
 
@@ -436,7 +462,7 @@ export class IntegrationSeeder extends BaseSeeder {
 export class APIIntegrationSeeder extends BaseSeeder {
   async seed(): Promise<SeederResult> {
     console.log('🔌 Starting API integration seeding...');
-    
+
     const startTime = Date.now();
     const rowsCreated: Record<string, number> = {};
 
@@ -454,10 +480,11 @@ export class APIIntegrationSeeder extends BaseSeeder {
       console.log(`✅ API integration seeding completed in ${executionTime}ms`);
 
       return this.generateResult(true, rowsCreated);
-
     } catch (error) {
       console.error('❌ API integration seeding failed:', error);
-      const errors = [error instanceof Error ? error : new Error(String(error))];
+      const errors = [
+        error instanceof Error ? error : new Error(String(error)),
+      ];
       return this.generateResult(false, rowsCreated, errors);
     }
   }
@@ -465,7 +492,9 @@ export class APIIntegrationSeeder extends BaseSeeder {
   /**
    * Create users for API testing
    */
-  private async createAPIUsers(rowsCreated: Record<string, number>): Promise<void> {
+  private async createAPIUsers(
+    rowsCreated: Record<string, number>,
+  ): Promise<void> {
     // Create predictable users for API testing
     const apiUsers = [
       {
@@ -488,19 +517,19 @@ export class APIIntegrationSeeder extends BaseSeeder {
       },
     ];
 
-    const users = apiUsers.map(userData => 
+    const users = apiUsers.map((userData) =>
       completeUserFactory.create({
         overrides: { user: userData },
         realistic: false, // Predictable data for APIs
-      })
+      }),
     );
 
     // Insert users and sessions
-    const userData = users.map(u => u.user);
+    const userData = users.map((u) => u.user);
     await this.batchInsert(schema.user, userData);
     rowsCreated.users = userData.length;
 
-    const sessionData = users.flatMap(u => u.sessions);
+    const sessionData = users.flatMap((u) => u.sessions);
     await this.batchInsert(schema.session, sessionData);
     rowsCreated.sessions = sessionData.length;
 
@@ -510,10 +539,12 @@ export class APIIntegrationSeeder extends BaseSeeder {
   /**
    * Create documents for API testing
    */
-  private async createAPIDocuments(rowsCreated: Record<string, number>): Promise<void> {
+  private async createAPIDocuments(
+    rowsCreated: Record<string, number>,
+  ): Promise<void> {
     const users = await this.db.select().from(schema.user);
-    const apiUser = users.find(u => u.email === 'api.user@test.com');
-    
+    const apiUser = users.find((u) => u.email === 'api.user@test.com');
+
     if (!apiUser) return;
 
     // Create documents for API endpoint testing
@@ -535,7 +566,7 @@ export class APIIntegrationSeeder extends BaseSeeder {
     await this.batchInsert(schema.documentContent, [testDocument.content]);
     await this.batchInsert(schema.documentChunk, testDocument.chunks);
     await this.batchInsert(schema.documentEmbedding, testDocument.embeddings);
-    
+
     rowsCreated.ragDocuments = 1;
     rowsCreated.documentContent = 1;
     rowsCreated.documentChunks = testDocument.chunks.length;
@@ -547,10 +578,12 @@ export class APIIntegrationSeeder extends BaseSeeder {
   /**
    * Create chats for API testing
    */
-  private async createAPIChats(rowsCreated: Record<string, number>): Promise<void> {
+  private async createAPIChats(
+    rowsCreated: Record<string, number>,
+  ): Promise<void> {
     const users = await this.db.select().from(schema.user);
-    const apiUser = users.find(u => u.email === 'api.user@test.com');
-    
+    const apiUser = users.find((u) => u.email === 'api.user@test.com');
+
     if (!apiUser) return;
 
     // Create predictable chat for API testing
@@ -566,7 +599,7 @@ export class APIIntegrationSeeder extends BaseSeeder {
 
     await this.batchInsert(schema.chat, [testChat.chat]);
     await this.batchInsert(schema.message, testChat.messages);
-    
+
     rowsCreated.chats = 1;
     rowsCreated.messages = testChat.messages.length;
 

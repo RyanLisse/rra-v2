@@ -10,7 +10,7 @@ describe('Enhanced Testing Demo', () => {
   describe('Migration Concept Demonstration', () => {
     it('should demonstrate the difference between mock-based and enhanced testing', async () => {
       const startTime = Date.now();
-      
+
       // OLD APPROACH: Heavy mocking
       const mockDatabaseOld = vi.fn().mockResolvedValue({
         id: 'mock-user-123',
@@ -21,7 +21,7 @@ describe('Enhanced Testing Demo', () => {
       // Simulate mock-based test
       const mockResult = await mockDatabaseOld();
       expect(mockResult.id).toBe('mock-user-123');
-      
+
       // NEW APPROACH: Factory-based real data simulation
       class EnhancedTestDataFactory {
         async createTestUser() {
@@ -35,7 +35,7 @@ describe('Enhanced Testing Demo', () => {
             createdAt: new Date(),
             updatedAt: new Date(),
           };
-          
+
           return userData;
         }
 
@@ -49,21 +49,21 @@ describe('Enhanced Testing Demo', () => {
       }
 
       const factory = new EnhancedTestDataFactory();
-      
+
       // Demonstrate enhanced approach
       const enhancedUser = await factory.createTestUser();
       expect(enhancedUser.id).toMatch(/^[a-zA-Z0-9_-]+$/); // Real nanoid format
       expect(enhancedUser.email).toContain('@example.com');
       expect(enhancedUser.name).toBe('Real Test User');
-      
+
       // Demonstrate parallel operations
       const multipleUsers = await factory.createMultipleUsers(5);
       expect(multipleUsers).toHaveLength(5);
-      expect(multipleUsers.every(user => user.id.length > 0)).toBe(true);
-      
+      expect(multipleUsers.every((user) => user.id.length > 0)).toBe(true);
+
       const endTime = Date.now();
       const testDuration = endTime - startTime;
-      
+
       // Performance and reliability metrics
       const performanceMetrics = {
         testDuration,
@@ -77,14 +77,20 @@ describe('Enhanced Testing Demo', () => {
       expect(performanceMetrics.testDuration).toBeLessThan(1000); // Should be fast
       expect(performanceMetrics.usersCreated).toBe(6);
       expect(performanceMetrics.avgCreationTime).toBeLessThan(200);
-      
+
       console.log('\n=== Enhanced Testing Demo Results ===');
       console.log(`Test Duration: ${performanceMetrics.testDuration}ms`);
       console.log(`Users Created: ${performanceMetrics.usersCreated}`);
-      console.log(`Avg Creation Time: ${performanceMetrics.avgCreationTime.toFixed(2)}ms`);
-      console.log(`Memory Usage: ${Math.round(performanceMetrics.memoryUsage.heapUsed / 1024 / 1024)}MB`);
+      console.log(
+        `Avg Creation Time: ${performanceMetrics.avgCreationTime.toFixed(2)}ms`,
+      );
+      console.log(
+        `Memory Usage: ${Math.round(performanceMetrics.memoryUsage.heapUsed / 1024 / 1024)}MB`,
+      );
       console.log(`Approach: ${performanceMetrics.approach}`);
-      console.log(`Mocking Used: ${performanceMetrics.mockingUsed ? 'Yes' : 'No'}`);
+      console.log(
+        `Mocking Used: ${performanceMetrics.mockingUsed ? 'Yes' : 'No'}`,
+      );
       console.log('=====================================\n');
     });
 
@@ -102,15 +108,21 @@ describe('Enhanced Testing Demo', () => {
         validateUserType(type: string) {
           const validTypes = ['regular', 'premium', 'admin'];
           if (!validTypes.includes(type)) {
-            throw new Error(`Invalid user type: ${type}. Must be one of: ${validTypes.join(', ')}`);
+            throw new Error(
+              `Invalid user type: ${type}. Must be one of: ${validTypes.join(', ')}`,
+            );
           }
           return true;
         }
 
-        createValidatedUser(data: { email: string; type: string; name: string }) {
+        createValidatedUser(data: {
+          email: string;
+          type: string;
+          name: string;
+        }) {
           this.validateEmail(data.email);
           this.validateUserType(data.type);
-          
+
           return {
             id: nanoid(),
             ...data,
@@ -144,8 +156,16 @@ describe('Enhanced Testing Demo', () => {
 
       // Demonstrate comprehensive error scenarios
       const errorScenarios = [
-        { email: 'invalid', type: 'regular', expectedError: 'Invalid email format' },
-        { email: 'valid@example.com', type: 'invalid', expectedError: 'Invalid user type' },
+        {
+          email: 'invalid',
+          type: 'regular',
+          expectedError: 'Invalid email format',
+        },
+        {
+          email: 'valid@example.com',
+          type: 'invalid',
+          expectedError: 'Invalid user type',
+        },
         { email: '', type: 'regular', expectedError: 'Invalid email format' },
       ];
 
@@ -167,10 +187,13 @@ describe('Enhanced Testing Demo', () => {
 
       // Simulate enhanced parallel operations
       class PerformanceTestFactory {
-        async simulateAsyncOperation(operationId: number, delayMs: number = 10) {
+        async simulateAsyncOperation(
+          operationId: number,
+          delayMs: number = 10,
+        ) {
           // Simulate real async work (like database operations)
-          await new Promise(resolve => setTimeout(resolve, delayMs));
-          
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+
           return {
             operationId,
             timestamp: new Date(),
@@ -188,8 +211,8 @@ describe('Enhanced Testing Demo', () => {
         }
 
         async performParallelOperations(count: number) {
-          const promises = Array.from({ length: count }, (_, i) => 
-            this.simulateAsyncOperation(i, 10)
+          const promises = Array.from({ length: count }, (_, i) =>
+            this.simulateAsyncOperation(i, 10),
           );
           return await Promise.all(promises);
         }
@@ -199,22 +222,26 @@ describe('Enhanced Testing Demo', () => {
 
       // Test sequential operations (old approach)
       const sequentialStart = Date.now();
-      const sequentialResults = await performanceFactory.performSequentialOperations(10);
+      const sequentialResults =
+        await performanceFactory.performSequentialOperations(10);
       const sequentialTime = Date.now() - sequentialStart;
 
       // Test parallel operations (enhanced approach)
       const parallelStart = Date.now();
-      const parallelResults = await performanceFactory.performParallelOperations(10);
+      const parallelResults =
+        await performanceFactory.performParallelOperations(10);
       const parallelTime = Date.now() - parallelStart;
 
       expect(sequentialResults).toHaveLength(10);
       expect(parallelResults).toHaveLength(10);
-      
+
       // Parallel should be significantly faster
       expect(parallelTime).toBeLessThan(sequentialTime);
-      
-      const performanceImprovement = Math.round(((sequentialTime - parallelTime) / sequentialTime) * 100);
-      
+
+      const performanceImprovement = Math.round(
+        ((sequentialTime - parallelTime) / sequentialTime) * 100,
+      );
+
       const totalTime = Date.now() - startTime;
 
       console.log('\n=== Performance Improvement Demo ===');
@@ -285,8 +312,14 @@ describe('Enhanced Testing Demo', () => {
       expect(scope2.id).toBe('test-2');
 
       // Add data to different scopes
-      isolationFactory.addDataToScope('test-1', 'user', { id: 1, name: 'User 1' });
-      isolationFactory.addDataToScope('test-2', 'user', { id: 2, name: 'User 2' });
+      isolationFactory.addDataToScope('test-1', 'user', {
+        id: 1,
+        name: 'User 1',
+      });
+      isolationFactory.addDataToScope('test-2', 'user', {
+        id: 2,
+        name: 'User 2',
+      });
 
       // Verify isolation
       const user1 = isolationFactory.getDataFromScope('test-1', 'user');
@@ -310,7 +343,10 @@ describe('Enhanced Testing Demo', () => {
       }).toThrow('Scope test-1 not found');
 
       // Verify other scope is unaffected
-      const user2StillExists = isolationFactory.getDataFromScope('test-2', 'user');
+      const user2StillExists = isolationFactory.getDataFromScope(
+        'test-2',
+        'user',
+      );
       expect(user2StillExists.id).toBe(2);
 
       // Cleanup remaining scope
@@ -324,7 +360,7 @@ describe('Enhanced Testing Demo', () => {
   describe('Integration Benefits Demo', () => {
     it('should show the benefits of real data integration', async () => {
       // Demonstrate the benefits of using real data vs mocks
-      
+
       // Mock approach (old)
       const mockUser = {
         id: 'static-id',
@@ -338,7 +374,9 @@ describe('Enhanced Testing Demo', () => {
           return {
             id: nanoid(), // Real unique ID
             email: overrides?.email || `user-${nanoid()}@example.com`, // Real unique email
-            name: overrides?.name || `User ${Math.random().toString(36).slice(2, 8)}`, // Real unique name
+            name:
+              overrides?.name ||
+              `User ${Math.random().toString(36).slice(2, 8)}`, // Real unique name
             createdAt: new Date(), // Real timestamp
             updatedAt: new Date(),
             metadata: {

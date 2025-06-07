@@ -1,12 +1,12 @@
 import { faker } from '@faker-js/faker';
 import { BaseFactory } from './base-factory';
-import type { 
+import type {
   FactoryOptions,
   RAGDocumentInsert,
   DocumentContentInsert,
   DocumentChunkInsert,
   DocumentEmbeddingInsert,
-  CompleteRAGDocument
+  CompleteRAGDocument,
 } from './types';
 
 /**
@@ -21,25 +21,25 @@ export class RAGDocumentFactory extends BaseFactory<RAGDocumentInsert> {
       'text/plain',
       'text/markdown',
     ]);
-    
+
     const extension = this.getExtensionFromMimeType(mimeType);
-    const fileName = realistic ? 
-      `${faker.system.fileName()}.${extension}` : 
-      `test-${faker.string.alphanumeric(8)}.${extension}`;
+    const fileName = realistic
+      ? `${faker.system.fileName()}.${extension}`
+      : `test-${faker.string.alphanumeric(8)}.${extension}`;
 
     const document: RAGDocumentInsert = {
       id: this.generateId(),
       fileName,
-      originalName: realistic ? 
-        faker.helpers.arrayElement([
-          'Annual Report 2024.pdf',
-          'Product Specification.docx',
-          'User Manual.pdf',
-          'Technical Documentation.md',
-          'Meeting Notes.txt',
-          'Project Proposal.pdf',
-        ]) : 
-        fileName,
+      originalName: realistic
+        ? faker.helpers.arrayElement([
+            'Annual Report 2024.pdf',
+            'Product Specification.docx',
+            'User Manual.pdf',
+            'Technical Documentation.md',
+            'Meeting Notes.txt',
+            'Project Proposal.pdf',
+          ])
+        : fileName,
       filePath: `/uploads/${fileName}`,
       mimeType,
       fileSize: this.generateFileSize(this.getFileSizeCategory(mimeType)),
@@ -53,8 +53,14 @@ export class RAGDocumentFactory extends BaseFactory<RAGDocumentInsert> {
         { weight: 5, value: 'error' },
       ]),
       uploadedBy: options?.overrides?.uploadedBy || this.generateId(),
-      createdAt: this.generateTimestamp(new Date(), -faker.number.int({ min: 1, max: 30 * 24 * 60 })),
-      updatedAt: this.generateTimestamp(new Date(), -faker.number.int({ min: 0, max: 24 * 60 })),
+      createdAt: this.generateTimestamp(
+        new Date(),
+        -faker.number.int({ min: 1, max: 30 * 24 * 60 }),
+      ),
+      updatedAt: this.generateTimestamp(
+        new Date(),
+        -faker.number.int({ min: 0, max: 24 * 60 }),
+      ),
     };
 
     return this.applyOverrides(document, options?.overrides);
@@ -82,7 +88,8 @@ export class RAGDocumentFactory extends BaseFactory<RAGDocumentInsert> {
     return this.create({
       ...options,
       overrides: {
-        mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        mimeType:
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         originalName: `${faker.lorem.words(3)}.docx`,
         fileSize: this.generateFileSize('medium'),
         ...options?.overrides,
@@ -98,7 +105,10 @@ export class RAGDocumentFactory extends BaseFactory<RAGDocumentInsert> {
       ...options,
       overrides: {
         status: 'processed',
-        updatedAt: this.generateTimestamp(new Date(), -faker.number.int({ min: 1, max: 60 })),
+        updatedAt: this.generateTimestamp(
+          new Date(),
+          -faker.number.int({ min: 1, max: 60 }),
+        ),
         ...options?.overrides,
       },
     });
@@ -134,7 +144,8 @@ export class RAGDocumentFactory extends BaseFactory<RAGDocumentInsert> {
   private getExtensionFromMimeType(mimeType: string): string {
     const mimeToExt = {
       'application/pdf': 'pdf',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        'docx',
       'text/plain': 'txt',
       'text/markdown': 'md',
     };
@@ -145,7 +156,10 @@ export class RAGDocumentFactory extends BaseFactory<RAGDocumentInsert> {
     if (mimeType === 'text/plain' || mimeType === 'text/markdown') {
       return 'small';
     }
-    if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+    if (
+      mimeType ===
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ) {
       return 'medium';
     }
     return 'large'; // PDFs are typically larger
@@ -158,9 +172,9 @@ export class RAGDocumentFactory extends BaseFactory<RAGDocumentInsert> {
 export class DocumentContentFactory extends BaseFactory<DocumentContentInsert> {
   create(options?: FactoryOptions): DocumentContentInsert {
     const realistic = options?.realistic ?? true;
-    const extractedText = realistic ? 
-      this.generateRealisticDocumentText() : 
-      'Test extracted text content';
+    const extractedText = realistic
+      ? this.generateRealisticDocumentText()
+      : 'Test extracted text content';
 
     const content: DocumentContentInsert = {
       id: this.generateId(),
@@ -170,7 +184,10 @@ export class DocumentContentFactory extends BaseFactory<DocumentContentInsert> {
       pageCount: faker.number.int({ min: 1, max: 50 }).toString(),
       charCount: extractedText.length.toString(),
       metadata: this.generateMetadata('document'),
-      createdAt: this.generateTimestamp(new Date(), -faker.number.int({ min: 0, max: 60 })),
+      createdAt: this.generateTimestamp(
+        new Date(),
+        -faker.number.int({ min: 0, max: 60 }),
+      ),
     };
 
     return this.applyOverrides(content, options?.overrides);
@@ -285,8 +302,9 @@ ${faker.lorem.paragraph()}
   }
 
   private generateLargeText(): string {
-    const sections = Array.from({ length: 20 }, (_, i) => 
-      `# Section ${i + 1}\n\n${faker.lorem.paragraphs(10)}`
+    const sections = Array.from(
+      { length: 20 },
+      (_, i) => `# Section ${i + 1}\n\n${faker.lorem.paragraphs(10)}`,
     );
     return sections.join('\n\n');
   }
@@ -304,12 +322,15 @@ export class DocumentChunkFactory extends BaseFactory<DocumentChunkInsert> {
       id: this.generateId(),
       documentId: options?.overrides?.documentId || this.generateId(),
       chunkIndex: chunkIndex.toString(),
-      content: realistic ? 
-        this.generateRealisticChunkContent(chunkIndex) : 
-        `Test chunk ${chunkIndex} content`,
+      content: realistic
+        ? this.generateRealisticChunkContent(chunkIndex)
+        : `Test chunk ${chunkIndex} content`,
       metadata: this.generateMetadata('chunk'),
       tokenCount: faker.number.int({ min: 50, max: 500 }).toString(),
-      createdAt: this.generateTimestamp(new Date(), -faker.number.int({ min: 0, max: 30 })),
+      createdAt: this.generateTimestamp(
+        new Date(),
+        -faker.number.int({ min: 0, max: 30 }),
+      ),
     };
 
     return this.applyOverrides(chunk, options?.overrides);
@@ -326,7 +347,11 @@ export class DocumentChunkFactory extends BaseFactory<DocumentChunkInsert> {
         metadata: {
           ...this.generateMetadata('chunk'),
           chunkType: 'semantic',
-          semanticScore: faker.number.float({ min: 0.7, max: 1.0, fractionDigits: 3 }),
+          semanticScore: faker.number.float({
+            min: 0.7,
+            max: 1.0,
+            fractionDigits: 3,
+          }),
         },
         ...options?.overrides,
       },
@@ -355,9 +380,9 @@ export class DocumentChunkFactory extends BaseFactory<DocumentChunkInsert> {
    * Create chunks batch for a document
    */
   createChunksForDocument(
-    documentId: string, 
-    chunkCount: number, 
-    options?: FactoryOptions
+    documentId: string,
+    chunkCount: number,
+    options?: FactoryOptions,
   ): DocumentChunkInsert[] {
     return this.createBatch({
       count: chunkCount,
@@ -380,9 +405,10 @@ export class DocumentChunkFactory extends BaseFactory<DocumentChunkInsert> {
     const content = generator();
 
     // Add context about chunk position
-    const prefix = chunkIndex === 0 ? 
-      'Document beginning: ' : 
-      `Continuing from previous section: `;
+    const prefix =
+      chunkIndex === 0
+        ? 'Document beginning: '
+        : `Continuing from previous section: `;
 
     return prefix + content;
   }
@@ -399,13 +425,17 @@ export class DocumentChunkFactory extends BaseFactory<DocumentChunkInsert> {
     ];
 
     const topic = faker.helpers.arrayElement(topics);
-    
+
     return `This section discusses ${topic}. ${faker.lorem.paragraphs(3)}`;
   }
 
   private generateCodeChunkContent(): string {
-    const language = faker.helpers.arrayElement(['javascript', 'python', 'sql']);
-    
+    const language = faker.helpers.arrayElement([
+      'javascript',
+      'python',
+      'sql',
+    ]);
+
     switch (language) {
       case 'javascript':
         return `
@@ -420,7 +450,7 @@ function ${faker.hacker.verb()}Data(${faker.hacker.noun()}) {
   return result.filter(item => item.${faker.hacker.noun()});
 }
         `.trim();
-      
+
       case 'python':
         return `
 def ${faker.hacker.verb()}_${faker.hacker.noun()}(data):
@@ -435,7 +465,7 @@ def ${faker.hacker.verb()}_${faker.hacker.noun()}(data):
             })
     return result
         `.trim();
-      
+
       case 'sql':
         return `
 -- ${faker.lorem.sentence()}
@@ -448,7 +478,7 @@ WHERE ${faker.hacker.adjective()} = true
   AND created_at > NOW() - INTERVAL '30 days'
 ORDER BY processed_at DESC;
         `.trim();
-      
+
       default:
         return this.generateParagraphChunk();
     }
@@ -459,23 +489,27 @@ ORDER BY processed_at DESC;
   }
 
   private generateListChunk(): string {
-    const items = Array.from({ length: faker.number.int({ min: 3, max: 8 }) }, () => 
-      `- ${faker.lorem.sentence()}`
+    const items = Array.from(
+      { length: faker.number.int({ min: 3, max: 8 }) },
+      () => `- ${faker.lorem.sentence()}`,
     );
     return `Key points:\n\n${items.join('\n')}`;
   }
 
   private generateTableChunk(): string {
     const headers = ['Item', 'Value', 'Status'];
-    const rows = Array.from({ length: faker.number.int({ min: 3, max: 6 }) }, () => [
-      faker.lorem.word(),
-      faker.number.int({ min: 1, max: 100 }),
-      faker.helpers.arrayElement(['Active', 'Inactive', 'Pending']),
-    ]);
+    const rows = Array.from(
+      { length: faker.number.int({ min: 3, max: 6 }) },
+      () => [
+        faker.lorem.word(),
+        faker.number.int({ min: 1, max: 100 }),
+        faker.helpers.arrayElement(['Active', 'Inactive', 'Pending']),
+      ],
+    );
 
     return `| ${headers.join(' | ')} |
 |${headers.map(() => '---').join('|')}|
-${rows.map(row => `| ${row.join(' | ')} |`).join('\n')}`;
+${rows.map((row) => `| ${row.join(' | ')} |`).join('\n')}`;
   }
 
   private generateQuoteChunk(): string {
@@ -502,7 +536,10 @@ export class DocumentEmbeddingFactory extends BaseFactory<DocumentEmbeddingInser
       chunkId: options?.overrides?.chunkId || this.generateId(),
       embedding: JSON.stringify(this.generateEmbedding(dimensions)),
       model,
-      createdAt: this.generateTimestamp(new Date(), -faker.number.int({ min: 0, max: 15 })),
+      createdAt: this.generateTimestamp(
+        new Date(),
+        -faker.number.int({ min: 0, max: 15 }),
+      ),
     };
 
     return this.applyOverrides(embedding, options?.overrides);
@@ -511,9 +548,12 @@ export class DocumentEmbeddingFactory extends BaseFactory<DocumentEmbeddingInser
   /**
    * Create embedding for specific model
    */
-  createForModel(model: string, options?: FactoryOptions): DocumentEmbeddingInsert {
+  createForModel(
+    model: string,
+    options?: FactoryOptions,
+  ): DocumentEmbeddingInsert {
     const dimensions = this.getDimensionsForModel(model);
-    
+
     return this.create({
       ...options,
       overrides: {
@@ -529,13 +569,13 @@ export class DocumentEmbeddingFactory extends BaseFactory<DocumentEmbeddingInser
    */
   createEmbeddingsForChunks(
     chunkIds: string[],
-    options?: FactoryOptions
+    options?: FactoryOptions,
   ): DocumentEmbeddingInsert[] {
-    return chunkIds.map(chunkId => 
+    return chunkIds.map((chunkId) =>
       this.create({
         ...options,
         overrides: { chunkId, ...options?.overrides },
-      })
+      }),
     );
   }
 
@@ -545,10 +585,13 @@ export class DocumentEmbeddingFactory extends BaseFactory<DocumentEmbeddingInser
   createSimilarEmbeddings(
     baseEmbedding: number[],
     count: number,
-    similarity: number = 0.8
+    similarity: number = 0.8,
   ): DocumentEmbeddingInsert[] {
     return Array.from({ length: count }, () => {
-      const similarEmbedding = this.generateSimilarEmbedding(baseEmbedding, similarity);
+      const similarEmbedding = this.generateSimilarEmbedding(
+        baseEmbedding,
+        similarity,
+      );
       return this.create({
         overrides: {
           embedding: JSON.stringify(similarEmbedding),
@@ -567,10 +610,13 @@ export class DocumentEmbeddingFactory extends BaseFactory<DocumentEmbeddingInser
     return modelDimensions[model as keyof typeof modelDimensions] || 1536;
   }
 
-  private generateSimilarEmbedding(baseEmbedding: number[], similarity: number): number[] {
+  private generateSimilarEmbedding(
+    baseEmbedding: number[],
+    similarity: number,
+  ): number[] {
     const noise = 1 - similarity;
-    return baseEmbedding.map(value => 
-      value + (faker.number.float({ min: -noise, max: noise }) * 0.1)
+    return baseEmbedding.map(
+      (value) => value + faker.number.float({ min: -noise, max: noise }) * 0.1,
     );
   }
 }
@@ -586,7 +632,7 @@ export class CompleteRAGDocumentFactory extends BaseFactory<CompleteRAGDocument>
 
   create(options?: FactoryOptions): CompleteRAGDocument {
     const document = this.documentFactory.create(options);
-    const content = this.contentFactory.create({ 
+    const content = this.contentFactory.create({
       overrides: { documentId: document.id },
       ...options,
     });
@@ -596,13 +642,13 @@ export class CompleteRAGDocumentFactory extends BaseFactory<CompleteRAGDocument>
     const chunks = this.chunkFactory.createChunksForDocument(
       document.id,
       chunkCount,
-      options
+      options,
     );
 
     // Create embeddings for all chunks
     const embeddings = this.embeddingFactory.createEmbeddingsForChunks(
-      chunks.map(chunk => chunk.id),
-      options
+      chunks.map((chunk) => chunk.id),
+      options,
     );
 
     const result: CompleteRAGDocument = {
@@ -620,17 +666,21 @@ export class CompleteRAGDocumentFactory extends BaseFactory<CompleteRAGDocument>
    */
   createMinimal(options?: FactoryOptions): CompleteRAGDocument {
     const document = this.documentFactory.create(options);
-    const content = this.contentFactory.create({ 
-      overrides: { 
+    const content = this.contentFactory.create({
+      overrides: {
         documentId: document.id,
         extractedText: faker.lorem.paragraph(),
       },
     });
 
-    const chunks = this.chunkFactory.createChunksForDocument(document.id, 1, options);
+    const chunks = this.chunkFactory.createChunksForDocument(
+      document.id,
+      1,
+      options,
+    );
     const embeddings = this.embeddingFactory.createEmbeddingsForChunks(
-      chunks.map(chunk => chunk.id),
-      options
+      chunks.map((chunk) => chunk.id),
+      options,
     );
 
     return { document, content, chunks, embeddings };
@@ -641,14 +691,18 @@ export class CompleteRAGDocumentFactory extends BaseFactory<CompleteRAGDocument>
    */
   createLarge(options?: FactoryOptions): CompleteRAGDocument {
     const document = this.documentFactory.createLargeDocument(options);
-    const content = this.contentFactory.createLargeContent({ 
+    const content = this.contentFactory.createLargeContent({
       overrides: { documentId: document.id },
     });
 
-    const chunks = this.chunkFactory.createChunksForDocument(document.id, 50, options);
+    const chunks = this.chunkFactory.createChunksForDocument(
+      document.id,
+      50,
+      options,
+    );
     const embeddings = this.embeddingFactory.createEmbeddingsForChunks(
-      chunks.map(chunk => chunk.id),
-      options
+      chunks.map((chunk) => chunk.id),
+      options,
     );
 
     return { document, content, chunks, embeddings };
@@ -657,7 +711,7 @@ export class CompleteRAGDocumentFactory extends BaseFactory<CompleteRAGDocument>
   private calculateChunkCount(text: string): number {
     const avgChunkSize = 500; // characters
     const baseCount = Math.max(1, Math.ceil(text.length / avgChunkSize));
-    
+
     // Add some variance
     const variance = faker.number.int({ min: -2, max: 3 });
     return Math.max(1, baseCount + variance);

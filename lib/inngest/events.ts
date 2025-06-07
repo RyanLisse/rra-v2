@@ -1,6 +1,6 @@
 /**
  * Inngest Event Type Definitions
- * 
+ *
  * This file defines all event schemas used throughout the Inngest workflow system.
  * Events follow a standardized naming convention: [domain].[action]
  */
@@ -190,7 +190,7 @@ export interface InngestEvent<T extends EventName = EventName> {
  */
 export const validateEventData = <T extends EventName>(
   eventName: T,
-  data: unknown
+  data: unknown,
 ): data is EventSchemas[T]['data'] => {
   // Basic validation - in a real implementation, you might use Zod or similar
   if (!data || typeof data !== 'object') {
@@ -200,14 +200,20 @@ export const validateEventData = <T extends EventName>(
   // Event-specific validation
   switch (eventName) {
     case 'document.uploaded':
-      return !!(data as any).documentId && !!(data as any).userId && !!(data as any).filePath;
-    
+      return (
+        !!(data as any).documentId &&
+        !!(data as any).userId &&
+        !!(data as any).filePath
+      );
+
     case 'document.text-extracted':
-      return !!(data as any).documentId && 
-             !!(data as any).userId && 
-             typeof (data as any).textLength === 'number' &&
-             !!(data as any).extractedAt;
-    
+      return (
+        !!(data as any).documentId &&
+        !!(data as any).userId &&
+        typeof (data as any).textLength === 'number' &&
+        !!(data as any).extractedAt
+      );
+
     // Add more validation as needed
     default:
       return true;
@@ -220,12 +226,14 @@ export const validateEventData = <T extends EventName>(
 export const createEvent = <T extends EventName>(
   name: T,
   data: EventSchemas[T]['data'],
-  options?: { id?: string; user?: { id: string; email?: string } }
+  options?: { id?: string; user?: { id: string; email?: string } },
 ): InngestEvent<T> => {
   return {
     name,
     data,
-    id: options?.id || `${name}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    id:
+      options?.id ||
+      `${name}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     ts: Date.now(),
     user: options?.user,
   };

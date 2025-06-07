@@ -3,7 +3,10 @@ import { Pool } from 'pg';
 import { getTestDatabaseUrl } from './neon-branch-setup';
 import * as schema from '@/lib/db/schema';
 import { createAdeTestDataFactory } from '../fixtures/ade-test-data';
-import { MockAdeProcessor, createMockAdeProcessor } from '../mocks/ade-processor';
+import {
+  MockAdeProcessor,
+  createMockAdeProcessor,
+} from '../mocks/ade-processor';
 import type { AdeElementType } from '@/lib/ade/types';
 
 export interface Slice17TestContext {
@@ -13,7 +16,10 @@ export interface Slice17TestContext {
   testDataFactory: ReturnType<typeof createAdeTestDataFactory>;
   factories: {
     createUserWithAuth: () => Promise<{ user: any; session?: any }>;
-    createDocumentWithAde: (userId: string, scenario?: string) => Promise<{
+    createDocumentWithAde: (
+      userId: string,
+      scenario?: string,
+    ) => Promise<{
       document: any;
       adeOutput: any;
       chunks: any[];
@@ -23,14 +29,20 @@ export interface Slice17TestContext {
       legacyDocs: any[];
       allChunks: any[];
     }>;
-    createPerformanceDataset: (userId: string, size: 'small' | 'medium' | 'large') => Promise<{
+    createPerformanceDataset: (
+      userId: string,
+      size: 'small' | 'medium' | 'large',
+    ) => Promise<{
       documents: any[];
       chunks: any[];
       embeddings: any[];
     }>;
   };
   utils: {
-    runEnhancedSearch: (query: string, filters?: EnhancedSearchFilters) => Promise<any[]>;
+    runEnhancedSearch: (
+      query: string,
+      filters?: EnhancedSearchFilters,
+    ) => Promise<any[]>;
     formatContextForLLM: (chunks: any[], query: string) => string;
     generateCitations: (chunks: any[]) => Array<{
       id: string;
@@ -121,7 +133,10 @@ export async function setupSlice17TestContext(
           type: 'regular' as const,
         };
 
-        const [user] = await db.insert(schema.user).values(userData).returning();
+        const [user] = await db
+          .insert(schema.user)
+          .values(userData)
+          .returning();
 
         // Create a basic session (simplified for testing)
         const sessionData = {
@@ -130,7 +145,10 @@ export async function setupSlice17TestContext(
           expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
         };
 
-        const [session] = await db.insert(schema.session).values(sessionData).returning();
+        const [session] = await db
+          .insert(schema.session)
+          .values(sessionData)
+          .returning();
 
         return { user, session };
       });
@@ -152,7 +170,10 @@ export async function setupSlice17TestContext(
           uploadedBy: userId,
         };
 
-        const [document] = await db.insert(schema.ragDocument).values(docData).returning();
+        const [document] = await db
+          .insert(schema.ragDocument)
+          .values(docData)
+          .returning();
 
         // Process with ADE
         const adeOutput = await adeProcessor.processDocumentWithScenario(
@@ -171,12 +192,17 @@ export async function setupSlice17TestContext(
           'element_per_chunk',
         );
 
-        const chunks = await db.insert(schema.documentChunk).values(chunksData).returning();
+        const chunks = await db
+          .insert(schema.documentChunk)
+          .values(chunksData)
+          .returning();
 
         // Create embeddings
         const embeddingsData = chunks.map((chunk) => ({
           chunkId: chunk.id,
-          embedding: JSON.stringify(Array.from({ length: 1536 }, () => Math.random() * 2 - 1)),
+          embedding: JSON.stringify(
+            Array.from({ length: 1536 }, () => Math.random() * 2 - 1),
+          ),
           model: 'cohere-embed-v4.0',
         }));
 
@@ -195,8 +221,8 @@ export async function setupSlice17TestContext(
     createMixedDocumentSet: async (userId: string) => {
       return trackPerformance('createMixedDocumentSet', async () => {
         // Create enhanced documents
-        const enhancedPromises = ['simple', 'complex', 'table_heavy'].map((scenario) =>
-          factories.createDocumentWithAde(userId, scenario),
+        const enhancedPromises = ['simple', 'complex', 'table_heavy'].map(
+          (scenario) => factories.createDocumentWithAde(userId, scenario),
         );
 
         const enhancedResults = await Promise.all(enhancedPromises);
@@ -217,7 +243,10 @@ export async function setupSlice17TestContext(
             uploadedBy: userId,
           };
 
-          const [doc] = await db.insert(schema.ragDocument).values(docData).returning();
+          const [doc] = await db
+            .insert(schema.ragDocument)
+            .values(docData)
+            .returning();
           legacyDocs.push(doc);
 
           // Create legacy chunks without ADE metadata
@@ -232,13 +261,18 @@ export async function setupSlice17TestContext(
             bbox: null,
           }));
 
-          const chunks = await db.insert(schema.documentChunk).values(chunksData).returning();
+          const chunks = await db
+            .insert(schema.documentChunk)
+            .values(chunksData)
+            .returning();
           legacyChunks.push(...chunks);
 
           // Create embeddings for legacy chunks
           const embeddingsData = chunks.map((chunk) => ({
             chunkId: chunk.id,
-            embedding: JSON.stringify(Array.from({ length: 1536 }, () => Math.random() * 2 - 1)),
+            embedding: JSON.stringify(
+              Array.from({ length: 1536 }, () => Math.random() * 2 - 1),
+            ),
             model: 'cohere-embed-v4.0',
           }));
 
@@ -274,18 +308,27 @@ export async function setupSlice17TestContext(
           );
 
         // Insert documents
-        const documents = await db.insert(schema.ragDocument).values(docTemplates).returning();
+        const documents = await db
+          .insert(schema.ragDocument)
+          .values(docTemplates)
+          .returning();
 
         // Create chunks with document IDs
         const chunksData = [];
         documents.forEach((doc, docIndex) => {
           const docChunks = chunkTemplates
-            .slice(docIndex * config.chunksPerDoc, (docIndex + 1) * config.chunksPerDoc)
+            .slice(
+              docIndex * config.chunksPerDoc,
+              (docIndex + 1) * config.chunksPerDoc,
+            )
             .map((chunk) => ({ ...chunk, documentId: doc.id }));
           chunksData.push(...docChunks);
         });
 
-        const chunks = await db.insert(schema.documentChunk).values(chunksData).returning();
+        const chunks = await db
+          .insert(schema.documentChunk)
+          .values(chunksData)
+          .returning();
 
         // Create embeddings
         const embeddingsData = chunks.map((chunk) => ({
@@ -294,7 +337,10 @@ export async function setupSlice17TestContext(
           model: 'cohere-embed-v4.0',
         }));
 
-        const embeddings = await db.insert(schema.documentEmbedding).values(embeddingsData).returning();
+        const embeddings = await db
+          .insert(schema.documentEmbedding)
+          .values(embeddingsData)
+          .returning();
 
         return { documents, chunks, embeddings };
       });
@@ -303,7 +349,10 @@ export async function setupSlice17TestContext(
 
   // Utility functions
   const utils = {
-    runEnhancedSearch: async (query: string, filters: EnhancedSearchFilters = {}) => {
+    runEnhancedSearch: async (
+      query: string,
+      filters: EnhancedSearchFilters = {},
+    ) => {
       return trackPerformance('runEnhancedSearch', async () => {
         let whereConditions: any[] = [];
 
@@ -335,9 +384,11 @@ export async function setupSlice17TestContext(
 
         // Basic search query
         const baseQuery = db.query.documentChunk.findMany({
-          where: whereConditions.length > 0 
-            ? (chunk, { and }) => and(...whereConditions.map(condition => condition))
-            : undefined,
+          where:
+            whereConditions.length > 0
+              ? (chunk, { and }) =>
+                  and(...whereConditions.map((condition) => condition))
+              : undefined,
           with: {
             document: true,
             embedding: true,
@@ -354,8 +405,11 @@ export async function setupSlice17TestContext(
         if (filters.confidence) {
           filteredResults = filteredResults.filter((chunk) => {
             const confidence = chunk.metadata?.confidence || 0;
-            return confidence >= filters.confidence!.min &&
-              (!filters.confidence!.max || confidence <= filters.confidence!.max);
+            return (
+              confidence >= filters.confidence!.min &&
+              (!filters.confidence!.max ||
+                confidence <= filters.confidence!.max)
+            );
           });
         }
 
@@ -365,9 +419,14 @@ export async function setupSlice17TestContext(
             if (!chunk.bbox || !Array.isArray(chunk.bbox)) return false;
             const [x1, y1, x2, y2] = chunk.bbox;
             const area = filters.spatialArea!;
-            
+
             // Check if bounding boxes overlap
-            return !(x2 < area.x1 || x1 > area.x2 || y2 < area.y1 || y1 > area.y2);
+            return !(
+              x2 < area.x1 ||
+              x1 > area.x2 ||
+              y2 < area.y1 ||
+              y1 > area.y2
+            );
           });
         }
 
@@ -376,9 +435,14 @@ export async function setupSlice17TestContext(
     },
 
     formatContextForLLM: (chunks: any[], query: string) => {
-      const documentName = chunks[0]?.document?.originalName || 'Unknown Document';
-      const uniquePages = [...new Set(chunks.map(c => c.pageNumber).filter(Boolean))];
-      const elementTypes = [...new Set(chunks.map(c => c.elementType).filter(Boolean))];
+      const documentName =
+        chunks[0]?.document?.originalName || 'Unknown Document';
+      const uniquePages = [
+        ...new Set(chunks.map((c) => c.pageNumber).filter(Boolean)),
+      ];
+      const elementTypes = [
+        ...new Set(chunks.map((c) => c.elementType).filter(Boolean)),
+      ];
 
       const systemPrompt = `You are an AI assistant analyzing technical documentation.
 
@@ -394,7 +458,9 @@ Enhanced Context:`;
           const elementTag = chunk.elementType
             ? `[${chunk.elementType.toUpperCase()}]`
             : '[CONTENT]';
-          const pageInfo = chunk.pageNumber ? ` (Page ${chunk.pageNumber})` : '';
+          const pageInfo = chunk.pageNumber
+            ? ` (Page ${chunk.pageNumber})`
+            : '';
           const positionInfo = chunk.bbox
             ? ` at (${chunk.bbox[0]}, ${chunk.bbox[1]})`
             : '';
@@ -413,7 +479,9 @@ ${chunk.content}`;
         const elementType = chunk.elementType
           ? ` (${chunk.elementType.replace('_', ' ')})`
           : '';
-        const pageInfo = chunk.pageNumber ? `, page ${chunk.pageNumber}` : `, chunk ${parseInt(chunk.chunkIndex) + 1}`;
+        const pageInfo = chunk.pageNumber
+          ? `, page ${chunk.pageNumber}`
+          : `, chunk ${parseInt(chunk.chunkIndex) + 1}`;
 
         return {
           id: `citation-${index + 1}`,
@@ -457,23 +525,28 @@ ${chunk.content}`;
       console.log('\n=== Slice 17 Performance Summary ===');
       console.log(`Test Suite: ${testSuiteName}`);
       console.log(`Total Operations: ${performanceMetrics.length}`);
-      
-      const totalDuration = performanceMetrics.reduce((sum, metric) => sum + metric.duration, 0);
+
+      const totalDuration = performanceMetrics.reduce(
+        (sum, metric) => sum + metric.duration,
+        0,
+      );
       console.log(`Total Duration: ${totalDuration}ms`);
-      
+
       const avgDuration = totalDuration / performanceMetrics.length;
       console.log(`Average Duration: ${avgDuration.toFixed(2)}ms`);
-      
+
       // Show slowest operations
       const slowest = performanceMetrics
         .sort((a, b) => b.duration - a.duration)
         .slice(0, 3);
-      
+
       console.log('Slowest Operations:');
       slowest.forEach((metric, index) => {
-        console.log(`  ${index + 1}. ${metric.operation}: ${metric.duration}ms`);
+        console.log(
+          `  ${index + 1}. ${metric.operation}: ${metric.duration}ms`,
+        );
       });
-      
+
       console.log('=====================================\n');
     }
 
@@ -539,10 +612,7 @@ export const slice17Assertions = {
   /**
    * Assert that search results are properly filtered
    */
-  assertFilteredResults: (
-    results: any[],
-    filters: EnhancedSearchFilters,
-  ) => {
+  assertFilteredResults: (results: any[], filters: EnhancedSearchFilters) => {
     if (filters.elementTypes) {
       results.forEach((result) => {
         if (result.elementType) {
@@ -554,9 +624,13 @@ export const slice17Assertions = {
     if (filters.pageRange) {
       results.forEach((result) => {
         if (result.pageNumber) {
-          expect(result.pageNumber).toBeGreaterThanOrEqual(filters.pageRange!.start);
+          expect(result.pageNumber).toBeGreaterThanOrEqual(
+            filters.pageRange!.start,
+          );
           if (filters.pageRange!.end) {
-            expect(result.pageNumber).toBeLessThanOrEqual(filters.pageRange!.end);
+            expect(result.pageNumber).toBeLessThanOrEqual(
+              filters.pageRange!.end,
+            );
           }
         }
       });
@@ -581,12 +655,12 @@ export const slice17Assertions = {
     citations.forEach((citation) => {
       expect(citation.source).toBeTruthy();
       expect(citation.content).toBeTruthy();
-      
+
       if (citation.elementType) {
         expect(citation.source).toContain('(');
         expect(citation.source).toContain(')');
       }
-      
+
       if (citation.pageNumber) {
         expect(citation.source).toContain('page');
       }

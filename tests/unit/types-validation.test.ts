@@ -11,17 +11,17 @@ type EnhancedChatSource = {
   elementType?: string | null;
   pageNumber?: number | null;
   bbox?: any;
-  
+
   // Enhanced document metadata
   documentId: string;
   fileName?: string;
   uploadedAt?: Date;
-  
+
   // Enhanced structural metadata from ADE
   elementId?: string;
   confidence?: number;
   metadata?: Record<string, any>;
-  
+
   // Context assembly metadata
   contextIndex: number;
   tokenCount?: number;
@@ -172,9 +172,9 @@ describe('Enhanced Types Validation', () => {
 
     // Simulate element type distribution calculation
     const elementTypeDistribution: Record<string, number> = {};
-    sources.forEach(source => {
+    sources.forEach((source) => {
       if (source.elementType) {
-        elementTypeDistribution[source.elementType] = 
+        elementTypeDistribution[source.elementType] =
           (elementTypeDistribution[source.elementType] || 0) + 1;
       }
     });
@@ -197,9 +197,9 @@ describe('Enhanced Types Validation', () => {
     ];
 
     const elementTypeDistribution: Record<string, number> = {};
-    sources.forEach(source => {
+    sources.forEach((source) => {
       if (source.elementType) {
-        elementTypeDistribution[source.elementType] = 
+        elementTypeDistribution[source.elementType] =
           (elementTypeDistribution[source.elementType] || 0) + 1;
       }
     });

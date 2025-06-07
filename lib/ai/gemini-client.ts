@@ -218,7 +218,7 @@ CITATION FORMAT:
       contextPrompt += `Document: ${chunk.documentTitle}\n`;
       contextPrompt += `Chunk: ${chunk.chunkIndex}\n`;
       contextPrompt += `Relevance Score: ${chunk.similarity.toFixed(3)}\n`;
-      
+
       // Add structural metadata when available
       if (chunk.elementType) {
         contextPrompt += `Element Type: ${chunk.elementType}\n`;
@@ -229,9 +229,12 @@ CITATION FORMAT:
       if (chunk.bbox && Array.isArray(chunk.bbox) && chunk.bbox.length === 4) {
         contextPrompt += `Position: [${chunk.bbox.join(', ')}]\n`;
       }
-      
+
       // Format content with structural context
-      const structuralPrefix = this.getStructuralPrefix(chunk.elementType, chunk.pageNumber);
+      const structuralPrefix = this.getStructuralPrefix(
+        chunk.elementType,
+        chunk.pageNumber,
+      );
       contextPrompt += `Content: ${structuralPrefix}${chunk.content}\n\n`;
       contextPrompt += '---\n\n';
     });
@@ -242,11 +245,14 @@ CITATION FORMAT:
   /**
    * Generate a structural prefix for content based on element type and location
    */
-  private getStructuralPrefix(elementType?: string | null, pageNumber?: number | null): string {
+  private getStructuralPrefix(
+    elementType?: string | null,
+    pageNumber?: number | null,
+  ): string {
     if (!elementType) return '';
-    
+
     const pageRef = pageNumber ? ` (Page ${pageNumber})` : '';
-    
+
     switch (elementType.toLowerCase()) {
       case 'title':
         return `[TITLE${pageRef}] `;
@@ -279,7 +285,7 @@ Please provide a comprehensive answer based on the context documents above. Incl
     const sources = new Set<string>();
 
     // Extract citations in multiple formats:
-    // [Source: DocumentName, Chunk X, Page Y] 
+    // [Source: DocumentName, Chunk X, Page Y]
     // [Source: DocumentName, Table on Page Y]
     // [Source: DocumentName, Chunk X] (legacy format)
     const citationRegexes = [
@@ -294,7 +300,7 @@ Please provide a comprehensive answer based on the context documents above. Incl
     citationRegexes.forEach((regex, formatIndex) => {
       let match: RegExpExecArray | null;
       regex.lastIndex = 0; // Reset regex state
-      
+
       match = regex.exec(response);
       while (match !== null) {
         let documentName: string;
@@ -318,23 +324,21 @@ Please provide a comprehensive answer based on the context documents above. Incl
         }
 
         // Find the corresponding chunk in context
-        const chunk = context.chunks.find(
-          (c) => {
-            const nameMatch = c.documentTitle
-              .toLowerCase()
-              .includes(documentName.toLowerCase().trim());
-            
-            if (chunkIndex !== undefined) {
-              return nameMatch && c.chunkIndex === chunkIndex;
-            }
-            
-            if (pageNumber !== undefined) {
-              return nameMatch && c.pageNumber === pageNumber;
-            }
-            
-            return nameMatch;
-          },
-        );
+        const chunk = context.chunks.find((c) => {
+          const nameMatch = c.documentTitle
+            .toLowerCase()
+            .includes(documentName.toLowerCase().trim());
+
+          if (chunkIndex !== undefined) {
+            return nameMatch && c.chunkIndex === chunkIndex;
+          }
+
+          if (pageNumber !== undefined) {
+            return nameMatch && c.pageNumber === pageNumber;
+          }
+
+          return nameMatch;
+        });
 
         if (chunk) {
           citations.push({

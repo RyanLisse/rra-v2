@@ -18,13 +18,13 @@ describe('RAG Pipeline Integration Tests', () => {
   let testContext: Awaited<ReturnType<typeof setupNeonBranch>>;
   let documentProcessor: DocumentProcessor;
   let vectorSearch: VectorSearch;
-  
+
   beforeEach(async () => {
     testContext = await setupNeonBranch('rag-pipeline-test');
     documentProcessor = new DocumentProcessor();
     vectorSearch = new VectorSearch(new CohereClient());
   });
-  
+
   afterEach(async () => {
     await testContext.cleanup();
   });
@@ -37,9 +37,14 @@ describe('RAG Pipeline Integration Tests', () => {
       const { user } = await testContext.factories.createUserWithAuth();
 
       // 2. Load real PDF document for testing
-      const pdfPath = join(process.cwd(), 'data/pdf/FAQ_RoboRail_measurement_v0.0_020524.pdf');
+      const pdfPath = join(
+        process.cwd(),
+        'data/pdf/FAQ_RoboRail_measurement_v0.0_020524.pdf',
+      );
       const pdfBuffer = readFileSync(pdfPath);
-      const file = new File([pdfBuffer], 'test-document.pdf', { type: 'application/pdf' });
+      const file = new File([pdfBuffer], 'test-document.pdf', {
+        type: 'application/pdf',
+      });
 
       // 3. Upload and process document through real pipeline
       const document = await documentProcessor.uploadDocument({
@@ -70,8 +75,8 @@ describe('RAG Pipeline Integration Tests', () => {
       });
 
       expect(chunks.length).toBeGreaterThan(0);
-      expect(chunks.every(chunk => chunk.content.length > 0)).toBe(true);
-      expect(chunks.every(chunk => chunk.tokenCount > 0)).toBe(true);
+      expect(chunks.every((chunk) => chunk.content.length > 0)).toBe(true);
+      expect(chunks.every((chunk) => chunk.tokenCount > 0)).toBe(true);
 
       // 6. Generate embeddings using Cohere API (mocked in test)
       const embeddings = await documentProcessor.generateEmbeddings({
@@ -80,10 +85,14 @@ describe('RAG Pipeline Integration Tests', () => {
       });
 
       expect(embeddings.length).toBe(chunks.length);
-      expect(embeddings.every(emb => {
-        const embeddingArray = JSON.parse(emb.embedding);
-        return Array.isArray(embeddingArray) && embeddingArray.length === 1024;
-      })).toBe(true);
+      expect(
+        embeddings.every((emb) => {
+          const embeddingArray = JSON.parse(emb.embedding);
+          return (
+            Array.isArray(embeddingArray) && embeddingArray.length === 1024
+          );
+        }),
+      ).toBe(true);
 
       // 7. Verify complete pipeline
       const finalDocument = await db.query.ragDocument.findFirst({
@@ -100,10 +109,14 @@ describe('RAG Pipeline Integration Tests', () => {
 
       expect(finalDocument?.status).toBe('processed');
       expect(finalDocument?.content).toBeDefined();
-      expect(finalDocument?.content?.extractedText).toBe(extractedContent.content);
+      expect(finalDocument?.content?.extractedText).toBe(
+        extractedContent.content,
+      );
       expect(finalDocument?.chunks).toHaveLength(chunks.length);
-      expect(finalDocument?.chunks.every((chunk) => chunk.embedding)).toBe(true);
-      
+      expect(finalDocument?.chunks.every((chunk) => chunk.embedding)).toBe(
+        true,
+      );
+
       // 8. Validate searchability - use simpler query terms
       const searchQuery = 'test document';
       const searchResults = await vectorSearch.search({
@@ -113,12 +126,12 @@ describe('RAG Pipeline Integration Tests', () => {
         threshold: 0.1, // Lower threshold for testing
         db,
       });
-      
+
       console.log('Search results:', searchResults.results.length);
       if (searchResults.results.length > 0) {
         console.log('First result score:', searchResults.results[0].score);
       }
-      
+
       expect(searchResults.results.length).toBeGreaterThan(0);
       expect(searchResults.results[0].score).toBeGreaterThan(0.1);
     });
@@ -129,20 +142,22 @@ describe('RAG Pipeline Integration Tests', () => {
       const { user } = await testContext.factories.createUserWithAuth();
 
       // Test 1: Corrupted PDF handling
-      const corruptedPdf = new File([new ArrayBuffer(100)], 'corrupted.pdf', { 
-        type: 'application/pdf' 
+      const corruptedPdf = new File([new ArrayBuffer(100)], 'corrupted.pdf', {
+        type: 'application/pdf',
       });
-      
+
       const corruptedDoc = await documentProcessor.uploadDocument({
         file: corruptedPdf,
         userId: user.id,
         db,
       });
 
-      await expect(documentProcessor.extractText({
-        documentId: corruptedDoc.id,
-        db,
-      })).rejects.toThrow();
+      await expect(
+        documentProcessor.extractText({
+          documentId: corruptedDoc.id,
+          db,
+        }),
+      ).rejects.toThrow();
 
       const failedDoc1 = await db.query.ragDocument.findFirst({
         where: (doc, { eq }) => eq(doc.id, corruptedDoc.id),
@@ -150,21 +165,28 @@ describe('RAG Pipeline Integration Tests', () => {
       expect(failedDoc1?.status).toBe('error');
 
       // Test 2: Invalid document type
-      const invalidFile = new File([Buffer.from('not a pdf')], 'test.exe', { 
-        type: 'application/x-msdownload' 
+      const invalidFile = new File([Buffer.from('not a pdf')], 'test.exe', {
+        type: 'application/x-msdownload',
       });
-      
-      await expect(documentProcessor.uploadDocument({
-        file: invalidFile,
-        userId: user.id,
-        db,
-      })).rejects.toThrow('Unsupported file type');
+
+      await expect(
+        documentProcessor.uploadDocument({
+          file: invalidFile,
+          userId: user.id,
+          db,
+        }),
+      ).rejects.toThrow('Unsupported file type');
 
       // Test 3: Recovery mechanism
-      const validPdfPath = join(process.cwd(), 'data/pdf/FAQ_RoboRail_Calibration_v0.0_290324.pdf');
+      const validPdfPath = join(
+        process.cwd(),
+        'data/pdf/FAQ_RoboRail_Calibration_v0.0_290324.pdf',
+      );
       const validPdfBuffer = readFileSync(validPdfPath);
-      const validFile = new File([validPdfBuffer], 'valid.pdf', { type: 'application/pdf' });
-      
+      const validFile = new File([validPdfBuffer], 'valid.pdf', {
+        type: 'application/pdf',
+      });
+
       const recoverableDoc = await documentProcessor.uploadDocument({
         file: validFile,
         userId: user.id,
@@ -182,7 +204,7 @@ describe('RAG Pipeline Integration Tests', () => {
         documentId: recoverableDoc.id,
         db,
       });
-      
+
       const chunks = await documentProcessor.createChunks({
         documentId: recoverableDoc.id,
         content: extractedContent.content,
@@ -190,10 +212,10 @@ describe('RAG Pipeline Integration Tests', () => {
       });
 
       expect(chunks.length).toBeGreaterThan(0);
-      
+
       // Complete the pipeline
       await documentProcessor.generateEmbeddings({ chunks, db });
-      
+
       const recoveredDoc = await db.query.ragDocument.findFirst({
         where: (doc, { eq }) => eq(doc.id, recoverableDoc.id),
       });
@@ -210,83 +232,89 @@ describe('RAG Pipeline Integration Tests', () => {
         'Operators manual_RoboRail V2.2_170424.pdf',
       ];
 
-      const { result: performanceMetrics, duration, memoryUsage } = await measurePerformance(
-        async () => {
-          const { user } = await testContext.factories.createUserWithAuth();
-          const results = [];
+      const {
+        result: performanceMetrics,
+        duration,
+        memoryUsage,
+      } = await measurePerformance(async () => {
+        const { user } = await testContext.factories.createUserWithAuth();
+        const results = [];
 
-          for (const docPath of documentPaths) {
-            // Track individual document processing
-            const docStartTime = Date.now();
-            
-            const pdfPath = join(process.cwd(), 'data/pdf', docPath);
-            const pdfBuffer = readFileSync(pdfPath);
-            const file = new File([pdfBuffer], docPath, { type: 'application/pdf' });
+        for (const docPath of documentPaths) {
+          // Track individual document processing
+          const docStartTime = Date.now();
 
-            // Upload
-            const uploadStart = Date.now();
-            const document = await documentProcessor.uploadDocument({
-              file,
-              userId: user.id,
-              db,
-            });
-            const uploadDuration = Date.now() - uploadStart;
+          const pdfPath = join(process.cwd(), 'data/pdf', docPath);
+          const pdfBuffer = readFileSync(pdfPath);
+          const file = new File([pdfBuffer], docPath, {
+            type: 'application/pdf',
+          });
 
-            // Extract text
-            const extractStart = Date.now();
-            const content = await documentProcessor.extractText({
-              documentId: document.id,
-              db,
-            });
-            const extractDuration = Date.now() - extractStart;
+          // Upload
+          const uploadStart = Date.now();
+          const document = await documentProcessor.uploadDocument({
+            file,
+            userId: user.id,
+            db,
+          });
+          const uploadDuration = Date.now() - uploadStart;
 
-            // Create chunks
-            const chunkStart = Date.now();
-            const chunks = await documentProcessor.createChunks({
-              documentId: document.id,
-              content: content.content,
-              db,
-            });
-            const chunkDuration = Date.now() - chunkStart;
+          // Extract text
+          const extractStart = Date.now();
+          const content = await documentProcessor.extractText({
+            documentId: document.id,
+            db,
+          });
+          const extractDuration = Date.now() - extractStart;
 
-            // Generate embeddings (batched for performance)
-            const embedStart = Date.now();
-            const embeddings = await documentProcessor.generateEmbeddings({
-              chunks,
-              db,
-              batchSize: 50, // Process embeddings in batches
-            });
-            const embedDuration = Date.now() - embedStart;
+          // Create chunks
+          const chunkStart = Date.now();
+          const chunks = await documentProcessor.createChunks({
+            documentId: document.id,
+            content: content.content,
+            db,
+          });
+          const chunkDuration = Date.now() - chunkStart;
 
-            const totalDocDuration = Date.now() - docStartTime;
-            
-            results.push({
-              documentName: docPath,
-              fileSize: file.size,
-              chunksCreated: chunks.length,
-              embeddingsCreated: embeddings.length,
-              timings: {
-                upload: uploadDuration,
-                extract: extractDuration,
-                chunk: chunkDuration,
-                embed: embedDuration,
-                total: totalDocDuration,
-              },
-            });
-          }
+          // Generate embeddings (batched for performance)
+          const embedStart = Date.now();
+          const embeddings = await documentProcessor.generateEmbeddings({
+            chunks,
+            db,
+            batchSize: 50, // Process embeddings in batches
+          });
+          const embedDuration = Date.now() - embedStart;
 
-          return results;
-        },
-      );
+          const totalDocDuration = Date.now() - docStartTime;
+
+          results.push({
+            documentName: docPath,
+            fileSize: file.size,
+            chunksCreated: chunks.length,
+            embeddingsCreated: embeddings.length,
+            timings: {
+              upload: uploadDuration,
+              extract: extractDuration,
+              chunk: chunkDuration,
+              embed: embedDuration,
+              total: totalDocDuration,
+            },
+          });
+        }
+
+        return results;
+      });
 
       // Performance assertions
       expect(duration).toBeLessThan(30000); // Should complete all documents in under 30 seconds
       expect(memoryUsage.heapUsed).toBeLessThan(200 * 1024 * 1024); // Less than 200MB
-      
+
       // Analyze individual document performance
       performanceMetrics.forEach((result) => {
         console.log(`Document: ${result.documentName}`);
-        console.log(`  File size: ${(result.fileSize / 1024 / 1024).toFixed(2)}MB`);
+        console.log(
+          `  File size: ${(result.fileSize / 1024 / 1024).toFixed(2)}MB`,
+        );
         console.log(`  Chunks: ${result.chunksCreated}`);
         console.log(`  Timings:`);
         console.log(`    Upload: ${result.timings.upload}ms`);
@@ -294,14 +322,14 @@ describe('RAG Pipeline Integration Tests', () => {
         console.log(`    Chunk: ${result.timings.chunk}ms`);
         console.log(`    Embed: ${result.timings.embed}ms`);
         console.log(`    Total: ${result.timings.total}ms`);
-        
+
         // Performance expectations per document
         expect(result.timings.upload).toBeLessThan(2000); // Upload under 2s
         expect(result.timings.extract).toBeLessThan(5000); // Extract under 5s
         expect(result.timings.chunk).toBeLessThan(3000); // Chunk under 3s
         expect(result.timings.embed).toBeLessThan(10000); // Embed under 10s
       });
-      
+
       // Record metrics
       metrics.record('pipeline.documents.processed', performanceMetrics.length);
       metrics.record('pipeline.total.duration', duration);
@@ -314,10 +342,11 @@ describe('RAG Pipeline Integration Tests', () => {
       const { db } = testContext;
 
       // Setup with real RoboRail documentation
-      const { user, documents } = await testContext.factories.createUserWithDocuments({
-        documentCount: 3,
-        processDocuments: true, // Fully process including embeddings
-      });
+      const { user, documents } =
+        await testContext.factories.createUserWithDocuments({
+          documentCount: 3,
+          processDocuments: true, // Fully process including embeddings
+        });
 
       // Test various search queries against real content
       const searchQueries = [
@@ -346,35 +375,38 @@ describe('RAG Pipeline Integration Tests', () => {
 
         expect(searchResults.results.length).toBeGreaterThan(0);
         expect(searchResults.results[0].score).toBeGreaterThan(0.3);
-        
+
         // Verify relevance of results
         const topResult = searchResults.results[0];
         const contentLower = topResult.content.toLowerCase();
-        
-        const hasRelevantContent = testCase.expectedTopics.some(topic => 
-          contentLower.includes(topic.toLowerCase())
+
+        const hasRelevantContent = testCase.expectedTopics.some((topic) =>
+          contentLower.includes(topic.toLowerCase()),
         );
         expect(hasRelevantContent).toBe(true);
-        
+
         // Check metadata
         expect(topResult.document).toBeDefined();
         expect(topResult.document.title).toBeTruthy();
         expect(topResult.chunkIndex).toBeGreaterThanOrEqual(0);
       }
-      
+
       // Test cross-document search
       const crossDocSearch = await vectorSearch.search({
-        query: 'complete RoboRail system overview including calibration and measurements',
+        query:
+          'complete RoboRail system overview including calibration and measurements',
         userId: user.id,
         limit: 10,
         includeMetadata: true,
         db,
       });
-      
+
       // Should return results from multiple documents
-      const uniqueDocuments = new Set(crossDocSearch.results.map(r => r.document.id));
+      const uniqueDocuments = new Set(
+        crossDocSearch.results.map((r) => r.document.id),
+      );
       expect(uniqueDocuments.size).toBeGreaterThan(1);
-      
+
       // Test reranking
       const rerankedResults = await vectorSearch.searchWithReranking({
         query: 'precise calibration steps',
@@ -383,11 +415,11 @@ describe('RAG Pipeline Integration Tests', () => {
         rerankTopK: 5,
         db,
       });
-      
+
       expect(rerankedResults.results.length).toBeLessThanOrEqual(5);
       expect(rerankedResults.results[0].rerankScore).toBeDefined();
       expect(rerankedResults.results[0].rerankScore).toBeGreaterThan(
-        rerankedResults.results[0].score
+        rerankedResults.results[0].score,
       );
     });
 
@@ -396,10 +428,15 @@ describe('RAG Pipeline Integration Tests', () => {
 
       // Create user and load large document
       const { user } = await testContext.factories.createUserWithAuth();
-      
-      const largePdfPath = join(process.cwd(), 'data/pdf/Operators manual_RoboRail V2.2_170424.pdf');
+
+      const largePdfPath = join(
+        process.cwd(),
+        'data/pdf/Operators manual_RoboRail V2.2_170424.pdf',
+      );
       const pdfBuffer = readFileSync(largePdfPath);
-      const file = new File([pdfBuffer], 'large-manual.pdf', { type: 'application/pdf' });
+      const file = new File([pdfBuffer], 'large-manual.pdf', {
+        type: 'application/pdf',
+      });
 
       const { duration, result } = await measurePerformance(async () => {
         // Process large document
@@ -426,22 +463,25 @@ describe('RAG Pipeline Integration Tests', () => {
         // Batch process embeddings with parallel execution
         const batchSize = 25;
         const batches = [];
-        
+
         for (let i = 0; i < chunks.length; i += batchSize) {
           batches.push(chunks.slice(i, i + batchSize));
         }
 
         const embeddingPromises = batches.map(async (batch, batchIndex) => {
           const startTime = Date.now();
-          
+
           const embeddings = await documentProcessor.generateEmbeddings({
             chunks: batch,
             db,
           });
-          
+
           const batchDuration = Date.now() - startTime;
-          metrics.record(`embedding.batch.${batchIndex}.duration`, batchDuration);
-          
+          metrics.record(
+            `embedding.batch.${batchIndex}.duration`,
+            batchDuration,
+          );
+
           return embeddings;
         });
 
@@ -457,14 +497,14 @@ describe('RAG Pipeline Integration Tests', () => {
         ];
 
         const searchResults = await Promise.all(
-          searchQueries.map(query => 
+          searchQueries.map((query) =>
             vectorSearch.search({
               query,
               userId: user.id,
               limit: 10,
               db,
-            })
-          )
+            }),
+          ),
         );
 
         return {
@@ -480,29 +520,31 @@ describe('RAG Pipeline Integration Tests', () => {
       expect(duration).toBeLessThan(30000); // Should complete in under 30 seconds
       expect(result.chunksCreated).toBeGreaterThan(3); // Documents create multiple chunks
       expect(result.embeddingsCreated).toBe(result.chunksCreated);
-      
+
       // Verify search quality on large dataset
-      const successfulSearches = result.searchResults.filter(sr => sr.results.length > 0);
+      const successfulSearches = result.searchResults.filter(
+        (sr) => sr.results.length > 0,
+      );
       expect(successfulSearches.length).toBeGreaterThan(0);
-      
+
       if (successfulSearches.length > 0) {
         expect(successfulSearches[0].results[0].score).toBeGreaterThan(0.1);
       }
 
       // Test performance of complex aggregation queries
       const aggregationStart = Date.now();
-      
+
       const stats = await db.query.documentChunk.findMany({
         where: (chunk, { eq }) => eq(chunk.documentId, result.documentId),
         with: {
           embedding: true,
         },
       });
-      
+
       const aggregationDuration = Date.now() - aggregationStart;
       expect(aggregationDuration).toBeLessThan(1000); // Aggregation should be fast
       expect(stats.length).toBe(result.chunksCreated);
-      
+
       // Record final metrics
       metrics.record('vector.large_scale.total_duration', duration);
       metrics.record('vector.large_scale.chunks', result.chunksCreated);

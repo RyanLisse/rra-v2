@@ -12,25 +12,32 @@ describe('ADE Simple Integration', () => {
 
   beforeEach(async () => {
     processor = new DocumentProcessor();
-    
+
     // Create a mock document in the database
-    const [doc] = await db.insert(ragDocument).values({
-      fileName: 'test.pdf',
-      originalName: 'test.pdf',
-      filePath: '/test/path/test.pdf',
-      mimeType: 'application/pdf',
-      fileSize: '1024',
-      status: 'uploaded',
-      uploadedBy: randomUUID(), // Generate proper UUID
-    }).returning();
-    
+    const [doc] = await db
+      .insert(ragDocument)
+      .values({
+        fileName: 'test.pdf',
+        originalName: 'test.pdf',
+        filePath: '/test/path/test.pdf',
+        mimeType: 'application/pdf',
+        fileSize: '1024',
+        status: 'uploaded',
+        uploadedBy: randomUUID(), // Generate proper UUID
+      })
+      .returning();
+
     mockDocumentId = doc.id;
   });
 
   afterEach(async () => {
     // Clean up test data
-    await db.delete(documentChunk).where(eq(documentChunk.documentId, mockDocumentId));
-    await db.delete(documentContent).where(eq(documentContent.documentId, mockDocumentId));
+    await db
+      .delete(documentChunk)
+      .where(eq(documentChunk.documentId, mockDocumentId));
+    await db
+      .delete(documentContent)
+      .where(eq(documentContent.documentId, mockDocumentId));
     await db.delete(ragDocument).where(eq(ragDocument.id, mockDocumentId));
   });
 
@@ -86,8 +93,14 @@ describe('ADE Simple Integration', () => {
       });
 
       // Get chunks by type
-      const titleChunks = await ADEChunkHelpers.getChunksByElementType(mockDocumentId, 'title');
-      const paragraphChunks = await ADEChunkHelpers.getChunksByElementType(mockDocumentId, 'paragraph');
+      const titleChunks = await ADEChunkHelpers.getChunksByElementType(
+        mockDocumentId,
+        'title',
+      );
+      const paragraphChunks = await ADEChunkHelpers.getChunksByElementType(
+        mockDocumentId,
+        'paragraph',
+      );
 
       expect(titleChunks).toHaveLength(1);
       expect(titleChunks[0].content).toBe('Document Title');
@@ -116,8 +129,14 @@ describe('ADE Simple Integration', () => {
       });
 
       // Get chunks by page
-      const page1Chunks = await ADEChunkHelpers.getChunksByPage(mockDocumentId, 1);
-      const page2Chunks = await ADEChunkHelpers.getChunksByPage(mockDocumentId, 2);
+      const page1Chunks = await ADEChunkHelpers.getChunksByPage(
+        mockDocumentId,
+        1,
+      );
+      const page2Chunks = await ADEChunkHelpers.getChunksByPage(
+        mockDocumentId,
+        2,
+      );
 
       expect(page1Chunks).toHaveLength(1);
       expect(page1Chunks[0].content).toBe('Page 1 content');
@@ -161,7 +180,8 @@ describe('ADE Simple Integration', () => {
       });
 
       // Get document structure
-      const structure = await ADEChunkHelpers.getDocumentStructure(mockDocumentId);
+      const structure =
+        await ADEChunkHelpers.getDocumentStructure(mockDocumentId);
 
       expect(structure.titles).toHaveLength(1);
       expect(structure.titles[0].content).toBe('Main Title');
@@ -170,8 +190,10 @@ describe('ADE Simple Integration', () => {
       expect(structure.headers[0].content).toBe('Section Header');
 
       expect(structure.structure).toHaveLength(2); // titles + figure_captions
-      expect(structure.structure.map(s => s.content)).toContain('Main Title');
-      expect(structure.structure.map(s => s.content)).toContain('Figure caption');
+      expect(structure.structure.map((s) => s.content)).toContain('Main Title');
+      expect(structure.structure.map((s) => s.content)).toContain(
+        'Figure caption',
+      );
     });
 
     it('should generate enriched context', async () => {
@@ -193,33 +215,49 @@ describe('ADE Simple Integration', () => {
       });
 
       // Generate enriched context
-      const context = await ADEChunkHelpers.generateEnrichedContext(mockDocumentId, {
-        includePageNumbers: true,
-        includeElementTypes: true,
-        includeStructuralContext: true,
-        maxChunks: 10,
-      });
+      const context = await ADEChunkHelpers.generateEnrichedContext(
+        mockDocumentId,
+        {
+          includePageNumbers: true,
+          includeElementTypes: true,
+          includeStructuralContext: true,
+          maxChunks: 10,
+        },
+      );
 
       expect(context).toContain('Document Structure:');
       expect(context).toContain('1. Document Title');
       expect(context).toContain('[TITLE] Document Title');
-      expect(context).toContain('[PARAGRAPH] (Page 1) First paragraph with important information.');
+      expect(context).toContain(
+        '[PARAGRAPH] (Page 1) First paragraph with important information.',
+      );
     });
 
     it('should validate bounding boxes correctly', async () => {
       // Test array format
-      expect(ADEChunkHelpers.validateBoundingBox([10, 20, 100, 200])).toBe(true);
-      
+      expect(ADEChunkHelpers.validateBoundingBox([10, 20, 100, 200])).toBe(
+        true,
+      );
+
       // Test object format
-      expect(ADEChunkHelpers.validateBoundingBox({ x1: 10, y1: 20, x2: 100, y2: 200 })).toBe(true);
-      
+      expect(
+        ADEChunkHelpers.validateBoundingBox({
+          x1: 10,
+          y1: 20,
+          x2: 100,
+          y2: 200,
+        }),
+      ).toBe(true);
+
       // Test null
       expect(ADEChunkHelpers.validateBoundingBox(null)).toBe(true);
-      
+
       // Test invalid formats
       expect(ADEChunkHelpers.validateBoundingBox('invalid')).toBe(false);
       expect(ADEChunkHelpers.validateBoundingBox([1, 2, 3])).toBe(false);
-      expect(ADEChunkHelpers.validateBoundingBox({ x1: 10, y1: 20 })).toBe(false);
+      expect(ADEChunkHelpers.validateBoundingBox({ x1: 10, y1: 20 })).toBe(
+        false,
+      );
     });
 
     it('should validate element types correctly', async () => {
@@ -227,7 +265,7 @@ describe('ADE Simple Integration', () => {
       expect(ADEChunkHelpers.isValidElementType('title')).toBe(true);
       expect(ADEChunkHelpers.isValidElementType('table_text')).toBe(true);
       expect(ADEChunkHelpers.isValidElementType(null)).toBe(true);
-      
+
       expect(ADEChunkHelpers.isValidElementType('invalid_type')).toBe(false);
       expect(ADEChunkHelpers.isValidElementType(123)).toBe(false);
     });
@@ -235,7 +273,8 @@ describe('ADE Simple Integration', () => {
 
   describe('Traditional Chunking', () => {
     it('should create traditional chunks without ADE metadata', async () => {
-      const testContent = 'This is a test document with multiple sentences. It contains various information that should be chunked properly.';
+      const testContent =
+        'This is a test document with multiple sentences. It contains various information that should be chunked properly.';
 
       // Create chunks without ADE
       const chunks = await processor.createChunks({
@@ -246,9 +285,9 @@ describe('ADE Simple Integration', () => {
       });
 
       expect(chunks.length).toBeGreaterThan(0);
-      
+
       // All chunks should have null ADE metadata
-      chunks.forEach(chunk => {
+      chunks.forEach((chunk) => {
         expect(chunk.elementType).toBeNull();
         expect(chunk.pageNumber).toBeNull();
         expect(chunk.bbox).toBeNull();
@@ -263,7 +302,7 @@ describe('ADE Simple Integration', () => {
     it('should handle different element types through helper creation', async () => {
       const testTypes = [
         'paragraph',
-        'title', 
+        'title',
         'header',
         'footer',
         'table_text',

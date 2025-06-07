@@ -1,5 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { assembleEnhancedContext, createContextAwareSystemPrompt } from '@/lib/ai/context-formatter';
+import {
+  assembleEnhancedContext,
+  createContextAwareSystemPrompt,
+} from '@/lib/ai/context-formatter';
 import { ragSystemPrompt, enhancedRagSystemPrompt } from '@/lib/ai/prompts';
 import type { EnhancedChatSource, ContextAssemblyResult } from '@/lib/types';
 
@@ -11,12 +14,16 @@ describe('Enhanced RAG Pipeline Integration', () => {
     expect(ragSystemPrompt).toContain('document structure');
     expect(ragSystemPrompt).toContain('CORE INSTRUCTIONS');
     expect(ragSystemPrompt).toContain('UNDERSTANDING DOCUMENT STRUCTURE');
-    
+
     // Test enhanced RAG system prompt
-    const enhancedPrompt = enhancedRagSystemPrompt(true, ['title', 'paragraph', 'table']);
+    const enhancedPrompt = enhancedRagSystemPrompt(true, [
+      'title',
+      'paragraph',
+      'table',
+    ]);
     expect(enhancedPrompt).toContain('ENHANCED CONTEXT AVAILABLE');
     expect(enhancedPrompt).toContain('title, paragraph, table');
-    
+
     // Test enhanced RAG system prompt without structural data
     const basicPrompt = enhancedRagSystemPrompt(false);
     expect(basicPrompt).toContain('basic text search');
@@ -34,9 +41,9 @@ describe('Enhanced RAG Pipeline Integration', () => {
       },
       truncated: false,
       elementTypeDistribution: {
-        'title': 2,
-        'paragraph': 3,
-        'table': 1,
+        title: 2,
+        paragraph: 3,
+        table: 1,
       },
     };
 
@@ -111,8 +118,8 @@ describe('Enhanced RAG Pipeline Integration', () => {
       },
       truncated: false,
       elementTypeDistribution: {
-        'paragraph': 2,
-        'title': 1,
+        paragraph: 2,
+        title: 1,
       },
     };
 

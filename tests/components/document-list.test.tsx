@@ -26,7 +26,10 @@ vi.mock('@/components/document-detail', () => ({
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { DocumentList } from '@/components/document-list';
 import { toast } from 'sonner';
-import type { ManagedDocumentView, DocumentStats } from '@/app/(chat)/documents/actions';
+import type {
+  ManagedDocumentView,
+  DocumentStats,
+} from '@/app/(chat)/documents/actions';
 
 // Import mocked functions
 import * as documentActions from '@/app/(chat)/documents/actions';

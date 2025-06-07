@@ -1,12 +1,12 @@
 import { faker } from '@faker-js/faker';
 import { BaseFactory } from './base-factory';
-import type { 
+import type {
   FactoryOptions,
   ChatInsert,
   MessageInsert,
   VoteInsert,
   StreamInsert,
-  CompleteChat
+  CompleteChat,
 } from './types';
 
 /**
@@ -19,10 +19,13 @@ export class ChatFactory extends BaseFactory<ChatInsert> {
 
     const chat: ChatInsert = {
       id: this.generateId(),
-      createdAt: this.generateTimestamp(baseTime, -faker.number.int({ min: 1, max: 30 * 24 * 60 })),
-      title: realistic ? 
-        this.generateRealisticChatTitle() : 
-        `Test Chat ${faker.string.alphanumeric(8)}`,
+      createdAt: this.generateTimestamp(
+        baseTime,
+        -faker.number.int({ min: 1, max: 30 * 24 * 60 }),
+      ),
+      title: realistic
+        ? this.generateRealisticChatTitle()
+        : `Test Chat ${faker.string.alphanumeric(8)}`,
       userId: options?.overrides?.userId || this.generateId(),
       visibility: faker.helpers.weightedArrayElement([
         { weight: 85, value: 'private' },
@@ -55,7 +58,10 @@ export class ChatFactory extends BaseFactory<ChatInsert> {
     return this.create({
       ...options,
       overrides: {
-        createdAt: this.generateTimestamp(now, -faker.number.int({ min: 0, max: 24 * 60 })), // Within last 24 hours
+        createdAt: this.generateTimestamp(
+          now,
+          -faker.number.int({ min: 0, max: 24 * 60 }),
+        ), // Within last 24 hours
         ...options?.overrides,
       },
     });
@@ -69,7 +75,10 @@ export class ChatFactory extends BaseFactory<ChatInsert> {
     return this.create({
       ...options,
       overrides: {
-        createdAt: this.generateTimestamp(now, -faker.number.int({ min: 30 * 24 * 60, max: 365 * 24 * 60 })), // 30+ days old
+        createdAt: this.generateTimestamp(
+          now,
+          -faker.number.int({ min: 30 * 24 * 60, max: 365 * 24 * 60 }),
+        ), // 30+ days old
         ...options?.overrides,
       },
     });
@@ -78,10 +87,14 @@ export class ChatFactory extends BaseFactory<ChatInsert> {
   private generateRealisticChatTitle(): string {
     const patterns = [
       () => `How to ${faker.hacker.verb()} ${faker.hacker.noun()}`,
-      () => `${faker.helpers.arrayElement(['Help with', 'Question about', 'Issue with'])} ${faker.company.buzzPhrase()}`,
-      () => `${faker.helpers.arrayElement(['Building', 'Creating', 'Developing'])} ${faker.hacker.phrase()}`,
-      () => `${faker.helpers.arrayElement(['Debug', 'Fix', 'Solve'])} ${faker.hacker.abbreviation()} ${faker.helpers.arrayElement(['error', 'issue', 'problem'])}`,
-      () => `${faker.helpers.arrayElement(['Explain', 'Understand', 'Learn'])} ${faker.hacker.noun()}`,
+      () =>
+        `${faker.helpers.arrayElement(['Help with', 'Question about', 'Issue with'])} ${faker.company.buzzPhrase()}`,
+      () =>
+        `${faker.helpers.arrayElement(['Building', 'Creating', 'Developing'])} ${faker.hacker.phrase()}`,
+      () =>
+        `${faker.helpers.arrayElement(['Debug', 'Fix', 'Solve'])} ${faker.hacker.abbreviation()} ${faker.helpers.arrayElement(['error', 'issue', 'problem'])}`,
+      () =>
+        `${faker.helpers.arrayElement(['Explain', 'Understand', 'Learn'])} ${faker.hacker.noun()}`,
     ];
 
     return faker.helpers.arrayElement(patterns)();
@@ -119,7 +132,10 @@ export class MessageFactory extends BaseFactory<MessageInsert> {
       role,
       parts: this.generateMessageParts(role, realistic),
       attachments: this.generateAttachments(realistic),
-      createdAt: this.generateTimestamp(new Date(), -faker.number.int({ min: 0, max: 60 })),
+      createdAt: this.generateTimestamp(
+        new Date(),
+        -faker.number.int({ min: 0, max: 60 }),
+      ),
     };
 
     return this.applyOverrides(message, options?.overrides);
@@ -157,7 +173,13 @@ export class MessageFactory extends BaseFactory<MessageInsert> {
    * Create message with code
    */
   createCodeMessage(options?: FactoryOptions): MessageInsert {
-    const language = faker.helpers.arrayElement(['javascript', 'python', 'typescript', 'sql', 'bash']);
+    const language = faker.helpers.arrayElement([
+      'javascript',
+      'python',
+      'typescript',
+      'sql',
+      'bash',
+    ]);
     const code = this.generateCodeSnippet(language);
 
     return this.create({
@@ -199,7 +221,9 @@ export class MessageFactory extends BaseFactory<MessageInsert> {
       case 'assistant':
         return this.generateAssistantMessageParts(realistic);
       case 'system':
-        return [{ type: 'text', text: 'System message: Chat session initialized' }];
+        return [
+          { type: 'text', text: 'System message: Chat session initialized' },
+        ];
       default:
         return [{ type: 'text', text: faker.lorem.sentence() }];
     }
@@ -212,14 +236,18 @@ export class MessageFactory extends BaseFactory<MessageInsert> {
 
     const patterns = [
       () => [{ type: 'text', text: this.generateContent('chat') }],
-      () => [{ 
-        type: 'text', 
-        text: `Can you help me with ${faker.hacker.noun()}? I'm trying to ${faker.hacker.verb()} ${faker.hacker.adjective()} ${faker.hacker.noun()}.` 
-      }],
-      () => [{ 
-        type: 'text', 
-        text: `I have a question about ${faker.company.buzzPhrase()}. ${faker.lorem.sentence()}` 
-      }],
+      () => [
+        {
+          type: 'text',
+          text: `Can you help me with ${faker.hacker.noun()}? I'm trying to ${faker.hacker.verb()} ${faker.hacker.adjective()} ${faker.hacker.noun()}.`,
+        },
+      ],
+      () => [
+        {
+          type: 'text',
+          text: `I have a question about ${faker.company.buzzPhrase()}. ${faker.lorem.sentence()}`,
+        },
+      ],
     ];
 
     return faker.helpers.arrayElement(patterns)();
@@ -241,7 +269,11 @@ export class MessageFactory extends BaseFactory<MessageInsert> {
 
     // Sometimes include code
     if (hasCode) {
-      const language = faker.helpers.arrayElement(['javascript', 'python', 'sql']);
+      const language = faker.helpers.arrayElement([
+        'javascript',
+        'python',
+        'sql',
+      ]);
       parts.push({
         type: 'code',
         language,
@@ -270,7 +302,10 @@ WHERE ${faker.hacker.adjective()} = '${faker.hacker.noun()}';`,
 }`,
     };
 
-    return snippets[language as keyof typeof snippets] || 'console.log("Hello, World!");';
+    return (
+      snippets[language as keyof typeof snippets] ||
+      'console.log("Hello, World!");'
+    );
   }
 
   private generateAttachments(realistic: boolean): any[] {
@@ -284,32 +319,38 @@ WHERE ${faker.hacker.adjective()} = '${faker.hacker.noun()}';`,
   private generateRealisticAttachments(): any[] {
     const attachmentTypes = ['image', 'document', 'url'];
     const type = faker.helpers.arrayElement(attachmentTypes);
-    
+
     switch (type) {
       case 'image':
-        return [{
-          type: 'image',
-          url: faker.image.url(),
-          name: `${faker.system.fileName()}.${faker.helpers.arrayElement(['jpg', 'png', 'gif'])}`,
-          size: this.generateFileSize('small'),
-        }];
-      
+        return [
+          {
+            type: 'image',
+            url: faker.image.url(),
+            name: `${faker.system.fileName()}.${faker.helpers.arrayElement(['jpg', 'png', 'gif'])}`,
+            size: this.generateFileSize('small'),
+          },
+        ];
+
       case 'document':
-        return [{
-          type: 'document',
-          url: faker.internet.url(),
-          name: `${faker.system.fileName()}.${faker.helpers.arrayElement(['pdf', 'docx', 'txt'])}`,
-          size: this.generateFileSize('medium'),
-        }];
-      
+        return [
+          {
+            type: 'document',
+            url: faker.internet.url(),
+            name: `${faker.system.fileName()}.${faker.helpers.arrayElement(['pdf', 'docx', 'txt'])}`,
+            size: this.generateFileSize('medium'),
+          },
+        ];
+
       case 'url':
-        return [{
-          type: 'url',
-          url: faker.internet.url(),
-          title: faker.company.catchPhrase(),
-          description: faker.lorem.sentence(),
-        }];
-      
+        return [
+          {
+            type: 'url',
+            url: faker.internet.url(),
+            title: faker.company.catchPhrase(),
+            description: faker.lorem.sentence(),
+          },
+        ];
+
       default:
         return [];
     }
@@ -365,7 +406,10 @@ export class StreamFactory extends BaseFactory<StreamInsert> {
     const stream: StreamInsert = {
       id: this.generateId(),
       chatId: options?.overrides?.chatId || this.generateId(),
-      createdAt: this.generateTimestamp(new Date(), -faker.number.int({ min: 0, max: 60 })),
+      createdAt: this.generateTimestamp(
+        new Date(),
+        -faker.number.int({ min: 0, max: 60 }),
+      ),
     };
 
     return this.applyOverrides(stream, options?.overrides);
@@ -383,14 +427,14 @@ export class CompleteChatFactory extends BaseFactory<CompleteChat> {
 
   create(options?: FactoryOptions): CompleteChat {
     const chat = this.chatFactory.create(options);
-    
+
     // Generate realistic conversation
     const messageCount = faker.number.int({ min: 2, max: 20 });
     const messages = this.generateConversation(chat.id, messageCount);
-    
+
     // Generate votes for some messages
     const votes = this.generateVotesForMessages(chat.id, messages);
-    
+
     // Generate streams
     const streamCount = faker.number.int({ min: 0, max: 3 });
     const streams = this.streamFactory.createBatch({
@@ -413,10 +457,12 @@ export class CompleteChatFactory extends BaseFactory<CompleteChat> {
    */
   createSimple(options?: FactoryOptions): CompleteChat {
     const chat = this.chatFactory.create(options);
-    
+
     const messages = [
       this.messageFactory.createUserMessage({ overrides: { chatId: chat.id } }),
-      this.messageFactory.createAssistantMessage({ overrides: { chatId: chat.id } }),
+      this.messageFactory.createAssistantMessage({
+        overrides: { chatId: chat.id },
+      }),
     ];
 
     return {
@@ -432,21 +478,25 @@ export class CompleteChatFactory extends BaseFactory<CompleteChat> {
    */
   createComplex(options?: FactoryOptions): CompleteChat {
     const chat = this.chatFactory.create(options);
-    
+
     const messages = [
       this.messageFactory.createUserMessage({ overrides: { chatId: chat.id } }),
       this.messageFactory.createCodeMessage({ overrides: { chatId: chat.id } }),
-      this.messageFactory.createMessageWithAttachments({ overrides: { chatId: chat.id } }),
-      this.messageFactory.createAssistantMessage({ overrides: { chatId: chat.id } }),
+      this.messageFactory.createMessageWithAttachments({
+        overrides: { chatId: chat.id },
+      }),
+      this.messageFactory.createAssistantMessage({
+        overrides: { chatId: chat.id },
+      }),
     ];
 
-    const votes = messages.map(msg => 
-      this.voteFactory.create({ 
-        overrides: { 
-          chatId: chat.id, 
-          messageId: msg.id 
-        } 
-      })
+    const votes = messages.map((msg) =>
+      this.voteFactory.create({
+        overrides: {
+          chatId: chat.id,
+          messageId: msg.id,
+        },
+      }),
     );
 
     const streams = this.streamFactory.createBatch({
@@ -462,14 +512,17 @@ export class CompleteChatFactory extends BaseFactory<CompleteChat> {
     };
   }
 
-  private generateConversation(chatId: string, messageCount: number): MessageInsert[] {
+  private generateConversation(
+    chatId: string,
+    messageCount: number,
+  ): MessageInsert[] {
     const messages: MessageInsert[] = [];
     let currentTime = new Date();
 
     for (let i = 0; i < messageCount; i++) {
       const isUserMessage = i % 2 === 0; // Alternate between user and assistant
       const role = isUserMessage ? 'user' : 'assistant';
-      
+
       const message = this.messageFactory.create({
         overrides: {
           chatId,
@@ -479,28 +532,37 @@ export class CompleteChatFactory extends BaseFactory<CompleteChat> {
       });
 
       messages.push(message);
-      
+
       // Next message is a few minutes later
-      currentTime = this.generateTimestamp(currentTime, faker.number.int({ min: 1, max: 10 }));
+      currentTime = this.generateTimestamp(
+        currentTime,
+        faker.number.int({ min: 1, max: 10 }),
+      );
     }
 
     return messages;
   }
 
-  private generateVotesForMessages(chatId: string, messages: MessageInsert[]): VoteInsert[] {
+  private generateVotesForMessages(
+    chatId: string,
+    messages: MessageInsert[],
+  ): VoteInsert[] {
     const votes: VoteInsert[] = [];
-    
+
     // Only vote on assistant messages, and only sometimes
-    const assistantMessages = messages.filter(m => m.role === 'assistant');
-    
+    const assistantMessages = messages.filter((m) => m.role === 'assistant');
+
     for (const message of assistantMessages) {
-      if (faker.datatype.boolean({ probability: 0.4 })) { // 40% chance of vote
-        votes.push(this.voteFactory.create({
-          overrides: {
-            chatId,
-            messageId: message.id,
-          },
-        }));
+      if (faker.datatype.boolean({ probability: 0.4 })) {
+        // 40% chance of vote
+        votes.push(
+          this.voteFactory.create({
+            overrides: {
+              chatId,
+              messageId: message.id,
+            },
+          }),
+        );
       }
     }
 

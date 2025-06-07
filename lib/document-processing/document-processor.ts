@@ -6,8 +6,16 @@ import { eq } from 'drizzle-orm';
 import * as schema from '@/lib/db/schema';
 import { TextSplitter } from '@/lib/chunking/text-splitter';
 import type { CohereClient } from '@/lib/ai/cohere-client';
-import { ADEChunkHelpers, type ADEElementType, type BoundingBox } from '@/lib/db/ade-helpers';
-import { processDocumentWithAde, extractTextFromAdeElements, groupElementsByPage } from '@/lib/ade/processor';
+import {
+  ADEChunkHelpers,
+  type ADEElementType,
+  type BoundingBox,
+} from '@/lib/db/ade-helpers';
+import {
+  processDocumentWithAde,
+  extractTextFromAdeElements,
+  groupElementsByPage,
+} from '@/lib/ade/processor';
 import type { AdeOutput, AdeElement } from '@/lib/ade/types';
 
 export interface DocumentProcessingResult {
@@ -434,7 +442,7 @@ export class DocumentProcessor {
     db: PostgresJsDatabase<typeof schema>;
   }) {
     const { file, userId, db } = params;
-    
+
     // Validate file type
     const supportedTypes = [
       'application/pdf',
@@ -442,7 +450,7 @@ export class DocumentProcessor {
       'text/plain',
       'text/markdown',
     ];
-    
+
     if (!supportedTypes.includes(file.type)) {
       throw new Error('Unsupported file type');
     }
@@ -474,7 +482,7 @@ export class DocumentProcessor {
     db: PostgresJsDatabase<typeof schema>;
   }) {
     const { documentId, db } = params;
-    
+
     // Get document
     const document = await db.query.ragDocument.findFirst({
       where: (doc, { eq }) => eq(doc.id, documentId),
@@ -486,8 +494,11 @@ export class DocumentProcessor {
 
     try {
       // Process document
-      const result = await this.processDocument(document.filePath, document.mimeType);
-      
+      const result = await this.processDocument(
+        document.filePath,
+        document.mimeType,
+      );
+
       if (!result.success || !result.text) {
         throw new Error(result.error || 'Failed to extract text');
       }
@@ -535,13 +546,13 @@ export class DocumentProcessor {
     useADE?: boolean;
     generateEmbeddings?: boolean;
   }) {
-    const { 
-      documentId, 
-      db, 
-      chunkSize = 500, 
-      chunkOverlap = 100, 
-      useADE = true, 
-      generateEmbeddings: shouldGenerateEmbeddings = true 
+    const {
+      documentId,
+      db,
+      chunkSize = 500,
+      chunkOverlap = 100,
+      useADE = true,
+      generateEmbeddings: shouldGenerateEmbeddings = true,
     } = params;
 
     try {
@@ -554,7 +565,9 @@ export class DocumentProcessor {
         throw new Error('Document not found');
       }
 
-      console.log(`[ADE] Starting complete processing for document ${documentId}`);
+      console.log(
+        `[ADE] Starting complete processing for document ${documentId}`,
+      );
 
       // Extract text first
       const content = await this.extractText({ documentId, db });
@@ -570,13 +583,15 @@ export class DocumentProcessor {
         useADE,
       });
 
-      console.log(`[ADE] Created ${chunks.length} chunks for document ${documentId}`);
+      console.log(
+        `[ADE] Created ${chunks.length} chunks for document ${documentId}`,
+      );
 
       // Generate embeddings if requested
       if (shouldGenerateEmbeddings && chunks.length > 0) {
         console.log(`[ADE] Generating embeddings for ${chunks.length} chunks`);
-        
-        const chunkData = chunks.map(chunk => ({
+
+        const chunkData = chunks.map((chunk) => ({
           id: chunk.id,
           content: chunk.content,
         }));
@@ -586,7 +601,9 @@ export class DocumentProcessor {
           db,
         });
 
-        console.log(`[ADE] Successfully generated embeddings for document ${documentId}`);
+        console.log(
+          `[ADE] Successfully generated embeddings for document ${documentId}`,
+        );
       }
 
       return {
@@ -596,7 +613,7 @@ export class DocumentProcessor {
       };
     } catch (error) {
       console.error(`[ADE] Failed to process document ${documentId}:`, error);
-      
+
       // Update document status to error
       await db
         .update(schema.ragDocument)
@@ -619,15 +636,26 @@ export class DocumentProcessor {
     filePath?: string;
     useADE?: boolean;
   }) {
-    const { documentId, content, chunkSize = 500, chunkOverlap = 100, db, filePath, useADE = true } = params;
-    
+    const {
+      documentId,
+      content,
+      chunkSize = 500,
+      chunkOverlap = 100,
+      db,
+      filePath,
+      useADE = true,
+    } = params;
+
     // Try to get ADE output if available
     let adeOutput: AdeOutput | null = null;
     if (useADE && filePath) {
       try {
         adeOutput = await this.tryGetAdeOutput(documentId, filePath);
       } catch (error) {
-        console.warn(`[ADE] Failed to get ADE output for document ${documentId}:`, error);
+        console.warn(
+          `[ADE] Failed to get ADE output for document ${documentId}:`,
+          error,
+        );
         // Continue with fallback chunking
       }
     }
@@ -636,7 +664,13 @@ export class DocumentProcessor {
     if (adeOutput && adeOutput.elements.length > 0) {
       return await this.createChunksWithADE(documentId, adeOutput, content, db);
     } else {
-      return await this.createChunksTraditional(documentId, content, chunkSize, chunkOverlap, db);
+      return await this.createChunksTraditional(
+        documentId,
+        content,
+        chunkSize,
+        chunkOverlap,
+        db,
+      );
     }
   }
 
@@ -647,7 +681,7 @@ export class DocumentProcessor {
     documentId: string,
     adeOutput: AdeOutput,
     fallbackContent: string,
-    db: PostgresJsDatabase<typeof schema>
+    db: PostgresJsDatabase<typeof schema>,
   ) {
     const insertedChunks = [];
     let chunkIndex = 0;
@@ -681,7 +715,10 @@ export class DocumentProcessor {
           insertedChunks.push(chunk);
           chunkIndex++;
         } catch (error) {
-          console.warn(`[ADE] Failed to create chunk for element ${element.id}:`, error);
+          console.warn(
+            `[ADE] Failed to create chunk for element ${element.id}:`,
+            error,
+          );
           // Continue with next element
         }
       }
@@ -689,8 +726,16 @@ export class DocumentProcessor {
 
     // Fallback: if no chunks were created from ADE, use traditional chunking
     if (insertedChunks.length === 0) {
-      console.warn(`[ADE] No chunks created from ADE elements, falling back to traditional chunking`);
-      return await this.createChunksTraditional(documentId, fallbackContent, 500, 100, db);
+      console.warn(
+        `[ADE] No chunks created from ADE elements, falling back to traditional chunking`,
+      );
+      return await this.createChunksTraditional(
+        documentId,
+        fallbackContent,
+        500,
+        100,
+        db,
+      );
     }
 
     // Update document status
@@ -699,7 +744,9 @@ export class DocumentProcessor {
       .set({ status: 'chunked' })
       .where(eq(schema.ragDocument.id, documentId));
 
-    console.log(`[ADE] Created ${insertedChunks.length} chunks with ADE metadata for document ${documentId}`);
+    console.log(
+      `[ADE] Created ${insertedChunks.length} chunks with ADE metadata for document ${documentId}`,
+    );
     return insertedChunks;
   }
 
@@ -711,7 +758,7 @@ export class DocumentProcessor {
     content: string,
     chunkSize: number,
     chunkOverlap: number,
-    db: PostgresJsDatabase<typeof schema>
+    db: PostgresJsDatabase<typeof schema>,
   ) {
     // Split content into chunks
     const chunks = await this.textSplitter.splitText(content, {
@@ -742,7 +789,9 @@ export class DocumentProcessor {
       .set({ status: 'chunked' })
       .where(eq(schema.ragDocument.id, documentId));
 
-    console.log(`[ADE] Created ${insertedChunks.length} chunks with traditional chunking for document ${documentId}`);
+    console.log(
+      `[ADE] Created ${insertedChunks.length} chunks with traditional chunking for document ${documentId}`,
+    );
     return insertedChunks;
   }
 
@@ -755,16 +804,16 @@ export class DocumentProcessor {
     db: PostgresJsDatabase<typeof schema>;
   }) {
     const { chunks, batchSize = 25, db } = params;
-    
+
     // Fetch full chunk data from database to get ADE metadata
-    const chunkIds = chunks.map(c => c.id);
+    const chunkIds = chunks.map((c) => c.id);
     const fullChunks = await db.query.documentChunk.findMany({
       where: (chunk, { inArray }) => inArray(chunk.id, chunkIds),
     });
 
     // Create enhanced chunk objects with ADE metadata
-    const enhancedChunks = chunks.map(chunk => {
-      const fullChunk = fullChunks.find(fc => fc.id === chunk.id);
+    const enhancedChunks = chunks.map((chunk) => {
+      const fullChunk = fullChunks.find((fc) => fc.id === chunk.id);
       return {
         id: chunk.id,
         content: chunk.content,
@@ -786,7 +835,10 @@ export class DocumentProcessor {
   /**
    * Try to get ADE output for a document
    */
-  private async tryGetAdeOutput(documentId: string, filePath: string): Promise<AdeOutput | null> {
+  private async tryGetAdeOutput(
+    documentId: string,
+    filePath: string,
+  ): Promise<AdeOutput | null> {
     try {
       // Only process PDFs with ADE for now
       if (!filePath.toLowerCase().endsWith('.pdf')) {
@@ -794,7 +846,7 @@ export class DocumentProcessor {
       }
 
       console.log(`[ADE] Processing document ${documentId} with ADE`);
-      
+
       const adeOutput = await processDocumentWithAde({
         documentId,
         filePath,
@@ -807,10 +859,15 @@ export class DocumentProcessor {
         },
       });
 
-      console.log(`[ADE] Successfully processed document ${documentId}, found ${adeOutput.elements.length} elements`);
+      console.log(
+        `[ADE] Successfully processed document ${documentId}, found ${adeOutput.elements.length} elements`,
+      );
       return adeOutput;
     } catch (error) {
-      console.warn(`[ADE] ADE processing failed for document ${documentId}:`, error);
+      console.warn(
+        `[ADE] ADE processing failed for document ${documentId}:`,
+        error,
+      );
       return null;
     }
   }
@@ -820,21 +877,23 @@ export class DocumentProcessor {
    */
   private mapAdeElementType(adeType: string): ADEElementType {
     const typeMapping: Record<string, ADEElementType> = {
-      'paragraph': 'paragraph',
-      'title': 'title',
-      'header': 'header',
-      'footer': 'footer',
-      'table_text': 'table_text',
-      'table': 'table_text',
-      'figure': 'figure_caption',
-      'caption': 'figure_caption',
-      'list_item': 'list_item',
-      'footnote': 'footnote',
+      paragraph: 'paragraph',
+      title: 'title',
+      header: 'header',
+      footer: 'footer',
+      table_text: 'table_text',
+      table: 'table_text',
+      figure: 'figure_caption',
+      caption: 'figure_caption',
+      list_item: 'list_item',
+      footnote: 'footnote',
     };
 
     const mapped = typeMapping[adeType.toLowerCase()];
     if (!mapped) {
-      console.warn(`[ADE] Unknown element type '${adeType}', defaulting to 'paragraph'`);
+      console.warn(
+        `[ADE] Unknown element type '${adeType}', defaulting to 'paragraph'`,
+      );
       return 'paragraph';
     }
 
@@ -874,9 +933,9 @@ export class DocumentProcessor {
    * Enhanced generateEmbeddings with ADE context
    */
   async generateEmbeddingsWithADE(params: {
-    chunks: Array<{ 
-      id: string; 
-      content: string; 
+    chunks: Array<{
+      id: string;
+      content: string;
       elementType?: string | null;
       pageNumber?: number | null;
       bbox?: any;
@@ -886,21 +945,27 @@ export class DocumentProcessor {
     db: PostgresJsDatabase<typeof schema>;
   }) {
     const { chunks, batchSize = 25, db } = params;
-    
+
     if (!this.cohereClient) {
       // For testing, generate mock embeddings
       const embeddings = chunks.map((chunk) => ({
         chunkId: chunk.id,
-        embedding: JSON.stringify(Array(1024).fill(0).map(() => Math.random())),
+        embedding: JSON.stringify(
+          Array(1024)
+            .fill(0)
+            .map(() => Math.random()),
+        ),
         model: 'cohere-embed-v4.0',
       }));
 
       await db.insert(schema.documentEmbedding).values(embeddings);
 
       // Update document status
-      const documentId = await db.query.documentChunk.findFirst({
-        where: (c, { eq }) => eq(c.id, chunks[0].id),
-      }).then(chunk => chunk?.documentId);
+      const documentId = await db.query.documentChunk
+        .findFirst({
+          where: (c, { eq }) => eq(c.id, chunks[0].id),
+        })
+        .then((chunk) => chunk?.documentId);
 
       if (documentId) {
         await db
@@ -916,13 +981,15 @@ export class DocumentProcessor {
     const allEmbeddings = [];
     for (let i = 0; i < chunks.length; i += batchSize) {
       const batch = chunks.slice(i, i + batchSize);
-      
+
       // Create enriched text for embedding with ADE context
-      const enrichedTexts = batch.map(chunk => this.createEnrichedText(chunk));
-      
+      const enrichedTexts = batch.map((chunk) =>
+        this.createEnrichedText(chunk),
+      );
+
       // Generate embeddings via Cohere
       const embeddings = await this.cohereClient.embed(enrichedTexts);
-      
+
       const embeddingData = batch.map((chunk, index) => ({
         chunkId: chunk.id,
         embedding: JSON.stringify(embeddings[index]),
@@ -932,13 +999,17 @@ export class DocumentProcessor {
       await db.insert(schema.documentEmbedding).values(embeddingData);
       allEmbeddings.push(...embeddingData);
 
-      console.log(`[ADE] Generated embeddings for batch ${Math.floor(i / batchSize) + 1} (${batch.length} chunks)`);
+      console.log(
+        `[ADE] Generated embeddings for batch ${Math.floor(i / batchSize) + 1} (${batch.length} chunks)`,
+      );
     }
 
     // Update document status
-    const documentId = await db.query.documentChunk.findFirst({
-      where: (c, { eq }) => eq(c.id, chunks[0].id),
-    }).then(chunk => chunk?.documentId);
+    const documentId = await db.query.documentChunk
+      .findFirst({
+        where: (c, { eq }) => eq(c.id, chunks[0].id),
+      })
+      .then((chunk) => chunk?.documentId);
 
     if (documentId) {
       await db
@@ -947,7 +1018,9 @@ export class DocumentProcessor {
         .where(eq(schema.ragDocument.id, documentId));
     }
 
-    console.log(`[ADE] Generated ${allEmbeddings.length} embeddings with ADE context`);
+    console.log(
+      `[ADE] Generated ${allEmbeddings.length} embeddings with ADE context`,
+    );
     return allEmbeddings;
   }
 
@@ -994,6 +1067,6 @@ export class DocumentProcessor {
     const data = encoder.encode(content);
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
   }
 }

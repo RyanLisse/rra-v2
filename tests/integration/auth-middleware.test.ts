@@ -15,12 +15,12 @@ import type { Session } from 'better-auth/types';
 
 describe('Auth Middleware Integration Tests', () => {
   let testContext: Awaited<ReturnType<typeof setupNeonBranch>>;
-  
+
   beforeEach(async () => {
     setupTestEnvironment();
     testContext = await setupNeonBranch('auth-middleware-test');
   });
-  
+
   afterEach(async () => {
     await testContext.cleanup();
   });
@@ -30,16 +30,20 @@ describe('Auth Middleware Integration Tests', () => {
       const { db } = testContext;
 
       // Create real user with Better Auth
-      const { user, password } = await testContext.factories.createUserWithAuth();
-      
+      const { user, password } =
+        await testContext.factories.createUserWithAuth();
+
       // Simulate real authentication flow
-      const request = createMockRequest('http://localhost:3000/api/auth/sign-in', {
-        method: 'POST',
-        body: {
-          email: user.email,
-          password,
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/sign-in',
+        {
+          method: 'POST',
+          body: {
+            email: user.email,
+            password,
+          },
         },
-      });
+      );
 
       // Sign in using real Better Auth flow
       const signInResponse = await auth.api.signInEmail({
@@ -49,44 +53,49 @@ describe('Auth Middleware Integration Tests', () => {
         },
         asResponse: true,
       });
-      
+
       expect(signInResponse.status).toBe(200);
       const signInData = await signInResponse.json();
       expect(signInData.session).toBeDefined();
       expect(signInData.session.userId).toBe(user.id);
-      
+
       // Extract session token from response
       const sessionToken = signInData.session.token;
-      
+
       // Verify session in database
       const dbSession = await db.query.session.findFirst({
         where: (s, { eq }) => eq(s.token, sessionToken),
         with: { user: true },
       });
-      
+
       expect(dbSession).toBeDefined();
       expect(dbSession?.userId).toBe(user.id);
       expect(dbSession?.expiresAt.getTime()).toBeGreaterThan(Date.now());
       expect(dbSession?.user?.email).toBe(user.email);
-      
+
       // Test session validation with middleware
       const protectedHandler = withAuth(async (req, session) => {
-        return new Response(JSON.stringify({ 
-          message: 'Authenticated',
-          userId: session.user.id,
-          userEmail: session.user.email,
-        }));
+        return new Response(
+          JSON.stringify({
+            message: 'Authenticated',
+            userId: session.user.id,
+            userEmail: session.user.email,
+          }),
+        );
       });
-      
-      const protectedRequest = createMockRequest('http://localhost:3000/api/protected', {
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
+
+      const protectedRequest = createMockRequest(
+        'http://localhost:3000/api/protected',
+        {
+          headers: {
+            Authorization: `Bearer ${sessionToken}`,
+          },
         },
-      });
-      
+      );
+
       const protectedResponse = await protectedHandler(protectedRequest);
       expect(protectedResponse.status).toBe(200);
-      
+
       const responseData = await protectedResponse.json();
       expect(responseData.userId).toBe(user.id);
       expect(responseData.userEmail).toBe(user.email);
@@ -95,7 +104,8 @@ describe('Auth Middleware Integration Tests', () => {
     it('should invalidate expired sessions automatically', async () => {
       const { db } = testContext;
 
-      const { user, password } = await testContext.factories.createUserWithAuth();
+      const { user, password } =
+        await testContext.factories.createUserWithAuth();
 
       // Create session with short expiration for testing
       const sessionData = {
@@ -108,41 +118,44 @@ describe('Auth Middleware Integration Tests', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-      
+
       await db.insert(schema.session).values(sessionData);
 
       // Wait for session to expire
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       // Try to use expired session
       const protectedHandler = withAuth(async (req, session) => {
-        return new Response(JSON.stringify({ message: 'Should not reach here' }));
+        return new Response(
+          JSON.stringify({ message: 'Should not reach here' }),
+        );
       });
-      
+
       const request = createMockRequest('http://localhost:3000/api/protected', {
         headers: {
           Authorization: `Bearer ${sessionData.token}`,
         },
       });
-      
+
       const response = await protectedHandler(request);
       await assertErrorResponse(response, 401, 'Session expired');
-      
+
       // Verify session is marked as expired or removed
       const expiredSession = await db.query.session.findFirst({
         where: (s, { eq }) => eq(s.token, sessionData.token),
       });
-      
+
       // Session should either be removed or marked as expired
       expect(
-        !expiredSession || expiredSession.expiresAt.getTime() < Date.now()
+        !expiredSession || expiredSession.expiresAt.getTime() < Date.now(),
       ).toBe(true);
     });
 
     it('should handle concurrent session operations safely', async () => {
       const { db, metrics } = testContext;
 
-      const { user, password } = await testContext.factories.createUserWithAuth();
+      const { user, password } =
+        await testContext.factories.createUserWithAuth();
 
       // Simulate concurrent login attempts from different devices
       const devices = [
@@ -156,7 +169,7 @@ describe('Auth Middleware Integration Tests', () => {
       // Concurrent sign-in operations
       const signInPromises = devices.map(async (device) => {
         const startTime = Date.now();
-        
+
         const response = await auth.api.signInEmail({
           body: {
             email: user.email,
@@ -168,10 +181,13 @@ describe('Auth Middleware Integration Tests', () => {
           },
           asResponse: true,
         });
-        
+
         const duration = Date.now() - startTime;
-        metrics.record(`auth.concurrent.signin.${devices.indexOf(device)}`, duration);
-        
+        metrics.record(
+          `auth.concurrent.signin.${devices.indexOf(device)}`,
+          duration,
+        );
+
         return response.json();
       });
 
@@ -179,8 +195,8 @@ describe('Auth Middleware Integration Tests', () => {
 
       // All sign-ins should succeed
       expect(results).toHaveLength(5);
-      expect(results.every(r => r.session)).toBe(true);
-      expect(results.every(r => r.session.userId === user.id)).toBe(true);
+      expect(results.every((r) => r.session)).toBe(true);
+      expect(results.every((r) => r.session.userId === user.id)).toBe(true);
 
       // Verify all sessions exist in database with correct metadata
       const allSessions = await db.query.session.findMany({
@@ -188,37 +204,43 @@ describe('Auth Middleware Integration Tests', () => {
       });
 
       expect(allSessions.length).toBeGreaterThanOrEqual(5);
-      
+
       // Each session should have unique token and metadata
-      const tokens = new Set(allSessions.map(s => s.token));
+      const tokens = new Set(allSessions.map((s) => s.token));
       expect(tokens.size).toBe(allSessions.length);
-      
+
       // Test concurrent session validation
       const validationPromises = results.map(async (result) => {
         const protectedHandler = withAuth(async (req, session) => {
-          return new Response(JSON.stringify({ 
-            authenticated: true,
-            sessionId: session.session.id,
-          }));
+          return new Response(
+            JSON.stringify({
+              authenticated: true,
+              sessionId: session.session.id,
+            }),
+          );
         });
-        
-        const request = createMockRequest('http://localhost:3000/api/protected', {
-          headers: {
-            Authorization: `Bearer ${result.session.token}`,
+
+        const request = createMockRequest(
+          'http://localhost:3000/api/protected',
+          {
+            headers: {
+              Authorization: `Bearer ${result.session.token}`,
+            },
           },
-        });
-        
+        );
+
         return protectedHandler(request);
       });
-      
+
       const validationResults = await Promise.all(validationPromises);
-      expect(validationResults.every(r => r.status === 200)).toBe(true);
+      expect(validationResults.every((r) => r.status === 200)).toBe(true);
     });
 
     it('should cleanup sessions on user deletion with cascade', async () => {
       const { db } = testContext;
 
-      const { user, password } = await testContext.factories.createUserWithAuth();
+      const { user, password } =
+        await testContext.factories.createUserWithAuth();
 
       // Create multiple active sessions
       const sessionPromises = Array.from({ length: 3 }, async (_, i) => {
@@ -252,7 +274,7 @@ describe('Auth Middleware Integration Tests', () => {
         where: (s, { eq }) => eq(s.userId, user.id),
       });
       expect(remainingSessions).toHaveLength(0);
-      
+
       // Verify accounts are also deleted
       const remainingAccounts = await db.query.account.findMany({
         where: (a, { eq }) => eq(a.userId, user.id),
@@ -271,7 +293,7 @@ describe('Auth Middleware Integration Tests', () => {
         testContext.factories.createUserWithAuth({ type: 'premium' }),
         testContext.factories.createUserWithAuth({ type: 'admin' }),
       ]);
-      
+
       const [regularUser, premiumUser, adminUser] = users;
 
       // Sign in all users to get tokens
@@ -283,7 +305,7 @@ describe('Auth Middleware Integration Tests', () => {
           });
           const data = await response.json();
           return { user, token: data.session.token };
-        })
+        }),
       );
 
       // Create authorization middleware
@@ -291,26 +313,30 @@ describe('Auth Middleware Integration Tests', () => {
         if (session.user.type !== 'admin') {
           return new Response(
             JSON.stringify({ error: 'Admin access required' }),
-            { status: 403 }
+            { status: 403 },
           );
         }
-        return new Response(JSON.stringify({ 
-          message: 'Admin access granted',
-          userId: session.user.id,
-        }));
+        return new Response(
+          JSON.stringify({
+            message: 'Admin access granted',
+            userId: session.user.id,
+          }),
+        );
       });
-      
+
       const requirePremium = withAuth(async (req, session) => {
         if (session.user.type === 'regular') {
           return new Response(
             JSON.stringify({ error: 'Premium access required' }),
-            { status: 403 }
+            { status: 403 },
           );
         }
-        return new Response(JSON.stringify({ 
-          message: 'Premium access granted',
-          userType: session.user.type,
-        }));
+        return new Response(
+          JSON.stringify({
+            message: 'Premium access granted',
+            userType: session.user.type,
+          }),
+        );
       });
 
       // Test regular user - should fail admin check
@@ -319,7 +345,7 @@ describe('Auth Middleware Integration Tests', () => {
       });
       let response = await requireAdmin(request);
       await assertErrorResponse(response, 403, 'Admin access required');
-      
+
       // Test regular user - should fail premium check
       request = createMockRequest('http://localhost:3000/api/premium', {
         headers: { Authorization: `Bearer ${tokens[0].token}` },
@@ -333,7 +359,7 @@ describe('Auth Middleware Integration Tests', () => {
       });
       response = await requireAdmin(request);
       await assertErrorResponse(response, 403, 'Admin access required');
-      
+
       // Test premium user - should pass premium check
       request = createMockRequest('http://localhost:3000/api/premium', {
         headers: { Authorization: `Bearer ${tokens[1].token}` },
@@ -349,7 +375,7 @@ describe('Auth Middleware Integration Tests', () => {
       });
       response = await requireAdmin(request);
       await assertSuccessResponse(response);
-      
+
       request = createMockRequest('http://localhost:3000/api/premium', {
         headers: { Authorization: `Bearer ${tokens[2].token}` },
       });
@@ -367,21 +393,33 @@ describe('Auth Middleware Integration Tests', () => {
       ]);
 
       // Sign in users
-      const regularToken = await auth.api.signInEmail({
-        body: { email: regularUser.user.email, password: regularUser.password },
-        asResponse: true,
-      }).then(r => r.json()).then(d => d.session.token);
-      
-      const premiumToken = await auth.api.signInEmail({
-        body: { email: premiumUser.user.email, password: premiumUser.password },
-        asResponse: true,
-      }).then(r => r.json()).then(d => d.session.token);
+      const regularToken = await auth.api
+        .signInEmail({
+          body: {
+            email: regularUser.user.email,
+            password: regularUser.password,
+          },
+          asResponse: true,
+        })
+        .then((r) => r.json())
+        .then((d) => d.session.token);
+
+      const premiumToken = await auth.api
+        .signInEmail({
+          body: {
+            email: premiumUser.user.email,
+            password: premiumUser.password,
+          },
+          asResponse: true,
+        })
+        .then((r) => r.json())
+        .then((d) => d.session.token);
 
       // Create rate-limited endpoint with real rate limit tracking
       const rateLimitedHandler = withAuth(async (req, session) => {
         // Track requests in database
         const windowStart = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 hour window
-        
+
         const requestCount = await db
           .select({ count: schema.rateLimitLog.id })
           .from(schema.rateLimitLog)
@@ -389,38 +427,40 @@ describe('Auth Middleware Integration Tests', () => {
             and(
               eq(schema.rateLimitLog.userId, session.user.id),
               eq(schema.rateLimitLog.endpoint, '/api/test'),
-              gte(schema.rateLimitLog.createdAt, windowStart)
-            )
+              gte(schema.rateLimitLog.createdAt, windowStart),
+            ),
           )
-          .then(r => r[0]?.count || 0);
-        
+          .then((r) => r[0]?.count || 0);
+
         const limits = {
           regular: 10,
           premium: 100,
           admin: 1000,
         };
-        
+
         const userLimit = limits[session.user.type];
-        
+
         if (requestCount >= userLimit) {
           return new Response(
-            JSON.stringify({ 
+            JSON.stringify({
               error: 'Rate limit exceeded',
               limit: userLimit,
               used: requestCount,
               resetAt: new Date(windowStart.getTime() + 24 * 60 * 60 * 1000),
             }),
-            { 
+            {
               status: 429,
               headers: {
                 'X-RateLimit-Limit': userLimit.toString(),
                 'X-RateLimit-Remaining': '0',
-                'X-RateLimit-Reset': new Date(windowStart.getTime() + 24 * 60 * 60 * 1000).toISOString(),
+                'X-RateLimit-Reset': new Date(
+                  windowStart.getTime() + 24 * 60 * 60 * 1000,
+                ).toISOString(),
               },
-            }
+            },
           );
         }
-        
+
         // Log this request
         await db.insert(schema.rateLimitLog).values({
           userId: session.user.id,
@@ -428,16 +468,23 @@ describe('Auth Middleware Integration Tests', () => {
           ipAddress: req.headers.get('x-forwarded-for') || '127.0.0.1',
           userAgent: req.headers.get('user-agent') || 'unknown',
         });
-        
-        return new Response(JSON.stringify({ 
-          message: 'Success',
-          remaining: userLimit - requestCount - 1,
-        }), {
-          headers: {
-            'X-RateLimit-Limit': userLimit.toString(),
-            'X-RateLimit-Remaining': (userLimit - requestCount - 1).toString(),
+
+        return new Response(
+          JSON.stringify({
+            message: 'Success',
+            remaining: userLimit - requestCount - 1,
+          }),
+          {
+            headers: {
+              'X-RateLimit-Limit': userLimit.toString(),
+              'X-RateLimit-Remaining': (
+                userLimit -
+                requestCount -
+                1
+              ).toString(),
+            },
           },
-        });
+        );
       });
 
       // Test regular user rate limiting
@@ -445,9 +492,9 @@ describe('Auth Middleware Integration Tests', () => {
         const request = createMockRequest('http://localhost:3000/api/test', {
           headers: { Authorization: `Bearer ${regularToken}` },
         });
-        
+
         const response = await rateLimitedHandler(request);
-        
+
         if (i < 10) {
           expect(response.status).toBe(200);
           const remaining = response.headers.get('X-RateLimit-Remaining');
@@ -459,35 +506,35 @@ describe('Auth Middleware Integration Tests', () => {
           expect(data.used).toBeGreaterThanOrEqual(10);
         }
       }
-      
+
       // Test premium user higher limit
       for (let i = 0; i < 5; i++) {
         const request = createMockRequest('http://localhost:3000/api/test', {
           headers: { Authorization: `Bearer ${premiumToken}` },
         });
-        
+
         const response = await rateLimitedHandler(request);
         expect(response.status).toBe(200);
-        
+
         const remaining = response.headers.get('X-RateLimit-Remaining');
         expect(Number(remaining)).toBe(99 - i);
       }
-      
+
       // Verify rate limit logs
       const regularLogs = await db
         .select()
         .from(schema.rateLimitLog)
         .where(eq(schema.rateLimitLog.userId, regularUser.user.id));
-      
+
       expect(regularLogs.length).toBeGreaterThanOrEqual(10);
-      
+
       const premiumLogs = await db
         .select()
         .from(schema.rateLimitLog)
         .where(eq(schema.rateLimitLog.userId, premiumUser.user.id));
-      
+
       expect(premiumLogs.length).toBe(5);
-      
+
       // Record metrics
       metrics.record('auth.rate_limit.regular.requests', regularLogs.length);
       metrics.record('auth.rate_limit.premium.requests', premiumLogs.length);
@@ -498,7 +545,8 @@ describe('Auth Middleware Integration Tests', () => {
     it('should validate session tokens properly with real auth flow', async () => {
       const { db } = testContext;
 
-      const { user, password } = await testContext.factories.createUserWithAuth();
+      const { user, password } =
+        await testContext.factories.createUserWithAuth();
 
       // Create valid session through authentication
       const signInResponse = await auth.api.signInEmail({
@@ -509,11 +557,13 @@ describe('Auth Middleware Integration Tests', () => {
 
       // Test with valid token
       const protectedHandler = withAuth(async (req, session) => {
-        return new Response(JSON.stringify({
-          message: 'Success',
-          sessionId: session.session.id,
-          userId: session.user.id,
-        }));
+        return new Response(
+          JSON.stringify({
+            message: 'Success',
+            sessionId: session.session.id,
+            userId: session.user.id,
+          }),
+        );
       });
 
       let request = createMockRequest('http://localhost:3000/api/test', {
@@ -521,7 +571,7 @@ describe('Auth Middleware Integration Tests', () => {
       });
       let response = await protectedHandler(request);
       await assertSuccessResponse(response);
-      
+
       const successData = await response.json();
       expect(successData.userId).toBe(user.id);
 
@@ -531,14 +581,14 @@ describe('Auth Middleware Integration Tests', () => {
       });
       response = await protectedHandler(request);
       expect(response.status).toBe(401);
-      
+
       // Test with malformed token
       request = createMockRequest('http://localhost:3000/api/test', {
         headers: { Authorization: 'InvalidFormat token' },
       });
       response = await protectedHandler(request);
       expect(response.status).toBe(401);
-      
+
       // Test without token
       request = createMockRequest('http://localhost:3000/api/test');
       response = await protectedHandler(request);
@@ -548,14 +598,15 @@ describe('Auth Middleware Integration Tests', () => {
     it('should prevent session hijacking with real session tracking', async () => {
       const { db } = testContext;
 
-      const { user, password } = await testContext.factories.createUserWithAuth();
+      const { user, password } =
+        await testContext.factories.createUserWithAuth();
 
       // Create session from specific device/location
       const originalDevice = {
         userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0',
         ipAddress: '192.168.1.100',
       };
-      
+
       const signInResponse = await auth.api.signInEmail({
         body: { email: user.email, password },
         headers: {
@@ -564,7 +615,7 @@ describe('Auth Middleware Integration Tests', () => {
         },
         asResponse: true,
       });
-      
+
       const { session } = await signInResponse.json();
 
       // Store session metadata for hijacking detection
@@ -581,23 +632,23 @@ describe('Auth Middleware Integration Tests', () => {
         // Additional security checks
         const currentUA = req.headers.get('user-agent');
         const currentIP = req.headers.get('x-forwarded-for');
-        
+
         const dbSession = await db.query.session.findFirst({
           where: (s, { eq }) => eq(s.id, sessionData.session.id),
         });
-        
+
         if (dbSession) {
           // Check for hijacking indicators
           if (dbSession.userAgent && currentUA !== dbSession.userAgent) {
             return new Response(
-              JSON.stringify({ 
+              JSON.stringify({
                 error: 'Session security violation',
                 reason: 'User agent mismatch',
               }),
-              { status: 401 }
+              { status: 401 },
             );
           }
-          
+
           if (dbSession.ipAddress && currentIP !== dbSession.ipAddress) {
             // Log suspicious activity
             await db.insert(schema.rateLimitLog).values({
@@ -606,18 +657,20 @@ describe('Auth Middleware Integration Tests', () => {
               ipAddress: currentIP,
               userAgent: currentUA,
             });
-            
+
             return new Response(
-              JSON.stringify({ 
+              JSON.stringify({
                 error: 'Session security violation',
                 reason: 'IP address change detected',
               }),
-              { status: 401 }
+              { status: 401 },
             );
           }
         }
-        
-        return new Response(JSON.stringify({ message: 'Secure access granted' }));
+
+        return new Response(
+          JSON.stringify({ message: 'Secure access granted' }),
+        );
       });
 
       // Test with original device - should succeed
@@ -628,7 +681,7 @@ describe('Auth Middleware Integration Tests', () => {
           'x-forwarded-for': originalDevice.ipAddress,
         },
       });
-      
+
       let response = await secureHandler(request);
       await assertSuccessResponse(response);
 
@@ -640,7 +693,7 @@ describe('Auth Middleware Integration Tests', () => {
           'x-forwarded-for': originalDevice.ipAddress,
         },
       });
-      
+
       response = await secureHandler(request);
       expect(response.status).toBe(401);
       const error1 = await response.json();
@@ -654,12 +707,12 @@ describe('Auth Middleware Integration Tests', () => {
           'x-forwarded-for': '10.0.0.1',
         },
       });
-      
+
       response = await secureHandler(request);
       expect(response.status).toBe(401);
       const error2 = await response.json();
       expect(error2.reason).toBe('IP address change detected');
-      
+
       // Verify security log was created
       const securityLogs = await db
         .select()
@@ -667,18 +720,19 @@ describe('Auth Middleware Integration Tests', () => {
         .where(
           and(
             eq(schema.rateLimitLog.userId, user.id),
-            eq(schema.rateLimitLog.endpoint, '/security/hijack-attempt')
-          )
+            eq(schema.rateLimitLog.endpoint, '/security/hijack-attempt'),
+          ),
         );
-      
+
       expect(securityLogs.length).toBeGreaterThan(0);
     });
 
     it('should handle CSRF protection with real token generation', async () => {
       const { db } = testContext;
 
-      const { user, password } = await testContext.factories.createUserWithAuth();
-      
+      const { user, password } =
+        await testContext.factories.createUserWithAuth();
+
       // Sign in to get session
       const signInResponse = await auth.api.signInEmail({
         body: { email: user.email, password },
@@ -696,35 +750,37 @@ describe('Auth Middleware Integration Tests', () => {
       // Create CSRF-protected handler
       const csrfProtectedHandler = withAuth(async (req, sessionData) => {
         const method = req.method;
-        
+
         // Only check CSRF for state-changing operations
         if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
           const providedToken = req.headers.get('X-CSRF-Token');
-          
+
           // Get session with CSRF token
           const dbSession = await db.query.session.findFirst({
             where: (s, { eq }) => eq(s.id, sessionData.session.id),
           });
-          
+
           if (!dbSession?.csrfToken || providedToken !== dbSession.csrfToken) {
             return new Response(
-              JSON.stringify({ 
+              JSON.stringify({
                 error: 'CSRF token validation failed',
                 provided: !!providedToken,
                 method,
               }),
-              { 
+              {
                 status: 403,
                 headers: { 'X-CSRF-Required': 'true' },
-              }
+              },
             );
           }
         }
-        
-        return new Response(JSON.stringify({ 
-          message: 'Request successful',
-          method,
-        }));
+
+        return new Response(
+          JSON.stringify({
+            message: 'Request successful',
+            method,
+          }),
+        );
       });
 
       // Test GET request - no CSRF required
@@ -831,7 +887,7 @@ describe('Auth Middleware Integration Tests', () => {
           createdAt: new Date(),
           updatedAt: new Date(),
         };
-        
+
         await db.insert(schema.account).values(accountData);
       }
 
@@ -846,30 +902,33 @@ describe('Auth Middleware Integration Tests', () => {
       });
 
       expect(userWithAccounts?.accounts).toHaveLength(2);
-      expect(userWithAccounts?.accounts.map(a => a.providerId).sort()).toEqual(['github', 'google']);
-      
+      expect(
+        userWithAccounts?.accounts.map((a) => a.providerId).sort(),
+      ).toEqual(['github', 'google']);
+
       // Test account lookup by provider
       const googleAccount = await db.query.account.findFirst({
-        where: (a, { and, eq }) => 
-          and(
-            eq(a.userId, user.id),
-            eq(a.providerId, 'google')
-          ),
+        where: (a, { and, eq }) =>
+          and(eq(a.userId, user.id), eq(a.providerId, 'google')),
       });
-      
+
       expect(googleAccount).toBeDefined();
       expect(googleAccount?.accessToken).toContain('google-access-');
       expect(googleAccount?.refreshToken).toContain('google-refresh-');
       expect(googleAccount?.scope).toBe('openid profile email');
-      
+
       // Test token refresh simulation
       if (googleAccount && googleAccount.accessTokenExpiresAt) {
-        const isExpired = googleAccount.accessTokenExpiresAt.getTime() < Date.now();
-        if (isExpired || googleAccount.accessTokenExpiresAt.getTime() < Date.now() + 300 * 1000) {
+        const isExpired =
+          googleAccount.accessTokenExpiresAt.getTime() < Date.now();
+        if (
+          isExpired ||
+          googleAccount.accessTokenExpiresAt.getTime() < Date.now() + 300 * 1000
+        ) {
           // Refresh token
           const newAccessToken = `google-access-refreshed-${nanoid()}`;
           const newExpiresAt = new Date(Date.now() + 3600 * 1000);
-          
+
           await db
             .update(schema.account)
             .set({
@@ -880,8 +939,8 @@ describe('Auth Middleware Integration Tests', () => {
             .where(
               and(
                 eq(schema.account.userId, user.id),
-                eq(schema.account.providerId, 'google')
-              )
+                eq(schema.account.providerId, 'google'),
+              ),
             );
         }
       }
@@ -911,9 +970,9 @@ describe('Auth Middleware Integration Tests', () => {
           updatedAt: new Date(),
         },
       ];
-      
+
       await db.insert(schema.account).values(accounts);
-      
+
       // Create sessions
       const sessions = Array.from({ length: 3 }, () => ({
         id: nanoid(),
@@ -925,9 +984,9 @@ describe('Auth Middleware Integration Tests', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       }));
-      
+
       await db.insert(schema.session).values(sessions);
-      
+
       // Create documents (if user has documents)
       const document = {
         id: nanoid(),
@@ -941,42 +1000,54 @@ describe('Auth Middleware Integration Tests', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-      
+
       await db.insert(schema.ragDocument).values(document);
-      
+
       // Verify all data exists before deletion
       const preDeleteData = await Promise.all([
-        db.query.account.findMany({ where: (a, { eq }) => eq(a.userId, user.id) }),
-        db.query.session.findMany({ where: (s, { eq }) => eq(s.userId, user.id) }),
-        db.query.ragDocument.findMany({ where: (d, { eq }) => eq(d.uploadedBy, user.id) }),
+        db.query.account.findMany({
+          where: (a, { eq }) => eq(a.userId, user.id),
+        }),
+        db.query.session.findMany({
+          where: (s, { eq }) => eq(s.userId, user.id),
+        }),
+        db.query.ragDocument.findMany({
+          where: (d, { eq }) => eq(d.uploadedBy, user.id),
+        }),
       ]);
-      
+
       expect(preDeleteData[0]).toHaveLength(2); // accounts
       expect(preDeleteData[1]).toHaveLength(3); // sessions
       expect(preDeleteData[2]).toHaveLength(1); // documents
-      
+
       // Track deletion performance
       const deleteStart = Date.now();
-      
+
       // Delete user (should cascade to all related data)
       await db.delete(schema.user).where(eq(schema.user.id, user.id));
-      
+
       const deleteDuration = Date.now() - deleteStart;
       metrics.record('auth.user_deletion.duration', deleteDuration);
-      
+
       // Verify all related data is deleted
       const postDeleteData = await Promise.all([
         db.query.user.findFirst({ where: (u, { eq }) => eq(u.id, user.id) }),
-        db.query.account.findMany({ where: (a, { eq }) => eq(a.userId, user.id) }),
-        db.query.session.findMany({ where: (s, { eq }) => eq(s.userId, user.id) }),
-        db.query.ragDocument.findMany({ where: (d, { eq }) => eq(d.uploadedBy, user.id) }),
+        db.query.account.findMany({
+          where: (a, { eq }) => eq(a.userId, user.id),
+        }),
+        db.query.session.findMany({
+          where: (s, { eq }) => eq(s.userId, user.id),
+        }),
+        db.query.ragDocument.findMany({
+          where: (d, { eq }) => eq(d.uploadedBy, user.id),
+        }),
       ]);
-      
+
       expect(postDeleteData[0]).toBeUndefined(); // user
       expect(postDeleteData[1]).toHaveLength(0); // accounts
       expect(postDeleteData[2]).toHaveLength(0); // sessions
       expect(postDeleteData[3]).toHaveLength(0); // documents
-      
+
       // Verify cascade deletion performance
       expect(deleteDuration).toBeLessThan(1000); // Should complete within 1 second
     });

@@ -1,5 +1,10 @@
 import { nanoid } from 'nanoid';
-import type { AdeElement, AdeElementType, AdeOutput, BoundingBox } from '@/lib/ade/types';
+import type {
+  AdeElement,
+  AdeElementType,
+  AdeOutput,
+  BoundingBox,
+} from '@/lib/ade/types';
 import type { DocumentChunk } from '@/lib/db/schema';
 
 /**
@@ -136,7 +141,7 @@ export const createAdeTestDataFactory = () => {
       overrides?: Partial<AdeOutput>,
     ): AdeOutput => {
       const elements: AdeElement[] = [];
-      
+
       for (let page = 1; page <= pageCount; page++) {
         // Ensure each page has a title element
         elements.push({
@@ -154,7 +159,7 @@ export const createAdeTestDataFactory = () => {
       }
 
       const totalElements = elements.length;
-      const processingTimeMs = 1000 + (totalElements * 50) + (Math.random() * 2000);
+      const processingTimeMs = 1000 + totalElements * 50 + Math.random() * 2000;
 
       return {
         documentId,
@@ -162,7 +167,9 @@ export const createAdeTestDataFactory = () => {
         processingTimeMs,
         totalElements,
         pageCount,
-        confidence: elements.reduce((sum, el) => sum + (el.confidence || 0), 0) / totalElements,
+        confidence:
+          elements.reduce((sum, el) => sum + (el.confidence || 0), 0) /
+          totalElements,
         ...overrides,
       };
     },
@@ -173,7 +180,9 @@ export const createAdeTestDataFactory = () => {
     createEnhancedDocumentChunks: (
       documentId: string,
       adeOutput: AdeOutput,
-      chunkingStrategy: 'element_per_chunk' | 'semantic_grouping' = 'element_per_chunk',
+      chunkingStrategy:
+        | 'element_per_chunk'
+        | 'semantic_grouping' = 'element_per_chunk',
     ): Omit<DocumentChunk, 'id' | 'createdAt'>[] => {
       if (chunkingStrategy === 'element_per_chunk') {
         // One chunk per ADE element
@@ -202,9 +211,9 @@ export const createAdeTestDataFactory = () => {
           const semanticGroups = createSemanticGroups(pageElements);
 
           semanticGroups.forEach((group, groupIndex) => {
-            const combinedContent = group.map(el => el.content).join('\n\n');
+            const combinedContent = group.map((el) => el.content).join('\n\n');
             const primaryElement = group[0];
-            
+
             groupedChunks.push({
               documentId,
               chunkIndex: `${pageNumber}_${groupIndex}`,
@@ -212,9 +221,11 @@ export const createAdeTestDataFactory = () => {
               metadata: {
                 chunkIndex: groupedChunks.length,
                 pageNumber,
-                elementGroup: group.map(el => el.id),
+                elementGroup: group.map((el) => el.id),
                 primaryElementType: primaryElement.type,
-                confidence: group.reduce((sum, el) => sum + (el.confidence || 0), 0) / group.length,
+                confidence:
+                  group.reduce((sum, el) => sum + (el.confidence || 0), 0) /
+                  group.length,
               },
               tokenCount: Math.ceil(combinedContent.length / 4).toString(),
               elementType: primaryElement.type,
@@ -263,15 +274,18 @@ export const createAdeTestDataFactory = () => {
       chunksPerDocument: number,
       userId: string,
     ) => {
-      const documents = Array.from({ length: documentCount }, (_, docIndex) => ({
-        fileName: `perf_doc_${docIndex}_${nanoid()}.pdf`,
-        originalName: `Performance Test Document ${docIndex + 1}.pdf`,
-        filePath: `/uploads/perf_${docIndex}_${nanoid()}.pdf`,
-        mimeType: 'application/pdf',
-        fileSize: (Math.random() * 10 * 1024 * 1024 + 1024 * 1024).toString(),
-        status: 'processed' as const,
-        uploadedBy: userId,
-      }));
+      const documents = Array.from(
+        { length: documentCount },
+        (_, docIndex) => ({
+          fileName: `perf_doc_${docIndex}_${nanoid()}.pdf`,
+          originalName: `Performance Test Document ${docIndex + 1}.pdf`,
+          filePath: `/uploads/perf_${docIndex}_${nanoid()}.pdf`,
+          mimeType: 'application/pdf',
+          fileSize: (Math.random() * 10 * 1024 * 1024 + 1024 * 1024).toString(),
+          status: 'processed' as const,
+          uploadedBy: userId,
+        }),
+      );
 
       const allChunks = documents.flatMap((doc, docIndex) =>
         Array.from({ length: chunksPerDocument }, (_, chunkIndex) => {
@@ -305,7 +319,10 @@ export const createAdeTestDataFactory = () => {
      */
     createSpatialTestData: (
       documentId: string,
-      layoutType: 'single_column' | 'two_column' | 'complex_layout' = 'single_column',
+      layoutType:
+        | 'single_column'
+        | 'two_column'
+        | 'complex_layout' = 'single_column',
     ): Omit<DocumentChunk, 'id' | 'createdAt'>[] => {
       const chunks: Omit<DocumentChunk, 'id' | 'createdAt'>[] = [];
       const pageWidth = 595; // A4 width in points
@@ -336,14 +353,26 @@ export const createAdeTestDataFactory = () => {
       } else if (layoutType === 'two_column') {
         const leftColumn = pageWidth * 0.48;
         const rightColumnStart = pageWidth * 0.52;
-        
+
         const elements = [
           { type: 'header' as AdeElementType, bbox: [50, 50, 545, 80] },
           { type: 'title' as AdeElementType, bbox: [50, 100, 545, 150] },
-          { type: 'paragraph' as AdeElementType, bbox: [50, 180, leftColumn, 350] },
-          { type: 'paragraph' as AdeElementType, bbox: [rightColumnStart, 180, 545, 350] },
-          { type: 'figure' as AdeElementType, bbox: [50, 370, leftColumn, 500] },
-          { type: 'table' as AdeElementType, bbox: [rightColumnStart, 370, 545, 500] },
+          {
+            type: 'paragraph' as AdeElementType,
+            bbox: [50, 180, leftColumn, 350],
+          },
+          {
+            type: 'paragraph' as AdeElementType,
+            bbox: [rightColumnStart, 180, 545, 350],
+          },
+          {
+            type: 'figure' as AdeElementType,
+            bbox: [50, 370, leftColumn, 500],
+          },
+          {
+            type: 'table' as AdeElementType,
+            bbox: [rightColumnStart, 370, 545, 500],
+          },
         ];
 
         elements.forEach((element, index) => {
@@ -376,7 +405,8 @@ export const createAdeTestDataFactory = () => {
         },
         {
           elementType: 'paragraph' as AdeElementType,
-          content: 'The installation process requires careful attention to environmental conditions.',
+          content:
+            'The installation process requires careful attention to environmental conditions.',
           pageNumber: 3,
           expected: `${documentName}, page 3 (paragraph)`,
         },
@@ -408,7 +438,10 @@ export const createAdeTestDataFactory = () => {
         tokenCount: Math.ceil(scenario.content.length / 4).toString(),
         elementType: scenario.elementType,
         pageNumber: scenario.pageNumber,
-        bbox: generateRealisticBoundingBox(scenario.elementType, scenario.pageNumber),
+        bbox: generateRealisticBoundingBox(
+          scenario.elementType,
+          scenario.pageNumber,
+        ),
         expectedCitation: scenario.expected,
       }));
     },
@@ -416,19 +449,28 @@ export const createAdeTestDataFactory = () => {
     /**
      * Create context assembly test data
      */
-    createContextAssemblyData: (documentId: string, contextSize: number = 20) => {
-      const contextTypes: AdeElementType[] = ['title', 'paragraph', 'list_item', 'table', 'figure'];
-      
+    createContextAssemblyData: (
+      documentId: string,
+      contextSize: number = 20,
+    ) => {
+      const contextTypes: AdeElementType[] = [
+        'title',
+        'paragraph',
+        'list_item',
+        'table',
+        'figure',
+      ];
+
       return Array.from({ length: contextSize }, (_, index) => {
         const elementType = contextTypes[index % contextTypes.length];
         const pageNumber = Math.floor(index / 4) + 1;
-        
+
         return {
           documentId,
           chunkIndex: index.toString(),
           content: generateContextContent(elementType, index),
-          metadata: { 
-            chunkIndex: index, 
+          metadata: {
+            chunkIndex: index,
             context_test: true,
             relevance_score: Math.random() * 0.3 + 0.7, // 0.7-1.0
           },
@@ -445,14 +487,14 @@ export const createAdeTestDataFactory = () => {
   function selectWeightedElementType(): AdeElementType {
     const random = Math.random();
     let cumulative = 0;
-    
+
     for (const [type, weight] of Object.entries(ELEMENT_TYPE_WEIGHTS)) {
       cumulative += weight;
       if (random <= cumulative) {
         return type as AdeElementType;
       }
     }
-    
+
     return 'paragraph'; // fallback
   }
 
@@ -463,7 +505,7 @@ export const createAdeTestDataFactory = () => {
     const pageWidth = 595; // A4 width in points
     const pageHeight = 842; // A4 height in points
     const margin = 50;
-    
+
     // Base dimensions by element type
     const baseDimensions = {
       title: { width: pageWidth - 2 * margin, height: 50 },
@@ -478,11 +520,11 @@ export const createAdeTestDataFactory = () => {
     };
 
     const dims = baseDimensions[elementType] || baseDimensions.paragraph;
-    
+
     // Position based on element type and some randomness
     let x1 = margin;
-    let y1 = margin + (Math.random() * 200);
-    
+    let y1 = margin + Math.random() * 200;
+
     if (elementType === 'header') {
       y1 = margin;
     } else if (elementType === 'footer') {
@@ -499,21 +541,27 @@ export const createAdeTestDataFactory = () => {
     return [x1, y1, x2, y2];
   }
 
-  function generateRealisticContent(elementType: AdeElementType, index: number): string {
+  function generateRealisticContent(
+    elementType: AdeElementType,
+    index: number,
+  ): string {
     const templates = CONTENT_TEMPLATES[elementType];
     const baseContent = templates[index % templates.length];
-    
+
     // Add some variation
     if (elementType === 'paragraph') {
       return `${baseContent} This provides additional context and detail for chunk ${index + 1}.`;
     } else if (elementType === 'list_item') {
       return baseContent.replace(/\d+/, (index + 1).toString());
     }
-    
+
     return baseContent;
   }
 
-  function generateContextContent(elementType: AdeElementType, index: number): string {
+  function generateContextContent(
+    elementType: AdeElementType,
+    index: number,
+  ): string {
     const contextPhrases = {
       title: [`Section ${index + 1}: Advanced System Configuration`],
       paragraph: [
@@ -535,19 +583,22 @@ export const createAdeTestDataFactory = () => {
   }
 
   function groupElements(elements: AdeElement[]): Record<string, AdeElement[]> {
-    return elements.reduce((groups, element) => {
-      const page = element.pageNumber.toString();
-      if (!groups[page]) {
-        groups[page] = [];
-      }
-      groups[page].push(element);
-      return groups;
-    }, {} as Record<string, AdeElement[]>);
+    return elements.reduce(
+      (groups, element) => {
+        const page = element.pageNumber.toString();
+        if (!groups[page]) {
+          groups[page] = [];
+        }
+        groups[page].push(element);
+        return groups;
+      },
+      {} as Record<string, AdeElement[]>,
+    );
   }
 
   function createSemanticGroups(pageElements: AdeElement[]): AdeElement[][] {
     const groups: AdeElement[][] = [];
-    
+
     // Sort by position on page
     const sorted = pageElements.sort((a, b) => {
       const aY = a.bbox?.[1] || 0;
@@ -556,7 +607,7 @@ export const createAdeTestDataFactory = () => {
     });
 
     let currentGroup: AdeElement[] = [];
-    
+
     sorted.forEach((element) => {
       // Start new group for titles or when group gets too large
       if (element.type === 'title' || currentGroup.length >= 3) {
@@ -596,7 +647,9 @@ export const createMockAdeApiResponse = (
     };
   }
 
-  const mockElements = elements || createAdeTestDataFactory().createAdeOutput(documentId, 5, 6).elements;
+  const mockElements =
+    elements ||
+    createAdeTestDataFactory().createAdeOutput(documentId, 5, 6).elements;
 
   return {
     status: 'success' as const,
@@ -619,9 +672,11 @@ export const createMockAdeApiResponse = (
         metadata: element.metadata,
       })),
       document_metadata: {
-        total_pages: Math.max(...mockElements.map(e => e.pageNumber)),
+        total_pages: Math.max(...mockElements.map((e) => e.pageNumber)),
         processing_time_ms: 2500,
-        confidence_score: mockElements.reduce((sum, el) => sum + (el.confidence || 0), 0) / mockElements.length,
+        confidence_score:
+          mockElements.reduce((sum, el) => sum + (el.confidence || 0), 0) /
+          mockElements.length,
       },
     },
   };
@@ -651,8 +706,10 @@ export const createPerformanceBenchmark = () => ({
     }));
 
     const enhanced = Array.from({ length: enhancedChunks }, (_, i) => {
-      const elementType = (['paragraph', 'title', 'table', 'list_item'] as AdeElementType[])[i % 4];
-      
+      const elementType = (
+        ['paragraph', 'title', 'table', 'list_item'] as AdeElementType[]
+      )[i % 4];
+
       return {
         documentId,
         chunkIndex: (baselineChunks + i).toString(),
@@ -673,7 +730,7 @@ export const createPerformanceBenchmark = () => ({
    */
   trackMemoryUsage: (operation: string) => {
     const before = process.memoryUsage();
-    
+
     return {
       start: () => before,
       end: () => {

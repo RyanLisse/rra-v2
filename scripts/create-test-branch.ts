@@ -29,7 +29,7 @@ function parseArgs(): CliArgs {
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    
+
     if (arg === '--help' || arg === '-h') {
       result.help = true;
     } else if (arg === '--pooled') {
@@ -93,7 +93,7 @@ async function main() {
 
   try {
     const manager = getTestBranchManager();
-    
+
     console.log('⏳ Creating branch...');
     const branch = await manager.createTestBranch(args.suiteName, {
       parentBranchId: args.parentBranchId,
@@ -118,19 +118,20 @@ async function main() {
     console.log('💡 Usage:');
     console.log(`   export POSTGRES_URL="${branch.connectionString}"`);
     if (branch.pooledConnectionString) {
-      console.log(`   export POSTGRES_POOLED_URL="${branch.pooledConnectionString}"`);
+      console.log(
+        `   export POSTGRES_POOLED_URL="${branch.pooledConnectionString}"`,
+      );
     }
     console.log('');
     console.log('🗑️  Cleanup:');
     console.log(`   bun run scripts/delete-test-branch.ts ${branch.branchId}`);
-
   } catch (error) {
     console.error('❌ Error creating branch:', error);
     process.exit(1);
   }
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error('❌ Unexpected error:', error);
   process.exit(1);
 });

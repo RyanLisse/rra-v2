@@ -28,20 +28,23 @@ export interface PerformanceMetrics {
  */
 export class NeonLogger {
   private logs: LogEntry[] = [];
-  private metrics = new Map<string, {
-    count: number;
-    totalDuration: number;
-    minDuration: number;
-    maxDuration: number;
-    successCount: number;
-    lastExecuted: string;
-  }>();
+  private metrics = new Map<
+    string,
+    {
+      count: number;
+      totalDuration: number;
+      minDuration: number;
+      maxDuration: number;
+      successCount: number;
+      lastExecuted: string;
+    }
+  >();
   private readonly maxLogs: number;
   private readonly enableConsoleOutput: boolean;
 
   constructor(
     maxLogs: number = 1000,
-    enableConsoleOutput: boolean = process.env.NODE_ENV !== 'production'
+    enableConsoleOutput: boolean = process.env.NODE_ENV !== 'production',
   ) {
     this.maxLogs = maxLogs;
     this.enableConsoleOutput = enableConsoleOutput;
@@ -50,44 +53,72 @@ export class NeonLogger {
   /**
    * Log a debug message
    */
-  debug(operation: string, message: string, metadata?: Record<string, any>): void {
+  debug(
+    operation: string,
+    message: string,
+    metadata?: Record<string, any>,
+  ): void {
     this.log('debug', operation, message, metadata);
   }
 
   /**
    * Log an info message
    */
-  info(operation: string, message: string, metadata?: Record<string, any>): void {
+  info(
+    operation: string,
+    message: string,
+    metadata?: Record<string, any>,
+  ): void {
     this.log('info', operation, message, metadata);
   }
 
   /**
    * Log a warning message
    */
-  warn(operation: string, message: string, metadata?: Record<string, any>): void {
+  warn(
+    operation: string,
+    message: string,
+    metadata?: Record<string, any>,
+  ): void {
     this.log('warn', operation, message, metadata);
   }
 
   /**
    * Log an error message
    */
-  error(operation: string, message: string, error?: Error, metadata?: Record<string, any>): void {
-    this.log('error', operation, message, {
-      ...metadata,
-      error: error?.message,
-      stack: error?.stack
-    }, undefined, error?.message);
+  error(
+    operation: string,
+    message: string,
+    error?: Error,
+    metadata?: Record<string, any>,
+  ): void {
+    this.log(
+      'error',
+      operation,
+      message,
+      {
+        ...metadata,
+        error: error?.message,
+        stack: error?.stack,
+      },
+      undefined,
+      error?.message,
+    );
   }
 
   /**
    * Log the start of an operation
    */
-  startOperation(operation: string, message: string, metadata?: Record<string, any>): string {
+  startOperation(
+    operation: string,
+    message: string,
+    metadata?: Record<string, any>,
+  ): string {
     const operationId = `${operation}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
     this.log('info', operation, `Starting: ${message}`, {
       ...metadata,
       operationId,
-      phase: 'start'
+      phase: 'start',
     });
     return operationId;
   }
@@ -101,18 +132,26 @@ export class NeonLogger {
     success: boolean,
     duration: number,
     message?: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, any>,
   ): void {
     const level = success ? 'info' : 'error';
-    const statusMessage = message || (success ? 'Operation completed successfully' : 'Operation failed');
-    
-    this.log(level, operation, statusMessage, {
-      ...metadata,
-      operationId,
-      phase: 'complete',
-      success,
-      duration_ms: duration
-    }, duration);
+    const statusMessage =
+      message ||
+      (success ? 'Operation completed successfully' : 'Operation failed');
+
+    this.log(
+      level,
+      operation,
+      statusMessage,
+      {
+        ...metadata,
+        operationId,
+        phase: 'complete',
+        success,
+        duration_ms: duration,
+      },
+      duration,
+    );
 
     // Update metrics
     this.updateMetrics(operation, duration, success);
@@ -123,11 +162,11 @@ export class NeonLogger {
    */
   getLogs(limit?: number, level?: LogEntry['level']): LogEntry[] {
     let filteredLogs = this.logs;
-    
+
     if (level) {
-      filteredLogs = this.logs.filter(log => log.level === level);
+      filteredLogs = this.logs.filter((log) => log.level === level);
     }
-    
+
     return limit ? filteredLogs.slice(-limit) : filteredLogs;
   }
 
@@ -135,7 +174,7 @@ export class NeonLogger {
    * Get performance metrics for operations
    */
   getMetrics(operation?: string): PerformanceMetrics[] {
-    const metricsEntries = operation 
+    const metricsEntries = operation
       ? [[operation, this.metrics.get(operation)]]
       : Array.from(this.metrics.entries());
 
@@ -149,7 +188,7 @@ export class NeonLogger {
         minDuration: data.minDuration,
         maxDuration: data.maxDuration,
         successRate: Math.round((data.successCount / data.count) * 100) / 100,
-        lastExecuted: data.lastExecuted
+        lastExecuted: data.lastExecuted,
       }));
   }
 
@@ -162,19 +201,21 @@ export class NeonLogger {
     recentErrors: LogEntry[];
   } {
     const sinceTime = since?.getTime() || 0;
-    const errors = this.logs.filter(log => 
-      log.level === 'error' && new Date(log.timestamp).getTime() >= sinceTime
+    const errors = this.logs.filter(
+      (log) =>
+        log.level === 'error' && new Date(log.timestamp).getTime() >= sinceTime,
     );
 
     const errorsByOperation: Record<string, number> = {};
-    errors.forEach(error => {
-      errorsByOperation[error.operation] = (errorsByOperation[error.operation] || 0) + 1;
+    errors.forEach((error) => {
+      errorsByOperation[error.operation] =
+        (errorsByOperation[error.operation] || 0) + 1;
     });
 
     return {
       totalErrors: errors.length,
       errorsByOperation,
-      recentErrors: errors.slice(-10)
+      recentErrors: errors.slice(-10),
     };
   }
 
@@ -197,7 +238,7 @@ export class NeonLogger {
     return {
       logs: this.logs,
       metrics: this.getMetrics(),
-      exportedAt: new Date().toISOString()
+      exportedAt: new Date().toISOString(),
     };
   }
 
@@ -206,17 +247,17 @@ export class NeonLogger {
    */
   import(data: { logs: LogEntry[]; metrics?: PerformanceMetrics[] }): void {
     this.logs = data.logs;
-    
+
     if (data.metrics) {
       this.metrics.clear();
-      data.metrics.forEach(metric => {
+      data.metrics.forEach((metric) => {
         this.metrics.set(metric.operation, {
           count: metric.count,
           totalDuration: metric.totalDuration,
           minDuration: metric.minDuration,
           maxDuration: metric.maxDuration,
           successCount: Math.round(metric.count * metric.successRate),
-          lastExecuted: metric.lastExecuted
+          lastExecuted: metric.lastExecuted,
         });
       });
     }
@@ -231,7 +272,7 @@ export class NeonLogger {
     message: string,
     metadata?: Record<string, any>,
     duration?: number,
-    error?: string
+    error?: string,
   ): void {
     const logEntry: LogEntry = {
       timestamp: new Date().toISOString(),
@@ -240,7 +281,7 @@ export class NeonLogger {
       message,
       metadata,
       duration_ms: duration,
-      error
+      error,
     };
 
     this.logs.push(logEntry);
@@ -253,8 +294,10 @@ export class NeonLogger {
     // Console output in development
     if (this.enableConsoleOutput) {
       const prefix = `[Neon:${operation}]`;
-      const fullMessage = metadata ? `${message} ${JSON.stringify(metadata)}` : message;
-      
+      const fullMessage = metadata
+        ? `${message} ${JSON.stringify(metadata)}`
+        : message;
+
       switch (level) {
         case 'debug':
           console.debug(prefix, fullMessage);
@@ -275,9 +318,13 @@ export class NeonLogger {
   /**
    * Update performance metrics
    */
-  private updateMetrics(operation: string, duration: number, success: boolean): void {
+  private updateMetrics(
+    operation: string,
+    duration: number,
+    success: boolean,
+  ): void {
     const existing = this.metrics.get(operation);
-    
+
     if (existing) {
       existing.count++;
       existing.totalDuration += duration;
@@ -292,7 +339,7 @@ export class NeonLogger {
         minDuration: duration,
         maxDuration: duration,
         successCount: success ? 1 : 0,
-        lastExecuted: new Date().toISOString()
+        lastExecuted: new Date().toISOString(),
       });
     }
   }
@@ -327,15 +374,18 @@ export function timed(operation: string) {
   return function <T extends (...args: any[]) => Promise<any>>(
     target: any,
     propertyName: string,
-    descriptor: TypedPropertyDescriptor<T>
+    descriptor: TypedPropertyDescriptor<T>,
   ) {
     const method = descriptor.value!;
-    
+
     descriptor.value = async function (...args: any[]) {
       const logger = getNeonLogger();
-      const operationId = logger.startOperation(operation, `${target.constructor.name}.${propertyName}`);
+      const operationId = logger.startOperation(
+        operation,
+        `${target.constructor.name}.${propertyName}`,
+      );
       const startTime = Date.now();
-      
+
       try {
         const result = await method.apply(this, args);
         const duration = Date.now() - startTime;
@@ -343,11 +393,17 @@ export function timed(operation: string) {
         return result;
       } catch (error) {
         const duration = Date.now() - startTime;
-        logger.completeOperation(operationId, operation, false, duration, (error as Error).message);
+        logger.completeOperation(
+          operationId,
+          operation,
+          false,
+          duration,
+          (error as Error).message,
+        );
         throw error;
       }
     } as T;
-    
+
     return descriptor;
   };
 }

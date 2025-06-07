@@ -5,21 +5,41 @@ describe('ADE Helpers Unit Tests', () => {
   describe('Validation Functions', () => {
     it('should validate bounding boxes correctly', () => {
       // Test array format
-      expect(ADEChunkHelpers.validateBoundingBox([10, 20, 100, 200])).toBe(true);
-      
+      expect(ADEChunkHelpers.validateBoundingBox([10, 20, 100, 200])).toBe(
+        true,
+      );
+
       // Test object format
-      expect(ADEChunkHelpers.validateBoundingBox({ x1: 10, y1: 20, x2: 100, y2: 200 })).toBe(true);
-      
+      expect(
+        ADEChunkHelpers.validateBoundingBox({
+          x1: 10,
+          y1: 20,
+          x2: 100,
+          y2: 200,
+        }),
+      ).toBe(true);
+
       // Test null
       expect(ADEChunkHelpers.validateBoundingBox(null)).toBe(true);
-      
+
       // Test invalid formats
       expect(ADEChunkHelpers.validateBoundingBox('invalid')).toBe(false);
       expect(ADEChunkHelpers.validateBoundingBox([1, 2, 3])).toBe(false); // Too few elements
       expect(ADEChunkHelpers.validateBoundingBox([1, 2, 3, 4, 5])).toBe(false); // Too many elements
-      expect(ADEChunkHelpers.validateBoundingBox([1, 2, 'invalid', 4])).toBe(false); // Non-numeric
-      expect(ADEChunkHelpers.validateBoundingBox({ x1: 10, y1: 20 })).toBe(false); // Missing coordinates
-      expect(ADEChunkHelpers.validateBoundingBox({ x1: 'invalid', y1: 20, x2: 100, y2: 200 })).toBe(false);
+      expect(ADEChunkHelpers.validateBoundingBox([1, 2, 'invalid', 4])).toBe(
+        false,
+      ); // Non-numeric
+      expect(ADEChunkHelpers.validateBoundingBox({ x1: 10, y1: 20 })).toBe(
+        false,
+      ); // Missing coordinates
+      expect(
+        ADEChunkHelpers.validateBoundingBox({
+          x1: 'invalid',
+          y1: 20,
+          x2: 100,
+          y2: 200,
+        }),
+      ).toBe(false);
     });
 
     it('should validate element types correctly', () => {
@@ -33,7 +53,7 @@ describe('ADE Helpers Unit Tests', () => {
       expect(ADEChunkHelpers.isValidElementType('footer')).toBe(true);
       expect(ADEChunkHelpers.isValidElementType('footnote')).toBe(true);
       expect(ADEChunkHelpers.isValidElementType(null)).toBe(true);
-      
+
       // Invalid types
       expect(ADEChunkHelpers.isValidElementType('invalid_type')).toBe(false);
       expect(ADEChunkHelpers.isValidElementType(123)).toBe(false);
@@ -49,17 +69,17 @@ describe('ADE Helpers Unit Tests', () => {
       // by checking that the validation function accepts all expected types
       const validTypes = [
         'paragraph',
-        'title', 
+        'title',
         'figure_caption',
         'table_text',
         'list_item',
         'header',
         'footer',
         'footnote',
-        null
+        null,
       ];
 
-      validTypes.forEach(type => {
+      validTypes.forEach((type) => {
         expect(ADEChunkHelpers.isValidElementType(type)).toBe(true);
       });
     });
@@ -74,8 +94,16 @@ describe('ADE Helpers Unit Tests', () => {
       expect(ADEChunkHelpers.validateBoundingBox(objectBbox)).toBe(true);
 
       // Object format with confidence (extra property should be fine)
-      const objectBboxWithConfidence = { x1: 0, y1: 0, x2: 100, y2: 100, confidence: 0.95 };
-      expect(ADEChunkHelpers.validateBoundingBox(objectBboxWithConfidence)).toBe(true);
+      const objectBboxWithConfidence = {
+        x1: 0,
+        y1: 0,
+        x2: 100,
+        y2: 100,
+        confidence: 0.95,
+      };
+      expect(
+        ADEChunkHelpers.validateBoundingBox(objectBboxWithConfidence),
+      ).toBe(true);
 
       // Edge case: negative coordinates (should be valid)
       const negativeBbox = [-10, -10, 50, 50];
@@ -110,7 +138,7 @@ describe('ADE Helpers Unit Tests', () => {
         { x1: undefined, y1: 2, x2: 3, y2: 4 },
       ];
 
-      malformedInputs.forEach(input => {
+      malformedInputs.forEach((input) => {
         expect(ADEChunkHelpers.validateBoundingBox(input)).toBe(false);
       });
     });
@@ -130,7 +158,7 @@ describe('ADE Helpers Unit Tests', () => {
         'random_string',
       ];
 
-      malformedInputs.forEach(input => {
+      malformedInputs.forEach((input) => {
         expect(ADEChunkHelpers.isValidElementType(input)).toBe(false);
       });
     });

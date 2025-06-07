@@ -57,16 +57,16 @@ Examples:
 
 function formatSize(bytes?: number): string {
   if (!bytes) return 'Unknown';
-  
+
   const units = ['B', 'KB', 'MB', 'GB'];
   let size = bytes;
   let unitIndex = 0;
-  
+
   while (size >= 1024 && unitIndex < units.length - 1) {
     size /= 1024;
     unitIndex++;
   }
-  
+
   return `${Math.round(size * 10) / 10} ${units[unitIndex]}`;
 }
 
@@ -74,11 +74,11 @@ function formatDate(dateString: string): string {
   const date = new Date(dateString);
   const now = new Date();
   const diff = now.getTime() - date.getTime();
-  
+
   const minutes = Math.floor(diff / (60 * 1000));
   const hours = Math.floor(diff / (60 * 60 * 1000));
   const days = Math.floor(diff / (24 * 60 * 60 * 1000));
-  
+
   if (days > 0) return `${days}d ago`;
   if (hours > 0) return `${hours}h ago`;
   if (minutes > 0) return `${minutes}m ago`;
@@ -102,10 +102,10 @@ async function main() {
   try {
     const manager = getTestBranchManager();
     const branches = await manager.listBranches();
-    
-    const filteredBranches = args.all 
-      ? branches 
-      : branches.filter(branch => branch.name.startsWith('test-'));
+
+    const filteredBranches = args.all
+      ? branches
+      : branches.filter((branch) => branch.name.startsWith('test-'));
 
     if (args.json) {
       console.log(JSON.stringify(filteredBranches, null, 2));
@@ -113,26 +113,38 @@ async function main() {
     }
 
     if (filteredBranches.length === 0) {
-      console.log(args.all ? '📭 No branches found' : '📭 No test branches found');
+      console.log(
+        args.all ? '📭 No branches found' : '📭 No test branches found',
+      );
       return;
     }
 
-    console.log(`📋 ${args.all ? 'All branches' : 'Test branches'} (${filteredBranches.length} total):`);
+    console.log(
+      `📋 ${args.all ? 'All branches' : 'Test branches'} (${filteredBranches.length} total):`,
+    );
     console.log('');
 
     // Group by type
-    const testBranches = filteredBranches.filter(b => b.name.startsWith('test-'));
-    const otherBranches = filteredBranches.filter(b => !b.name.startsWith('test-'));
+    const testBranches = filteredBranches.filter((b) =>
+      b.name.startsWith('test-'),
+    );
+    const otherBranches = filteredBranches.filter(
+      (b) => !b.name.startsWith('test-'),
+    );
 
     if (testBranches.length > 0) {
       console.log('🧪 Test Branches:');
       for (const branch of testBranches) {
-        const status = branch.current_state === 'ready' ? '🟢' : 
-                      branch.current_state === 'creating' ? '🟡' : '🔴';
+        const status =
+          branch.current_state === 'ready'
+            ? '🟢'
+            : branch.current_state === 'creating'
+              ? '🟡'
+              : '🔴';
         const primary = branch.primary ? ' (PRIMARY)' : '';
         const size = formatSize(branch.logical_size);
         const age = formatDate(branch.created_at);
-        
+
         console.log(`   ${status} ${branch.name}${primary}`);
         console.log(`      ID: ${branch.id}`);
         console.log(`      State: ${branch.current_state}`);
@@ -145,12 +157,16 @@ async function main() {
     if (args.all && otherBranches.length > 0) {
       console.log('🌿 Other Branches:');
       for (const branch of otherBranches) {
-        const status = branch.current_state === 'ready' ? '🟢' : 
-                      branch.current_state === 'creating' ? '🟡' : '🔴';
+        const status =
+          branch.current_state === 'ready'
+            ? '🟢'
+            : branch.current_state === 'creating'
+              ? '🟡'
+              : '🔴';
         const primary = branch.primary ? ' (PRIMARY)' : '';
         const size = formatSize(branch.logical_size);
         const age = formatDate(branch.created_at);
-        
+
         console.log(`   ${status} ${branch.name}${primary}`);
         console.log(`      ID: ${branch.id}`);
         console.log(`      State: ${branch.current_state}`);
@@ -161,23 +177,26 @@ async function main() {
     }
 
     // Summary
-    const readyCount = filteredBranches.filter(b => b.current_state === 'ready').length;
-    const creatingCount = filteredBranches.filter(b => b.current_state === 'creating').length;
-    const primaryCount = filteredBranches.filter(b => b.primary).length;
-    
+    const readyCount = filteredBranches.filter(
+      (b) => b.current_state === 'ready',
+    ).length;
+    const creatingCount = filteredBranches.filter(
+      (b) => b.current_state === 'creating',
+    ).length;
+    const primaryCount = filteredBranches.filter((b) => b.primary).length;
+
     console.log('📊 Summary:');
     console.log(`   Total: ${filteredBranches.length} branches`);
     console.log(`   Ready: ${readyCount}`);
     if (creatingCount > 0) console.log(`   Creating: ${creatingCount}`);
     if (args.all) console.log(`   Primary: ${primaryCount}`);
-
   } catch (error) {
     console.error('❌ Error listing branches:', error);
     process.exit(1);
   }
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error('❌ Unexpected error:', error);
   process.exit(1);
 });

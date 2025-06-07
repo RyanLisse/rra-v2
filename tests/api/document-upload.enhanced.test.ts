@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { POST } from '@/app/api/documents/upload/route';
-import { setupNeonTestBranching, runMigrationsOnTestBranch } from '../config/neon-branch-setup';
+import {
+  setupNeonTestBranching,
+  runMigrationsOnTestBranch,
+} from '../config/neon-branch-setup';
 import {
   createMockFormDataRequest,
   createTestUser,
@@ -12,9 +15,9 @@ import {
 import { db } from '@/lib/db';
 import { user, ragDocument } from '@/lib/db/schema';
 import { nanoid } from 'nanoid';
-import { 
-  getNeonApiClient, 
-  type PerformanceMetrics 
+import {
+  getNeonApiClient,
+  type PerformanceMetrics,
 } from '@/lib/testing/neon-api-client';
 import { getNeonLogger } from '@/lib/testing/neon-logger';
 import * as fs from 'node:fs/promises';
@@ -45,11 +48,13 @@ export class UploadTestDataFactory {
 
   private testFiles: string[] = [];
 
-  async createUserForUpload(userType: 'regular' | 'premium' | 'admin' = 'regular') {
+  async createUserForUpload(
+    userType: 'regular' | 'premium' | 'admin' = 'regular',
+  ) {
     const startTime = Date.now();
-    
+
     const userData = createTestUser({ type: userType });
-    
+
     // Insert user into real database
     const [insertedUser] = await db
       .insert(user)
@@ -62,7 +67,7 @@ export class UploadTestDataFactory {
       .returning();
 
     this.metrics.creationTime += Date.now() - startTime;
-    
+
     logger.info('upload_factory', 'Created user for upload', {
       userId: insertedUser.id,
       userType: insertedUser.type,
@@ -81,11 +86,11 @@ export class UploadTestDataFactory {
   async simulateFileUpload(file: File, uploadDir: string): Promise<string> {
     const fileName = `${nanoid()}-${file.name}`;
     const filePath = path.join(uploadDir, fileName);
-    
+
     // Convert File to Buffer and write to filesystem
     const buffer = Buffer.from(await file.arrayBuffer());
     await fs.writeFile(filePath, buffer);
-    
+
     this.testFiles.push(filePath);
     return filePath;
   }
@@ -117,7 +122,10 @@ export class UploadTestDataFactory {
 
 // Mock file system operations with real file handling
 vi.mock('node:fs/promises', async () => {
-  const actual = await vi.importActual<typeof import('node:fs/promises')>('node:fs/promises');
+  const actual =
+    await vi.importActual<typeof import('node:fs/promises')>(
+      'node:fs/promises',
+    );
   return {
     ...actual,
     writeFile: vi.fn().mockImplementation(actual.writeFile),
@@ -151,10 +159,10 @@ describe('Enhanced Document Upload API', () => {
   beforeEach(async () => {
     // Run migrations on the test branch before each test
     await runMigrationsOnTestBranch();
-    
+
     factory = new UploadTestDataFactory();
     factory.resetMetrics();
-    
+
     vi.clearAllMocks();
   });
 
@@ -165,7 +173,7 @@ describe('Enhanced Document Upload API', () => {
   describe('POST /api/documents/upload - Enhanced with Real File Operations', () => {
     it('should successfully upload and store valid PDF file', async () => {
       const startTime = Date.now();
-      
+
       // Create authenticated user
       const testUser = await factory.createUserForUpload('regular');
       mockAuthenticatedUser(testUser.id);
@@ -177,12 +185,12 @@ describe('Enhanced Document Upload API', () => {
       const mockHandler = vi.fn().mockImplementation(async (request) => {
         const formData = await request.formData();
         const files = formData.getAll('files') as File[];
-        
+
         if (files.length === 0) {
-          return new Response(
-            JSON.stringify({ error: 'No files uploaded' }),
-            { status: 400, headers: { 'Content-Type': 'application/json' } },
-          );
+          return new Response(JSON.stringify({ error: 'No files uploaded' }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' },
+          });
         }
 
         const uploadResults = [];
@@ -204,7 +212,7 @@ describe('Enhanced Document Upload API', () => {
 
             // Store file to filesystem
             const filePath = await factory.simulateFileUpload(file, uploadDir);
-            
+
             // Insert document record into database
             const insertStartTime = Date.now();
             const [insertedDocument] = await db
@@ -222,7 +230,7 @@ describe('Enhanced Document Upload API', () => {
                 updatedAt: new Date(),
               })
               .returning();
-            
+
             testMetrics = factory.getMetrics();
             testMetrics.insertTime += Date.now() - insertStartTime;
 
@@ -234,15 +242,16 @@ describe('Enhanced Document Upload API', () => {
               status: insertedDocument.status,
               filePath: insertedDocument.filePath,
             });
-
           } catch (error) {
-            errors.push(`Failed to process file ${file.name}: ${error instanceof Error ? error.message : String(error)}`);
+            errors.push(
+              `Failed to process file ${file.name}: ${error instanceof Error ? error.message : String(error)}`,
+            );
           }
         }
 
         if (uploadResults.length === 0 && errors.length > 0) {
           return new Response(
-            JSON.stringify({ 
+            JSON.stringify({
               error: 'No files were successfully uploaded',
               errors,
             }),
@@ -262,7 +271,11 @@ describe('Enhanced Document Upload API', () => {
 
       vi.mocked(POST).mockImplementation(mockHandler);
 
-      const testFile = createTestFile('test-document.pdf', 'application/pdf', 2048);
+      const testFile = createTestFile(
+        'test-document.pdf',
+        'application/pdf',
+        2048,
+      );
       const formData = createFormDataWithFiles([testFile]);
       const request = createMockFormDataRequest(
         'http://localhost:3000/api/documents/upload',
@@ -288,17 +301,17 @@ describe('Enhanced Document Upload API', () => {
         .select()
         .from(ragDocument)
         .where(db.eq(ragDocument.id, data.files[0].documentId));
-      
+
       testMetrics.queryTime += Date.now() - queryStartTime;
 
       expect(documentInDb).toBeDefined();
       expect(documentInDb.originalName).toBe('test-document.pdf');
       expect(documentInDb.uploadedBy).toBe(testUser.id);
-      
+
       // Verify file exists on filesystem
       const fileStats = await fs.stat(documentInDb.filePath);
       expect(fileStats.size).toBe(2048);
-      
+
       logger.info('upload_test', 'Single file upload test completed', {
         userId: testUser.id,
         documentId: documentInDb.id,
@@ -310,7 +323,7 @@ describe('Enhanced Document Upload API', () => {
 
     it('should upload multiple valid files concurrently', async () => {
       const startTime = Date.now();
-      
+
       const testUser = await factory.createUserForUpload('premium');
       mockAuthenticatedUser(testUser.id);
 
@@ -319,11 +332,11 @@ describe('Enhanced Document Upload API', () => {
       const mockHandler = vi.fn().mockImplementation(async (request) => {
         const formData = await request.formData();
         const files = formData.getAll('files') as File[];
-        
+
         // Process files concurrently
         const uploadPromises = files.map(async (file, index) => {
           const filePath = await factory.simulateFileUpload(file, uploadDir);
-          
+
           const [insertedDocument] = await db
             .insert(ragDocument)
             .values({
@@ -386,22 +399,25 @@ describe('Enhanced Document Upload API', () => {
         .select()
         .from(ragDocument)
         .where(db.eq(ragDocument.uploadedBy, testUser.id));
-      
+
       testMetrics = factory.getMetrics();
       testMetrics.queryTime += Date.now() - queryStartTime;
 
       expect(documentsInDb).toHaveLength(3);
-      
+
       // Verify files exist on filesystem
       for (const doc of documentsInDb) {
         const fileStats = await fs.stat(doc.filePath);
         expect(fileStats.size).toBeGreaterThan(0);
       }
-      
+
       logger.info('upload_test', 'Multiple file upload test completed', {
         userId: testUser.id,
         fileCount: documentsInDb.length,
-        totalSize: documentsInDb.reduce((sum, doc) => sum + parseInt(doc.fileSize), 0),
+        totalSize: documentsInDb.reduce(
+          (sum, doc) => sum + parseInt(doc.fileSize),
+          0,
+        ),
         duration: Date.now() - startTime,
         metrics: testMetrics,
       });
@@ -409,16 +425,18 @@ describe('Enhanced Document Upload API', () => {
 
     it('should reject unauthorized requests with proper authentication check', async () => {
       const startTime = Date.now();
-      
+
       mockUnauthenticatedUser();
 
       const mockHandler = vi.fn().mockImplementation(async (request) => {
         // Simulate auth check
-        const authResult = await import('@/lib/auth/get-auth').then(m => m.getAuth());
-        
+        const authResult = await import('@/lib/auth/get-auth').then((m) =>
+          m.getAuth(),
+        );
+
         if (!authResult.isAuthenticated) {
           return new Response(
-            JSON.stringify({ 
+            JSON.stringify({
               error: 'Unauthorized',
               code: 'AUTHENTICATION_REQUIRED',
             }),
@@ -426,10 +444,10 @@ describe('Enhanced Document Upload API', () => {
           );
         }
 
-        return new Response(
-          JSON.stringify({ success: true }),
-          { status: 200, headers: { 'Content-Type': 'application/json' } },
-        );
+        return new Response(JSON.stringify({ success: true }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
       });
 
       vi.mocked(POST).mockImplementation(mockHandler);
@@ -447,7 +465,7 @@ describe('Enhanced Document Upload API', () => {
       expect(response.status).toBe(401);
       expect(data.error).toBe('Unauthorized');
       expect(data.code).toBe('AUTHENTICATION_REQUIRED');
-      
+
       logger.info('upload_test', 'Unauthorized request test completed', {
         duration: Date.now() - startTime,
       });
@@ -455,15 +473,17 @@ describe('Enhanced Document Upload API', () => {
 
     it('should validate file size limits with different user types', async () => {
       const startTime = Date.now();
-      
+
       // Test with regular user (50MB limit)
       const regularUser = await factory.createUserForUpload('regular');
       const premiumUser = await factory.createUserForUpload('premium');
-      
+
       const mockHandler = vi.fn().mockImplementation(async (request) => {
-        const authResult = await import('@/lib/auth/get-auth').then(m => m.getAuth());
+        const authResult = await import('@/lib/auth/get-auth').then((m) =>
+          m.getAuth(),
+        );
         const userId = authResult.userId;
-        
+
         // Get user type from database
         const [userInDb] = await db
           .select()
@@ -472,20 +492,23 @@ describe('Enhanced Document Upload API', () => {
 
         const formData = await request.formData();
         const files = formData.getAll('files') as File[];
-        
-        const sizeLimit = userInDb.type === 'premium' ? 100 * 1024 * 1024 : 50 * 1024 * 1024; // 100MB for premium, 50MB for regular
+
+        const sizeLimit =
+          userInDb.type === 'premium' ? 100 * 1024 * 1024 : 50 * 1024 * 1024; // 100MB for premium, 50MB for regular
         const errors = [];
 
         for (const file of files) {
           if (file.size > sizeLimit) {
             const limitMB = sizeLimit / (1024 * 1024);
-            errors.push(`File size exceeds ${limitMB}MB limit for ${userInDb.type} users: ${file.name}`);
+            errors.push(
+              `File size exceeds ${limitMB}MB limit for ${userInDb.type} users: ${file.name}`,
+            );
           }
         }
 
         if (errors.length > 0) {
           return new Response(
-            JSON.stringify({ 
+            JSON.stringify({
               error: 'File size validation failed',
               errors,
               limits: {
@@ -497,17 +520,17 @@ describe('Enhanced Document Upload API', () => {
           );
         }
 
-        return new Response(
-          JSON.stringify({ success: true }),
-          { status: 200, headers: { 'Content-Type': 'application/json' } },
-        );
+        return new Response(JSON.stringify({ success: true }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
       });
 
       vi.mocked(POST).mockImplementation(mockHandler);
 
       // Test regular user with large file (should fail)
       mockAuthenticatedUser(regularUser.id);
-      
+
       const largeFile = createLargeFile(); // 60MB file
       const formData1 = createFormDataWithFiles([largeFile]);
       const request1 = createMockFormDataRequest(
@@ -524,7 +547,7 @@ describe('Enhanced Document Upload API', () => {
 
       // Test premium user with same large file (should succeed)
       mockAuthenticatedUser(premiumUser.id);
-      
+
       const formData2 = createFormDataWithFiles([largeFile]);
       const request2 = createMockFormDataRequest(
         'http://localhost:3000/api/documents/upload',
@@ -534,7 +557,7 @@ describe('Enhanced Document Upload API', () => {
       const response2 = await POST(request2);
 
       expect(response2.status).toBe(200);
-      
+
       logger.info('upload_test', 'File size validation test completed', {
         regularUserId: regularUser.id,
         premiumUserId: premiumUser.id,
@@ -545,7 +568,7 @@ describe('Enhanced Document Upload API', () => {
 
     it('should handle mixed valid and invalid files with detailed error reporting', async () => {
       const startTime = Date.now();
-      
+
       const testUser = await factory.createUserForUpload('regular');
       mockAuthenticatedUser(testUser.id);
 
@@ -554,7 +577,7 @@ describe('Enhanced Document Upload API', () => {
       const mockHandler = vi.fn().mockImplementation(async (request) => {
         const formData = await request.formData();
         const files = formData.getAll('files') as File[];
-        
+
         const uploadResults = [];
         const errors = [];
 
@@ -586,7 +609,7 @@ describe('Enhanced Document Upload API', () => {
 
             // Process valid file
             const filePath = await factory.simulateFileUpload(file, uploadDir);
-            
+
             const [insertedDocument] = await db
               .insert(ragDocument)
               .values({
@@ -609,7 +632,6 @@ describe('Enhanced Document Upload API', () => {
               size: file.size,
               status: insertedDocument.status,
             });
-
           } catch (error) {
             errors.push({
               file: file.name,
@@ -622,9 +644,10 @@ describe('Enhanced Document Upload API', () => {
 
         return new Response(
           JSON.stringify({
-            message: uploadResults.length > 0 
-              ? `Successfully uploaded ${uploadResults.length} file(s)` 
-              : 'No files were successfully uploaded',
+            message:
+              uploadResults.length > 0
+                ? `Successfully uploaded ${uploadResults.length} file(s)`
+                : 'No files were successfully uploaded',
             files: uploadResults,
             errors: errors.length > 0 ? errors : undefined,
             summary: {
@@ -633,7 +656,10 @@ describe('Enhanced Document Upload API', () => {
               failed: errors.length,
             },
           }),
-          { status: uploadResults.length > 0 ? 200 : 400, headers: { 'Content-Type': 'application/json' } },
+          {
+            status: uploadResults.length > 0 ? 200 : 400,
+            headers: { 'Content-Type': 'application/json' },
+          },
         );
       });
 
@@ -642,7 +668,7 @@ describe('Enhanced Document Upload API', () => {
       const files = [
         createTestFile('valid.pdf', 'application/pdf', 1024),
         createInvalidFile(), // txt file
-        createLargeFile(),   // too large
+        createLargeFile(), // too large
         createTestFile('another-valid.pdf', 'application/pdf', 2048),
       ];
       const formData = createFormDataWithFiles(files);
@@ -662,14 +688,18 @@ describe('Enhanced Document Upload API', () => {
       expect(data.summary.failed).toBe(2);
 
       // Verify detailed error information
-      const typeError = data.errors.find((e: any) => e.code === 'INVALID_FILE_TYPE');
+      const typeError = data.errors.find(
+        (e: any) => e.code === 'INVALID_FILE_TYPE',
+      );
       expect(typeError).toBeDefined();
       expect(typeError.expectedType).toBe('application/pdf');
 
-      const sizeError = data.errors.find((e: any) => e.code === 'FILE_TOO_LARGE');
+      const sizeError = data.errors.find(
+        (e: any) => e.code === 'FILE_TOO_LARGE',
+      );
       expect(sizeError).toBeDefined();
       expect(sizeError.limitMB).toBe(50);
-      
+
       logger.info('upload_test', 'Mixed file validation test completed', {
         userId: testUser.id,
         totalFiles: data.summary.total,
@@ -681,7 +711,7 @@ describe('Enhanced Document Upload API', () => {
 
     it('should handle filesystem errors gracefully with rollback', async () => {
       const startTime = Date.now();
-      
+
       const testUser = await factory.createUserForUpload('regular');
       mockAuthenticatedUser(testUser.id);
 
@@ -692,7 +722,7 @@ describe('Enhanced Document Upload API', () => {
       const mockHandler = vi.fn().mockImplementation(async (request) => {
         const formData = await request.formData();
         const files = formData.getAll('files') as File[];
-        
+
         const errors = [];
 
         for (const file of files) {
@@ -700,25 +730,22 @@ describe('Enhanced Document Upload API', () => {
             // Attempt to write file (will fail due to mock)
             const fileName = `${nanoid()}-${file.name}`;
             const filePath = path.join('/fake/path', fileName);
-            
-            await fs.writeFile(filePath, Buffer.from(await file.arrayBuffer()));
-            
-            // This won't be reached due to the mocked error
-            await db
-              .insert(ragDocument)
-              .values({
-                id: nanoid(),
-                fileName,
-                originalName: file.name,
-                filePath,
-                mimeType: file.type,
-                fileSize: file.size.toString(),
-                status: 'uploaded',
-                uploadedBy: testUser.id,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-              });
 
+            await fs.writeFile(filePath, Buffer.from(await file.arrayBuffer()));
+
+            // This won't be reached due to the mocked error
+            await db.insert(ragDocument).values({
+              id: nanoid(),
+              fileName,
+              originalName: file.name,
+              filePath,
+              mimeType: file.type,
+              fileSize: file.size.toString(),
+              status: 'uploaded',
+              uploadedBy: testUser.id,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            });
           } catch (error) {
             errors.push({
               file: file.name,
@@ -730,7 +757,7 @@ describe('Enhanced Document Upload API', () => {
         }
 
         return new Response(
-          JSON.stringify({ 
+          JSON.stringify({
             error: 'No files were successfully uploaded',
             errors,
             code: 'UPLOAD_FAILED',
@@ -762,12 +789,12 @@ describe('Enhanced Document Upload API', () => {
         .select()
         .from(ragDocument)
         .where(db.eq(ragDocument.uploadedBy, testUser.id));
-      
+
       testMetrics = factory.getMetrics();
       testMetrics.queryTime += Date.now() - queryStartTime;
 
       expect(documentsInDb).toHaveLength(0);
-      
+
       logger.info('upload_test', 'Filesystem error handling test completed', {
         userId: testUser.id,
         documentsInDb: documentsInDb.length,
@@ -780,12 +807,12 @@ describe('Enhanced Document Upload API', () => {
   describe('Performance Metrics and Optimization', () => {
     it('should demonstrate improved upload performance with Neon branching', async () => {
       const startTime = Date.now();
-      
+
       // Create multiple users for concurrent upload testing
-      const userPromises = Array.from({ length: 3 }, () => 
-        factory.createUserForUpload('regular')
+      const userPromises = Array.from({ length: 3 }, () =>
+        factory.createUserForUpload('regular'),
       );
-      
+
       const users = await Promise.all(userPromises);
       const uploadDir = await factory.createUploadDirectory();
 
@@ -794,15 +821,19 @@ describe('Enhanced Document Upload API', () => {
         const uploadStartTime = Date.now();
         mockAuthenticatedUser(user.id);
 
-        const files = Array.from({ length: 2 }, (_, fileIndex) => 
-          createTestFile(`user-${index}-file-${fileIndex}.pdf`, 'application/pdf', 1024 * (fileIndex + 1))
+        const files = Array.from({ length: 2 }, (_, fileIndex) =>
+          createTestFile(
+            `user-${index}-file-${fileIndex}.pdf`,
+            'application/pdf',
+            1024 * (fileIndex + 1),
+          ),
         );
 
         // Process files for this user
         const userUploadResults = [];
         for (const file of files) {
           const filePath = await factory.simulateFileUpload(file, uploadDir);
-          
+
           const [insertedDocument] = await db
             .insert(ragDocument)
             .values({
@@ -830,7 +861,7 @@ describe('Enhanced Document Upload API', () => {
       });
 
       const uploadResults = await Promise.all(uploadPromises);
-      
+
       // Measure query performance
       const queryStartTime = Date.now();
       const allDocuments = await db
@@ -844,16 +875,21 @@ describe('Enhanced Document Upload API', () => {
         })
         .from(ragDocument)
         .orderBy(ragDocument.createdAt);
-      
+
       const queryTime = Date.now() - queryStartTime;
       const totalTime = Date.now() - startTime;
-      
+
       const performanceMetrics = {
         totalUsers: users.length,
-        totalFiles: uploadResults.reduce((sum, result) => sum + result.files.length, 0),
+        totalFiles: uploadResults.reduce(
+          (sum, result) => sum + result.files.length,
+          0,
+        ),
         totalTime,
         queryTime,
-        avgUploadTimePerUser: uploadResults.reduce((sum, result) => sum + result.duration, 0) / uploadResults.length,
+        avgUploadTimePerUser:
+          uploadResults.reduce((sum, result) => sum + result.duration, 0) /
+          uploadResults.length,
         memoryUsage: process.memoryUsage(),
         branchIsolation: true,
         concurrentUploads: true,
@@ -863,11 +899,11 @@ describe('Enhanced Document Upload API', () => {
       expect(queryTime).toBeLessThan(1000);
       expect(totalTime).toBeLessThan(10000);
       expect(performanceMetrics.avgUploadTimePerUser).toBeLessThan(5000);
-      
+
       logger.info('upload_test', 'Performance test completed', {
         metrics: performanceMetrics,
-        uploadResults: uploadResults.map(r => ({ 
-          userId: r.userId, 
+        uploadResults: uploadResults.map((r) => ({
+          userId: r.userId,
           fileCount: r.files.length,
           duration: r.duration,
         })),
@@ -879,10 +915,18 @@ describe('Enhanced Document Upload API', () => {
       console.log(`Total Files Uploaded: ${performanceMetrics.totalFiles}`);
       console.log(`Total Test Time: ${performanceMetrics.totalTime}ms`);
       console.log(`Database Query Time: ${performanceMetrics.queryTime}ms`);
-      console.log(`Avg Upload Time per User: ${performanceMetrics.avgUploadTimePerUser.toFixed(2)}ms`);
-      console.log(`Memory Usage: ${Math.round(performanceMetrics.memoryUsage.heapUsed / 1024 / 1024)}MB`);
-      console.log(`Branch Isolation: ${performanceMetrics.branchIsolation ? 'Enabled' : 'Disabled'}`);
-      console.log(`Concurrent Uploads: ${performanceMetrics.concurrentUploads ? 'Enabled' : 'Disabled'}`);
+      console.log(
+        `Avg Upload Time per User: ${performanceMetrics.avgUploadTimePerUser.toFixed(2)}ms`,
+      );
+      console.log(
+        `Memory Usage: ${Math.round(performanceMetrics.memoryUsage.heapUsed / 1024 / 1024)}MB`,
+      );
+      console.log(
+        `Branch Isolation: ${performanceMetrics.branchIsolation ? 'Enabled' : 'Disabled'}`,
+      );
+      console.log(
+        `Concurrent Uploads: ${performanceMetrics.concurrentUploads ? 'Enabled' : 'Disabled'}`,
+      );
       console.log('===================================================\n');
     });
   });

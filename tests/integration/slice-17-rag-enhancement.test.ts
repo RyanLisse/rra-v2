@@ -21,12 +21,12 @@ setupNeonTestBranching('slice-17-rag-enhancement');
 describe('Slice 17: Enhanced RAG Pipeline Integration Tests', () => {
   let db: ReturnType<typeof drizzle>;
   let pool: Pool;
-  
+
   beforeEach(async () => {
     pool = new Pool({ connectionString: getTestDatabaseUrl() });
     db = drizzle(pool, { schema });
   });
-  
+
   afterEach(async () => {
     await pool.end();
   });
@@ -39,7 +39,10 @@ describe('Slice 17: Enhanced RAG Pipeline Integration Tests', () => {
 
       // Create document
       const docData = createTestDocument(user.id);
-      const [document] = await db.insert(schema.ragDocument).values(docData).returning();
+      const [document] = await db
+        .insert(schema.ragDocument)
+        .values(docData)
+        .returning();
 
       // Create document content
       const contentData = createTestDocumentContent(document.id);
@@ -58,7 +61,8 @@ describe('Slice 17: Enhanced RAG Pipeline Integration Tests', () => {
         {
           id: 'elem_2',
           type: 'paragraph',
-          content: 'The RoboRail system provides automated measurement capabilities for precision manufacturing.',
+          content:
+            'The RoboRail system provides automated measurement capabilities for precision manufacturing.',
           pageNumber: 1,
           bbox: [50, 200, 500, 250],
           confidence: 0.88,
@@ -85,7 +89,7 @@ describe('Slice 17: Enhanced RAG Pipeline Integration Tests', () => {
           content: '1. Ensure proper chuck alignment before calibration',
           pageNumber: 3,
           bbox: [70, 150, 520, 180],
-          confidence: 0.90,
+          confidence: 0.9,
         },
       ];
 
@@ -138,7 +142,7 @@ describe('Slice 17: Enhanced RAG Pipeline Integration Tests', () => {
       });
 
       expect(verifyChunks).toHaveLength(5);
-      
+
       // Verify title element
       const titleChunk = verifyChunks[0];
       expect(titleChunk.elementType).toBe('title');
@@ -169,7 +173,10 @@ describe('Slice 17: Enhanced RAG Pipeline Integration Tests', () => {
 
       // Create legacy document (no ADE metadata)
       const docData = createTestDocument(user.id);
-      const [document] = await db.insert(schema.ragDocument).values(docData).returning();
+      const [document] = await db
+        .insert(schema.ragDocument)
+        .values(docData)
+        .returning();
 
       // Create legacy chunks (no elementType, pageNumber, bbox)
       const legacyChunks = Array.from({ length: 3 }, (_, i) => ({
@@ -298,7 +305,10 @@ describe('Slice 17: Enhanced RAG Pipeline Integration Tests', () => {
       // Test cross-document search capabilities
       const searchResults = await db.query.documentChunk.findMany({
         where: (chunk, { or, eq }) =>
-          or(eq(chunk.documentId, enhancedDoc.id), eq(chunk.documentId, legacyDoc.id)),
+          or(
+            eq(chunk.documentId, enhancedDoc.id),
+            eq(chunk.documentId, legacyDoc.id),
+          ),
         with: {
           document: true,
           embedding: true,
@@ -336,7 +346,10 @@ describe('Slice 17: Enhanced RAG Pipeline Integration Tests', () => {
       const [user] = await db.insert(schema.user).values(userData).returning();
 
       const docData = createTestDocument(user.id);
-      const [document] = await db.insert(schema.ragDocument).values(docData).returning();
+      const [document] = await db
+        .insert(schema.ragDocument)
+        .values(docData)
+        .returning();
 
       // Create chunks with different element types
       const diverseChunks = [
@@ -387,7 +400,10 @@ describe('Slice 17: Enhanced RAG Pipeline Integration Tests', () => {
       // Test filtering by title elements
       const titleChunks = await db.query.documentChunk.findMany({
         where: (chunk, { eq, and }) =>
-          and(eq(chunk.documentId, document.id), eq(chunk.elementType, 'title')),
+          and(
+            eq(chunk.documentId, document.id),
+            eq(chunk.elementType, 'title'),
+          ),
       });
 
       expect(titleChunks).toHaveLength(1);
@@ -397,7 +413,10 @@ describe('Slice 17: Enhanced RAG Pipeline Integration Tests', () => {
       // Test filtering by table elements
       const tableChunks = await db.query.documentChunk.findMany({
         where: (chunk, { eq, and }) =>
-          and(eq(chunk.documentId, document.id), eq(chunk.elementType, 'table')),
+          and(
+            eq(chunk.documentId, document.id),
+            eq(chunk.elementType, 'table'),
+          ),
       });
 
       expect(tableChunks).toHaveLength(1);
@@ -407,7 +426,10 @@ describe('Slice 17: Enhanced RAG Pipeline Integration Tests', () => {
       // Test filtering by list items
       const listChunks = await db.query.documentChunk.findMany({
         where: (chunk, { eq, and }) =>
-          and(eq(chunk.documentId, document.id), eq(chunk.elementType, 'list_item')),
+          and(
+            eq(chunk.documentId, document.id),
+            eq(chunk.elementType, 'list_item'),
+          ),
       });
 
       expect(listChunks).toHaveLength(1);
@@ -421,7 +443,10 @@ describe('Slice 17: Enhanced RAG Pipeline Integration Tests', () => {
       const [user] = await db.insert(schema.user).values(userData).returning();
 
       const docData = createTestDocument(user.id);
-      const [document] = await db.insert(schema.ragDocument).values(docData).returning();
+      const [document] = await db
+        .insert(schema.ragDocument)
+        .values(docData)
+        .returning();
 
       // Create chunks across multiple pages
       const multiPageChunks = Array.from({ length: 6 }, (_, i) => ({
@@ -470,7 +495,10 @@ describe('Slice 17: Enhanced RAG Pipeline Integration Tests', () => {
             gte(chunk.pageNumber, 2),
             lte(chunk.pageNumber, 3),
           ),
-        orderBy: (chunk, { asc }) => [asc(chunk.pageNumber), asc(chunk.chunkIndex)],
+        orderBy: (chunk, { asc }) => [
+          asc(chunk.pageNumber),
+          asc(chunk.chunkIndex),
+        ],
       });
 
       expect(pageRangeChunks).toHaveLength(4);
@@ -486,7 +514,10 @@ describe('Slice 17: Enhanced RAG Pipeline Integration Tests', () => {
       const [user] = await db.insert(schema.user).values(userData).returning();
 
       const docData = createTestDocument(user.id);
-      const [document] = await db.insert(schema.ragDocument).values(docData).returning();
+      const [document] = await db
+        .insert(schema.ragDocument)
+        .values(docData)
+        .returning();
 
       // Create chunks with specific spatial locations
       const spatialChunks = [
@@ -578,7 +609,10 @@ describe('Slice 17: Enhanced RAG Pipeline Integration Tests', () => {
         fileName: 'technical-manual.pdf',
         originalName: 'Technical Manual.pdf',
       });
-      const [document] = await db.insert(schema.ragDocument).values(docData).returning();
+      const [document] = await db
+        .insert(schema.ragDocument)
+        .values(docData)
+        .returning();
 
       // Create structured chunks for context assembly
       const structuredChunks = [
@@ -595,7 +629,8 @@ describe('Slice 17: Enhanced RAG Pipeline Integration Tests', () => {
         {
           documentId: document.id,
           chunkIndex: '1',
-          content: 'The system requires a minimum of 8GB RAM and 100GB storage space.',
+          content:
+            'The system requires a minimum of 8GB RAM and 100GB storage space.',
           metadata: { chunkIndex: 1 },
           tokenCount: '14',
           elementType: 'paragraph' as AdeElementType,
@@ -644,7 +679,10 @@ describe('Slice 17: Enhanced RAG Pipeline Integration Tests', () => {
           document: true,
           embedding: true,
         },
-        orderBy: (chunk, { asc }) => [asc(chunk.pageNumber), asc(chunk.chunkIndex)],
+        orderBy: (chunk, { asc }) => [
+          asc(chunk.pageNumber),
+          asc(chunk.chunkIndex),
+        ],
       });
 
       // Format context with structural information
@@ -654,7 +692,9 @@ describe('Slice 17: Enhanced RAG Pipeline Integration Tests', () => {
             const elementInfo = chunk.elementType
               ? `[${chunk.elementType.toUpperCase()}]`
               : '[CONTENT]';
-            const pageInfo = chunk.pageNumber ? ` (Page ${chunk.pageNumber})` : '';
+            const pageInfo = chunk.pageNumber
+              ? ` (Page ${chunk.pageNumber})`
+              : '';
             const positionInfo = chunk.bbox
               ? ` at position (${chunk.bbox[0]}, ${chunk.bbox[1]})`
               : '';
@@ -667,7 +707,9 @@ describe('Slice 17: Enhanced RAG Pipeline Integration Tests', () => {
       const formattedContext = formatContextForLLM(contextChunks);
 
       expect(formattedContext).toContain('[TITLE] (Page 1)');
-      expect(formattedContext).toContain('System Requirements and Prerequisites');
+      expect(formattedContext).toContain(
+        'System Requirements and Prerequisites',
+      );
       expect(formattedContext).toContain('[PARAGRAPH] (Page 1)');
       expect(formattedContext).toContain('8GB RAM and 100GB storage');
       expect(formattedContext).toContain('[TABLE] (Page 2)');
@@ -689,7 +731,10 @@ describe('Slice 17: Enhanced RAG Pipeline Integration Tests', () => {
         fileName: 'roborail-manual.pdf',
         originalName: 'RoboRail Operating Manual.pdf',
       });
-      const [document] = await db.insert(schema.ragDocument).values(docData).returning();
+      const [document] = await db
+        .insert(schema.ragDocument)
+        .values(docData)
+        .returning();
 
       // Create diverse content types
       const diverseContent = [
@@ -754,7 +799,10 @@ describe('Slice 17: Enhanced RAG Pipeline Integration Tests', () => {
         with: {
           document: true,
         },
-        orderBy: (chunk, { asc }) => [asc(chunk.pageNumber), asc(chunk.chunkIndex)],
+        orderBy: (chunk, { asc }) => [
+          asc(chunk.pageNumber),
+          asc(chunk.chunkIndex),
+        ],
       });
 
       // Generate enhanced system prompt with structure awareness
@@ -762,12 +810,16 @@ describe('Slice 17: Enhanced RAG Pipeline Integration Tests', () => {
         chunks: typeof chunks,
         userQuery: string,
       ) => {
-        const documentName = chunks[0]?.document?.originalName || 'Unknown Document';
-        const pageRange = chunks.length > 0 
-          ? `${Math.min(...chunks.map(c => c.pageNumber || 1))}-${Math.max(...chunks.map(c => c.pageNumber || 1))}`
-          : 'Unknown';
+        const documentName =
+          chunks[0]?.document?.originalName || 'Unknown Document';
+        const pageRange =
+          chunks.length > 0
+            ? `${Math.min(...chunks.map((c) => c.pageNumber || 1))}-${Math.max(...chunks.map((c) => c.pageNumber || 1))}`
+            : 'Unknown';
 
-        const elementTypes = [...new Set(chunks.map(c => c.elementType).filter(Boolean))];
+        const elementTypes = [
+          ...new Set(chunks.map((c) => c.elementType).filter(Boolean)),
+        ];
         const hasStructuralInfo = elementTypes.length > 0;
 
         const structuralContext = hasStructuralInfo
@@ -785,12 +837,17 @@ User Query: ${userQuery}
 Context Information:`;
       };
 
-      const systemPrompt = generateEnhancedSystemPrompt(chunks, 'How do I calibrate the system?');
+      const systemPrompt = generateEnhancedSystemPrompt(
+        chunks,
+        'How do I calibrate the system?',
+      );
 
       expect(systemPrompt).toContain('RoboRail Operating Manual.pdf');
       expect(systemPrompt).toContain('pages 15-17');
       expect(systemPrompt).toContain('title, paragraph, figure elements');
-      expect(systemPrompt).toContain('include the page number and element type');
+      expect(systemPrompt).toContain(
+        'include the page number and element type',
+      );
       expect(systemPrompt).toContain('How do I calibrate the system?');
     });
   });
@@ -805,7 +862,10 @@ Context Information:`;
         fileName: 'user-guide.pdf',
         originalName: 'User Guide v2.1.pdf',
       });
-      const [document] = await db.insert(schema.ragDocument).values(docData).returning();
+      const [document] = await db
+        .insert(schema.ragDocument)
+        .values(docData)
+        .returning();
 
       // Create chunks for citation testing
       const citationChunks = [
@@ -822,7 +882,8 @@ Context Information:`;
         {
           documentId: document.id,
           chunkIndex: '1',
-          content: 'The operating temperature range is 10°C to 40°C for optimal performance.',
+          content:
+            'The operating temperature range is 10°C to 40°C for optimal performance.',
           metadata: { chunkIndex: 1 },
           tokenCount: '13',
           elementType: 'paragraph' as AdeElementType,
@@ -842,7 +903,8 @@ Context Information:`;
         {
           documentId: document.id,
           chunkIndex: '3',
-          content: 'Always wear protective equipment when operating the device.',
+          content:
+            'Always wear protective equipment when operating the device.',
           metadata: { chunkIndex: 3 },
           tokenCount: '10',
           elementType: 'list_item' as AdeElementType,
@@ -871,17 +933,23 @@ Context Information:`;
           document: true,
           embedding: true,
         },
-        orderBy: (chunk, { asc }) => [asc(chunk.pageNumber), asc(chunk.chunkIndex)],
+        orderBy: (chunk, { asc }) => [
+          asc(chunk.pageNumber),
+          asc(chunk.chunkIndex),
+        ],
       });
 
       // Generate enhanced citations
       const generateEnhancedCitations = (results: typeof searchResults) => {
         return results.map((chunk, index) => {
-          const documentName = chunk.document?.originalName || 'Unknown Document';
+          const documentName =
+            chunk.document?.originalName || 'Unknown Document';
           const elementTypeDisplay = chunk.elementType
             ? ` (${chunk.elementType.replace('_', ' ')})`
             : '';
-          const pageDisplay = chunk.pageNumber ? `, page ${chunk.pageNumber}` : '';
+          const pageDisplay = chunk.pageNumber
+            ? `, page ${chunk.pageNumber}`
+            : '';
 
           return {
             id: `citation-${index + 1}`,
@@ -907,13 +975,19 @@ Context Information:`;
 
       // Verify enhanced citation format for paragraph
       const paragraphCitation = citations[1];
-      expect(paragraphCitation.source).toBe('User Guide v2.1.pdf, page 5 (paragraph)');
-      expect(paragraphCitation.content).toContain('operating temperature range');
+      expect(paragraphCitation.source).toBe(
+        'User Guide v2.1.pdf, page 5 (paragraph)',
+      );
+      expect(paragraphCitation.content).toContain(
+        'operating temperature range',
+      );
       expect(paragraphCitation.elementType).toBe('paragraph');
 
       // Verify enhanced citation format for list item
       const listCitation = citations[3];
-      expect(listCitation.source).toBe('User Guide v2.1.pdf, page 12 (list item)');
+      expect(listCitation.source).toBe(
+        'User Guide v2.1.pdf, page 12 (list item)',
+      );
       expect(listCitation.content).toContain('protective equipment');
       expect(listCitation.elementType).toBe('list_item');
 
@@ -935,14 +1009,18 @@ Context Information:`;
         fileName: 'legacy-doc.pdf',
         originalName: 'Legacy Document.pdf',
       });
-      const [document] = await db.insert(schema.ragDocument).values(docData).returning();
+      const [document] = await db
+        .insert(schema.ragDocument)
+        .values(docData)
+        .returning();
 
       // Create legacy chunks without enhanced metadata
       const legacyChunks = [
         {
           documentId: document.id,
           chunkIndex: '0',
-          content: 'This is content from a legacy document without structure metadata.',
+          content:
+            'This is content from a legacy document without structure metadata.',
           metadata: { chunkIndex: 0 },
           tokenCount: '12',
           elementType: null,
@@ -952,7 +1030,8 @@ Context Information:`;
         {
           documentId: document.id,
           chunkIndex: '1',
-          content: 'Another chunk of legacy content that lacks enhanced processing.',
+          content:
+            'Another chunk of legacy content that lacks enhanced processing.',
           metadata: { chunkIndex: 1 },
           tokenCount: '11',
           elementType: null,
@@ -986,7 +1065,8 @@ Context Information:`;
       // Generate citations for legacy content (graceful fallback)
       const generateLegacyCitations = (results: typeof legacyResults) => {
         return results.map((chunk, index) => {
-          const documentName = chunk.document?.originalName || 'Unknown Document';
+          const documentName =
+            chunk.document?.originalName || 'Unknown Document';
           const fallbackDisplay = chunk.elementType
             ? ` (${chunk.elementType.replace('_', ' ')})`
             : '';
@@ -1041,83 +1121,101 @@ Context Information:`;
         fileName: 'performance-test.pdf',
         originalName: 'Performance Test Document.pdf',
       });
-      const [document] = await db.insert(schema.ragDocument).values(docData).returning();
+      const [document] = await db
+        .insert(schema.ragDocument)
+        .values(docData)
+        .returning();
 
-      const { duration, memoryUsage, result } = await measurePerformance(async () => {
-        // Create large number of chunks with enhanced metadata
-        const chunkCount = 100;
-        const chunks = Array.from({ length: chunkCount }, (_, i) => ({
-          documentId: document.id,
-          chunkIndex: i.toString(),
-          content: `Performance test chunk ${i} with realistic content for testing search operations.`,
-          metadata: {
-            chunkIndex: i,
-            startOffset: i * 200,
-            endOffset: (i + 1) * 200,
-            wordCount: 12,
-          },
-          tokenCount: '16',
-          elementType: (['paragraph', 'title', 'list_item', 'table'] as AdeElementType[])[
-            i % 4
-          ],
-          pageNumber: Math.floor(i / 10) + 1,
-          bbox: [50, 100 + (i % 10) * 50, 500, 150 + (i % 10) * 50],
-        }));
+      const { duration, memoryUsage, result } = await measurePerformance(
+        async () => {
+          // Create large number of chunks with enhanced metadata
+          const chunkCount = 100;
+          const chunks = Array.from({ length: chunkCount }, (_, i) => ({
+            documentId: document.id,
+            chunkIndex: i.toString(),
+            content: `Performance test chunk ${i} with realistic content for testing search operations.`,
+            metadata: {
+              chunkIndex: i,
+              startOffset: i * 200,
+              endOffset: (i + 1) * 200,
+              wordCount: 12,
+            },
+            tokenCount: '16',
+            elementType: (
+              ['paragraph', 'title', 'list_item', 'table'] as AdeElementType[]
+            )[i % 4],
+            pageNumber: Math.floor(i / 10) + 1,
+            bbox: [50, 100 + (i % 10) * 50, 500, 150 + (i % 10) * 50],
+          }));
 
-        const insertedChunks = await db.insert(schema.documentChunk).values(chunks).returning();
+          const insertedChunks = await db
+            .insert(schema.documentChunk)
+            .values(chunks)
+            .returning();
 
-        // Create embeddings
-        const embeddings = insertedChunks.map((chunk) => ({
-          chunkId: chunk.id,
-          embedding: JSON.stringify(performanceFactory.createRealisticEmbedding()),
-          model: 'cohere-embed-v4.0',
-        }));
-        await db.insert(schema.documentEmbedding).values(embeddings);
+          // Create embeddings
+          const embeddings = insertedChunks.map((chunk) => ({
+            chunkId: chunk.id,
+            embedding: JSON.stringify(
+              performanceFactory.createRealisticEmbedding(),
+            ),
+            model: 'cohere-embed-v4.0',
+          }));
+          await db.insert(schema.documentEmbedding).values(embeddings);
 
-        // Perform various search operations
-        const searchOperations = [
-          // Basic search
-          () =>
-            db.query.documentChunk.findMany({
-              where: (chunk, { eq }) => eq(chunk.documentId, document.id),
-              limit: 10,
-            }),
+          // Perform various search operations
+          const searchOperations = [
+            // Basic search
+            () =>
+              db.query.documentChunk.findMany({
+                where: (chunk, { eq }) => eq(chunk.documentId, document.id),
+                limit: 10,
+              }),
 
-          // Element type filtering
-          () =>
-            db.query.documentChunk.findMany({
-              where: (chunk, { eq, and }) =>
-                and(eq(chunk.documentId, document.id), eq(chunk.elementType, 'paragraph')),
-              limit: 10,
-            }),
+            // Element type filtering
+            () =>
+              db.query.documentChunk.findMany({
+                where: (chunk, { eq, and }) =>
+                  and(
+                    eq(chunk.documentId, document.id),
+                    eq(chunk.elementType, 'paragraph'),
+                  ),
+                limit: 10,
+              }),
 
-          // Page-based search
-          () =>
-            db.query.documentChunk.findMany({
-              where: (chunk, { eq, and, lte }) =>
-                and(eq(chunk.documentId, document.id), lte(chunk.pageNumber, 5)),
-              limit: 20,
-            }),
+            // Page-based search
+            () =>
+              db.query.documentChunk.findMany({
+                where: (chunk, { eq, and, lte }) =>
+                  and(
+                    eq(chunk.documentId, document.id),
+                    lte(chunk.pageNumber, 5),
+                  ),
+                limit: 20,
+              }),
 
-          // Complex query with joins
-          () =>
-            db.query.documentChunk.findMany({
-              where: (chunk, { eq }) => eq(chunk.documentId, document.id),
-              with: {
-                document: true,
-                embedding: true,
-              },
-              limit: 15,
-            }),
-        ];
+            // Complex query with joins
+            () =>
+              db.query.documentChunk.findMany({
+                where: (chunk, { eq }) => eq(chunk.documentId, document.id),
+                with: {
+                  document: true,
+                  embedding: true,
+                },
+                limit: 15,
+              }),
+          ];
 
-        const searchResults = await Promise.all(searchOperations.map((op) => op()));
+          const searchResults = await Promise.all(
+            searchOperations.map((op) => op()),
+          );
 
-        return {
-          totalChunks: chunkCount,
-          searchResults: searchResults.map((results) => results.length),
-        };
-      });
+          return {
+            totalChunks: chunkCount,
+            searchResults: searchResults.map((results) => results.length),
+          };
+        },
+      );
 
       // Performance assertions
       expect(duration).toBeLessThan(5000); // Should complete in under 5 seconds
@@ -1133,7 +1231,9 @@ Context Information:`;
 
       console.log('Performance Test Results:');
       console.log(`  Total Duration: ${duration}ms`);
-      console.log(`  Memory Usage: ${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)}MB`);
+      console.log(
+        `  Memory Usage: ${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)}MB`,
+      );
       console.log(`  Chunks Created: ${result.totalChunks}`);
       console.log(`  Search Results: ${result.searchResults.join(', ')}`);
     });
@@ -1144,7 +1244,10 @@ Context Information:`;
       const [user] = await db.insert(schema.user).values(userData).returning();
 
       const docData = createTestDocument(user.id);
-      const [document] = await db.insert(schema.ragDocument).values(docData).returning();
+      const [document] = await db
+        .insert(schema.ragDocument)
+        .values(docData)
+        .returning();
 
       // Create structured chunks for context assembly testing
       const contextChunks = Array.from({ length: 50 }, (_, i) => ({
@@ -1153,9 +1256,15 @@ Context Information:`;
         content: `Context chunk ${i} with detailed information for assembly testing. This chunk contains realistic content that would be used in actual context formation for LLM prompts.`,
         metadata: { chunkIndex: i },
         tokenCount: '30',
-        elementType: (['paragraph', 'title', 'list_item', 'table', 'figure'] as AdeElementType[])[
-          i % 5
-        ],
+        elementType: (
+          [
+            'paragraph',
+            'title',
+            'list_item',
+            'table',
+            'figure',
+          ] as AdeElementType[]
+        )[i % 5],
         pageNumber: Math.floor(i / 5) + 1,
         bbox: [50 + (i % 5) * 100, 100 + (i % 10) * 50, 500, 150],
       }));
@@ -1169,7 +1278,10 @@ Context Information:`;
           with: {
             document: true,
           },
-          orderBy: (chunk, { asc }) => [asc(chunk.pageNumber), asc(chunk.chunkIndex)],
+          orderBy: (chunk, { asc }) => [
+            asc(chunk.pageNumber),
+            asc(chunk.chunkIndex),
+          ],
           limit: 20, // Typical context window size
         });
 
@@ -1179,7 +1291,9 @@ Context Information:`;
             const elementTag = chunk.elementType
               ? `[${chunk.elementType.toUpperCase()}]`
               : '[CONTENT]';
-            const pageInfo = chunk.pageNumber ? ` (Page ${chunk.pageNumber})` : '';
+            const pageInfo = chunk.pageNumber
+              ? ` (Page ${chunk.pageNumber})`
+              : '';
             const positionInfo = chunk.bbox
               ? ` at (${chunk.bbox[0]}, ${chunk.bbox[1]})`
               : '';
@@ -1234,7 +1348,10 @@ Context Information:`;
         fileName: 'legacy.pdf',
         originalName: 'Legacy Document.pdf',
       });
-      const [legacyDoc] = await db.insert(schema.ragDocument).values(legacyDocData).returning();
+      const [legacyDoc] = await db
+        .insert(schema.ragDocument)
+        .values(legacyDocData)
+        .returning();
 
       const enhancedResults = await measurePerformance(async () => {
         // Enhanced chunks with full metadata
@@ -1244,7 +1361,9 @@ Context Information:`;
           content: `Enhanced chunk ${i} with ADE metadata and structural information.`,
           metadata: { chunkIndex: i, enhanced: true },
           tokenCount: '12',
-          elementType: (['paragraph', 'title', 'table'] as AdeElementType[])[i % 3],
+          elementType: (['paragraph', 'title', 'table'] as AdeElementType[])[
+            i % 3
+          ],
           pageNumber: Math.floor(i / 10) + 1,
           bbox: [50, 100 + (i % 10) * 40, 500, 140 + (i % 10) * 40],
         }));
@@ -1310,15 +1429,27 @@ Context Information:`;
       console.log('Pipeline Performance Comparison:');
       console.log(`Enhanced Pipeline:`);
       console.log(`  Duration: ${enhancedResults.duration}ms`);
-      console.log(`  Search Duration: ${enhancedResults.result.searchDuration}ms`);
-      console.log(`  Memory: ${(enhancedResults.memoryUsage.heapUsed / 1024 / 1024).toFixed(2)}MB`);
-      console.log(`  Results: ${enhancedResults.result.searchResults} filtered results`);
+      console.log(
+        `  Search Duration: ${enhancedResults.result.searchDuration}ms`,
+      );
+      console.log(
+        `  Memory: ${(enhancedResults.memoryUsage.heapUsed / 1024 / 1024).toFixed(2)}MB`,
+      );
+      console.log(
+        `  Results: ${enhancedResults.result.searchResults} filtered results`,
+      );
 
       console.log(`Legacy Pipeline:`);
       console.log(`  Duration: ${legacyResults.duration}ms`);
-      console.log(`  Search Duration: ${legacyResults.result.searchDuration}ms`);
-      console.log(`  Memory: ${(legacyResults.memoryUsage.heapUsed / 1024 / 1024).toFixed(2)}MB`);
-      console.log(`  Results: ${legacyResults.result.searchResults} total results`);
+      console.log(
+        `  Search Duration: ${legacyResults.result.searchDuration}ms`,
+      );
+      console.log(
+        `  Memory: ${(legacyResults.memoryUsage.heapUsed / 1024 / 1024).toFixed(2)}MB`,
+      );
+      console.log(
+        `  Results: ${legacyResults.result.searchResults} total results`,
+      );
 
       // Verify both pipelines work
       expect(enhancedResults.result.chunksCreated).toBe(50);
@@ -1332,12 +1463,14 @@ Context Information:`;
       expect(legacyResults.result.searchResults).toBe(50);
 
       // Performance shouldn't degrade significantly (allow 50% overhead for enhanced features)
-      const performanceRatio = enhancedResults.duration / legacyResults.duration;
+      const performanceRatio =
+        enhancedResults.duration / legacyResults.duration;
       expect(performanceRatio).toBeLessThan(1.5);
 
       // Memory usage should be reasonable
       const memoryRatio =
-        enhancedResults.memoryUsage.heapUsed / legacyResults.memoryUsage.heapUsed;
+        enhancedResults.memoryUsage.heapUsed /
+        legacyResults.memoryUsage.heapUsed;
       expect(memoryRatio).toBeLessThan(2.0);
     });
   });
@@ -1352,7 +1485,10 @@ Context Information:`;
         fileName: 'technical-spec.pdf',
         originalName: 'Technical Specification v3.0.pdf',
       });
-      const [document] = await db.insert(schema.ragDocument).values(docData).returning();
+      const [document] = await db
+        .insert(schema.ragDocument)
+        .values(docData)
+        .returning();
 
       // Create diverse content for comprehensive prompt testing
       const comprehensiveContent = [
@@ -1369,7 +1505,8 @@ Context Information:`;
         {
           documentId: document.id,
           chunkIndex: '1',
-          content: 'System operates within temperature range of -10°C to +60°C.',
+          content:
+            'System operates within temperature range of -10°C to +60°C.',
           metadata: { chunkIndex: 1 },
           tokenCount: '12',
           elementType: 'paragraph' as AdeElementType,
@@ -1399,7 +1536,8 @@ Context Information:`;
         {
           documentId: document.id,
           chunkIndex: '4',
-          content: 'System architecture diagram showing component relationships',
+          content:
+            'System architecture diagram showing component relationships',
           metadata: { chunkIndex: 4 },
           tokenCount: '8',
           elementType: 'figure' as AdeElementType,
@@ -1416,7 +1554,10 @@ Context Information:`;
         with: {
           document: true,
         },
-        orderBy: (chunk, { asc }) => [asc(chunk.pageNumber), asc(chunk.chunkIndex)],
+        orderBy: (chunk, { asc }) => [
+          asc(chunk.pageNumber),
+          asc(chunk.chunkIndex),
+        ],
       });
 
       // Generate complete LLM prompt with enhanced context
@@ -1424,13 +1565,17 @@ Context Information:`;
         chunks: typeof contextChunks,
         userQuery: string,
       ) => {
-        const documentName = chunks[0]?.document?.originalName || 'Unknown Document';
-        const totalPages = Math.max(...chunks.map(c => c.pageNumber || 1));
-        const elementCounts = chunks.reduce((acc, chunk) => {
-          const type = chunk.elementType || 'unknown';
-          acc[type] = (acc[type] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>);
+        const documentName =
+          chunks[0]?.document?.originalName || 'Unknown Document';
+        const totalPages = Math.max(...chunks.map((c) => c.pageNumber || 1));
+        const elementCounts = chunks.reduce(
+          (acc, chunk) => {
+            const type = chunk.elementType || 'unknown';
+            acc[type] = (acc[type] || 0) + 1;
+            return acc;
+          },
+          {} as Record<string, number>,
+        );
 
         const structuralSummary = Object.entries(elementCounts)
           .map(([type, count]) => `${count} ${type}${count > 1 ? 's' : ''}`)
@@ -1481,7 +1626,9 @@ ${chunk.content}`;
       // Verify enhanced prompt structure
       expect(enhancedPrompt).toContain('Technical Specification v3.0.pdf');
       expect(enhancedPrompt).toContain('Total Pages Referenced: 8');
-      expect(enhancedPrompt).toContain('1 title, 1 paragraph, 1 table, 1 list_item, 1 figure');
+      expect(enhancedPrompt).toContain(
+        '1 title, 1 paragraph, 1 table, 1 list_item, 1 figure',
+      );
       expect(enhancedPrompt).toContain('Enhanced with structural metadata');
 
       // Verify content structure tagging
@@ -1497,15 +1644,26 @@ ${chunk.content}`;
       expect(enhancedPrompt).toContain('at position (100, 200)');
 
       // Verify instructions for structure utilization
-      expect(enhancedPrompt).toContain('Reference specific page numbers and content types');
-      expect(enhancedPrompt).toContain('prioritize list items and step-by-step content');
-      expect(enhancedPrompt).toContain('reference tables and figures appropriately');
+      expect(enhancedPrompt).toContain(
+        'Reference specific page numbers and content types',
+      );
+      expect(enhancedPrompt).toContain(
+        'prioritize list items and step-by-step content',
+      );
+      expect(enhancedPrompt).toContain(
+        'reference tables and figures appropriately',
+      );
 
       // Verify user query inclusion
-      expect(enhancedPrompt).toContain('operating temperature requirements and calibration procedures');
+      expect(enhancedPrompt).toContain(
+        'operating temperature requirements and calibration procedures',
+      );
 
       console.log('Enhanced LLM Prompt Length:', enhancedPrompt.length);
-      console.log('Content Types Included:', Object.keys(elementCounts).join(', '));
+      console.log(
+        'Content Types Included:',
+        Object.keys(elementCounts).join(', '),
+      );
     });
 
     it('should validate contextually aware LLM responses', async () => {
@@ -1517,7 +1675,10 @@ ${chunk.content}`;
         fileName: 'troubleshooting-guide.pdf',
         originalName: 'System Troubleshooting Guide.pdf',
       });
-      const [document] = await db.insert(schema.ragDocument).values(docData).returning();
+      const [document] = await db
+        .insert(schema.ragDocument)
+        .values(docData)
+        .returning();
 
       // Create troubleshooting content with clear structure
       const troubleshootingContent = [
@@ -1534,7 +1695,8 @@ ${chunk.content}`;
         {
           documentId: document.id,
           chunkIndex: '1',
-          content: 'Error Code 404: Communication timeout with external sensors.',
+          content:
+            'Error Code 404: Communication timeout with external sensors.',
           metadata: { chunkIndex: 1 },
           tokenCount: '10',
           elementType: 'paragraph' as AdeElementType,
@@ -1581,7 +1743,10 @@ ${chunk.content}`;
         with: {
           document: true,
         },
-        orderBy: (chunk, { asc }) => [asc(chunk.pageNumber), asc(chunk.chunkIndex)],
+        orderBy: (chunk, { asc }) => [
+          asc(chunk.pageNumber),
+          asc(chunk.chunkIndex),
+        ],
       });
 
       // Simulate different query types and expected context utilization
@@ -1589,7 +1754,11 @@ ${chunk.content}`;
         {
           query: 'How do I fix error code 404?',
           expectedElements: ['paragraph', 'list_item'],
-          expectedContent: ['Error Code 404', 'Check cable connections', 'Verify sensor power'],
+          expectedContent: [
+            'Error Code 404',
+            'Check cable connections',
+            'Verify sensor power',
+          ],
           expectedStructure: 'procedural',
         },
         {
@@ -1624,19 +1793,29 @@ ${chunk.content}`;
         });
 
         // Verify content relevance
-        const allContent = relevantChunks.map((chunk) => chunk.content).join(' ');
+        const allContent = relevantChunks
+          .map((chunk) => chunk.content)
+          .join(' ');
         scenario.expectedContent.forEach((expectedContent) => {
-          expect(allContent.toLowerCase()).toContain(expectedContent.toLowerCase());
+          expect(allContent.toLowerCase()).toContain(
+            expectedContent.toLowerCase(),
+          );
         });
 
         // Verify page references are available
-        const pageNumbers = relevantChunks.map((chunk) => chunk.pageNumber).filter(Boolean);
+        const pageNumbers = relevantChunks
+          .map((chunk) => chunk.pageNumber)
+          .filter(Boolean);
         expect(pageNumbers.length).toBeGreaterThan(0);
 
         console.log(`Query: "${scenario.query}"`);
         console.log(`  Relevant chunks: ${relevantChunks.length}`);
-        console.log(`  Element types: ${[...new Set(elementTypes.filter(Boolean))].join(', ')}`);
-        console.log(`  Pages referenced: ${[...new Set(pageNumbers)].join(', ')}`);
+        console.log(
+          `  Element types: ${[...new Set(elementTypes.filter(Boolean))].join(', ')}`,
+        );
+        console.log(
+          `  Pages referenced: ${[...new Set(pageNumbers)].join(', ')}`,
+        );
       }
     });
   });

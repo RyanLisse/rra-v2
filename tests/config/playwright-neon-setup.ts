@@ -1,7 +1,10 @@
 import { chromium, type FullConfig } from '@playwright/test';
 import { config } from 'dotenv';
 import { resolve } from 'path';
-import { isNeonBranchingEnabled, cleanupOldTestBranches } from './neon-branch-setup';
+import {
+  isNeonBranchingEnabled,
+  cleanupOldTestBranches,
+} from './neon-branch-setup';
 import { getNeonApiClient } from '@/lib/testing/neon-api-client';
 import { getNeonLogger } from '@/lib/testing/neon-logger';
 
@@ -14,7 +17,7 @@ async function globalSetup(config: FullConfig) {
   const startTime = Date.now();
   logger.info('playwright_setup', 'Starting Playwright global setup', {
     workers: config.workers,
-    projects: config.projects?.map(p => p.name),
+    projects: config.projects?.map((p) => p.name),
     neonEnabled: isNeonBranchingEnabled(),
   });
 
@@ -24,9 +27,11 @@ async function globalSetup(config: FullConfig) {
     // Enhanced Neon cleanup with metrics
     if (isNeonBranchingEnabled()) {
       console.log('Cleaning up old Neon test branches...');
-      
+
       try {
-        const cleanupAge = parseInt(process.env.PLAYWRIGHT_CLEANUP_AGE_HOURS || '12');
+        const cleanupAge = parseInt(
+          process.env.PLAYWRIGHT_CLEANUP_AGE_HOURS || '12',
+        );
         await cleanupOldTestBranches(cleanupAge, {
           useEnhancedClient: true,
           preserveTaggedBranches: true,
@@ -36,17 +41,27 @@ async function globalSetup(config: FullConfig) {
         // Get statistics after cleanup
         const neonClient = getNeonApiClient();
         const statsResult = await neonClient.getBranchStatistics();
-        
+
         if (statsResult.success && statsResult.data) {
-          logger.info('playwright_setup', 'Post-cleanup branch statistics', statsResult.data);
-          console.log(`Branch stats after cleanup: ${statsResult.data.test_branches} test branches, ${statsResult.data.total_branches} total`);
+          logger.info(
+            'playwright_setup',
+            'Post-cleanup branch statistics',
+            statsResult.data,
+          );
+          console.log(
+            `Branch stats after cleanup: ${statsResult.data.test_branches} test branches, ${statsResult.data.total_branches} total`,
+          );
         }
 
         console.log('Old test branches cleaned up successfully');
       } catch (error) {
-        logger.error('playwright_setup', 'Failed to cleanup old test branches', {
-          error: error instanceof Error ? error.message : String(error),
-        });
+        logger.error(
+          'playwright_setup',
+          'Failed to cleanup old test branches',
+          {
+            error: error instanceof Error ? error.message : String(error),
+          },
+        );
         console.warn('Failed to cleanup old test branches:', error);
       }
     }
@@ -71,7 +86,8 @@ async function globalSetup(config: FullConfig) {
 
     // Validate test environment
     const envValidation = {
-      hasNeonConfig: !!process.env.NEON_API_KEY && !!process.env.NEON_PROJECT_ID,
+      hasNeonConfig:
+        !!process.env.NEON_API_KEY && !!process.env.NEON_PROJECT_ID,
       hasAuthConfig: !!process.env.BETTER_AUTH_SECRET,
       hasBaseUrl: !!process.env.PLAYWRIGHT_BASE_URL || !!process.env.PORT,
     };
@@ -99,21 +115,25 @@ async function globalSetup(config: FullConfig) {
 async function globalTeardown() {
   const startTime = Date.now();
   logger.info('playwright_teardown', 'Starting Playwright global teardown');
-  
+
   console.log('Running enhanced Playwright global teardown...');
-  
+
   try {
     // Enhanced cleanup with statistics
     if (isNeonBranchingEnabled()) {
       console.log('Final cleanup of any remaining test branches...');
-      
+
       try {
         const neonClient = getNeonApiClient();
-        
+
         // Get pre-cleanup statistics
         const preStatsResult = await neonClient.getBranchStatistics();
         if (preStatsResult.success && preStatsResult.data) {
-          logger.info('playwright_teardown', 'Pre-cleanup branch statistics', preStatsResult.data);
+          logger.info(
+            'playwright_teardown',
+            'Pre-cleanup branch statistics',
+            preStatsResult.data,
+          );
         }
 
         // Perform aggressive cleanup
@@ -130,39 +150,52 @@ async function globalTeardown() {
         // Get post-cleanup statistics
         const postStatsResult = await neonClient.getBranchStatistics();
         if (postStatsResult.success && postStatsResult.data) {
-          logger.info('playwright_teardown', 'Post-cleanup branch statistics', postStatsResult.data);
+          logger.info(
+            'playwright_teardown',
+            'Post-cleanup branch statistics',
+            postStatsResult.data,
+          );
         }
 
         // Export monitoring data if enabled
         if (process.env.EXPORT_TEST_REPORTS === 'true') {
           const monitoringData = neonClient.exportMonitoringData();
-          
-          const outputDir = process.env.TEST_METRICS_OUTPUT_DIR || './test-results';
+
+          const outputDir =
+            process.env.TEST_METRICS_OUTPUT_DIR || './test-results';
           try {
             const fs = await import('node:fs/promises');
             const path = await import('node:path');
-            
+
             await fs.mkdir(outputDir, { recursive: true });
             await fs.writeFile(
               path.join(outputDir, 'playwright-neon-metrics.json'),
-              JSON.stringify(monitoringData, null, 2)
+              JSON.stringify(monitoringData, null, 2),
             );
-            
+
             logger.info('playwright_teardown', 'Neon metrics exported', {
               outputPath: path.join(outputDir, 'playwright-neon-metrics.json'),
             });
           } catch (error) {
-            logger.error('playwright_teardown', 'Failed to export Neon metrics', {
-              error: error instanceof Error ? error.message : String(error),
-            });
+            logger.error(
+              'playwright_teardown',
+              'Failed to export Neon metrics',
+              {
+                error: error instanceof Error ? error.message : String(error),
+              },
+            );
           }
         }
 
         console.log('Final cleanup completed successfully');
       } catch (error) {
-        logger.error('playwright_teardown', 'Failed final cleanup of test branches', {
-          error: error instanceof Error ? error.message : String(error),
-        });
+        logger.error(
+          'playwright_teardown',
+          'Failed final cleanup of test branches',
+          {
+            error: error instanceof Error ? error.message : String(error),
+          },
+        );
         console.warn('Failed final cleanup of test branches:', error);
       }
     }
@@ -173,7 +206,9 @@ async function globalTeardown() {
       memoryUsage: process.memoryUsage(),
     });
 
-    console.log(`Playwright global teardown completed in ${teardownDuration}ms`);
+    console.log(
+      `Playwright global teardown completed in ${teardownDuration}ms`,
+    );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('playwright_teardown', 'Global teardown failed', {

@@ -14,7 +14,10 @@ vi.mock('@/lib/ade/processor', () => ({
 }));
 
 // Import mocked functions
-import { processDocumentWithAde, groupElementsByPage } from '@/lib/ade/processor';
+import {
+  processDocumentWithAde,
+  groupElementsByPage,
+} from '@/lib/ade/processor';
 
 describe('ADE Chunk Integration', () => {
   let processor: DocumentProcessor;
@@ -24,28 +27,35 @@ describe('ADE Chunk Integration', () => {
   beforeEach(async () => {
     processor = new DocumentProcessor();
     mockDocumentId = 'test-doc-' + Date.now();
-    
+
     // Create a mock document in the database
-    const [doc] = await db.insert(ragDocument).values({
-      fileName: 'test.pdf',
-      originalName: 'test.pdf',
-      filePath: '/test/path/test.pdf',
-      mimeType: 'application/pdf',
-      fileSize: '1024',
-      status: 'uploaded',
-      uploadedBy: 'test-user-id',
-    }).returning();
-    
+    const [doc] = await db
+      .insert(ragDocument)
+      .values({
+        fileName: 'test.pdf',
+        originalName: 'test.pdf',
+        filePath: '/test/path/test.pdf',
+        mimeType: 'application/pdf',
+        fileSize: '1024',
+        status: 'uploaded',
+        uploadedBy: 'test-user-id',
+      })
+      .returning();
+
     mockDocument = doc;
     mockDocumentId = doc.id;
   });
 
   afterEach(async () => {
     // Clean up test data
-    await db.delete(documentChunk).where(eq(documentChunk.documentId, mockDocumentId));
-    await db.delete(documentContent).where(eq(documentContent.documentId, mockDocumentId));
+    await db
+      .delete(documentChunk)
+      .where(eq(documentChunk.documentId, mockDocumentId));
+    await db
+      .delete(documentContent)
+      .where(eq(documentContent.documentId, mockDocumentId));
     await db.delete(ragDocument).where(eq(ragDocument.id, mockDocumentId));
-    
+
     vi.clearAllMocks();
   });
 
@@ -67,7 +77,8 @@ describe('ADE Chunk Integration', () => {
           {
             id: 'elem-2',
             type: 'paragraph',
-            content: 'This is a paragraph with important information about the document.',
+            content:
+              'This is a paragraph with important information about the document.',
             pageNumber: 1,
             bbox: [50, 100, 500, 150],
             confidence: 0.92,
@@ -94,7 +105,7 @@ describe('ADE Chunk Integration', () => {
         new Map([
           [1, mockAdeOutput.elements.slice(0, 2)],
           [2, mockAdeOutput.elements.slice(2, 3)],
-        ])
+        ]),
       );
 
       // Create chunks with ADE integration
@@ -124,7 +135,9 @@ describe('ADE Chunk Integration', () => {
 
       // Check paragraph chunk
       const paragraphChunk = chunks[1];
-      expect(paragraphChunk.content).toBe('This is a paragraph with important information about the document.');
+      expect(paragraphChunk.content).toBe(
+        'This is a paragraph with important information about the document.',
+      );
       expect(paragraphChunk.elementType).toBe('paragraph');
       expect(paragraphChunk.pageNumber).toBe(1);
 
@@ -141,10 +154,11 @@ describe('ADE Chunk Integration', () => {
     it('should fall back to traditional chunking when ADE fails', async () => {
       // Mock ADE processor to fail
       vi.mocked(processDocumentWithAde).mockRejectedValue(
-        new Error('ADE processing failed')
+        new Error('ADE processing failed'),
       );
 
-      const testContent = 'This is a test document with multiple sentences. It should be chunked traditionally when ADE is not available.';
+      const testContent =
+        'This is a test document with multiple sentences. It should be chunked traditionally when ADE is not available.';
 
       // Create chunks (should fall back to traditional)
       const chunks = await processor.createChunks({
@@ -157,9 +171,9 @@ describe('ADE Chunk Integration', () => {
 
       // Verify traditional chunks were created
       expect(chunks.length).toBeGreaterThan(0);
-      
+
       // All chunks should have null ADE metadata
-      chunks.forEach(chunk => {
+      chunks.forEach((chunk) => {
         expect(chunk.elementType).toBeNull();
         expect(chunk.pageNumber).toBeNull();
         expect(chunk.bbox).toBeNull();
@@ -239,7 +253,7 @@ describe('ADE Chunk Integration', () => {
 
       // Should create embeddings for all chunks
       expect(embeddings).toHaveLength(3);
-      
+
       // Embeddings should be created with proper chunk IDs
       embeddings.forEach((embedding, index) => {
         expect(embedding.chunkId).toBe(testChunks[index].id);
@@ -286,7 +300,7 @@ describe('ADE Chunk Integration', () => {
 
       // Create a test method to access the private mapAdeElementType
       const processorAny = processor as any;
-      
+
       testMappings.forEach(({ ade, expected }) => {
         const mapped = processorAny.mapAdeElementType(ade);
         expect(mapped).toBe(expected);
@@ -300,11 +314,15 @@ describe('ADE Chunk Integration', () => {
 
       // Array format
       const arrayBbox = [10, 20, 100, 200];
-      expect(processorAny.mapAdeBoundingBox(arrayBbox)).toEqual([10, 20, 100, 200]);
+      expect(processorAny.mapAdeBoundingBox(arrayBbox)).toEqual([
+        10, 20, 100, 200,
+      ]);
 
       // Object format
       const objectBbox = { x1: 10, y1: 20, x2: 100, y2: 200 };
-      expect(processorAny.mapAdeBoundingBox(objectBbox)).toEqual([10, 20, 100, 200]);
+      expect(processorAny.mapAdeBoundingBox(objectBbox)).toEqual([
+        10, 20, 100, 200,
+      ]);
 
       // Null/undefined
       expect(processorAny.mapAdeBoundingBox(null)).toBeNull();
@@ -338,7 +356,7 @@ describe('ADE Chunk Integration', () => {
 
       vi.mocked(processDocumentWithAde).mockResolvedValue(mockAdeOutput);
       vi.mocked(groupElementsByPage).mockReturnValue(
-        new Map([[1, mockAdeOutput.elements]])
+        new Map([[1, mockAdeOutput.elements]]),
       );
 
       // Mock document processing success
@@ -349,7 +367,9 @@ describe('ADE Chunk Integration', () => {
       };
 
       // Spy on processDocument method
-      vi.spyOn(processor as any, 'processDocument').mockResolvedValue(mockProcessingResult);
+      vi.spyOn(processor as any, 'processDocument').mockResolvedValue(
+        mockProcessingResult,
+      );
 
       // Process document completely
       const result = await processor.processDocumentComplete({
@@ -363,7 +383,7 @@ describe('ADE Chunk Integration', () => {
       expect(result.success).toBe(true);
       expect(result.content).toBeDefined();
       expect(result.chunks).toHaveLength(1);
-      
+
       // Verify chunk has ADE metadata
       const chunk = result.chunks[0];
       expect(chunk.elementType).toBe('title');

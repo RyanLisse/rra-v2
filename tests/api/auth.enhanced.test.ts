@@ -1,20 +1,21 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { POST, GET } from '@/app/api/auth/[...all]/route';
-import { setupNeonTestBranching, runMigrationsOnTestBranch } from '../config/neon-branch-setup';
-import { 
-  createMockRequest,
-} from '../utils/test-helpers';
-import { 
-  createTestUser, 
-  createTestSession, 
-  createAdminSession 
+import {
+  setupNeonTestBranching,
+  runMigrationsOnTestBranch,
+} from '../config/neon-branch-setup';
+import { createMockRequest } from '../utils/test-helpers';
+import {
+  createTestUser,
+  createTestSession,
+  createAdminSession,
 } from '../fixtures/test-data';
 import { db } from '@/lib/db';
 import { user, session } from '@/lib/db/schema';
 import { nanoid } from 'nanoid';
-import { 
-  getNeonApiClient, 
-  type PerformanceMetrics 
+import {
+  getNeonApiClient,
+  type PerformanceMetrics,
 } from '@/lib/testing/neon-api-client';
 import { getNeonLogger } from '@/lib/testing/neon-logger';
 
@@ -41,9 +42,11 @@ export class AuthTestDataFactory {
     memoryUsage: process.memoryUsage(),
   };
 
-  async createUserWithSession(overrides?: { userType?: 'regular' | 'admin' | 'premium' }) {
+  async createUserWithSession(overrides?: {
+    userType?: 'regular' | 'admin' | 'premium';
+  }) {
     const startTime = Date.now();
-    
+
     const userData = createTestUser({
       type: overrides?.userType || 'regular',
     });
@@ -74,7 +77,7 @@ export class AuthTestDataFactory {
       .returning();
 
     this.metrics.creationTime += Date.now() - startTime;
-    
+
     logger.info('auth_factory', 'Created user with session', {
       userId: insertedUser.id,
       userType: insertedUser.type,
@@ -99,7 +102,7 @@ export class AuthTestDataFactory {
     }
 
     this.metrics.creationTime += Date.now() - startTime;
-    
+
     logger.info('auth_factory', 'Created multiple users', {
       count,
       duration: Date.now() - startTime,
@@ -129,28 +132,29 @@ describe('Enhanced Auth API Routes', () => {
   beforeEach(async () => {
     // Run migrations on the test branch before each test
     await runMigrationsOnTestBranch();
-    
+
     factory = new AuthTestDataFactory();
     factory.resetMetrics();
-    
+
     vi.clearAllMocks();
   });
 
   describe('POST /api/auth/[...all] - Enhanced with Real Database', () => {
     it('should handle sign in requests with real user verification', async () => {
       const startTime = Date.now();
-      
+
       // Create a real user in the database
-      const { user: testUser, sessionData } = await factory.createUserWithSession();
-      
+      const { user: testUser, sessionData } =
+        await factory.createUserWithSession();
+
       // Mock the authentication handler to return our test user
       const mockHandler = vi.fn().mockImplementation(async (request) => {
         const body = await request.json();
-        
+
         // Verify request contains expected fields
         expect(body.email).toBe(testUser.email);
         expect(body.password).toBeDefined();
-        
+
         return new Response(
           JSON.stringify({
             user: {
@@ -192,7 +196,7 @@ describe('Enhanced Auth API Routes', () => {
 
       testMetrics = factory.getMetrics();
       testMetrics.queryTime = Date.now() - startTime;
-      
+
       logger.info('auth_test', 'Sign in test completed', {
         userId: testUser.id,
         duration: Date.now() - startTime,
@@ -202,7 +206,7 @@ describe('Enhanced Auth API Routes', () => {
 
     it('should handle sign up requests with database integration', async () => {
       const startTime = Date.now();
-      
+
       const newUserData = createTestUser({
         email: `newuser-${nanoid()}@example.com`,
         name: 'New Test User',
@@ -210,7 +214,7 @@ describe('Enhanced Auth API Routes', () => {
 
       const mockHandler = vi.fn().mockImplementation(async (request) => {
         const body = await request.json();
-        
+
         // Simulate creating the user in database
         const [createdUser] = await db
           .insert(user)
@@ -225,7 +229,7 @@ describe('Enhanced Auth API Routes', () => {
           .returning();
 
         const sessionData = createTestSession(createdUser.id);
-        
+
         return new Response(
           JSON.stringify({
             user: {
@@ -268,14 +272,14 @@ describe('Enhanced Auth API Routes', () => {
         .select()
         .from(user)
         .where(db.eq(user.email, newUserData.email));
-      
+
       testMetrics = factory.getMetrics();
       testMetrics.queryTime += Date.now() - queryStartTime;
       testMetrics.insertTime = Date.now() - startTime;
 
       expect(userInDb).toBeDefined();
       expect(userInDb.email).toBe(newUserData.email);
-      
+
       logger.info('auth_test', 'Sign up test completed', {
         userId: userInDb.id,
         duration: Date.now() - startTime,
@@ -285,20 +289,20 @@ describe('Enhanced Auth API Routes', () => {
 
     it('should reject invalid credentials with real user lookup', async () => {
       const startTime = Date.now();
-      
+
       // Create a real user with known credentials
       const { user: testUser } = await factory.createUserWithSession();
 
       const mockHandler = vi.fn().mockImplementation(async (request) => {
         const body = await request.json();
-        
+
         // Simulate real credential verification
         const queryStartTime = Date.now();
         const [foundUser] = await db
           .select()
           .from(user)
           .where(db.eq(user.email, body.email));
-        
+
         testMetrics = factory.getMetrics();
         testMetrics.queryTime += Date.now() - queryStartTime;
 
@@ -309,10 +313,10 @@ describe('Enhanced Auth API Routes', () => {
           );
         }
 
-        return new Response(
-          JSON.stringify({ user: foundUser }),
-          { status: 200, headers: { 'Content-Type': 'application/json' } },
-        );
+        return new Response(JSON.stringify({ user: foundUser }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
       });
 
       vi.mocked(POST).mockImplementation(mockHandler);
@@ -333,7 +337,7 @@ describe('Enhanced Auth API Routes', () => {
 
       const data = await response.json();
       expect(data.error).toBe('Invalid credentials');
-      
+
       logger.info('auth_test', 'Invalid credentials test completed', {
         email: testUser.email,
         duration: Date.now() - startTime,
@@ -343,13 +347,13 @@ describe('Enhanced Auth API Routes', () => {
 
     it('should validate required fields with comprehensive schema', async () => {
       const startTime = Date.now();
-      
+
       const mockHandler = vi.fn().mockImplementation(async (request) => {
         const body = await request.json();
-        
+
         if (!body.email) {
           return new Response(
-            JSON.stringify({ 
+            JSON.stringify({
               error: 'Email is required',
               code: 'VALIDATION_ERROR',
               field: 'email',
@@ -360,19 +364,19 @@ describe('Enhanced Auth API Routes', () => {
 
         if (!body.password) {
           return new Response(
-            JSON.stringify({ 
+            JSON.stringify({
               error: 'Password is required',
-              code: 'VALIDATION_ERROR', 
+              code: 'VALIDATION_ERROR',
               field: 'password',
             }),
             { status: 400, headers: { 'Content-Type': 'application/json' } },
           );
         }
 
-        return new Response(
-          JSON.stringify({ success: true }),
-          { status: 200, headers: { 'Content-Type': 'application/json' } },
-        );
+        return new Response(JSON.stringify({ success: true }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
       });
 
       vi.mocked(POST).mockImplementation(mockHandler);
@@ -390,7 +394,7 @@ describe('Enhanced Auth API Routes', () => {
 
       const responseWithoutEmail = await POST(requestWithoutEmail);
       expect(responseWithoutEmail.status).toBe(400);
-      
+
       const dataWithoutEmail = await responseWithoutEmail.json();
       expect(dataWithoutEmail.error).toBe('Email is required');
       expect(dataWithoutEmail.field).toBe('email');
@@ -408,11 +412,11 @@ describe('Enhanced Auth API Routes', () => {
 
       const responseWithoutPassword = await POST(requestWithoutPassword);
       expect(responseWithoutPassword.status).toBe(400);
-      
+
       const dataWithoutPassword = await responseWithoutPassword.json();
       expect(dataWithoutPassword.error).toBe('Password is required');
       expect(dataWithoutPassword.field).toBe('password');
-      
+
       logger.info('auth_test', 'Field validation test completed', {
         duration: Date.now() - startTime,
       });
@@ -422,14 +426,15 @@ describe('Enhanced Auth API Routes', () => {
   describe('GET /api/auth/[...all] - Enhanced Session Management', () => {
     it('should handle session verification with real session lookup', async () => {
       const startTime = Date.now();
-      
+
       // Create user with session in database
-      const { user: testUser, session: testSession } = await factory.createUserWithSession();
+      const { user: testUser, session: testSession } =
+        await factory.createUserWithSession();
 
       const mockHandler = vi.fn().mockImplementation(async (request) => {
         const authHeader = request.headers.get('Authorization');
         const token = authHeader?.replace('Bearer ', '');
-        
+
         if (!token) {
           return new Response(
             JSON.stringify({ error: 'No authorization header' }),
@@ -452,22 +457,22 @@ describe('Enhanced Auth API Routes', () => {
           .from(session)
           .innerJoin(user, db.eq(session.userId, user.id))
           .where(db.eq(session.token, token));
-        
+
         testMetrics = factory.getMetrics();
         testMetrics.queryTime += Date.now() - queryStartTime;
 
         if (!sessionInDb) {
-          return new Response(
-            JSON.stringify({ error: 'Invalid session' }),
-            { status: 401, headers: { 'Content-Type': 'application/json' } },
-          );
+          return new Response(JSON.stringify({ error: 'Invalid session' }), {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' },
+          });
         }
 
         if (sessionInDb.expiresAt < new Date()) {
-          return new Response(
-            JSON.stringify({ error: 'Session expired' }),
-            { status: 401, headers: { 'Content-Type': 'application/json' } },
-          );
+          return new Response(JSON.stringify({ error: 'Session expired' }), {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' },
+          });
         }
 
         return new Response(
@@ -506,7 +511,7 @@ describe('Enhanced Auth API Routes', () => {
       expect(data.user.id).toBe(testUser.id);
       expect(data.user.email).toBe(testUser.email);
       expect(data.session.token).toBe(testSession.token);
-      
+
       logger.info('auth_test', 'Session verification test completed', {
         userId: testUser.id,
         sessionId: testSession.id,
@@ -517,24 +522,24 @@ describe('Enhanced Auth API Routes', () => {
 
     it('should handle invalid session tokens with database verification', async () => {
       const startTime = Date.now();
-      
+
       const mockHandler = vi.fn().mockImplementation(async (request) => {
         const authHeader = request.headers.get('Authorization');
         const token = authHeader?.replace('Bearer ', '');
-        
+
         // Real session lookup with invalid token
         const queryStartTime = Date.now();
         const [sessionInDb] = await db
           .select()
           .from(session)
           .where(db.eq(session.token, token || 'invalid'));
-        
+
         testMetrics = factory.getMetrics();
         testMetrics.queryTime += Date.now() - queryStartTime;
 
         if (!sessionInDb) {
           return new Response(
-            JSON.stringify({ 
+            JSON.stringify({
               error: 'Invalid session',
               code: 'INVALID_TOKEN',
             }),
@@ -542,10 +547,10 @@ describe('Enhanced Auth API Routes', () => {
           );
         }
 
-        return new Response(
-          JSON.stringify({ success: true }),
-          { status: 200, headers: { 'Content-Type': 'application/json' } },
-        );
+        return new Response(JSON.stringify({ success: true }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
       });
 
       vi.mocked(GET).mockImplementation(mockHandler);
@@ -561,11 +566,11 @@ describe('Enhanced Auth API Routes', () => {
 
       const response = await GET(request);
       expect(response.status).toBe(401);
-      
+
       const data = await response.json();
       expect(data.error).toBe('Invalid session');
       expect(data.code).toBe('INVALID_TOKEN');
-      
+
       logger.info('auth_test', 'Invalid session test completed', {
         duration: Date.now() - startTime,
         metrics: testMetrics,
@@ -574,13 +579,13 @@ describe('Enhanced Auth API Routes', () => {
 
     it('should handle missing authorization header', async () => {
       const startTime = Date.now();
-      
+
       const mockHandler = vi.fn().mockImplementation(async (request) => {
         const authHeader = request.headers.get('Authorization');
-        
+
         if (!authHeader) {
           return new Response(
-            JSON.stringify({ 
+            JSON.stringify({
               error: 'No authorization header',
               code: 'MISSING_AUTH_HEADER',
             }),
@@ -588,10 +593,10 @@ describe('Enhanced Auth API Routes', () => {
           );
         }
 
-        return new Response(
-          JSON.stringify({ success: true }),
-          { status: 200, headers: { 'Content-Type': 'application/json' } },
-        );
+        return new Response(JSON.stringify({ success: true }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
       });
 
       vi.mocked(GET).mockImplementation(mockHandler);
@@ -602,11 +607,11 @@ describe('Enhanced Auth API Routes', () => {
 
       const response = await GET(request);
       expect(response.status).toBe(401);
-      
+
       const data = await response.json();
       expect(data.error).toBe('No authorization header');
       expect(data.code).toBe('MISSING_AUTH_HEADER');
-      
+
       logger.info('auth_test', 'Missing auth header test completed', {
         duration: Date.now() - startTime,
       });
@@ -616,13 +621,13 @@ describe('Enhanced Auth API Routes', () => {
   describe('Rate Limiting with Real Database Tracking', () => {
     it('should track and enforce rate limits using real database', async () => {
       const startTime = Date.now();
-      
+
       // Create multiple users to test rate limiting
       const users = await factory.createMultipleUsers(3);
-      
+
       const mockHandler = vi.fn().mockImplementation(async (request) => {
         const body = await request.json();
-        
+
         // Simulate rate limit check by counting recent attempts
         const queryStartTime = Date.now();
         const attempts = await db
@@ -630,32 +635,32 @@ describe('Enhanced Auth API Routes', () => {
           .from(session)
           .innerJoin(user, db.eq(session.userId, user.id))
           .where(db.eq(user.email, body.email));
-        
+
         testMetrics = factory.getMetrics();
         testMetrics.queryTime += Date.now() - queryStartTime;
 
         // Simple rate limiting: max 2 sessions per user
         if (attempts.length >= 2) {
           return new Response(
-            JSON.stringify({ 
+            JSON.stringify({
               error: 'Too many requests',
               code: 'RATE_LIMITED',
               retryAfter: 300,
             }),
-            { 
-              status: 429, 
-              headers: { 
+            {
+              status: 429,
+              headers: {
                 'Content-Type': 'application/json',
                 'Retry-After': '300',
-              } 
+              },
             },
           );
         }
 
-        return new Response(
-          JSON.stringify({ success: true }),
-          { status: 200, headers: { 'Content-Type': 'application/json' } },
-        );
+        return new Response(JSON.stringify({ success: true }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
       });
 
       vi.mocked(POST).mockImplementation(mockHandler);
@@ -692,12 +697,12 @@ describe('Enhanced Auth API Routes', () => {
 
       const response2 = await POST(request2);
       expect(response2.status).toBe(429);
-      
+
       const data = await response2.json();
       expect(data.error).toBe('Too many requests');
       expect(data.code).toBe('RATE_LIMITED');
       expect(response2.headers.get('Retry-After')).toBe('300');
-      
+
       logger.info('auth_test', 'Rate limiting test completed', {
         userCount: users.length,
         duration: Date.now() - startTime,
@@ -709,10 +714,10 @@ describe('Enhanced Auth API Routes', () => {
   describe('Password Security with Database Integration', () => {
     it('should enforce password complexity with real storage', async () => {
       const startTime = Date.now();
-      
+
       const mockHandler = vi.fn().mockImplementation(async (request) => {
         const body = await request.json();
-        
+
         // Password complexity validation
         if (!body.password || body.password.length < 8) {
           return new Response(
@@ -733,7 +738,7 @@ describe('Enhanced Auth API Routes', () => {
 
         // Simulate password hashing and storage
         const hashedPassword = `hashed_${body.password}_${nanoid()}`;
-        
+
         const insertStartTime = Date.now();
         const [createdUser] = await db
           .insert(user)
@@ -748,7 +753,7 @@ describe('Enhanced Auth API Routes', () => {
             updatedAt: new Date(),
           })
           .returning();
-        
+
         testMetrics = factory.getMetrics();
         testMetrics.insertTime += Date.now() - insertStartTime;
 
@@ -782,9 +787,11 @@ describe('Enhanced Auth API Routes', () => {
 
       const weakResponse = await POST(weakPasswordRequest);
       expect(weakResponse.status).toBe(400);
-      
+
       const weakData = await weakResponse.json();
-      expect(weakData.error).toBe('Password must be at least 8 characters long');
+      expect(weakData.error).toBe(
+        'Password must be at least 8 characters long',
+      );
       expect(weakData.code).toBe('WEAK_PASSWORD');
 
       // Test strong password
@@ -802,7 +809,7 @@ describe('Enhanced Auth API Routes', () => {
 
       const strongResponse = await POST(strongPasswordRequest);
       expect(strongResponse.status).toBe(201);
-      
+
       const strongData = await strongResponse.json();
       expect(strongData.message).toBe('User created successfully');
       expect(strongData.user.email).toBe('strong@example.com');
@@ -813,12 +820,12 @@ describe('Enhanced Auth API Routes', () => {
         .select()
         .from(user)
         .where(db.eq(user.email, 'strong@example.com'));
-      
+
       testMetrics.queryTime += Date.now() - queryStartTime;
 
       expect(userInDb.password).toContain('hashed_');
       expect(userInDb.password).not.toBe('StrongPassword123!');
-      
+
       logger.info('auth_test', 'Password security test completed', {
         userId: userInDb.id,
         duration: Date.now() - startTime,
@@ -830,14 +837,14 @@ describe('Enhanced Auth API Routes', () => {
   describe('Performance Metrics and Database Optimization', () => {
     it('should demonstrate improved performance with Neon branching', async () => {
       const startTime = Date.now();
-      
+
       // Create multiple users in parallel to test performance
-      const userPromises = Array.from({ length: 5 }, () => 
-        factory.createUserWithSession()
+      const userPromises = Array.from({ length: 5 }, () =>
+        factory.createUserWithSession(),
       );
-      
+
       const users = await Promise.all(userPromises);
-      
+
       // Measure query performance
       const queryStartTime = Date.now();
       const allUsers = await db
@@ -850,10 +857,10 @@ describe('Enhanced Auth API Routes', () => {
         .from(user)
         .leftJoin(session, db.eq(user.id, session.userId))
         .groupBy(user.id, user.email, user.type);
-      
+
       const queryTime = Date.now() - queryStartTime;
       const totalTime = Date.now() - startTime;
-      
+
       const performanceMetrics = {
         totalUsers: users.length,
         totalTime,
@@ -867,10 +874,10 @@ describe('Enhanced Auth API Routes', () => {
       expect(allUsers).toHaveLength(users.length);
       expect(queryTime).toBeLessThan(1000); // Should be fast with Neon
       expect(totalTime).toBeLessThan(5000); // Parallel creation should be efficient
-      
+
       logger.info('auth_test', 'Performance test completed', {
         metrics: performanceMetrics,
-        users: users.map(u => ({ id: u.user.id, email: u.user.email })),
+        users: users.map((u) => ({ id: u.user.id, email: u.user.email })),
       });
 
       // Log comparison metrics for documentation
@@ -878,9 +885,15 @@ describe('Enhanced Auth API Routes', () => {
       console.log(`Total Users Created: ${performanceMetrics.totalUsers}`);
       console.log(`Total Test Time: ${performanceMetrics.totalTime}ms`);
       console.log(`Database Query Time: ${performanceMetrics.queryTime}ms`);
-      console.log(`Avg User Creation Time: ${performanceMetrics.avgUserCreationTime.toFixed(2)}ms`);
-      console.log(`Memory Usage: ${Math.round(performanceMetrics.memoryUsage.heapUsed / 1024 / 1024)}MB`);
-      console.log(`Branch Isolation: ${performanceMetrics.branchIsolation ? 'Enabled' : 'Disabled'}`);
+      console.log(
+        `Avg User Creation Time: ${performanceMetrics.avgUserCreationTime.toFixed(2)}ms`,
+      );
+      console.log(
+        `Memory Usage: ${Math.round(performanceMetrics.memoryUsage.heapUsed / 1024 / 1024)}MB`,
+      );
+      console.log(
+        `Branch Isolation: ${performanceMetrics.branchIsolation ? 'Enabled' : 'Disabled'}`,
+      );
       console.log('==========================================\n');
     });
   });

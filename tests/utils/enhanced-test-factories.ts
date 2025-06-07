@@ -1,5 +1,11 @@
 import { randomUUID } from 'crypto';
-import type { User, Session, RagDocument, DocumentChunk, DocumentEmbedding } from '@/lib/db/schema';
+import type {
+  User,
+  Session,
+  RagDocument,
+  DocumentChunk,
+  DocumentEmbedding,
+} from '@/lib/db/schema';
 
 /**
  * Enhanced Test Data Factory
@@ -30,14 +36,21 @@ export class TestDataFactory {
   /**
    * Generate a random string of specified length
    */
-  private generateRandomString(length: number, charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'): string {
-    return Array.from({ length }, () => charset.charAt(Math.floor(Math.random() * charset.length))).join('');
+  private generateRandomString(
+    length: number,
+    charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+  ): string {
+    return Array.from({ length }, () =>
+      charset.charAt(Math.floor(Math.random() * charset.length)),
+    ).join('');
   }
 
   /**
    * Generate realistic text content for documents
    */
-  private generateDocumentContent(length: 'short' | 'medium' | 'long' = 'medium'): string {
+  private generateDocumentContent(
+    length: 'short' | 'medium' | 'long' = 'medium',
+  ): string {
     const sentences = [
       'The RoboRail system provides automated measurement capabilities for industrial applications.',
       'Calibration procedures must be followed carefully to ensure accurate measurements.',
@@ -48,18 +61,19 @@ export class TestDataFactory {
       'Regular maintenance schedules help prevent equipment failures and ensure reliability.',
       'User training is essential for safe and effective operation of the system.',
       'Troubleshooting guides provide step-by-step instructions for common issues.',
-      'Software updates include performance improvements and bug fixes.'
+      'Software updates include performance improvements and bug fixes.',
     ];
 
     const lengths = {
       short: 2,
       medium: 5,
-      long: 10
+      long: 10,
     };
 
     const sentenceCount = lengths[length];
-    const selectedSentences = Array.from({ length: sentenceCount }, () => 
-      sentences[Math.floor(Math.random() * sentences.length)]
+    const selectedSentences = Array.from(
+      { length: sentenceCount },
+      () => sentences[Math.floor(Math.random() * sentences.length)],
     );
 
     return selectedSentences.join(' ');
@@ -69,8 +83,9 @@ export class TestDataFactory {
    * Generate a realistic embedding vector
    */
   private generateEmbedding(dimensions: number = 1536): number[] {
-    return Array.from({ length: dimensions }, () => 
-      (Math.random() - 0.5) * 2 // Values between -1 and 1
+    return Array.from(
+      { length: dimensions },
+      () => (Math.random() - 0.5) * 2, // Values between -1 and 1
     );
   }
 
@@ -80,7 +95,7 @@ export class TestDataFactory {
   createUser(overrides: Partial<User> = {}): User {
     const sequence = this.getNextSequence('user');
     const defaultName = `Test User ${sequence}`;
-    
+
     return {
       id: randomUUID(),
       email: this.generateEmail(overrides.name || defaultName),
@@ -88,7 +103,7 @@ export class TestDataFactory {
       type: 'regular',
       createdAt: new Date(),
       updatedAt: new Date(),
-      ...overrides
+      ...overrides,
     } as User;
   }
 
@@ -113,18 +128,34 @@ export class TestDataFactory {
       expiresAt,
       createdAt: now,
       updatedAt: now,
-      ...overrides
+      ...overrides,
     } as Session;
   }
 
   /**
    * Create a test document with realistic metadata
    */
-  createDocument(userId: string, overrides: Partial<RagDocument> = {}): RagDocument {
+  createDocument(
+    userId: string,
+    overrides: Partial<RagDocument> = {},
+  ): RagDocument {
     const sequence = this.getNextSequence('document');
-    const documentTypes = ['manual', 'faq', 'specification', 'guide', 'procedure'];
-    const statuses = ['uploaded', 'processing', 'text_extracted', 'chunked', 'embedded', 'processed'];
-    
+    const documentTypes = [
+      'manual',
+      'faq',
+      'specification',
+      'guide',
+      'procedure',
+    ];
+    const statuses = [
+      'uploaded',
+      'processing',
+      'text_extracted',
+      'chunked',
+      'embedded',
+      'processed',
+    ];
+
     return {
       id: randomUUID(),
       userId,
@@ -138,27 +169,38 @@ export class TestDataFactory {
         type: documentTypes[Math.floor(Math.random() * documentTypes.length)],
         version: '1.0',
         pages: Math.floor(Math.random() * 100) + 1,
-        extractedAt: new Date().toISOString()
+        extractedAt: new Date().toISOString(),
       },
       createdAt: new Date(),
       updatedAt: new Date(),
-      ...overrides
+      ...overrides,
     } as RagDocument;
   }
 
   /**
    * Create multiple test documents
    */
-  createDocuments(userId: string, count: number, overrides: Partial<RagDocument> = {}): RagDocument[] {
-    return Array.from({ length: count }, () => this.createDocument(userId, overrides));
+  createDocuments(
+    userId: string,
+    count: number,
+    overrides: Partial<RagDocument> = {},
+  ): RagDocument[] {
+    return Array.from({ length: count }, () =>
+      this.createDocument(userId, overrides),
+    );
   }
 
   /**
    * Create a test document chunk
    */
-  createDocumentChunk(documentId: string, index: number, overrides: Partial<DocumentChunk> = {}): DocumentChunk {
+  createDocumentChunk(
+    documentId: string,
+    index: number,
+    overrides: Partial<DocumentChunk> = {},
+  ): DocumentChunk {
     const contentLengths = ['short', 'medium', 'long'] as const;
-    const contentLength = contentLengths[Math.floor(Math.random() * contentLengths.length)];
+    const contentLength =
+      contentLengths[Math.floor(Math.random() * contentLengths.length)];
 
     return {
       id: randomUUID(),
@@ -169,37 +211,49 @@ export class TestDataFactory {
         pageNumber: Math.floor(index / 5) + 1, // Roughly 5 chunks per page
         chunkType: 'text',
         wordCount: Math.floor(Math.random() * 500) + 50,
-        characterCount: Math.floor(Math.random() * 2000) + 200
+        characterCount: Math.floor(Math.random() * 2000) + 200,
       },
       createdAt: new Date(),
-      ...overrides
+      ...overrides,
     } as DocumentChunk;
   }
 
   /**
    * Create multiple document chunks
    */
-  createDocumentChunks(documentId: string, count: number, overrides: Partial<DocumentChunk> = {}): DocumentChunk[] {
-    return Array.from({ length: count }, (_, index) => 
-      this.createDocumentChunk(documentId, index, overrides)
+  createDocumentChunks(
+    documentId: string,
+    count: number,
+    overrides: Partial<DocumentChunk> = {},
+  ): DocumentChunk[] {
+    return Array.from({ length: count }, (_, index) =>
+      this.createDocumentChunk(documentId, index, overrides),
     );
   }
 
   /**
    * Create a test document embedding
    */
-  createDocumentEmbedding(chunkId: string, overrides: Partial<DocumentEmbedding> = {}): DocumentEmbedding {
-    const models = ['cohere-embed-v4.0', 'text-embedding-3-large', 'text-embedding-ada-002'];
+  createDocumentEmbedding(
+    chunkId: string,
+    overrides: Partial<DocumentEmbedding> = {},
+  ): DocumentEmbedding {
+    const models = [
+      'cohere-embed-v4.0',
+      'text-embedding-3-large',
+      'text-embedding-ada-002',
+    ];
     const selectedModel = models[Math.floor(Math.random() * models.length)];
-    
+
     // Different embedding dimensions for different models
     const modelDimensions = {
       'cohere-embed-v4.0': 1024,
       'text-embedding-3-large': 3072,
-      'text-embedding-ada-002': 1536
+      'text-embedding-ada-002': 1536,
     };
 
-    const dimensions = modelDimensions[selectedModel as keyof typeof modelDimensions] || 1536;
+    const dimensions =
+      modelDimensions[selectedModel as keyof typeof modelDimensions] || 1536;
 
     return {
       id: randomUUID(),
@@ -207,14 +261,18 @@ export class TestDataFactory {
       embedding: JSON.stringify(this.generateEmbedding(dimensions)),
       model: selectedModel,
       createdAt: new Date(),
-      ...overrides
+      ...overrides,
     } as DocumentEmbedding;
   }
 
   /**
    * Create rate limit entry for testing
    */
-  createRateLimitEntry(ipAddress: string, endpoint: string, overrides: Partial<any> = {}) {
+  createRateLimitEntry(
+    ipAddress: string,
+    endpoint: string,
+    overrides: Partial<any> = {},
+  ) {
     return {
       id: randomUUID(),
       ipAddress,
@@ -222,14 +280,18 @@ export class TestDataFactory {
       attemptCount: 1,
       windowStart: new Date(),
       createdAt: new Date(),
-      ...overrides
+      ...overrides,
     };
   }
 
   /**
    * Create performance metric entry
    */
-  createPerformanceMetric(operation: string, duration: number, overrides: Partial<any> = {}) {
+  createPerformanceMetric(
+    operation: string,
+    duration: number,
+    overrides: Partial<any> = {},
+  ) {
     return {
       id: randomUUID(),
       operation,
@@ -237,45 +299,49 @@ export class TestDataFactory {
       success: true,
       metadata: {},
       timestamp: new Date(),
-      ...overrides
+      ...overrides,
     };
   }
 
   /**
    * Create a complete test data set with relationships
    */
-  createTestDataSet(options: {
-    userCount?: number;
-    documentsPerUser?: number;
-    chunksPerDocument?: number;
-    withEmbeddings?: boolean;
-    withSessions?: boolean;
-  } = {}) {
+  createTestDataSet(
+    options: {
+      userCount?: number;
+      documentsPerUser?: number;
+      chunksPerDocument?: number;
+      withEmbeddings?: boolean;
+      withSessions?: boolean;
+    } = {},
+  ) {
     const {
       userCount = 3,
       documentsPerUser = 2,
       chunksPerDocument = 10,
       withEmbeddings = true,
-      withSessions = true
+      withSessions = true,
     } = options;
 
     const users = this.createUsers(userCount);
-    const sessions = withSessions ? users.map(user => this.createSession(user.id)) : [];
-    
+    const sessions = withSessions
+      ? users.map((user) => this.createSession(user.id))
+      : [];
+
     const documents: RagDocument[] = [];
     const chunks: DocumentChunk[] = [];
     const embeddings: DocumentEmbedding[] = [];
 
-    users.forEach(user => {
+    users.forEach((user) => {
       const userDocs = this.createDocuments(user.id, documentsPerUser);
       documents.push(...userDocs);
 
-      userDocs.forEach(doc => {
+      userDocs.forEach((doc) => {
         const docChunks = this.createDocumentChunks(doc.id, chunksPerDocument);
         chunks.push(...docChunks);
 
         if (withEmbeddings) {
-          docChunks.forEach(chunk => {
+          docChunks.forEach((chunk) => {
             embeddings.push(this.createDocumentEmbedding(chunk.id));
           });
         }
@@ -293,8 +359,8 @@ export class TestDataFactory {
         totalDocuments: documents.length,
         totalChunks: chunks.length,
         totalEmbeddings: embeddings.length,
-        totalSessions: sessions.length
-      }
+        totalSessions: sessions.length,
+      },
     };
   }
 

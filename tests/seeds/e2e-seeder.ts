@@ -12,7 +12,7 @@ import type { SeederResult } from '../factories/types';
 export class E2ESeeder extends BaseSeeder {
   async seed(): Promise<SeederResult> {
     console.log('🎭 Starting E2E test seeding...');
-    
+
     const startTime = Date.now();
     const rowsCreated: Record<string, number> = {};
     const errors: Error[] = [];
@@ -33,7 +33,7 @@ export class E2ESeeder extends BaseSeeder {
       // Verify the data
       const verification = await this.verifyDatabaseState();
       if (!verification.valid) {
-        verification.issues.forEach(issue => {
+        verification.issues.forEach((issue) => {
           errors.push(new Error(issue));
         });
       }
@@ -41,8 +41,11 @@ export class E2ESeeder extends BaseSeeder {
       const executionTime = Date.now() - startTime;
       console.log(`✅ E2E seeding completed in ${executionTime}ms`);
 
-      return this.generateResult(true, rowsCreated, errors.length > 0 ? errors : undefined);
-
+      return this.generateResult(
+        true,
+        rowsCreated,
+        errors.length > 0 ? errors : undefined,
+      );
     } catch (error) {
       console.error('❌ E2E seeding failed:', error);
       errors.push(error instanceof Error ? error : new Error(String(error)));
@@ -53,9 +56,11 @@ export class E2ESeeder extends BaseSeeder {
   /**
    * Create realistic users with proper authentication data
    */
-  private async createRealisticUsers(rowsCreated: Record<string, number>): Promise<void> {
+  private async createRealisticUsers(
+    rowsCreated: Record<string, number>,
+  ): Promise<void> {
     const userCount = this.getUserCount();
-    
+
     console.log(`Creating ${userCount} realistic users...`);
 
     // Create a mix of user types
@@ -112,35 +117,41 @@ export class E2ESeeder extends BaseSeeder {
     }
 
     // Insert users
-    const userData = users.map(u => u.user);
+    const userData = users.map((u) => u.user);
     await this.batchInsert(schema.user, userData);
     rowsCreated.users = userData.length;
 
     // Insert sessions
-    const sessionData = users.flatMap(u => u.sessions);
+    const sessionData = users.flatMap((u) => u.sessions);
     await this.batchInsert(schema.session, sessionData);
     rowsCreated.sessions = sessionData.length;
 
     // Insert accounts (OAuth)
-    const accountData = users.flatMap(u => u.accounts);
+    const accountData = users.flatMap((u) => u.accounts);
     if (accountData.length > 0) {
       await this.batchInsert(schema.account, accountData);
       rowsCreated.accounts = accountData.length;
     }
 
-    console.log(`✓ Created ${userData.length} users (${adminCount} admin, ${premiumCount} premium, ${regularCount} regular)`);
+    console.log(
+      `✓ Created ${userData.length} users (${adminCount} admin, ${premiumCount} premium, ${regularCount} regular)`,
+    );
   }
 
   /**
    * Create realistic chat conversations
    */
-  private async createRealisticChats(rowsCreated: Record<string, number>): Promise<void> {
+  private async createRealisticChats(
+    rowsCreated: Record<string, number>,
+  ): Promise<void> {
     // Get existing users
-    const users = await this.db.select({ id: schema.user.id }).from(schema.user);
+    const users = await this.db
+      .select({ id: schema.user.id })
+      .from(schema.user);
     if (users.length === 0) return;
 
     const chatCount = Math.min(users.length * 2, 50); // 2 chats per user, max 50
-    
+
     console.log(`Creating ${chatCount} realistic chats...`);
 
     const chats = [];
@@ -195,19 +206,25 @@ export class E2ESeeder extends BaseSeeder {
       rowsCreated.streams = streams.length;
     }
 
-    console.log(`✓ Created ${chats.length} chats with ${messages.length} messages`);
+    console.log(
+      `✓ Created ${chats.length} chats with ${messages.length} messages`,
+    );
   }
 
   /**
    * Create realistic RAG documents with full processing pipeline
    */
-  private async createRealisticDocuments(rowsCreated: Record<string, number>): Promise<void> {
+  private async createRealisticDocuments(
+    rowsCreated: Record<string, number>,
+  ): Promise<void> {
     // Get existing users
-    const users = await this.db.select({ id: schema.user.id }).from(schema.user);
+    const users = await this.db
+      .select({ id: schema.user.id })
+      .from(schema.user);
     if (users.length === 0) return;
 
     const docCount = this.getDocumentCount();
-    
+
     console.log(`Creating ${docCount} realistic documents...`);
 
     const documents = [];
@@ -217,7 +234,7 @@ export class E2ESeeder extends BaseSeeder {
 
     for (let i = 0; i < docCount; i++) {
       const user = users[i % users.length];
-      
+
       const completeDoc = completeRAGDocumentFactory.create({
         overrides: {
           document: {
@@ -247,15 +264,19 @@ export class E2ESeeder extends BaseSeeder {
     await this.batchInsert(schema.documentEmbedding, embeddings);
     rowsCreated.documentEmbeddings = embeddings.length;
 
-    console.log(`✓ Created ${documents.length} documents with ${chunks.length} chunks and ${embeddings.length} embeddings`);
+    console.log(
+      `✓ Created ${documents.length} documents with ${chunks.length} chunks and ${embeddings.length} embeddings`,
+    );
   }
 
   /**
    * Create specific test scenarios
    */
-  private async createTestScenarios(rowsCreated: Record<string, number>): Promise<void> {
+  private async createTestScenarios(
+    rowsCreated: Record<string, number>,
+  ): Promise<void> {
     const scenarios = this.config.scenarios || [];
-    
+
     if (scenarios.includes('collaboration')) {
       await this.createCollaborationScenario(rowsCreated);
     }
@@ -272,38 +293,50 @@ export class E2ESeeder extends BaseSeeder {
   /**
    * Create collaboration scenario data
    */
-  private async createCollaborationScenario(rowsCreated: Record<string, number>): Promise<void> {
+  private async createCollaborationScenario(
+    rowsCreated: Record<string, number>,
+  ): Promise<void> {
     console.log('Creating collaboration scenario...');
 
     const scenario = relationshipFactory.createCollaborativeWorkspace();
     const data = await scenario.setup();
 
     // The data is already created in memory, we just need to track it
-    console.log(`✓ Created collaboration scenario with ${data.users.length} team members`);
+    console.log(
+      `✓ Created collaboration scenario with ${data.users.length} team members`,
+    );
   }
 
   /**
    * Create customer support scenario data
    */
-  private async createCustomerSupportScenario(rowsCreated: Record<string, number>): Promise<void> {
+  private async createCustomerSupportScenario(
+    rowsCreated: Record<string, number>,
+  ): Promise<void> {
     console.log('Creating customer support scenario...');
 
     const scenario = relationshipFactory.createCustomerSupportScenario();
     const data = await scenario.setup();
 
-    console.log(`✓ Created support scenario with ${data.agents.length} agents and ${data.customers.length} customers`);
+    console.log(
+      `✓ Created support scenario with ${data.agents.length} agents and ${data.customers.length} customers`,
+    );
   }
 
   /**
    * Create research scenario data
    */
-  private async createResearchScenario(rowsCreated: Record<string, number>): Promise<void> {
+  private async createResearchScenario(
+    rowsCreated: Record<string, number>,
+  ): Promise<void> {
     console.log('Creating research scenario...');
 
     const scenario = relationshipFactory.createResearchScenario();
     const data = await scenario.setup();
 
-    console.log(`✓ Created research scenario with ${data.researchPapers.length} papers`);
+    console.log(
+      `✓ Created research scenario with ${data.researchPapers.length} papers`,
+    );
   }
 
   /**
@@ -345,7 +378,7 @@ export class E2ESeeder extends BaseSeeder {
 export class BrowserTestSeeder extends BaseSeeder {
   async seed(): Promise<SeederResult> {
     console.log('🌐 Starting browser test seeding...');
-    
+
     const startTime = Date.now();
     const rowsCreated: Record<string, number> = {};
 
@@ -362,10 +395,11 @@ export class BrowserTestSeeder extends BaseSeeder {
       console.log(`✅ Browser test seeding completed in ${executionTime}ms`);
 
       return this.generateResult(true, rowsCreated);
-
     } catch (error) {
       console.error('❌ Browser test seeding failed:', error);
-      const errors = [error instanceof Error ? error : new Error(String(error))];
+      const errors = [
+        error instanceof Error ? error : new Error(String(error)),
+      ];
       return this.generateResult(false, rowsCreated, errors);
     }
   }
@@ -373,7 +407,9 @@ export class BrowserTestSeeder extends BaseSeeder {
   /**
    * Create predictable users for browser testing
    */
-  private async createBrowserTestUsers(rowsCreated: Record<string, number>): Promise<void> {
+  private async createBrowserTestUsers(
+    rowsCreated: Record<string, number>,
+  ): Promise<void> {
     const testUsers = [
       {
         email: 'admin@test.com',
@@ -398,32 +434,36 @@ export class BrowserTestSeeder extends BaseSeeder {
       },
     ];
 
-    const users = testUsers.map(userData => 
+    const users = testUsers.map((userData) =>
       completeUserFactory.create({
         overrides: { user: userData },
         realistic: false, // Use predictable data
-      })
+      }),
     );
 
     // Insert users and sessions
-    const userData = users.map(u => u.user);
+    const userData = users.map((u) => u.user);
     await this.batchInsert(schema.user, userData);
     rowsCreated.users = userData.length;
 
-    const sessionData = users.flatMap(u => u.sessions);
+    const sessionData = users.flatMap((u) => u.sessions);
     await this.batchInsert(schema.session, sessionData);
     rowsCreated.sessions = sessionData.length;
 
-    console.log(`✓ Created ${userData.length} predictable test users for browser testing`);
+    console.log(
+      `✓ Created ${userData.length} predictable test users for browser testing`,
+    );
   }
 
   /**
    * Create predictable content for browser testing
    */
-  private async createBrowserTestContent(rowsCreated: Record<string, number>): Promise<void> {
+  private async createBrowserTestContent(
+    rowsCreated: Record<string, number>,
+  ): Promise<void> {
     const users = await this.db.select().from(schema.user);
-    const testUser = users.find(u => u.email === 'user@test.com');
-    
+    const testUser = users.find((u) => u.email === 'user@test.com');
+
     if (!testUser) return;
 
     // Create a predictable chat for UI testing
@@ -458,7 +498,7 @@ export class BrowserTestSeeder extends BaseSeeder {
     await this.batchInsert(schema.documentContent, [testDocument.content]);
     await this.batchInsert(schema.documentChunk, testDocument.chunks);
     await this.batchInsert(schema.documentEmbedding, testDocument.embeddings);
-    
+
     rowsCreated.ragDocuments = 1;
     rowsCreated.documentContent = 1;
     rowsCreated.documentChunks = testDocument.chunks.length;

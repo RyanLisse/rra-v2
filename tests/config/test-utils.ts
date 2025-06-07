@@ -5,15 +5,22 @@
 
 import { beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
 import type { TestInfo } from '@playwright/test';
-import { getNeonApiClient, type BranchCreationOptions, type TestBranchInfo } from '@/lib/testing/neon-api-client';
+import {
+  getNeonApiClient,
+  type BranchCreationOptions,
+  type TestBranchInfo,
+} from '@/lib/testing/neon-api-client';
 import { getNeonLogger } from '@/lib/testing/neon-logger';
 import { getTestConfig, validateTestEnvironment } from './config-builder';
-import { setupNeonTestBranching, isNeonBranchingEnabled } from './neon-branch-setup';
-import type { 
-  TestExecutionContext, 
-  TestMetrics, 
+import {
+  setupNeonTestBranching,
+  isNeonBranchingEnabled,
+} from './neon-branch-setup';
+import type {
+  TestExecutionContext,
+  TestMetrics,
   TestSetupHooks,
-  CompleteTestConfig 
+  CompleteTestConfig,
 } from './types';
 
 const logger = getNeonLogger();
@@ -46,7 +53,7 @@ export class TestContextManager {
     testName: string,
     testFile: string,
     testSuite: string,
-    testType: 'unit' | 'integration' | 'e2e' | 'performance' = 'unit'
+    testType: 'unit' | 'integration' | 'e2e' | 'performance' = 'unit',
   ): TestExecutionContext {
     const context: TestExecutionContext = {
       testName,
@@ -60,7 +67,7 @@ export class TestContextManager {
     };
 
     this.contexts.set(testName, context);
-    
+
     logger.info('test_context', 'Test context created', {
       testName,
       testSuite,
@@ -73,14 +80,18 @@ export class TestContextManager {
   /**
    * Update test context
    */
-  updateContext(testName: string, updates: Partial<TestExecutionContext>): void {
+  updateContext(
+    testName: string,
+    updates: Partial<TestExecutionContext>,
+  ): void {
     const context = this.contexts.get(testName);
     if (context) {
       Object.assign(context, updates);
-      
+
       if (updates.status === 'passed' || updates.status === 'failed') {
         context.endTime = new Date();
-        context.duration = context.endTime.getTime() - context.startTime.getTime();
+        context.duration =
+          context.endTime.getTime() - context.startTime.getTime();
       }
     }
   }
@@ -109,15 +120,15 @@ export class TestContextManager {
   async executeCleanup(testName: string): Promise<void> {
     const context = this.contexts.get(testName);
     if (context && context.cleanup) {
-      const cleanupPromises = context.cleanup.map(fn => 
-        fn().catch(error => 
+      const cleanupPromises = context.cleanup.map((fn) =>
+        fn().catch((error) =>
           logger.error('test_context', 'Cleanup function failed', {
             testName,
             error: error.message,
-          })
-        )
+          }),
+        ),
       );
-      
+
       await Promise.allSettled(cleanupPromises);
       context.cleanup = [];
     }
@@ -167,7 +178,10 @@ export class TestContextManager {
       Object.assign(this.globalMetrics.suiteMetrics, updates.suiteMetrics);
     }
     if (updates.performanceMetrics) {
-      Object.assign(this.globalMetrics.performanceMetrics, updates.performanceMetrics);
+      Object.assign(
+        this.globalMetrics.performanceMetrics,
+        updates.performanceMetrics,
+      );
     }
     if (updates.errorSummary) {
       Object.assign(this.globalMetrics.errorSummary, updates.errorSummary);
@@ -214,7 +228,7 @@ export class TestSetupUtils {
       enableMetrics?: boolean;
       branchOptions?: Partial<BranchCreationOptions>;
       hooks?: TestSetupHooks;
-    }
+    },
   ) {
     const {
       type = 'unit',
@@ -246,7 +260,7 @@ export class TestSetupUtils {
     // Setup global hooks
     beforeAll(async () => {
       const startTime = Date.now();
-      
+
       // Execute custom hook
       if (hooks.beforeAll) {
         await hooks.beforeAll();
@@ -313,19 +327,15 @@ export class TestSetupUtils {
       type?: 'unit' | 'integration' | 'e2e' | 'performance';
       enableMetrics?: boolean;
       timeout?: number;
-    }
+    },
   ): TestExecutionContext {
-    const {
-      type = 'unit',
-      enableMetrics = true,
-      timeout,
-    } = options || {};
+    const { type = 'unit', enableMetrics = true, timeout } = options || {};
 
     const context = TestSetupUtils.contextManager.createContext(
       testName,
       testFile,
       testSuite,
-      type
+      type,
     );
 
     if (timeout) {
@@ -341,7 +351,7 @@ export class TestSetupUtils {
    */
   static async createTestBranch(
     testName: string,
-    options?: Partial<BranchCreationOptions>
+    options?: Partial<BranchCreationOptions>,
   ): Promise<TestBranchInfo> {
     if (!isNeonBranchingEnabled()) {
       throw new Error('Neon branching is not enabled');
@@ -363,7 +373,7 @@ export class TestSetupUtils {
 
     try {
       const result = await neonClient.createTestBranch(branchOptions);
-      
+
       if (!result.success || !result.data) {
         throw new Error(`Failed to create test branch: ${result.error}`);
       }
@@ -404,7 +414,8 @@ export class TestSetupUtils {
 
       return branchInfo;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       logger.error('test_utils', 'Failed to create test branch', {
         testName,
         error: errorMessage,
@@ -439,7 +450,7 @@ export class TestSetupUtils {
 
     try {
       const result = await neonClient.deleteTestBranch(branchName);
-      
+
       if (!result.success) {
         throw new Error(`Failed to delete test branch: ${result.error}`);
       }
@@ -462,7 +473,8 @@ export class TestSetupUtils {
         deletionTime,
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       logger.error('test_utils', 'Failed to delete test branch', {
         branchName,
         error: errorMessage,
@@ -490,10 +502,10 @@ export class TestSetupUtils {
   static async withTestBranch<T>(
     testName: string,
     fn: (branchInfo: TestBranchInfo) => Promise<T>,
-    options?: Partial<BranchCreationOptions>
+    options?: Partial<BranchCreationOptions>,
   ): Promise<T> {
     const branchInfo = await TestSetupUtils.createTestBranch(testName, options);
-    
+
     try {
       return await fn(branchInfo);
     } finally {
@@ -506,7 +518,7 @@ export class TestSetupUtils {
    */
   static validateEnvironment(): void {
     const validation = validateTestEnvironment();
-    
+
     if (!validation.isValid) {
       const errorMessage = `Test environment validation failed:\n${validation.errors.join('\n')}`;
       logger.error('test_utils', 'Environment validation failed', {
@@ -520,7 +532,10 @@ export class TestSetupUtils {
       logger.warn('test_utils', 'Environment validation warnings', {
         warnings: validation.warnings,
       });
-      console.warn('Test environment warnings:', validation.warnings.join('\n'));
+      console.warn(
+        'Test environment warnings:',
+        validation.warnings.join('\n'),
+      );
     }
 
     logger.info('test_utils', 'Test environment validated successfully', {
@@ -535,17 +550,17 @@ export class TestSetupUtils {
     try {
       const testData = TestSetupUtils.contextManager.exportTestData();
       const outputDir = process.env.TEST_METRICS_OUTPUT_DIR || './test-results';
-      
+
       const fs = await import('node:fs/promises');
       const path = await import('node:path');
-      
+
       await fs.mkdir(outputDir, { recursive: true });
-      
+
       const fileName = `test-metrics-${suiteName}-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
       const filePath = path.join(outputDir, fileName);
-      
+
       await fs.writeFile(filePath, JSON.stringify(testData, null, 2));
-      
+
       logger.info('test_utils', 'Test metrics exported', {
         suiteName,
         filePath,
@@ -565,14 +580,16 @@ export class TestSetupUtils {
   static getTestStatistics() {
     const metrics = TestSetupUtils.contextManager.getGlobalMetrics();
     const neonClient = isNeonBranchingEnabled() ? getNeonApiClient() : null;
-    
+
     return {
       ...metrics,
-      neonClientStats: neonClient ? {
-        activeBranches: neonClient.getActiveBranches().length,
-        performanceMetrics: neonClient.getPerformanceMetrics(),
-        recentErrors: neonClient.getErrorSummary(),
-      } : null,
+      neonClientStats: neonClient
+        ? {
+            activeBranches: neonClient.getActiveBranches().length,
+            performanceMetrics: neonClient.getPerformanceMetrics(),
+            recentErrors: neonClient.getErrorSummary(),
+          }
+        : null,
     };
   }
 }
@@ -589,13 +606,14 @@ export class PlaywrightTestUtils {
     options?: {
       useNeonBranching?: boolean;
       branchOptions?: Partial<BranchCreationOptions>;
-    }
+    },
   ): Promise<{
     databaseUrl: string;
     branchInfo?: TestBranchInfo;
     cleanup: () => Promise<void>;
   }> {
-    const { useNeonBranching = isNeonBranchingEnabled(), branchOptions = {} } = options || {};
+    const { useNeonBranching = isNeonBranchingEnabled(), branchOptions = {} } =
+      options || {};
 
     if (!useNeonBranching) {
       return {
@@ -605,7 +623,7 @@ export class PlaywrightTestUtils {
     }
 
     const testName = `playwright-${testInfo.project.name}-${testInfo.title.replace(/\s+/g, '-').toLowerCase()}`;
-    
+
     const branchInfo = await TestSetupUtils.createTestBranch(testName, {
       purpose: 'playwright-test',
       tags: ['playwright', 'e2e', testInfo.project.name],
@@ -628,15 +646,27 @@ export { TestSetupUtils as testSetup };
 export { PlaywrightTestUtils as playwrightUtils };
 
 // Convenience functions
-export function setupTestSuite(suiteName: string, options?: Parameters<typeof TestSetupUtils.setupTestSuite>[1]) {
+export function setupTestSuite(
+  suiteName: string,
+  options?: Parameters<typeof TestSetupUtils.setupTestSuite>[1],
+) {
   return TestSetupUtils.setupTestSuite(suiteName, options);
 }
 
-export function setupTest(testName: string, testFile: string, testSuite: string, options?: Parameters<typeof TestSetupUtils.setupTest>[3]) {
+export function setupTest(
+  testName: string,
+  testFile: string,
+  testSuite: string,
+  options?: Parameters<typeof TestSetupUtils.setupTest>[3],
+) {
   return TestSetupUtils.setupTest(testName, testFile, testSuite, options);
 }
 
-export function withTestBranch<T>(testName: string, fn: (branchInfo: TestBranchInfo) => Promise<T>, options?: Partial<BranchCreationOptions>) {
+export function withTestBranch<T>(
+  testName: string,
+  fn: (branchInfo: TestBranchInfo) => Promise<T>,
+  options?: Partial<BranchCreationOptions>,
+) {
   return TestSetupUtils.withTestBranch(testName, fn, options);
 }
 

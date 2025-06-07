@@ -1,6 +1,6 @@
 /**
  * Document Upload Handler
- * 
+ *
  * This file will handle the document upload process including file validation,
  * storage, and database record creation.
  * Currently a stub implementation - will be implemented after tests are written.

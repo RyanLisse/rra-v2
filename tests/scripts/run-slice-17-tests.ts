@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 /**
  * Slice 17 Test Runner
- * 
+ *
  * Executes comprehensive integration tests for the enhanced RAG pipeline
  * and generates detailed performance and compatibility reports.
  */
@@ -66,7 +66,7 @@ class Slice17TestRunner {
   constructor() {
     this.timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     this.reportDir = join(process.cwd(), 'test-results', 'slice-17');
-    
+
     // Ensure report directory exists
     if (!existsSync(this.reportDir)) {
       mkdirSync(this.reportDir, { recursive: true });
@@ -87,10 +87,10 @@ class Slice17TestRunner {
       // Generate comprehensive report
       const report = this.generateReport();
       await this.saveReport(report);
-      
+
       console.log('\n📊 Test execution completed');
       this.printSummary(report);
-      
+
       return report;
     } catch (error) {
       console.error('❌ Test execution failed:', error);
@@ -100,7 +100,7 @@ class Slice17TestRunner {
 
   private async runIntegrationTests(): Promise<void> {
     console.log('📋 Running Integration Tests...');
-    
+
     const suite: TestSuite = {
       name: 'Integration Tests',
       tests: [],
@@ -113,38 +113,47 @@ class Slice17TestRunner {
     const integrationTests = [
       {
         name: 'ADE Metadata Integration',
-        command: 'bun test tests/integration/slice-17-rag-enhancement.test.ts --reporter=verbose',
+        command:
+          'bun test tests/integration/slice-17-rag-enhancement.test.ts --reporter=verbose',
         timeout: 300000, // 5 minutes
       },
       {
-        name: 'Enhanced Search Functionality', 
-        command: 'bun test tests/integration/slice-17-rag-enhancement.test.ts -t "Enhanced Search"',
+        name: 'Enhanced Search Functionality',
+        command:
+          'bun test tests/integration/slice-17-rag-enhancement.test.ts -t "Enhanced Search"',
         timeout: 180000, // 3 minutes
       },
       {
         name: 'Context Assembly and LLM Integration',
-        command: 'bun test tests/integration/slice-17-rag-enhancement.test.ts -t "Enhanced Context"',
+        command:
+          'bun test tests/integration/slice-17-rag-enhancement.test.ts -t "Enhanced Context"',
         timeout: 120000, // 2 minutes
       },
     ];
 
     for (const test of integrationTests) {
-      const result = await this.executeTest(test.name, test.command, test.timeout);
+      const result = await this.executeTest(
+        test.name,
+        test.command,
+        test.timeout,
+      );
       suite.tests.push(result);
       suite.totalDuration += result.duration;
-      
+
       if (result.status === 'passed') suite.passed++;
       else if (result.status === 'failed') suite.failed++;
       else suite.skipped++;
     }
 
     this.results.push(suite);
-    console.log(`✅ Integration tests completed: ${suite.passed}/${suite.tests.length} passed\n`);
+    console.log(
+      `✅ Integration tests completed: ${suite.passed}/${suite.tests.length} passed\n`,
+    );
   }
 
   private async runE2ETests(): Promise<void> {
     console.log('🎭 Running End-to-End Tests...');
-    
+
     const suite: TestSuite = {
       name: 'End-to-End Tests',
       tests: [],
@@ -157,43 +166,53 @@ class Slice17TestRunner {
     const e2eTests = [
       {
         name: 'Complete Document Processing Pipeline',
-        command: 'bunx playwright test tests/e2e/slice-17-end-to-end.test.ts -g "Complete document processing"',
+        command:
+          'bunx playwright test tests/e2e/slice-17-end-to-end.test.ts -g "Complete document processing"',
         timeout: 600000, // 10 minutes
       },
       {
         name: 'Enhanced Search with Filtering',
-        command: 'bunx playwright test tests/e2e/slice-17-end-to-end.test.ts -g "Enhanced search functionality"',
+        command:
+          'bunx playwright test tests/e2e/slice-17-end-to-end.test.ts -g "Enhanced search functionality"',
         timeout: 300000, // 5 minutes
       },
       {
         name: 'Context Assembly and Citations',
-        command: 'bunx playwright test tests/e2e/slice-17-end-to-end.test.ts -g "Context assembly\\|citation display"',
+        command:
+          'bunx playwright test tests/e2e/slice-17-end-to-end.test.ts -g "Context assembly\\|citation display"',
         timeout: 240000, // 4 minutes
       },
       {
         name: 'Complete Workflow Integration',
-        command: 'bunx playwright test tests/e2e/slice-17-end-to-end.test.ts -g "Complete workflow"',
+        command:
+          'bunx playwright test tests/e2e/slice-17-end-to-end.test.ts -g "Complete workflow"',
         timeout: 480000, // 8 minutes
       },
     ];
 
     for (const test of e2eTests) {
-      const result = await this.executeTest(test.name, test.command, test.timeout);
+      const result = await this.executeTest(
+        test.name,
+        test.command,
+        test.timeout,
+      );
       suite.tests.push(result);
       suite.totalDuration += result.duration;
-      
+
       if (result.status === 'passed') suite.passed++;
       else if (result.status === 'failed') suite.failed++;
       else suite.skipped++;
     }
 
     this.results.push(suite);
-    console.log(`✅ E2E tests completed: ${suite.passed}/${suite.tests.length} passed\n`);
+    console.log(
+      `✅ E2E tests completed: ${suite.passed}/${suite.tests.length} passed\n`,
+    );
   }
 
   private async runPerformanceTests(): Promise<void> {
     console.log('⚡ Running Performance Tests...');
-    
+
     const suite: TestSuite = {
       name: 'Performance Tests',
       tests: [],
@@ -206,43 +225,53 @@ class Slice17TestRunner {
     const performanceTests = [
       {
         name: 'Search Performance with Metadata',
-        command: 'bun test tests/integration/slice-17-rag-enhancement.test.ts -t "search performance"',
+        command:
+          'bun test tests/integration/slice-17-rag-enhancement.test.ts -t "search performance"',
         timeout: 180000,
       },
       {
         name: 'Context Assembly Latency',
-        command: 'bun test tests/integration/slice-17-rag-enhancement.test.ts -t "context assembly latency"',
+        command:
+          'bun test tests/integration/slice-17-rag-enhancement.test.ts -t "context assembly latency"',
         timeout: 120000,
       },
       {
         name: 'Enhanced vs Legacy Benchmark',
-        command: 'bun test tests/integration/slice-17-rag-enhancement.test.ts -t "benchmark enhanced vs previous"',
+        command:
+          'bun test tests/integration/slice-17-rag-enhancement.test.ts -t "benchmark enhanced vs previous"',
         timeout: 240000,
       },
       {
         name: 'E2E Performance Validation',
-        command: 'bunx playwright test tests/e2e/slice-17-end-to-end.test.ts -g "Performance validation"',
+        command:
+          'bunx playwright test tests/e2e/slice-17-end-to-end.test.ts -g "Performance validation"',
         timeout: 300000,
       },
     ];
 
     for (const test of performanceTests) {
-      const result = await this.executeTest(test.name, test.command, test.timeout);
+      const result = await this.executeTest(
+        test.name,
+        test.command,
+        test.timeout,
+      );
       suite.tests.push(result);
       suite.totalDuration += result.duration;
-      
+
       if (result.status === 'passed') suite.passed++;
       else if (result.status === 'failed') suite.failed++;
       else suite.skipped++;
     }
 
     this.results.push(suite);
-    console.log(`✅ Performance tests completed: ${suite.passed}/${suite.tests.length} passed\n`);
+    console.log(
+      `✅ Performance tests completed: ${suite.passed}/${suite.tests.length} passed\n`,
+    );
   }
 
   private async runCompatibilityTests(): Promise<void> {
     console.log('🔄 Running Compatibility Tests...');
-    
+
     const suite: TestSuite = {
       name: 'Compatibility Tests',
       tests: [],
@@ -255,36 +284,49 @@ class Slice17TestRunner {
     const compatibilityTests = [
       {
         name: 'Legacy Document Support',
-        command: 'bun test tests/integration/slice-17-rag-enhancement.test.ts -t "legacy documents"',
+        command:
+          'bun test tests/integration/slice-17-rag-enhancement.test.ts -t "legacy documents"',
         timeout: 180000,
       },
       {
         name: 'Mixed Document Scenarios',
-        command: 'bun test tests/integration/slice-17-rag-enhancement.test.ts -t "mixed document scenarios"',
+        command:
+          'bun test tests/integration/slice-17-rag-enhancement.test.ts -t "mixed document scenarios"',
         timeout: 240000,
       },
       {
         name: 'Backward Compatibility',
-        command: 'bun test tests/integration/slice-17-rag-enhancement.test.ts -t "backward compatibility"',
+        command:
+          'bun test tests/integration/slice-17-rag-enhancement.test.ts -t "backward compatibility"',
         timeout: 120000,
       },
     ];
 
     for (const test of compatibilityTests) {
-      const result = await this.executeTest(test.name, test.command, test.timeout);
+      const result = await this.executeTest(
+        test.name,
+        test.command,
+        test.timeout,
+      );
       suite.tests.push(result);
       suite.totalDuration += result.duration;
-      
+
       if (result.status === 'passed') suite.passed++;
       else if (result.status === 'failed') suite.failed++;
       else suite.skipped++;
     }
 
     this.results.push(suite);
-    console.log(`✅ Compatibility tests completed: ${suite.passed}/${suite.tests.length} passed\n`);
+    console.log(
+      `✅ Compatibility tests completed: ${suite.passed}/${suite.tests.length} passed\n`,
+    );
   }
 
-  private async executeTest(name: string, command: string, timeout: number): Promise<TestResult> {
+  private async executeTest(
+    name: string,
+    command: string,
+    timeout: number,
+  ): Promise<TestResult> {
     console.log(`  🔄 Running: ${name}`);
     const startTime = Date.now();
 
@@ -330,13 +372,15 @@ class Slice17TestRunner {
     const details: string[] = [];
 
     // Look for performance metrics
-    lines.forEach(line => {
-      if (line.includes('Duration:') || 
-          line.includes('Memory:') || 
-          line.includes('Results:') ||
-          line.includes('Performance Test Results:') ||
-          line.includes('Enhanced Pipeline:') ||
-          line.includes('Legacy Pipeline:')) {
+    lines.forEach((line) => {
+      if (
+        line.includes('Duration:') ||
+        line.includes('Memory:') ||
+        line.includes('Results:') ||
+        line.includes('Performance Test Results:') ||
+        line.includes('Enhanced Pipeline:') ||
+        line.includes('Legacy Pipeline:')
+      ) {
         details.push(line.trim());
       }
     });
@@ -345,11 +389,26 @@ class Slice17TestRunner {
   }
 
   private generateReport(): TestReport {
-    const totalTests = this.results.reduce((sum, suite) => sum + suite.tests.length, 0);
-    const totalPassed = this.results.reduce((sum, suite) => sum + suite.passed, 0);
-    const totalFailed = this.results.reduce((sum, suite) => sum + suite.failed, 0);
-    const totalSkipped = this.results.reduce((sum, suite) => sum + suite.skipped, 0);
-    const totalDuration = this.results.reduce((sum, suite) => sum + suite.totalDuration, 0);
+    const totalTests = this.results.reduce(
+      (sum, suite) => sum + suite.tests.length,
+      0,
+    );
+    const totalPassed = this.results.reduce(
+      (sum, suite) => sum + suite.passed,
+      0,
+    );
+    const totalFailed = this.results.reduce(
+      (sum, suite) => sum + suite.failed,
+      0,
+    );
+    const totalSkipped = this.results.reduce(
+      (sum, suite) => sum + suite.skipped,
+      0,
+    );
+    const totalDuration = this.results.reduce(
+      (sum, suite) => sum + suite.totalDuration,
+      0,
+    );
 
     return {
       timestamp: this.timestamp,
@@ -375,8 +434,10 @@ class Slice17TestRunner {
 
   private calculatePerformanceMetrics() {
     // Extract performance metrics from test results
-    const performanceSuite = this.results.find(s => s.name === 'Performance Tests');
-    
+    const performanceSuite = this.results.find(
+      (s) => s.name === 'Performance Tests',
+    );
+
     return {
       databaseOperations: performanceSuite?.totalDuration || 0,
       searchOperations: this.extractMetric('search', 'duration') || 0,
@@ -386,14 +447,24 @@ class Slice17TestRunner {
   }
 
   private assessCompatibility() {
-    const compatSuite = this.results.find(s => s.name === 'Compatibility Tests');
-    const integrationSuite = this.results.find(s => s.name === 'Integration Tests');
-    
+    const compatSuite = this.results.find(
+      (s) => s.name === 'Compatibility Tests',
+    );
+    const integrationSuite = this.results.find(
+      (s) => s.name === 'Integration Tests',
+    );
+
     return {
       enhancedFeatures: (integrationSuite?.passed || 0) > 0,
-      legacySupport: compatSuite?.tests.find(t => t.name.includes('Legacy'))?.status === 'passed',
-      mixedDocuments: compatSuite?.tests.find(t => t.name.includes('Mixed'))?.status === 'passed',
-      performanceAcceptable: (this.results.find(s => s.name === 'Performance Tests')?.passed || 0) >= 2,
+      legacySupport:
+        compatSuite?.tests.find((t) => t.name.includes('Legacy'))?.status ===
+        'passed',
+      mixedDocuments:
+        compatSuite?.tests.find((t) => t.name.includes('Mixed'))?.status ===
+        'passed',
+      performanceAcceptable:
+        (this.results.find((s) => s.name === 'Performance Tests')?.passed ||
+          0) >= 2,
     };
   }
 
@@ -413,18 +484,24 @@ class Slice17TestRunner {
   }
 
   private async saveReport(report: TestReport): Promise<void> {
-    const reportPath = join(this.reportDir, `slice-17-test-report-${this.timestamp}.json`);
-    const htmlReportPath = join(this.reportDir, `slice-17-test-report-${this.timestamp}.html`);
-    
+    const reportPath = join(
+      this.reportDir,
+      `slice-17-test-report-${this.timestamp}.json`,
+    );
+    const htmlReportPath = join(
+      this.reportDir,
+      `slice-17-test-report-${this.timestamp}.html`,
+    );
+
     // Save JSON report
     writeFileSync(reportPath, JSON.stringify(report, null, 2));
     console.log(`📄 JSON report saved: ${reportPath}`);
-    
+
     // Generate and save HTML report
     const htmlReport = this.generateHtmlReport(report);
     writeFileSync(htmlReportPath, htmlReport);
     console.log(`📄 HTML report saved: ${htmlReportPath}`);
-    
+
     // Save latest report (for CI/CD)
     const latestPath = join(this.reportDir, 'latest-slice-17-report.json');
     writeFileSync(latestPath, JSON.stringify(report, null, 2));
@@ -503,21 +580,29 @@ class Slice17TestRunner {
     </div>
 
     <h2>📊 Test Suites</h2>
-    ${report.suites.map(suite => `
+    ${report.suites
+      .map(
+        (suite) => `
         <div class="suite">
             <div class="suite-header">
                 ${suite.name} (${suite.passed}/${suite.tests.length} passed, ${(suite.totalDuration / 1000).toFixed(1)}s)
             </div>
-            ${suite.tests.map(test => `
+            ${suite.tests
+              .map(
+                (test) => `
                 <div class="test">
                     <span class="${test.status}">${test.status === 'passed' ? '✅' : test.status === 'failed' ? '❌' : '⏭️'}</span>
                     <strong>${test.name}</strong> (${test.duration}ms)
                     ${test.details ? `<div class="details">${test.details.split('\n').slice(0, 3).join('<br>')}</div>` : ''}
                     ${test.error ? `<div class="details" style="color: #dc3545;">Error: ${test.error}</div>` : ''}
                 </div>
-            `).join('')}
+            `,
+              )
+              .join('')}
         </div>
-    `).join('')}
+    `,
+      )
+      .join('')}
 
     <h2>⚡ Performance Metrics</h2>
     <div class="summary">
@@ -547,23 +632,41 @@ class Slice17TestRunner {
   private printSummary(report: TestReport): void {
     console.log('\n📈 Test Summary');
     console.log('===============');
-    console.log(`✅ Passed: ${report.summary.totalPassed}/${report.summary.totalTests}`);
-    console.log(`❌ Failed: ${report.summary.totalFailed}/${report.summary.totalTests}`);
-    console.log(`⏭️  Skipped: ${report.summary.totalSkipped}/${report.summary.totalTests}`);
-    console.log(`⏱️  Duration: ${(report.summary.totalDuration / 1000).toFixed(1)}s`);
+    console.log(
+      `✅ Passed: ${report.summary.totalPassed}/${report.summary.totalTests}`,
+    );
+    console.log(
+      `❌ Failed: ${report.summary.totalFailed}/${report.summary.totalTests}`,
+    );
+    console.log(
+      `⏭️  Skipped: ${report.summary.totalSkipped}/${report.summary.totalTests}`,
+    );
+    console.log(
+      `⏱️  Duration: ${(report.summary.totalDuration / 1000).toFixed(1)}s`,
+    );
     console.log(`📊 Success Rate: ${report.summary.successRate.toFixed(1)}%`);
-    
+
     console.log('\n🔧 Compatibility');
     console.log('================');
-    console.log(`Enhanced Features: ${report.compatibility.enhancedFeatures ? '✅' : '❌'}`);
-    console.log(`Legacy Support: ${report.compatibility.legacySupport ? '✅' : '❌'}`);
-    console.log(`Mixed Documents: ${report.compatibility.mixedDocuments ? '✅' : '❌'}`);
-    console.log(`Performance OK: ${report.compatibility.performanceAcceptable ? '✅' : '❌'}`);
-    
+    console.log(
+      `Enhanced Features: ${report.compatibility.enhancedFeatures ? '✅' : '❌'}`,
+    );
+    console.log(
+      `Legacy Support: ${report.compatibility.legacySupport ? '✅' : '❌'}`,
+    );
+    console.log(
+      `Mixed Documents: ${report.compatibility.mixedDocuments ? '✅' : '❌'}`,
+    );
+    console.log(
+      `Performance OK: ${report.compatibility.performanceAcceptable ? '✅' : '❌'}`,
+    );
+
     if (report.summary.successRate >= 90) {
       console.log('\n🎉 Slice 17 implementation is ready for production!');
     } else if (report.summary.successRate >= 70) {
-      console.log('\n⚠️  Slice 17 implementation needs attention before production.');
+      console.log(
+        '\n⚠️  Slice 17 implementation needs attention before production.',
+      );
     } else {
       console.log('\n🚨 Slice 17 implementation has significant issues.');
     }
@@ -573,10 +676,10 @@ class Slice17TestRunner {
 // Main execution
 async function main() {
   const runner = new Slice17TestRunner();
-  
+
   try {
     const report = await runner.runAllTests();
-    
+
     // Exit with appropriate code
     if (report.summary.successRate >= 90) {
       process.exit(0);

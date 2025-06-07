@@ -9,7 +9,7 @@ export class DocumentProcessor {
     db: PostgresJsDatabase<typeof schema>;
   }) {
     const { file, userId, db } = params;
-    
+
     // Validate file type
     if (!file.type.includes('pdf') && !file.type.includes('docx')) {
       throw new Error('Unsupported file type');
@@ -28,7 +28,10 @@ export class DocumentProcessor {
       updatedAt: new Date(),
     };
 
-    const [inserted] = await db.insert(schema.ragDocument).values(document).returning();
+    const [inserted] = await db
+      .insert(schema.ragDocument)
+      .values(document)
+      .returning();
     return inserted;
   }
 
@@ -37,7 +40,7 @@ export class DocumentProcessor {
     db: PostgresJsDatabase<typeof schema>;
   }) {
     const { documentId, db } = params;
-    
+
     // Check if document exists
     const document = await db.query.ragDocument.findFirst({
       where: (doc, { eq }) => eq(doc.id, documentId),
@@ -73,8 +76,11 @@ export class DocumentProcessor {
       createdAt: new Date(),
     };
 
-    const [inserted] = await db.insert(schema.documentContent).values(content).returning();
-    
+    const [inserted] = await db
+      .insert(schema.documentContent)
+      .values(content)
+      .returning();
+
     return {
       content: inserted.extractedText || '',
       contentHash: randomUUID(), // For compatibility with tests
@@ -89,22 +95,35 @@ export class DocumentProcessor {
     chunkOverlap?: number;
     db: PostgresJsDatabase<typeof schema>;
   }) {
-    const { documentId, content, chunkSize = 200, chunkOverlap = 50, db } = params;
-    
+    const {
+      documentId,
+      content,
+      chunkSize = 200,
+      chunkOverlap = 50,
+      db,
+    } = params;
+
     // Simple chunking logic for testing
     const chunks = [];
     const textLength = content.length;
-    
+
     // Ensure we create multiple chunks for larger documents
     const effectiveChunkSize = Math.min(chunkSize, Math.floor(textLength / 3));
-    const effectiveOverlap = Math.min(chunkOverlap, Math.floor(effectiveChunkSize / 4));
-    
-    for (let i = 0; i < textLength; i += effectiveChunkSize - effectiveOverlap) {
+    const effectiveOverlap = Math.min(
+      chunkOverlap,
+      Math.floor(effectiveChunkSize / 4),
+    );
+
+    for (
+      let i = 0;
+      i < textLength;
+      i += effectiveChunkSize - effectiveOverlap
+    ) {
       const endPos = Math.min(i + effectiveChunkSize, textLength);
       const chunkContent = content.slice(i, endPos);
-      
+
       if (chunkContent.trim().length === 0) break;
-      
+
       const chunk = {
         id: randomUUID(),
         documentId,
@@ -117,18 +136,21 @@ export class DocumentProcessor {
         },
         createdAt: new Date(),
       };
-      
+
       chunks.push(chunk);
     }
 
     // Insert chunks and update document status
     if (chunks.length > 0) {
-      const insertedChunks = await db.insert(schema.documentChunk).values(chunks).returning();
+      const insertedChunks = await db
+        .insert(schema.documentChunk)
+        .values(chunks)
+        .returning();
       await db
         .update(schema.ragDocument)
         .set({ status: 'chunked', updatedAt: new Date() })
         .where(schema.ragDocument.id === documentId);
-      
+
       // Return inserted chunks to ensure they have proper IDs
       return insertedChunks;
     }
@@ -147,10 +169,12 @@ export class DocumentProcessor {
     // Process in batches
     for (let i = 0; i < chunks.length; i += batchSize) {
       const batch = chunks.slice(i, i + batchSize);
-      
-      const batchEmbeddings = batch.map(chunk => {
+
+      const batchEmbeddings = batch.map((chunk) => {
         // Create embedding as JSON string containing array of numbers
-        const embeddingVector = Array(1024).fill(0).map(() => Math.random());
+        const embeddingVector = Array(1024)
+          .fill(0)
+          .map(() => Math.random());
         return {
           id: randomUUID(),
           chunkId: chunk.id,
@@ -159,16 +183,16 @@ export class DocumentProcessor {
           createdAt: new Date(),
         };
       });
-      
+
       embeddings.push(...batchEmbeddings);
     }
 
     // Insert embeddings
     if (embeddings.length > 0) {
       await db.insert(schema.documentEmbedding).values(embeddings);
-      
+
       // Update document status to processed
-      const documentIds = [...new Set(chunks.map(c => c.documentId))];
+      const documentIds = [...new Set(chunks.map((c) => c.documentId))];
       for (const docId of documentIds) {
         await db
           .update(schema.ragDocument)

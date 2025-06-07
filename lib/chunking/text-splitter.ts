@@ -554,17 +554,20 @@ export class SemanticTextSplitter {
 
 // Export as TextSplitter for backward compatibility
 export class TextSplitter extends SemanticTextSplitter {
-  async splitText(text: string, options?: { chunkSize?: number; chunkOverlap?: number }) {
+  async splitText(
+    text: string,
+    options?: { chunkSize?: number; chunkOverlap?: number },
+  ) {
     // Update options if provided
     if (options) {
       this.options = { ...this.options, ...options };
     }
-    
+
     // Get chunks using parent method
     const chunks = super.splitText(text);
-    
+
     // Convert to format expected by tests
-    return chunks.map(chunk => ({
+    return chunks.map((chunk) => ({
       text: chunk.content,
       startChar: chunk.metadata.startIndex,
       endChar: chunk.metadata.endIndex,

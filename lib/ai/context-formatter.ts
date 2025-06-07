@@ -74,21 +74,29 @@ export function formatContextForLLM(
 
     // Build context entry
     let contextEntry = `[Context ${index + 1}]\n`;
-    
+
     if (options.includeMetadata) {
       contextEntry += `Source: ${result.documentTitle}\n`;
       contextEntry += `Chunk: ${result.chunkIndex}\n`;
       contextEntry += `Relevance: ${result.hybridScore?.toFixed(3) || result.similarity.toFixed(3)}\n`;
-      
+
       if (result.elementType) {
         contextEntry += `Type: ${result.elementType}\n`;
       }
-      
-      if (options.includePageNumbers && result.pageNumber !== null && result.pageNumber !== undefined) {
+
+      if (
+        options.includePageNumbers &&
+        result.pageNumber !== null &&
+        result.pageNumber !== undefined
+      ) {
         contextEntry += `Page: ${result.pageNumber}\n`;
       }
-      
-      if (options.includeBoundingBoxes && result.bbox && Array.isArray(result.bbox)) {
+
+      if (
+        options.includeBoundingBoxes &&
+        result.bbox &&
+        Array.isArray(result.bbox)
+      ) {
         contextEntry += `Position: [${result.bbox.join(', ')}]\n`;
       }
     }
@@ -97,7 +105,7 @@ export function formatContextForLLM(
 
     // Estimate tokens (rough approximation: 1 token ≈ 4 characters)
     const entryTokens = Math.ceil(contextEntry.length / 4);
-    
+
     // Check token limit
     if (options.maxTokens && totalTokens + entryTokens > options.maxTokens) {
       break;
@@ -126,14 +134,14 @@ function sortByElementTypePriority(
     // First sort by element type priority
     const aPriority = a.elementType ? priorityTypes.indexOf(a.elementType) : -1;
     const bPriority = b.elementType ? priorityTypes.indexOf(b.elementType) : -1;
-    
+
     if (aPriority !== bPriority) {
       // Higher priority (lower index) comes first, but handle -1 (not found) case
       if (aPriority === -1) return 1;
       if (bPriority === -1) return -1;
       return aPriority - bPriority;
     }
-    
+
     // Then sort by relevance score
     return (b.hybridScore || b.similarity) - (a.hybridScore || a.similarity);
   });
@@ -142,11 +150,14 @@ function sortByElementTypePriority(
 /**
  * Generate a structural prefix for content based on element type and location
  */
-function getStructuralPrefix(elementType?: string | null, pageNumber?: number | null): string {
+function getStructuralPrefix(
+  elementType?: string | null,
+  pageNumber?: number | null,
+): string {
   if (!elementType) return '';
-  
+
   const pageRef = pageNumber ? ` (Page ${pageNumber})` : '';
-  
+
   switch (elementType.toLowerCase()) {
     case 'title':
       return `[TITLE${pageRef}] `;
@@ -168,9 +179,11 @@ function getStructuralPrefix(elementType?: string | null, pageNumber?: number | 
 /**
  * Create a context-aware system prompt that instructs the LLM about structural information
  */
-export function createStructuredSystemPrompt(hasStructuralData: boolean = true): string {
+export function createStructuredSystemPrompt(
+  hasStructuralData: boolean = true,
+): string {
   const basePrompt = `You are an intelligent assistant that provides accurate, helpful answers based on the provided context documents.`;
-  
+
   if (!hasStructuralData) {
     return `${basePrompt}
 
@@ -226,15 +239,19 @@ export async function assembleEnhancedContext(
 
   try {
     // Perform enhanced search with element type and page filtering
-    const searchResponse = await vectorSearchService.hybridSearch(query, userId, {
-      limit: options.limit || 10,
-      threshold: options.threshold || 0.3,
-      documentIds: options.documentIds,
-      elementTypes: options.elementTypes,
-      pageNumbers: options.pageNumbers,
-      useRerank: true,
-      rerankTopK: 15,
-    });
+    const searchResponse = await vectorSearchService.hybridSearch(
+      query,
+      userId,
+      {
+        limit: options.limit || 10,
+        threshold: options.threshold || 0.3,
+        documentIds: options.documentIds,
+        elementTypes: options.elementTypes,
+        pageNumbers: options.pageNumbers,
+        useRerank: true,
+        rerankTopK: 15,
+      },
+    );
 
     // Format context with structural information
     const { formattedContext, sources, totalTokens } = formatContextForLLM(
@@ -250,25 +267,30 @@ export async function assembleEnhancedContext(
     );
 
     // Convert to enhanced sources with additional metadata
-    const enhancedSources: EnhancedChatSource[] = sources.map((source, index) => {
-      const originalResult = searchResponse.results.find(r => r.chunkId === source.id);
-      return {
-        ...source,
-        documentId: originalResult?.documentId || '',
-        contextIndex: index,
-        tokenCount: Math.ceil(source.content.length / 4), // Rough token estimate
-        wasReranked: !!originalResult?.rerankScore,
-        rerankScore: originalResult?.rerankScore,
-        confidence: originalResult?.metadata?.confidence,
-        metadata: originalResult?.metadata,
-      };
-    });
+    const enhancedSources: EnhancedChatSource[] = sources.map(
+      (source, index) => {
+        const originalResult = searchResponse.results.find(
+          (r) => r.chunkId === source.id,
+        );
+        return {
+          ...source,
+          documentId: originalResult?.documentId || '',
+          contextIndex: index,
+          tokenCount: Math.ceil(source.content.length / 4), // Rough token estimate
+          wasReranked: !!originalResult?.rerankScore,
+          rerankScore: originalResult?.rerankScore,
+          confidence: originalResult?.metadata?.confidence,
+          metadata: originalResult?.metadata,
+        };
+      },
+    );
 
     // Calculate element type distribution
     const elementTypeDistribution: Record<string, number> = {};
-    enhancedSources.forEach(source => {
+    enhancedSources.forEach((source) => {
       if (source.elementType) {
-        elementTypeDistribution[source.elementType] = (elementTypeDistribution[source.elementType] || 0) + 1;
+        elementTypeDistribution[source.elementType] =
+          (elementTypeDistribution[source.elementType] || 0) + 1;
       }
     });
 
@@ -317,10 +339,10 @@ export async function retrieveContextAndSources(
   searchStats: any;
 }> {
   const result = await assembleEnhancedContext(query, userId, options);
-  
+
   return {
     formattedContext: result.formattedContext,
-    sources: result.sources.map(source => ({
+    sources: result.sources.map((source) => ({
       id: source.id,
       title: source.title,
       content: source.content,
@@ -341,9 +363,10 @@ export async function retrieveContextAndSources(
 export function createContextAwareSystemPrompt(
   contextResult: ContextAssemblyResult,
 ): string {
-  const hasStructuralData = Object.keys(contextResult.elementTypeDistribution).length > 0;
+  const hasStructuralData =
+    Object.keys(contextResult.elementTypeDistribution).length > 0;
   const elementTypes = Object.keys(contextResult.elementTypeDistribution);
-  
+
   return enhancedRagSystemPrompt(hasStructuralData, elementTypes);
 }
 
@@ -351,8 +374,36 @@ export function createContextAwareSystemPrompt(
  * Element type priorities for different query types
  */
 export const ELEMENT_TYPE_PRIORITIES = {
-  technical: ['table_text', 'figure_caption', 'list_item', 'heading', 'title', 'paragraph'],
-  procedural: ['list_item', 'heading', 'title', 'table_text', 'paragraph', 'figure_caption'],
-  conceptual: ['title', 'heading', 'paragraph', 'figure_caption', 'table_text', 'list_item'],
-  troubleshooting: ['heading', 'list_item', 'table_text', 'paragraph', 'title', 'figure_caption'],
+  technical: [
+    'table_text',
+    'figure_caption',
+    'list_item',
+    'heading',
+    'title',
+    'paragraph',
+  ],
+  procedural: [
+    'list_item',
+    'heading',
+    'title',
+    'table_text',
+    'paragraph',
+    'figure_caption',
+  ],
+  conceptual: [
+    'title',
+    'heading',
+    'paragraph',
+    'figure_caption',
+    'table_text',
+    'list_item',
+  ],
+  troubleshooting: [
+    'heading',
+    'list_item',
+    'table_text',
+    'paragraph',
+    'title',
+    'figure_caption',
+  ],
 } as const;

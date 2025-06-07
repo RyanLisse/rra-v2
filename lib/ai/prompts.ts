@@ -59,18 +59,22 @@ RESPONSE GUIDELINES:
 - Be precise about element types when they provide valuable context
 - Keep responses focused and well-organized`;
 
-export const enhancedRagSystemPrompt = (hasStructuralData: boolean = true, elementTypes?: string[]) => {
+export const enhancedRagSystemPrompt = (
+  hasStructuralData: boolean = true,
+  elementTypes?: string[],
+) => {
   const basePrompt = ragSystemPrompt;
-  
+
   if (!hasStructuralData) {
     return `${basePrompt}
 
 NOTE: This query used basic text search without advanced document structure analysis. Citations reference text chunks but may not include detailed structural information.`;
   }
 
-  const elementTypeInfo = elementTypes && elementTypes.length > 0 
-    ? `\n\nDOCUMENT ELEMENTS IN CONTEXT: ${elementTypes.join(', ')}`
-    : '';
+  const elementTypeInfo =
+    elementTypes && elementTypes.length > 0
+      ? `\n\nDOCUMENT ELEMENTS IN CONTEXT: ${elementTypes.join(', ')}`
+      : '';
 
   return `${basePrompt}
 

@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { 
-  formatContextForLLM, 
+import {
+  formatContextForLLM,
   createStructuredSystemPrompt,
-  ELEMENT_TYPE_PRIORITIES 
+  ELEMENT_TYPE_PRIORITIES,
 } from '@/lib/ai/context-formatter';
 import type { HybridSearchResult } from '@/lib/search/vector-search';
 
@@ -24,7 +24,7 @@ describe('Context Formatter', () => {
       hybridScore: 0.85,
     },
     {
-      chunkId: '2', 
+      chunkId: '2',
       documentId: 'doc1',
       documentTitle: 'Technical Manual',
       content: 'Calibration Steps',
@@ -40,9 +40,10 @@ describe('Context Formatter', () => {
     },
     {
       chunkId: '3',
-      documentId: 'doc2', 
+      documentId: 'doc2',
       documentTitle: 'FAQ Document',
-      content: 'Step 1: Power on the device\nStep 2: Connect to network\nStep 3: Run calibration',
+      content:
+        'Step 1: Power on the device\nStep 2: Connect to network\nStep 3: Run calibration',
       similarity: 0.9,
       metadata: {},
       chunkIndex: 1,
@@ -86,7 +87,9 @@ describe('Context Formatter', () => {
       expect(result.formattedContext).toContain('Relevance: 0.850');
       expect(result.formattedContext).toContain('Type: paragraph');
       expect(result.formattedContext).toContain('Page: 1');
-      expect(result.formattedContext).toContain('Position: [100, 200, 300, 250]');
+      expect(result.formattedContext).toContain(
+        'Position: [100, 200, 300, 250]',
+      );
     });
 
     it('should respect token limits', () => {
@@ -155,7 +158,7 @@ describe('Context Formatter', () => {
   describe('createStructuredSystemPrompt', () => {
     it('should create enhanced prompt when structural data is available', () => {
       const prompt = createStructuredSystemPrompt(true);
-      
+
       expect(prompt).toContain('Pay attention to document structure');
       expect(prompt).toContain('titles, headings, tables, figures, and lists');
       expect(prompt).toContain('UNDERSTANDING DOCUMENT STRUCTURE');
@@ -164,11 +167,13 @@ describe('Context Formatter', () => {
 
     it('should create basic prompt when no structural data', () => {
       const prompt = createStructuredSystemPrompt(false);
-      
+
       expect(prompt).not.toContain('Pay attention to document structure');
       expect(prompt).not.toContain('UNDERSTANDING DOCUMENT STRUCTURE');
       expect(prompt).toContain('[Context X]');
-      expect(prompt).toContain('Base your answers on the provided context documents');
+      expect(prompt).toContain(
+        'Base your answers on the provided context documents',
+      );
     });
   });
 
@@ -178,9 +183,9 @@ describe('Context Formatter', () => {
       expect(ELEMENT_TYPE_PRIORITIES.procedural).toContain('list_item');
       expect(ELEMENT_TYPE_PRIORITIES.conceptual).toContain('title');
       expect(ELEMENT_TYPE_PRIORITIES.troubleshooting).toContain('heading');
-      
+
       // Each priority array should contain all element types
-      Object.values(ELEMENT_TYPE_PRIORITIES).forEach(priorities => {
+      Object.values(ELEMENT_TYPE_PRIORITIES).forEach((priorities) => {
         expect(priorities).toHaveLength(6);
         expect(priorities).toContain('title');
         expect(priorities).toContain('heading');

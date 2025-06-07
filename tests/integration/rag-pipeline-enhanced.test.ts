@@ -27,12 +27,12 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
       purpose: 'end-to-end-testing',
       tags: ['rag', 'pipeline', 'integration', 'e2e'],
       waitForReady: true,
-      timeoutMs: 120000
+      timeoutMs: 120000,
     });
 
     if (branchResult.success && branchResult.data) {
       testBranch = branchResult.data;
-      
+
       // Set up test schema and data
       await testUtils.setupTestSchema(testBranch.branchId);
       await testUtils.seedBasicData(testBranch.branchId);
@@ -44,9 +44,11 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
   afterEach(async () => {
     // Cleanup test branch
     if (testBranch) {
-      await neonClient.deleteTestBranch(testBranch.branchName).catch(error =>
-        console.warn('Failed to cleanup test branch:', error)
-      );
+      await neonClient
+        .deleteTestBranch(testBranch.branchName)
+        .catch((error) =>
+          console.warn('Failed to cleanup test branch:', error),
+        );
       testBranch = null;
     }
   });
@@ -55,56 +57,62 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
     it('should process document through complete RAG pipeline', async () => {
       if (!testBranch) throw new Error('Test branch not available');
 
-      const { result: pipelineResult, duration: totalDuration } = await measurePerformance(async () => {
-        // Step 1: Create user and document
-        const user = factory.createUser({ email: 'rag-test@example.com' });
-        const document = factory.createDocument(user.id, {
-          name: 'RoboRail Integration Test Document',
-          status: 'uploaded'
-        });
+      const { result: pipelineResult, duration: totalDuration } =
+        await measurePerformance(async () => {
+          // Step 1: Create user and document
+          const user = factory.createUser({ email: 'rag-test@example.com' });
+          const document = factory.createDocument(user.id, {
+            name: 'RoboRail Integration Test Document',
+            status: 'uploaded',
+          });
 
-        await testUtils.insertUser(user, testBranch!.branchId);
-        await testUtils.insertDocument(document, testBranch!.branchId);
+          await testUtils.insertUser(user, testBranch!.branchId);
+          await testUtils.insertDocument(document, testBranch!.branchId);
 
-        // Step 2: Extract text and create chunks
-        const chunks = factory.createDocumentChunks(document.id, 50); // 50 chunks for testing
-        await testUtils.insertDocumentChunks(chunks, testBranch!.branchId);
+          // Step 2: Extract text and create chunks
+          const chunks = factory.createDocumentChunks(document.id, 50); // 50 chunks for testing
+          await testUtils.insertDocumentChunks(chunks, testBranch!.branchId);
 
-        // Update document status to text_extracted
-        await neonClient.executeSql(
-          `UPDATE rag_documents SET status = 'text_extracted', updated_at = NOW() WHERE id = '${document.id}'`,
-          testBranch!.branchId
-        );
+          // Update document status to text_extracted
+          await neonClient.executeSql(
+            `UPDATE rag_documents SET status = 'text_extracted', updated_at = NOW() WHERE id = '${document.id}'`,
+            testBranch!.branchId,
+          );
 
-        // Step 3: Generate embeddings
-        const embeddings = chunks.map(chunk => factory.createDocumentEmbedding(chunk.id));
-        await testUtils.insertDocumentEmbeddings(embeddings, testBranch!.branchId);
+          // Step 3: Generate embeddings
+          const embeddings = chunks.map((chunk) =>
+            factory.createDocumentEmbedding(chunk.id),
+          );
+          await testUtils.insertDocumentEmbeddings(
+            embeddings,
+            testBranch!.branchId,
+          );
 
-        // Update document status to embedded
-        await neonClient.executeSql(
-          `UPDATE rag_documents SET status = 'embedded', updated_at = NOW() WHERE id = '${document.id}'`,
-          testBranch!.branchId
-        );
+          // Update document status to embedded
+          await neonClient.executeSql(
+            `UPDATE rag_documents SET status = 'embedded', updated_at = NOW() WHERE id = '${document.id}'`,
+            testBranch!.branchId,
+          );
 
-        // Step 4: Test retrieval capabilities
-        const searchResults = await neonClient.executeSql(
-          `SELECT c.*, e.model as embedding_model
+          // Step 4: Test retrieval capabilities
+          const searchResults = await neonClient.executeSql(
+            `SELECT c.*, e.model as embedding_model
            FROM document_chunks c
            JOIN document_embeddings e ON c.id = e.chunk_id
            WHERE c.document_id = '${document.id}'
            ORDER BY c.index
            LIMIT 10`,
-          testBranch!.branchId
-        );
+            testBranch!.branchId,
+          );
 
-        return {
-          user,
-          document,
-          chunks,
-          embeddings,
-          searchResults: searchResults.data?.results || []
-        };
-      });
+          return {
+            user,
+            document,
+            chunks,
+            embeddings,
+            searchResults: searchResults.data?.results || [],
+          };
+        });
 
       // Verify pipeline completed successfully
       expect(pipelineResult.user).toBeDefined();
@@ -119,7 +127,7 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
       // Verify document status progression
       const finalStatusResult = await neonClient.executeSql(
         `SELECT status FROM rag_documents WHERE id = '${pipelineResult.document.id}'`,
-        testBranch.branchId
+        testBranch.branchId,
       );
 
       expect(finalStatusResult.data?.results?.[0]?.status).toBe('embedded');
@@ -135,41 +143,53 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
       const document = factory.createDocument(user.id, {
         name: 'Large Test Document',
         size: 10000000, // 10MB
-        status: 'uploaded'
+        status: 'uploaded',
       });
 
       await testUtils.insertDocument(document, testBranch.branchId);
 
       const chunkCount = 1000; // Large number of chunks
-      const { duration: processingDuration } = await measurePerformance(async () => {
-        // Process chunks in batches for better performance
-        const batchSize = 100;
-        const batches = Math.ceil(chunkCount / batchSize);
+      const { duration: processingDuration } = await measurePerformance(
+        async () => {
+          // Process chunks in batches for better performance
+          const batchSize = 100;
+          const batches = Math.ceil(chunkCount / batchSize);
 
-        for (let batchIndex = 0; batchIndex < batches; batchIndex++) {
-          const startIndex = batchIndex * batchSize;
-          const endIndex = Math.min(startIndex + batchSize, chunkCount);
-          const batchChunks = [];
+          for (let batchIndex = 0; batchIndex < batches; batchIndex++) {
+            const startIndex = batchIndex * batchSize;
+            const endIndex = Math.min(startIndex + batchSize, chunkCount);
+            const batchChunks = [];
 
-          for (let i = startIndex; i < endIndex; i++) {
-            batchChunks.push(factory.createDocumentChunk(document.id, i));
+            for (let i = startIndex; i < endIndex; i++) {
+              batchChunks.push(factory.createDocumentChunk(document.id, i));
+            }
+
+            await testUtils.insertDocumentChunks(
+              batchChunks,
+              testBranch!.branchId,
+            );
+
+            // Generate embeddings for this batch
+            const batchEmbeddings = batchChunks.map((chunk) =>
+              factory.createDocumentEmbedding(chunk.id),
+            );
+            await testUtils.insertDocumentEmbeddings(
+              batchEmbeddings,
+              testBranch!.branchId,
+            );
           }
-
-          await testUtils.insertDocumentChunks(batchChunks, testBranch!.branchId);
-
-          // Generate embeddings for this batch
-          const batchEmbeddings = batchChunks.map(chunk => 
-            factory.createDocumentEmbedding(chunk.id)
-          );
-          await testUtils.insertDocumentEmbeddings(batchEmbeddings, testBranch!.branchId);
-        }
-      });
+        },
+      );
 
       // Verify all data was inserted
       const statsResult = await testUtils.getTestDataStats(testBranch.branchId);
       expect(statsResult.success).toBe(true);
-      expect(parseInt(statsResult.data?.results?.[0]?.chunk_count || '0')).toBe(chunkCount);
-      expect(parseInt(statsResult.data?.results?.[0]?.embedding_count || '0')).toBe(chunkCount);
+      expect(parseInt(statsResult.data?.results?.[0]?.chunk_count || '0')).toBe(
+        chunkCount,
+      );
+      expect(
+        parseInt(statsResult.data?.results?.[0]?.embedding_count || '0'),
+      ).toBe(chunkCount);
 
       // Performance assertions for large documents
       expect(processingDuration).toBeLessThan(60000); // Under 1 minute for 1000 chunks
@@ -184,14 +204,16 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
         documentsPerUser: 2,
         chunksPerDocument: 20,
         withEmbeddings: true,
-        withSessions: true
+        withSessions: true,
       });
 
       // Insert all test data
       await testUtils.insertTestDataSet(testData, testBranch.branchId);
 
       // Verify data integrity
-      const integrityResult = await testUtils.verifyDataIntegrity(testBranch.branchId);
+      const integrityResult = await testUtils.verifyDataIntegrity(
+        testBranch.branchId,
+      );
       expect(integrityResult.success).toBe(true);
 
       // All integrity checks should pass
@@ -202,7 +224,8 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
       });
 
       // Verify relationships
-      const relationshipResult = await neonClient.executeSql(`
+      const relationshipResult = await neonClient.executeSql(
+        `
         SELECT 
           u.email,
           COUNT(DISTINCT d.id) as document_count,
@@ -215,11 +238,13 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
         WHERE u.email LIKE '%@example.com'
         GROUP BY u.id, u.email
         ORDER BY u.email
-      `, testBranch.branchId);
+      `,
+        testBranch.branchId,
+      );
 
       expect(relationshipResult.success).toBe(true);
       const relationships = relationshipResult.data?.results || [];
-      
+
       relationships.forEach((rel: any) => {
         expect(parseInt(rel.document_count)).toBe(2); // 2 documents per user
         expect(parseInt(rel.chunk_count)).toBe(40); // 20 chunks per document * 2 documents
@@ -235,7 +260,7 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
       // Set up search test data
       const user = factory.createUser();
       const document = factory.createDocument(user.id);
-      
+
       await testUtils.insertUser(user, testBranch.branchId);
       await testUtils.insertDocument(document, testBranch.branchId);
 
@@ -245,11 +270,15 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
       await testUtils.insertDocumentChunks(chunks, testBranch.branchId);
 
       // Create embeddings with different models
-      const embeddingModels = ['cohere-embed-v4.0', 'text-embedding-3-large', 'text-embedding-ada-002'];
-      const embeddings = chunks.map((chunk, index) => 
+      const embeddingModels = [
+        'cohere-embed-v4.0',
+        'text-embedding-3-large',
+        'text-embedding-ada-002',
+      ];
+      const embeddings = chunks.map((chunk, index) =>
         factory.createDocumentEmbedding(chunk.id, {
-          model: embeddingModels[index % embeddingModels.length]
-        })
+          model: embeddingModels[index % embeddingModels.length],
+        }),
       );
       await testUtils.insertDocumentEmbeddings(embeddings, testBranch.branchId);
 
@@ -258,11 +287,15 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
         { name: 'Basic Retrieval', limit: 10, offset: 0 },
         { name: 'Paginated Search', limit: 20, offset: 50 },
         { name: 'Large Result Set', limit: 100, offset: 0 },
-        { name: 'Model-Specific Search', limit: 10, modelFilter: 'cohere-embed-v4.0' }
+        {
+          name: 'Model-Specific Search',
+          limit: 10,
+          modelFilter: 'cohere-embed-v4.0',
+        },
       ];
 
       const searchResults = [];
-      
+
       for (const test of searchTests) {
         const { result, duration } = await measurePerformance(async () => {
           let searchQuery = `
@@ -285,12 +318,12 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
           ...test,
           duration,
           resultCount: result.data?.results?.length || 0,
-          success: result.success
+          success: result.success,
         });
       }
 
       // Verify search performance
-      searchResults.forEach(result => {
+      searchResults.forEach((result) => {
         expect(result.success).toBe(true);
         expect(result.duration).toBeLessThan(5000); // Under 5 seconds
         expect(result.resultCount).toBeGreaterThan(0);
@@ -298,17 +331,19 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
       });
 
       // Test concurrent searches
-      const { duration: concurrentDuration } = await measurePerformance(async () => {
-        const concurrentSearches = Array.from({ length: 10 }, (_, i) =>
-          neonClient.executeSql(
-            `SELECT COUNT(*) as count FROM document_chunks WHERE document_id = '${document.id}' AND index >= ${i * 10} AND index < ${(i + 1) * 10}`,
-            testBranch!.branchId
-          )
-        );
+      const { duration: concurrentDuration } = await measurePerformance(
+        async () => {
+          const concurrentSearches = Array.from({ length: 10 }, (_, i) =>
+            neonClient.executeSql(
+              `SELECT COUNT(*) as count FROM document_chunks WHERE document_id = '${document.id}' AND index >= ${i * 10} AND index < ${(i + 1) * 10}`,
+              testBranch!.branchId,
+            ),
+          );
 
-        const results = await Promise.all(concurrentSearches);
-        return results.every(r => r.success);
-      });
+          const results = await Promise.all(concurrentSearches);
+          return results.every((r) => r.success);
+        },
+      );
 
       expect(concurrentDuration).toBeLessThan(10000); // Concurrent searches under 10 seconds
     });
@@ -324,32 +359,43 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
       const scalingResults = [];
 
       for (const size of datasetSizes) {
-        const document = factory.createDocument(user.id, { name: `Test Document ${size}` });
+        const document = factory.createDocument(user.id, {
+          name: `Test Document ${size}`,
+        });
         await testUtils.insertDocument(document, testBranch.branchId);
 
-        const { duration: insertDuration } = await measurePerformance(async () => {
-          const chunks = factory.createDocumentChunks(document.id, size);
-          await testUtils.insertDocumentChunks(chunks, testBranch!.branchId);
+        const { duration: insertDuration } = await measurePerformance(
+          async () => {
+            const chunks = factory.createDocumentChunks(document.id, size);
+            await testUtils.insertDocumentChunks(chunks, testBranch!.branchId);
 
-          const embeddings = chunks.map(chunk => factory.createDocumentEmbedding(chunk.id));
-          await testUtils.insertDocumentEmbeddings(embeddings, testBranch!.branchId);
-        });
+            const embeddings = chunks.map((chunk) =>
+              factory.createDocumentEmbedding(chunk.id),
+            );
+            await testUtils.insertDocumentEmbeddings(
+              embeddings,
+              testBranch!.branchId,
+            );
+          },
+        );
 
-        const { duration: searchDuration } = await measurePerformance(async () => {
-          return neonClient.executeSql(
-            `SELECT c.*, e.model FROM document_chunks c 
+        const { duration: searchDuration } = await measurePerformance(
+          async () => {
+            return neonClient.executeSql(
+              `SELECT c.*, e.model FROM document_chunks c 
              JOIN document_embeddings e ON c.id = e.chunk_id 
              WHERE c.document_id = '${document.id}' 
              ORDER BY c.index LIMIT 20`,
-            testBranch!.branchId
-          );
-        });
+              testBranch!.branchId,
+            );
+          },
+        );
 
         scalingResults.push({
           datasetSize: size,
           insertDuration,
           searchDuration,
-          scalingFactor: size / 100 // Baseline is 100
+          scalingFactor: size / 100, // Baseline is 100
         });
       }
 
@@ -357,8 +403,10 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
       scalingResults.forEach((result, index) => {
         if (index > 0) {
           const prevResult = scalingResults[index - 1];
-          const insertScaling = result.insertDuration / prevResult.insertDuration;
-          const searchScaling = result.searchDuration / prevResult.searchDuration;
+          const insertScaling =
+            result.insertDuration / prevResult.insertDuration;
+          const searchScaling =
+            result.searchDuration / prevResult.searchDuration;
           const dataScaling = result.datasetSize / prevResult.datasetSize;
 
           // Insert time should scale roughly linearly (within 2x of data scaling)
@@ -378,7 +426,7 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
       // Test with invalid SQL to simulate errors
       const errorResult = await neonClient.executeSql(
         'SELECT * FROM non_existent_table',
-        testBranch.branchId
+        testBranch.branchId,
       );
 
       expect(errorResult.success).toBe(false);
@@ -387,7 +435,7 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
       // Verify connection is still working after error
       const recoveryResult = await neonClient.executeSql(
         'SELECT 1 as test',
-        testBranch.branchId
+        testBranch.branchId,
       );
 
       expect(recoveryResult.success).toBe(true);
@@ -401,20 +449,23 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
       await testUtils.insertUser(user, testBranch.branchId);
 
       // Attempt transaction with intentional error
-      const transactionResult = await neonClient.executeTransaction([
-        `INSERT INTO rag_documents (id, user_id, name, original_name, mime_type, size, checksum) 
+      const transactionResult = await neonClient.executeTransaction(
+        [
+          `INSERT INTO rag_documents (id, user_id, name, original_name, mime_type, size, checksum) 
          VALUES ('${randomUUID()}', '${user.id}', 'Test Doc', 'test.pdf', 'application/pdf', 1000, 'abc123')`,
-        'INSERT INTO invalid_table (id) VALUES (1)', // This will fail
-        `INSERT INTO rag_documents (id, user_id, name, original_name, mime_type, size, checksum) 
-         VALUES ('${randomUUID()}', '${user.id}', 'Test Doc 2', 'test2.pdf', 'application/pdf', 2000, 'def456')`
-      ], testBranch.branchId);
+          'INSERT INTO invalid_table (id) VALUES (1)', // This will fail
+          `INSERT INTO rag_documents (id, user_id, name, original_name, mime_type, size, checksum) 
+         VALUES ('${randomUUID()}', '${user.id}', 'Test Doc 2', 'test2.pdf', 'application/pdf', 2000, 'def456')`,
+        ],
+        testBranch.branchId,
+      );
 
       expect(transactionResult.success).toBe(false);
 
       // Verify rollback - no documents should exist
       const countResult = await neonClient.executeSql(
         `SELECT COUNT(*) as count FROM rag_documents WHERE user_id = '${user.id}'`,
-        testBranch.branchId
+        testBranch.branchId,
       );
 
       expect(countResult.success).toBe(true);
@@ -426,31 +477,43 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
 
       // Mix successful and failing operations
       const operations = [];
-      
+
       for (let i = 0; i < 20; i++) {
         if (i % 5 === 0) {
           // Every 5th operation fails
           operations.push(
-            neonClient.executeSql('SELECT * FROM non_existent_table', testBranch.branchId)
+            neonClient.executeSql(
+              'SELECT * FROM non_existent_table',
+              testBranch.branchId,
+            ),
           );
         } else {
           // Successful operations
           operations.push(
-            neonClient.executeSql('SELECT NOW() as current_time', testBranch.branchId)
+            neonClient.executeSql(
+              'SELECT NOW() as current_time',
+              testBranch.branchId,
+            ),
           );
         }
       }
 
-      const { result: results, duration } = await measurePerformance(async () => {
-        return Promise.allSettled(operations);
-      });
+      const { result: results, duration } = await measurePerformance(
+        async () => {
+          return Promise.allSettled(operations);
+        },
+      );
 
       // Verify mix of success and failure
-      const successCount = results.filter(r => r.status === 'fulfilled').length;
-      const failureCount = results.filter(r => r.status === 'rejected').length;
+      const successCount = results.filter(
+        (r) => r.status === 'fulfilled',
+      ).length;
+      const failureCount = results.filter(
+        (r) => r.status === 'rejected',
+      ).length;
 
       expect(successCount).toBe(16); // 80% success
-      expect(failureCount).toBe(4);  // 20% failure
+      expect(failureCount).toBe(4); // 20% failure
       expect(duration).toBeLessThan(15000); // Complete under 15 seconds despite errors
     });
   });
@@ -467,7 +530,7 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
         { name: 'document_insert', count: 5 },
         { name: 'chunk_insert', count: 100 },
         { name: 'embedding_insert', count: 100 },
-        { name: 'search_query', count: 20 }
+        { name: 'search_query', count: 20 },
       ];
 
       const metricsData = [];
@@ -481,31 +544,34 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
             switch (operation.name) {
               case 'document_insert':
                 const doc = factory.createDocument(user.id);
-                result = await testUtils.insertDocument(doc, testBranch!.branchId);
+                result = await testUtils.insertDocument(
+                  doc,
+                  testBranch!.branchId,
+                );
                 break;
-              
+
               case 'chunk_insert':
                 const chunk = factory.createDocumentChunk('doc-id', i);
                 result = await neonClient.executeSql(
                   `INSERT INTO document_chunks (id, document_id, content, index, metadata, created_at) 
                    VALUES ('${chunk.id}', '${user.id}', 'Test content ${i}', ${i}, '{}', NOW())`,
-                  testBranch!.branchId
+                  testBranch!.branchId,
                 );
                 break;
-              
+
               case 'embedding_insert':
                 const embedding = factory.createDocumentEmbedding('chunk-id');
                 result = await neonClient.executeSql(
                   `INSERT INTO document_embeddings (id, chunk_id, embedding_text, model, created_at) 
                    VALUES ('${embedding.id}', '${user.id}', '${embedding.embedding}', '${embedding.model}', NOW())`,
-                  testBranch!.branchId
+                  testBranch!.branchId,
                 );
                 break;
-              
+
               case 'search_query':
                 result = await neonClient.executeSql(
                   'SELECT COUNT(*) FROM rag_documents',
-                  testBranch!.branchId
+                  testBranch!.branchId,
                 );
                 break;
             }
@@ -514,22 +580,23 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
 
           operationMetrics.push({
             duration,
-            success: result?.success || false
+            success: result?.success || false,
           });
         }
 
         // Calculate operation statistics
-        const durations = operationMetrics.map(m => m.duration);
-        const successCount = operationMetrics.filter(m => m.success).length;
-        
+        const durations = operationMetrics.map((m) => m.duration);
+        const successCount = operationMetrics.filter((m) => m.success).length;
+
         const metrics = {
           operation: operation.name,
           count: operation.count,
-          avgDuration: durations.reduce((sum, d) => sum + d, 0) / durations.length,
+          avgDuration:
+            durations.reduce((sum, d) => sum + d, 0) / durations.length,
           minDuration: Math.min(...durations),
           maxDuration: Math.max(...durations),
           successRate: successCount / operation.count,
-          p95Duration: durations.sort()[Math.floor(durations.length * 0.95)]
+          p95Duration: durations.sort()[Math.floor(durations.length * 0.95)],
         };
 
         metricsData.push(metrics);
@@ -540,13 +607,13 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
            (test_suite, operation, avg_duration_ms, max_duration_ms, success_rate, sample_size, metadata, created_at)
            VALUES 
            ('rag-pipeline-integration', '${metrics.operation}', ${metrics.avgDuration}, ${metrics.maxDuration}, ${metrics.successRate}, ${metrics.count}, '${JSON.stringify(metrics)}', NOW())`,
-          testBranch.branchId
+          testBranch.branchId,
         );
       }
 
       // Verify metrics collection
       expect(metricsData).toHaveLength(4);
-      metricsData.forEach(metric => {
+      metricsData.forEach((metric) => {
         expect(metric.successRate).toBeGreaterThan(0.8); // At least 80% success rate
         expect(metric.avgDuration).toBeGreaterThan(0);
         expect(metric.avgDuration).toBeLessThan(10000); // Under 10 seconds average
@@ -554,12 +621,14 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
 
       // Verify metrics were stored
       const storedMetricsResult = await neonClient.executeSql(
-        'SELECT COUNT(*) as count FROM performance_metrics WHERE test_suite = \'rag-pipeline-integration\'',
-        testBranch.branchId
+        "SELECT COUNT(*) as count FROM performance_metrics WHERE test_suite = 'rag-pipeline-integration'",
+        testBranch.branchId,
       );
 
       expect(storedMetricsResult.success).toBe(true);
-      expect(parseInt(storedMetricsResult.data?.results?.[0]?.count || '0')).toBe(4);
+      expect(
+        parseInt(storedMetricsResult.data?.results?.[0]?.count || '0'),
+      ).toBe(4);
     });
 
     it('should track resource usage during operations', async () => {
@@ -570,13 +639,15 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
         userCount: 5,
         documentsPerUser: 3,
         chunksPerDocument: 50,
-        withEmbeddings: true
+        withEmbeddings: true,
       });
 
       // Monitor memory usage during data insertion
-      const { result, duration, memoryUsage } = await measurePerformance(async () => {
-        return testUtils.insertTestDataSet(testData, testBranch!.branchId);
-      });
+      const { result, duration, memoryUsage } = await measurePerformance(
+        async () => {
+          return testUtils.insertTestDataSet(testData, testBranch!.branchId);
+        },
+      );
 
       // Verify resource efficiency
       expect(duration).toBeLessThan(60000); // Under 1 minute
@@ -589,21 +660,23 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
       // Verify data was inserted correctly
       const finalStats = await testUtils.getTestDataStats(testBranch.branchId);
       expect(finalStats.success).toBe(true);
-      
+
       const stats = finalStats.data?.results?.[0];
       expect(parseInt(stats?.user_count || '0')).toBeGreaterThanOrEqual(5);
       expect(parseInt(stats?.document_count || '0')).toBeGreaterThanOrEqual(15);
       expect(parseInt(stats?.chunk_count || '0')).toBeGreaterThanOrEqual(750);
-      expect(parseInt(stats?.embedding_count || '0')).toBeGreaterThanOrEqual(750);
+      expect(parseInt(stats?.embedding_count || '0')).toBeGreaterThanOrEqual(
+        750,
+      );
     });
   });
 });
 
 // Helper function for UUID generation in tests
 function randomUUID(): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 }

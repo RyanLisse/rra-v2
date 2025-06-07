@@ -6,7 +6,7 @@ import type { DocumentChunk } from '@/lib/db/schema';
 /**
  * Type definitions for ADE element types
  */
-export type ADEElementType = 
+export type ADEElementType =
   | 'paragraph'
   | 'title'
   | 'figure_caption'
@@ -20,13 +20,16 @@ export type ADEElementType =
 /**
  * Type for bounding box coordinates
  */
-export type BoundingBox = [number, number, number, number] | {
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
-  confidence?: number;
-} | null;
+export type BoundingBox =
+  | [number, number, number, number]
+  | {
+      x1: number;
+      y1: number;
+      x2: number;
+      y2: number;
+      confidence?: number;
+    }
+  | null;
 
 /**
  * Enhanced document chunk with ADE metadata
@@ -54,16 +57,19 @@ export class ADEChunkHelpers {
     metadata?: any;
     tokenCount?: string;
   }): Promise<DocumentChunk> {
-    const [chunk] = await db.insert(documentChunk).values({
-      documentId: params.documentId,
-      chunkIndex: params.chunkIndex,
-      content: params.content,
-      elementType: params.elementType || null,
-      pageNumber: params.pageNumber || null,
-      bbox: params.bbox || null,
-      metadata: params.metadata || null,
-      tokenCount: params.tokenCount || null,
-    }).returning();
+    const [chunk] = await db
+      .insert(documentChunk)
+      .values({
+        documentId: params.documentId,
+        chunkIndex: params.chunkIndex,
+        content: params.content,
+        elementType: params.elementType || null,
+        pageNumber: params.pageNumber || null,
+        bbox: params.bbox || null,
+        metadata: params.metadata || null,
+        tokenCount: params.tokenCount || null,
+      })
+      .returning();
 
     return chunk;
   }
@@ -73,10 +79,10 @@ export class ADEChunkHelpers {
    */
   static async getChunksByElementType(
     documentId: string,
-    elementType: ADEElementType
+    elementType: ADEElementType,
   ): Promise<DocumentChunk[]> {
     const whereConditions = [eq(documentChunk.documentId, documentId)];
-    
+
     if (elementType === null) {
       whereConditions.push(isNull(documentChunk.elementType));
     } else {
@@ -95,7 +101,7 @@ export class ADEChunkHelpers {
    */
   static async getChunksByPage(
     documentId: string,
-    pageNumber: number
+    pageNumber: number,
   ): Promise<DocumentChunk[]> {
     return await db
       .select()
@@ -103,8 +109,8 @@ export class ADEChunkHelpers {
       .where(
         and(
           eq(documentChunk.documentId, documentId),
-          eq(documentChunk.pageNumber, pageNumber)
-        )
+          eq(documentChunk.pageNumber, pageNumber),
+        ),
       )
       .orderBy(asc(documentChunk.chunkIndex));
   }
@@ -117,10 +123,7 @@ export class ADEChunkHelpers {
       .select()
       .from(documentChunk)
       .where(eq(documentChunk.documentId, documentId))
-      .orderBy(
-        asc(documentChunk.pageNumber),
-        asc(documentChunk.chunkIndex)
-      );
+      .orderBy(asc(documentChunk.pageNumber), asc(documentChunk.chunkIndex));
   }
 
   /**
@@ -137,10 +140,14 @@ export class ADEChunkHelpers {
       .where(eq(documentChunk.documentId, documentId))
       .orderBy(asc(documentChunk.pageNumber), asc(documentChunk.chunkIndex));
 
-    const titles = structuralElements.filter(chunk => chunk.elementType === 'title');
-    const headers = structuralElements.filter(chunk => chunk.elementType === 'header');
-    const structure = structuralElements.filter(chunk => 
-      ['title', 'header', 'figure_caption'].includes(chunk.elementType || '')
+    const titles = structuralElements.filter(
+      (chunk) => chunk.elementType === 'title',
+    );
+    const headers = structuralElements.filter(
+      (chunk) => chunk.elementType === 'header',
+    );
+    const structure = structuralElements.filter((chunk) =>
+      ['title', 'header', 'figure_caption'].includes(chunk.elementType || ''),
     );
 
     return { titles, headers, structure };
@@ -155,7 +162,7 @@ export class ADEChunkHelpers {
       elementType?: ADEElementType;
       pageNumber?: number;
       bbox?: BoundingBox;
-    }
+    },
   ): Promise<DocumentChunk> {
     const [updatedChunk] = await db
       .update(documentChunk)
@@ -181,21 +188,21 @@ export class ADEChunkHelpers {
       minY?: number;
       maxX?: number;
       maxY?: number;
-    }
+    },
   ): Promise<DocumentChunk[]> {
     let chunks = await this.getChunksByPage(documentId, pageNumber);
 
     if (region && chunks.length > 0) {
-      chunks = chunks.filter(chunk => {
+      chunks = chunks.filter((chunk) => {
         if (!chunk.bbox || !Array.isArray(chunk.bbox)) return true;
-        
+
         const [x1, y1, x2, y2] = chunk.bbox;
-        
+
         if (region.minX !== undefined && x2 < region.minX) return false;
         if (region.maxX !== undefined && x1 > region.maxX) return false;
         if (region.minY !== undefined && y2 < region.minY) return false;
         if (region.maxY !== undefined && y1 > region.maxY) return false;
-        
+
         return true;
       });
     }
@@ -213,20 +220,20 @@ export class ADEChunkHelpers {
       includeElementTypes?: boolean;
       includeStructuralContext?: boolean;
       maxChunks?: number;
-    }
+    },
   ): Promise<string> {
     const {
       includePageNumbers = true,
       includeElementTypes = true,
       includeStructuralContext = true,
-      maxChunks = 50
+      maxChunks = 50,
     } = options || {};
 
     const chunks = await this.getChunksOrdered(documentId);
     const relevantChunks = chunks.slice(0, maxChunks);
 
     let context = '';
-    
+
     if (includeStructuralContext) {
       const { titles } = await this.getDocumentStructure(documentId);
       if (titles.length > 0) {
@@ -242,11 +249,11 @@ export class ADEChunkHelpers {
 
     for (const chunk of relevantChunks) {
       let chunkPrefix = '';
-      
+
       if (includeElementTypes && chunk.elementType) {
         chunkPrefix += `[${chunk.elementType.toUpperCase()}] `;
       }
-      
+
       if (includePageNumbers && chunk.pageNumber) {
         chunkPrefix += `(Page ${chunk.pageNumber}) `;
       }
@@ -262,11 +269,13 @@ export class ADEChunkHelpers {
    */
   static validateBoundingBox(bbox: any): bbox is BoundingBox {
     if (bbox === null) return true;
-    
+
     if (Array.isArray(bbox)) {
-      return bbox.length === 4 && bbox.every(coord => typeof coord === 'number');
+      return (
+        bbox.length === 4 && bbox.every((coord) => typeof coord === 'number')
+      );
     }
-    
+
     if (typeof bbox === 'object') {
       return (
         typeof bbox.x1 === 'number' &&
@@ -275,7 +284,7 @@ export class ADEChunkHelpers {
         typeof bbox.y2 === 'number'
       );
     }
-    
+
     return false;
   }
 
@@ -292,9 +301,9 @@ export class ADEChunkHelpers {
       'header',
       'footer',
       'footnote',
-      null
+      null,
     ];
-    
+
     return validTypes.includes(type);
   }
 }

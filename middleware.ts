@@ -28,18 +28,18 @@ export async function middleware(request: NextRequest) {
     const session = await auth.api.getSession({
       headers: request.headers,
     });
-    
+
     if (session?.user) {
       const isGuest =
         (session.user as any)?.type === 'guest' ||
         guestRegex.test(session.user?.email ?? '');
-      
+
       // Redirect authenticated non-guest users away from auth pages
       if (!isGuest) {
         return NextResponse.redirect(new URL('/', request.url));
       }
     }
-    
+
     return NextResponse.next();
   }
 
@@ -50,10 +50,7 @@ export async function middleware(request: NextRequest) {
   if (!session?.user) {
     // For API routes (except auth), return 401
     if (pathname.startsWith('/api/')) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // For the homepage, redirect to guest auth endpoint

@@ -21,8 +21,10 @@ describe('Inngest Types and Schema Validation Tests', () => {
   describe('Document Processing Event Schemas', () => {
     it('should validate document upload event payload', async () => {
       await expect(async () => {
-        const { DocumentUploadEventSchema } = await import('@/lib/inngest/types');
-        
+        const { DocumentUploadEventSchema } = await import(
+          '@/lib/inngest/types'
+        );
+
         // Valid upload event
         const validEvent = {
           name: 'document/upload.completed',
@@ -41,9 +43,9 @@ describe('Inngest Types and Schema Validation Tests', () => {
           },
           timestamp: Date.now(),
         };
-        
+
         expect(() => DocumentUploadEventSchema.parse(validEvent)).not.toThrow();
-        
+
         // Invalid upload event - missing required fields
         const invalidEvent = {
           name: 'document/upload.completed',
@@ -53,15 +55,17 @@ describe('Inngest Types and Schema Validation Tests', () => {
             fileSize: 'invalid', // Wrong type
           },
         };
-        
+
         expect(() => DocumentUploadEventSchema.parse(invalidEvent)).toThrow();
       }).rejects.toThrow();
     });
 
     it('should validate document processing event payload', async () => {
       await expect(async () => {
-        const { DocumentProcessingEventSchema } = await import('@/lib/inngest/types');
-        
+        const { DocumentProcessingEventSchema } = await import(
+          '@/lib/inngest/types'
+        );
+
         // Valid processing event
         const validEvent = {
           name: 'document/processing.started',
@@ -81,9 +85,11 @@ describe('Inngest Types and Schema Validation Tests', () => {
           },
           timestamp: Date.now(),
         };
-        
-        expect(() => DocumentProcessingEventSchema.parse(validEvent)).not.toThrow();
-        
+
+        expect(() =>
+          DocumentProcessingEventSchema.parse(validEvent),
+        ).not.toThrow();
+
         // Invalid processing event
         const invalidEvent = {
           name: 'document/processing.started',
@@ -93,15 +99,19 @@ describe('Inngest Types and Schema Validation Tests', () => {
             status: 'unknown_status',
           },
         };
-        
-        expect(() => DocumentProcessingEventSchema.parse(invalidEvent)).toThrow();
+
+        expect(() =>
+          DocumentProcessingEventSchema.parse(invalidEvent),
+        ).toThrow();
       }).rejects.toThrow();
     });
 
     it('should validate document completion event payload', async () => {
       await expect(async () => {
-        const { DocumentCompletionEventSchema } = await import('@/lib/inngest/types');
-        
+        const { DocumentCompletionEventSchema } = await import(
+          '@/lib/inngest/types'
+        );
+
         // Valid completion event
         const validEvent = {
           name: 'document/processing.completed',
@@ -128,15 +138,19 @@ describe('Inngest Types and Schema Validation Tests', () => {
           },
           timestamp: Date.now(),
         };
-        
-        expect(() => DocumentCompletionEventSchema.parse(validEvent)).not.toThrow();
+
+        expect(() =>
+          DocumentCompletionEventSchema.parse(validEvent),
+        ).not.toThrow();
       }).rejects.toThrow();
     });
 
     it('should validate document error event payload', async () => {
       await expect(async () => {
-        const { DocumentErrorEventSchema } = await import('@/lib/inngest/types');
-        
+        const { DocumentErrorEventSchema } = await import(
+          '@/lib/inngest/types'
+        );
+
         // Valid error event
         const validEvent = {
           name: 'document/processing.failed',
@@ -162,9 +176,9 @@ describe('Inngest Types and Schema Validation Tests', () => {
           },
           timestamp: Date.now(),
         };
-        
+
         expect(() => DocumentErrorEventSchema.parse(validEvent)).not.toThrow();
-        
+
         // Test error validation
         const invalidError = {
           name: 'document/processing.failed',
@@ -175,7 +189,7 @@ describe('Inngest Types and Schema Validation Tests', () => {
             },
           },
         };
-        
+
         expect(() => DocumentErrorEventSchema.parse(invalidError)).toThrow();
       }).rejects.toThrow();
     });
@@ -185,7 +199,7 @@ describe('Inngest Types and Schema Validation Tests', () => {
     it('should validate chat message event payload', async () => {
       await expect(async () => {
         const { ChatMessageEventSchema } = await import('@/lib/inngest/types');
-        
+
         // Valid chat message event
         const validEvent = {
           name: 'chat/message.sent',
@@ -208,9 +222,9 @@ describe('Inngest Types and Schema Validation Tests', () => {
           },
           timestamp: Date.now(),
         };
-        
+
         expect(() => ChatMessageEventSchema.parse(validEvent)).not.toThrow();
-        
+
         // Invalid role
         const invalidRoleEvent = {
           ...validEvent,
@@ -219,15 +233,17 @@ describe('Inngest Types and Schema Validation Tests', () => {
             role: 'invalid_role',
           },
         };
-        
+
         expect(() => ChatMessageEventSchema.parse(invalidRoleEvent)).toThrow();
       }).rejects.toThrow();
     });
 
     it('should validate chat completion event payload', async () => {
       await expect(async () => {
-        const { ChatCompletionEventSchema } = await import('@/lib/inngest/types');
-        
+        const { ChatCompletionEventSchema } = await import(
+          '@/lib/inngest/types'
+        );
+
         // Valid completion event
         const validEvent = {
           name: 'chat/completion.generated',
@@ -255,7 +271,7 @@ describe('Inngest Types and Schema Validation Tests', () => {
           },
           timestamp: Date.now(),
         };
-        
+
         expect(() => ChatCompletionEventSchema.parse(validEvent)).not.toThrow();
       }).rejects.toThrow();
     });
@@ -263,7 +279,7 @@ describe('Inngest Types and Schema Validation Tests', () => {
     it('should validate chat error event payload', async () => {
       await expect(async () => {
         const { ChatErrorEventSchema } = await import('@/lib/inngest/types');
-        
+
         // Valid error event
         const validEvent = {
           name: 'chat/completion.failed',
@@ -286,7 +302,7 @@ describe('Inngest Types and Schema Validation Tests', () => {
           },
           timestamp: Date.now(),
         };
-        
+
         expect(() => ChatErrorEventSchema.parse(validEvent)).not.toThrow();
       }).rejects.toThrow();
     });
@@ -296,7 +312,7 @@ describe('Inngest Types and Schema Validation Tests', () => {
     it('should validate user authentication event payload', async () => {
       await expect(async () => {
         const { UserAuthEventSchema } = await import('@/lib/inngest/types');
-        
+
         // Valid auth event
         const validEvent = {
           name: 'user/auth.login',
@@ -319,17 +335,19 @@ describe('Inngest Types and Schema Validation Tests', () => {
           },
           timestamp: Date.now(),
         };
-        
+
         expect(() => UserAuthEventSchema.parse(validEvent)).not.toThrow();
-        
+
         // Test different auth methods
         const methods = ['email', 'oauth', 'guest'] as const;
-        methods.forEach(method => {
+        methods.forEach((method) => {
           const eventWithMethod = {
             ...validEvent,
             data: { ...validEvent.data, authMethod: method },
           };
-          expect(() => UserAuthEventSchema.parse(eventWithMethod)).not.toThrow();
+          expect(() =>
+            UserAuthEventSchema.parse(eventWithMethod),
+          ).not.toThrow();
         });
       }).rejects.toThrow();
     });
@@ -337,7 +355,7 @@ describe('Inngest Types and Schema Validation Tests', () => {
     it('should validate user activity event payload', async () => {
       await expect(async () => {
         const { UserActivityEventSchema } = await import('@/lib/inngest/types');
-        
+
         // Valid activity event
         const validEvent = {
           name: 'user/activity.page_view',
@@ -359,17 +377,24 @@ describe('Inngest Types and Schema Validation Tests', () => {
           },
           timestamp: Date.now(),
         };
-        
+
         expect(() => UserActivityEventSchema.parse(validEvent)).not.toThrow();
-        
+
         // Test different activity types
-        const activities = ['page_view', 'chat_start', 'document_upload', 'search'] as const;
-        activities.forEach(activity => {
+        const activities = [
+          'page_view',
+          'chat_start',
+          'document_upload',
+          'search',
+        ] as const;
+        activities.forEach((activity) => {
           const eventWithActivity = {
             ...validEvent,
             data: { ...validEvent.data, activityType: activity },
           };
-          expect(() => UserActivityEventSchema.parse(eventWithActivity)).not.toThrow();
+          expect(() =>
+            UserActivityEventSchema.parse(eventWithActivity),
+          ).not.toThrow();
         });
       }).rejects.toThrow();
     });
@@ -379,7 +404,7 @@ describe('Inngest Types and Schema Validation Tests', () => {
     it('should validate system health event payload', async () => {
       await expect(async () => {
         const { SystemHealthEventSchema } = await import('@/lib/inngest/types');
-        
+
         // Valid health event
         const validEvent = {
           name: 'system/health.check',
@@ -401,17 +426,19 @@ describe('Inngest Types and Schema Validation Tests', () => {
           },
           timestamp: Date.now(),
         };
-        
+
         expect(() => SystemHealthEventSchema.parse(validEvent)).not.toThrow();
-        
+
         // Test different statuses
         const statuses = ['healthy', 'degraded', 'unhealthy'] as const;
-        statuses.forEach(status => {
+        statuses.forEach((status) => {
           const eventWithStatus = {
             ...validEvent,
             data: { ...validEvent.data, status },
           };
-          expect(() => SystemHealthEventSchema.parse(eventWithStatus)).not.toThrow();
+          expect(() =>
+            SystemHealthEventSchema.parse(eventWithStatus),
+          ).not.toThrow();
         });
       }).rejects.toThrow();
     });
@@ -419,7 +446,7 @@ describe('Inngest Types and Schema Validation Tests', () => {
     it('should validate system error event payload', async () => {
       await expect(async () => {
         const { SystemErrorEventSchema } = await import('@/lib/inngest/types');
-        
+
         // Valid error event
         const validEvent = {
           name: 'system/error.critical',
@@ -441,12 +468,12 @@ describe('Inngest Types and Schema Validation Tests', () => {
           },
           timestamp: Date.now(),
         };
-        
+
         expect(() => SystemErrorEventSchema.parse(validEvent)).not.toThrow();
-        
+
         // Test different error levels
         const levels = ['info', 'warning', 'error', 'critical'] as const;
-        levels.forEach(level => {
+        levels.forEach((level) => {
           const eventWithLevel = {
             ...validEvent,
             data: {
@@ -454,7 +481,9 @@ describe('Inngest Types and Schema Validation Tests', () => {
               error: { ...validEvent.data.error, level },
             },
           };
-          expect(() => SystemErrorEventSchema.parse(eventWithLevel)).not.toThrow();
+          expect(() =>
+            SystemErrorEventSchema.parse(eventWithLevel),
+          ).not.toThrow();
         });
       }).rejects.toThrow();
     });
@@ -464,7 +493,7 @@ describe('Inngest Types and Schema Validation Tests', () => {
     it('should export all event type definitions', async () => {
       await expect(async () => {
         const types = await import('@/lib/inngest/types');
-        
+
         // Event payload types
         expect(types).toHaveProperty('DocumentUploadEvent');
         expect(types).toHaveProperty('DocumentProcessingEvent');
@@ -477,7 +506,7 @@ describe('Inngest Types and Schema Validation Tests', () => {
         expect(types).toHaveProperty('UserActivityEvent');
         expect(types).toHaveProperty('SystemHealthEvent');
         expect(types).toHaveProperty('SystemErrorEvent');
-        
+
         // Union types
         expect(types).toHaveProperty('InngestEvent');
         expect(types).toHaveProperty('DocumentEvent');
@@ -490,7 +519,7 @@ describe('Inngest Types and Schema Validation Tests', () => {
     it('should export event name constants', async () => {
       await expect(async () => {
         const types = await import('@/lib/inngest/types');
-        
+
         expect(types.DOCUMENT_EVENTS).toEqual({
           UPLOAD_COMPLETED: 'document/upload.completed',
           PROCESSING_STARTED: 'document/processing.started',
@@ -500,7 +529,7 @@ describe('Inngest Types and Schema Validation Tests', () => {
           CHUNKS_CREATED: 'document/chunks.created',
           EMBEDDINGS_GENERATED: 'document/embeddings.generated',
         });
-        
+
         expect(types.CHAT_EVENTS).toEqual({
           MESSAGE_SENT: 'chat/message.sent',
           COMPLETION_GENERATED: 'chat/completion.generated',
@@ -508,7 +537,7 @@ describe('Inngest Types and Schema Validation Tests', () => {
           STREAM_STARTED: 'chat/stream.started',
           STREAM_COMPLETED: 'chat/stream.completed',
         });
-        
+
         expect(types.USER_EVENTS).toEqual({
           AUTH_LOGIN: 'user/auth.login',
           AUTH_LOGOUT: 'user/auth.logout',
@@ -517,7 +546,7 @@ describe('Inngest Types and Schema Validation Tests', () => {
           ACTIVITY_CHAT_START: 'user/activity.chat_start',
           ACTIVITY_DOCUMENT_UPLOAD: 'user/activity.document_upload',
         });
-        
+
         expect(types.SYSTEM_EVENTS).toEqual({
           HEALTH_CHECK: 'system/health.check',
           ERROR_CRITICAL: 'system/error.critical',
@@ -530,7 +559,7 @@ describe('Inngest Types and Schema Validation Tests', () => {
     it('should export processing status enums', async () => {
       await expect(async () => {
         const types = await import('@/lib/inngest/types');
-        
+
         expect(types.PROCESSING_STATUS).toEqual({
           UPLOADED: 'uploaded',
           PROCESSING: 'processing',
@@ -540,14 +569,14 @@ describe('Inngest Types and Schema Validation Tests', () => {
           PROCESSED: 'processed',
           FAILED: 'failed',
         });
-        
+
         expect(types.PROCESSING_TYPES).toEqual({
           TEXT_EXTRACTION: 'text_extraction',
           CHUNKING: 'chunking',
           EMBEDDING: 'embedding',
           VALIDATION: 'validation',
         });
-        
+
         expect(types.DOCUMENT_TYPES).toEqual({
           PDF: 'pdf',
           DOCX: 'docx',
@@ -561,8 +590,10 @@ describe('Inngest Types and Schema Validation Tests', () => {
   describe('Schema Validation Edge Cases', () => {
     it('should handle optional fields correctly', async () => {
       await expect(async () => {
-        const { DocumentUploadEventSchema } = await import('@/lib/inngest/types');
-        
+        const { DocumentUploadEventSchema } = await import(
+          '@/lib/inngest/types'
+        );
+
         // Event with only required fields
         const minimalEvent = {
           name: 'document/upload.completed',
@@ -577,15 +608,19 @@ describe('Inngest Types and Schema Validation Tests', () => {
           },
           timestamp: Date.now(),
         };
-        
-        expect(() => DocumentUploadEventSchema.parse(minimalEvent)).not.toThrow();
+
+        expect(() =>
+          DocumentUploadEventSchema.parse(minimalEvent),
+        ).not.toThrow();
       }).rejects.toThrow();
     });
 
     it('should validate nested object schemas', async () => {
       await expect(async () => {
-        const { DocumentCompletionEventSchema } = await import('@/lib/inngest/types');
-        
+        const { DocumentCompletionEventSchema } = await import(
+          '@/lib/inngest/types'
+        );
+
         // Test nested result validation
         const eventWithInvalidResult = {
           name: 'document/processing.completed',
@@ -602,15 +637,17 @@ describe('Inngest Types and Schema Validation Tests', () => {
           },
           timestamp: Date.now(),
         };
-        
-        expect(() => DocumentCompletionEventSchema.parse(eventWithInvalidResult)).toThrow();
+
+        expect(() =>
+          DocumentCompletionEventSchema.parse(eventWithInvalidResult),
+        ).toThrow();
       }).rejects.toThrow();
     });
 
     it('should validate array fields correctly', async () => {
       await expect(async () => {
         const { ChatMessageEventSchema } = await import('@/lib/inngest/types');
-        
+
         // Test documents array validation
         const eventWithInvalidDocuments = {
           name: 'chat/message.sent',
@@ -627,15 +664,19 @@ describe('Inngest Types and Schema Validation Tests', () => {
           },
           timestamp: Date.now(),
         };
-        
-        expect(() => ChatMessageEventSchema.parse(eventWithInvalidDocuments)).toThrow();
+
+        expect(() =>
+          ChatMessageEventSchema.parse(eventWithInvalidDocuments),
+        ).toThrow();
       }).rejects.toThrow();
     });
 
     it('should handle date string validation', async () => {
       await expect(async () => {
-        const { DocumentUploadEventSchema } = await import('@/lib/inngest/types');
-        
+        const { DocumentUploadEventSchema } = await import(
+          '@/lib/inngest/types'
+        );
+
         // Invalid date string
         const eventWithInvalidDate = {
           name: 'document/upload.completed',
@@ -650,8 +691,10 @@ describe('Inngest Types and Schema Validation Tests', () => {
           },
           timestamp: Date.now(),
         };
-        
-        expect(() => DocumentUploadEventSchema.parse(eventWithInvalidDate)).toThrow();
+
+        expect(() =>
+          DocumentUploadEventSchema.parse(eventWithInvalidDate),
+        ).toThrow();
       }).rejects.toThrow();
     });
   });

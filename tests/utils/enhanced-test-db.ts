@@ -3,18 +3,18 @@ import postgres from 'postgres';
 import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import { beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
 import * as schema from '@/lib/db/schema';
-import { 
-  getTestBranchManager, 
-  withTestBranch, 
-  type TestBranchInfo 
+import {
+  getTestBranchManager,
+  withTestBranch,
+  type TestBranchInfo,
 } from '@/lib/testing/neon-test-branches';
 import { BaseSeeder, DatabaseStateManager } from '../seeds/base-seeder';
 import { UnitSeeder } from '../seeds/unit-seeder';
 import { E2ESeeder } from '../seeds/e2e-seeder';
-import type { 
-  SeederConfig, 
-  DatabaseState, 
-  PerformanceMetrics 
+import type {
+  SeederConfig,
+  DatabaseState,
+  PerformanceMetrics,
 } from '../factories/types';
 
 /**
@@ -59,11 +59,11 @@ export class EnhancedTestDatabase {
    */
   static async setup(
     testName: string,
-    config: TestDatabaseConfig
+    config: TestDatabaseConfig,
   ): Promise<TestDatabaseInstance> {
     const instance = await this.createInstance(testName, config);
     this.instances.set(testName, instance);
-    
+
     // Auto-seed if requested
     if (config.autoSeed && instance.seeder) {
       console.log(`🌱 Auto-seeding database for ${testName}...`);
@@ -84,14 +84,14 @@ export class EnhancedTestDatabase {
    * Create database snapshot for rollback
    */
   static async createSnapshot(
-    testName: string, 
-    snapshotName: string
+    testName: string,
+    snapshotName: string,
   ): Promise<DatabaseState> {
     const instance = this.instances.get(testName);
     if (!instance?.stateManager) {
       throw new Error(`No state manager found for test ${testName}`);
     }
-    
+
     return instance.stateManager.captureState(snapshotName);
   }
 
@@ -100,13 +100,13 @@ export class EnhancedTestDatabase {
    */
   static async restoreSnapshot(
     testName: string,
-    snapshotName: string
+    snapshotName: string,
   ): Promise<void> {
     const instance = this.instances.get(testName);
     if (!instance?.stateManager) {
       throw new Error(`No state manager found for test ${testName}`);
     }
-    
+
     await instance.stateManager.restoreState(snapshotName);
   }
 
@@ -115,24 +115,26 @@ export class EnhancedTestDatabase {
    */
   static async withTransaction<T>(
     testName: string,
-    callback: (db: ReturnType<typeof drizzle>) => Promise<T>
+    callback: (db: ReturnType<typeof drizzle>) => Promise<T>,
   ): Promise<T> {
     const instance = this.instances.get(testName);
     if (!instance) {
       throw new Error(`No database instance found for test ${testName}`);
     }
 
-    return instance.db.transaction(async (tx) => {
-      const result = await callback(tx);
-      // Transaction will auto-rollback if an error is thrown
-      throw new Error('TEST_ROLLBACK'); // Force rollback for testing
-    }).catch((error) => {
-      if (error.message === 'TEST_ROLLBACK') {
-        // This is expected for test rollbacks
-        return undefined as any;
-      }
-      throw error;
-    });
+    return instance.db
+      .transaction(async (tx) => {
+        const result = await callback(tx);
+        // Transaction will auto-rollback if an error is thrown
+        throw new Error('TEST_ROLLBACK'); // Force rollback for testing
+      })
+      .catch((error) => {
+        if (error.message === 'TEST_ROLLBACK') {
+          // This is expected for test rollbacks
+          return undefined as any;
+        }
+        throw error;
+      });
   }
 
   /**
@@ -140,7 +142,7 @@ export class EnhancedTestDatabase {
    */
   static async withIsolatedBranch<T>(
     testName: string,
-    callback: (instance: TestDatabaseInstance) => Promise<T>
+    callback: (instance: TestDatabaseInstance) => Promise<T>,
   ): Promise<T> {
     if (!process.env.NEON_API_KEY || !process.env.NEON_PROJECT_ID) {
       throw new Error('Neon API credentials required for branch testing');
@@ -154,8 +156,11 @@ export class EnhancedTestDatabase {
         autoSeed: true,
       };
 
-      const instance = await this.createInstance(`${testName}-isolated`, config);
-      
+      const instance = await this.createInstance(
+        `${testName}-isolated`,
+        config,
+      );
+
       try {
         return await callback(instance);
       } finally {
@@ -174,18 +179,17 @@ export class EnhancedTestDatabase {
     try {
       // Close database connection
       await instance.connection.end();
-      
+
       // Cleanup seeder resources
       if (instance.seeder) {
         await instance.seeder.close();
       }
-      
+
       // Cleanup branch if using Neon branching
       if (instance.branchInfo && instance.config.useNeonBranching) {
         const branchManager = getTestBranchManager();
         await branchManager.deleteTestBranch(instance.branchInfo.branchId);
       }
-      
     } catch (error) {
       console.warn(`Warning: Cleanup failed for ${testName}:`, error);
     } finally {
@@ -197,12 +201,12 @@ export class EnhancedTestDatabase {
    * Clean up all test databases
    */
   static async cleanupAll(): Promise<void> {
-    const cleanupPromises = Array.from(this.instances.keys()).map(testName =>
-      this.cleanup(testName)
+    const cleanupPromises = Array.from(this.instances.keys()).map((testName) =>
+      this.cleanup(testName),
     );
-    
+
     await Promise.allSettled(cleanupPromises);
-    
+
     // Run global cleanup functions
     for (const cleanup of this.globalCleanup) {
       try {
@@ -211,7 +215,7 @@ export class EnhancedTestDatabase {
         console.warn('Global cleanup error:', error);
       }
     }
-    
+
     this.globalCleanup = [];
   }
 
@@ -235,17 +239,20 @@ export class EnhancedTestDatabase {
    */
   static generatePerformanceReport(testName: string): any {
     const metrics = this.getMetrics(testName);
-    
+
     if (metrics.length === 0) {
       return { testName, message: 'No metrics available' };
     }
 
-    const summary = metrics.reduce((acc, metric) => ({
-      totalOperations: acc.totalOperations + 1,
-      totalRows: acc.totalRows + metric.rowCount,
-      totalTime: acc.totalTime + metric.executionTime,
-      maxMemory: Math.max(acc.maxMemory, metric.memoryUsage),
-    }), { totalOperations: 0, totalRows: 0, totalTime: 0, maxMemory: 0 });
+    const summary = metrics.reduce(
+      (acc, metric) => ({
+        totalOperations: acc.totalOperations + 1,
+        totalRows: acc.totalRows + metric.rowCount,
+        totalTime: acc.totalTime + metric.executionTime,
+        maxMemory: Math.max(acc.maxMemory, metric.memoryUsage),
+      }),
+      { totalOperations: 0, totalRows: 0, totalTime: 0, maxMemory: 0 },
+    );
 
     return {
       testName,
@@ -264,7 +271,7 @@ export class EnhancedTestDatabase {
    */
   private static async createInstance(
     testName: string,
-    config: TestDatabaseConfig
+    config: TestDatabaseConfig,
   ): Promise<TestDatabaseInstance> {
     let connection: postgres.Sql;
     let branchInfo: TestBranchInfo | undefined;
@@ -279,10 +286,11 @@ export class EnhancedTestDatabase {
         connect_timeout: 10,
       });
     } else {
-      const databaseUrl = config.databaseUrl || 
-        process.env.TEST_DATABASE_URL || 
+      const databaseUrl =
+        config.databaseUrl ||
+        process.env.TEST_DATABASE_URL ||
         'postgresql://test:test@localhost:5432/test_db';
-      
+
       connection = postgres(databaseUrl, {
         max: config.poolSize || 10,
         idle_timeout: 20,
@@ -335,7 +343,7 @@ export class EnhancedTestDatabase {
    */
   private static createSeeder(
     environment: string,
-    config: SeederConfig
+    config: SeederConfig,
   ): BaseSeeder {
     switch (environment) {
       case 'unit':
@@ -351,7 +359,9 @@ export class EnhancedTestDatabase {
 /**
  * Vitest integration helpers
  */
-export function setupTestDatabase(config: TestDatabaseConfig = { environment: 'unit' }) {
+export function setupTestDatabase(
+  config: TestDatabaseConfig = { environment: 'unit' },
+) {
   let instance: TestDatabaseInstance;
 
   beforeAll(async () => {
@@ -389,7 +399,7 @@ export function setupTestDatabase(config: TestDatabaseConfig = { environment: 'u
  */
 export async function withTestTransaction<T>(
   testName: string,
-  callback: (db: ReturnType<typeof drizzle>) => Promise<T>
+  callback: (db: ReturnType<typeof drizzle>) => Promise<T>,
 ): Promise<T> {
   return EnhancedTestDatabase.withTransaction(testName, callback);
 }
@@ -399,7 +409,7 @@ export async function withTestTransaction<T>(
  */
 export async function withTestBranchIsolation<T>(
   testName: string,
-  callback: (instance: TestDatabaseInstance) => Promise<T>
+  callback: (instance: TestDatabaseInstance) => Promise<T>,
 ): Promise<T> {
   return EnhancedTestDatabase.withIsolatedBranch(testName, callback);
 }
@@ -434,20 +444,19 @@ export class TestDatabaseState {
 /**
  * Performance monitoring decorator
  */
-export function withPerformanceMonitoring<T extends (...args: any[]) => Promise<any>>(
-  fn: T,
-  testName: string
-): T {
+export function withPerformanceMonitoring<
+  T extends (...args: any[]) => Promise<any>,
+>(fn: T, testName: string): T {
   return (async (...args: any[]) => {
     const startTime = Date.now();
     const startMemory = process.memoryUsage().heapUsed;
 
     try {
       const result = await fn(...args);
-      
+
       const executionTime = Date.now() - startTime;
       const memoryUsage = process.memoryUsage().heapUsed - startMemory;
-      
+
       const instance = EnhancedTestDatabase.getInstance(testName);
       if (instance) {
         instance.metrics.push({
@@ -460,7 +469,7 @@ export function withPerformanceMonitoring<T extends (...args: any[]) => Promise<
           timestamp: new Date(),
         });
       }
-      
+
       return result;
     } catch (error) {
       // Record error metrics if needed

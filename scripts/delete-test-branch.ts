@@ -28,7 +28,7 @@ function parseArgs(): CliArgs {
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    
+
     if (arg === '--help' || arg === '-h') {
       result.help = true;
     } else if (arg === '--force' || arg === '-f') {
@@ -96,21 +96,21 @@ async function main() {
 
   try {
     const manager = getTestBranchManager();
-    
+
     // First, try to get branch info
     console.log('🔍 Looking up branch...');
     const branches = await manager.listBranches();
-    
-    let targetBranch = branches.find(b => b.id === args.branchIdOrName);
+
+    let targetBranch = branches.find((b) => b.id === args.branchIdOrName);
     if (!targetBranch) {
-      targetBranch = branches.find(b => b.name === args.branchIdOrName);
+      targetBranch = branches.find((b) => b.name === args.branchIdOrName);
     }
 
     if (!targetBranch) {
       console.error(`❌ Branch not found: ${args.branchIdOrName}`);
       console.log('');
       console.log('💡 Available branches:');
-      const testBranches = branches.filter(b => b.name.startsWith('test-'));
+      const testBranches = branches.filter((b) => b.name.startsWith('test-'));
       if (testBranches.length === 0) {
         console.log('   No test branches found');
       } else {
@@ -131,12 +131,16 @@ async function main() {
     console.log(`   Name: ${targetBranch.name}`);
     console.log(`   ID: ${targetBranch.id}`);
     console.log(`   State: ${targetBranch.current_state}`);
-    console.log(`   Created: ${new Date(targetBranch.created_at).toLocaleString()}`);
+    console.log(
+      `   Created: ${new Date(targetBranch.created_at).toLocaleString()}`,
+    );
     console.log('');
 
     // Confirmation
     if (!args.force) {
-      const shouldDelete = await confirm('⚠️  Are you sure you want to delete this branch?');
+      const shouldDelete = await confirm(
+        '⚠️  Are you sure you want to delete this branch?',
+      );
       if (!shouldDelete) {
         console.log('❌ Deletion cancelled');
         process.exit(0);
@@ -148,7 +152,6 @@ async function main() {
 
     console.log('✅ Branch deleted successfully!');
     console.log(`   Deleted: ${targetBranch.name} (${targetBranch.id})`);
-
   } catch (error) {
     if (error instanceof Error && error.message.includes('404')) {
       console.log('✅ Branch was already deleted or does not exist');
@@ -159,7 +162,7 @@ async function main() {
   }
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error('❌ Unexpected error:', error);
   process.exit(1);
 });

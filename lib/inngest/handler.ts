@@ -1,5 +1,5 @@
-import { serve } from "inngest/next";
-import { inngest } from "./client";
+import { serve } from 'inngest/next';
+import { inngest } from './client';
 
 // Import functions as they are created
 // import { processDocumentUpload } from "./functions/process-document-upload";
@@ -29,19 +29,19 @@ export const inngestHandler = serve({
   functions,
   signingKey: process.env.INNGEST_SIGNING_KEY,
   env: process.env.NODE_ENV,
-  logLevel: process.env.NODE_ENV === "development" ? "debug" : "info",
-  
+  logLevel: process.env.NODE_ENV === 'development' ? 'debug' : 'info',
+
   // Configure streaming and real-time features
-  streaming: process.env.INNGEST_STREAMING_ENABLED === "true",
-  
+  streaming: process.env.INNGEST_STREAMING_ENABLED === 'true',
+
   // Set up development-specific options
-  ...(process.env.NODE_ENV === "development" && {
+  ...(process.env.NODE_ENV === 'development' && {
     landingPage: true,
     introspection: true,
   }),
-  
+
   // Production-specific security settings
-  ...(process.env.NODE_ENV === "production" && {
+  ...(process.env.NODE_ENV === 'production' && {
     landingPage: false,
     introspection: false,
   }),

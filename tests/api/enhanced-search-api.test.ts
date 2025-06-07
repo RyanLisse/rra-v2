@@ -7,10 +7,10 @@ vi.mock('@/lib/auth', () => ({
   withAuth: (handler: any) => async (req: any) => {
     // Mock authenticated user
     const mockSession = {
-      user: { id: 'test-user-search-api' }
+      user: { id: 'test-user-search-api' },
     };
     return handler(req, mockSession);
-  }
+  },
 }));
 
 vi.mock('@/lib/search/vector-search', () => ({
@@ -71,7 +71,7 @@ vi.mock('@/lib/search/vector-search', () => ({
     }),
     contextAwareSearch: vi.fn(),
     multiStepSearch: vi.fn(),
-  }
+  },
 }));
 
 vi.mock('@/lib/db', () => ({
@@ -83,11 +83,11 @@ vi.mock('@/lib/db', () => ({
     orderBy: vi.fn().mockReturnThis(),
     innerJoin: vi.fn().mockReturnThis(),
     execute: vi.fn().mockResolvedValue([]),
-  }
+  },
 }));
 
 vi.mock('@/lib/db/schema', () => ({
-  ragDocument: { 
+  ragDocument: {
     uploadedBy: 'uploadedBy',
     originalName: 'originalName',
     createdAt: 'createdAt',
@@ -97,7 +97,7 @@ vi.mock('@/lib/db/schema', () => ({
     elementType: 'elementType',
     pageNumber: 'pageNumber',
     documentId: 'documentId',
-  }
+  },
 }));
 
 describe('Enhanced Search API', () => {
@@ -201,7 +201,7 @@ describe('Enhanced Search API', () => {
 
     expect(response.status).toBe(200);
     expect(data.results).toBeDefined();
-    
+
     if (data.results.length > 0) {
       const firstResult = data.results[0];
       expect(firstResult).toHaveProperty('elementType');
@@ -231,7 +231,7 @@ describe('Enhanced Search API', () => {
     });
 
     const response = await POST(request);
-    
+
     expect(response.status).toBe(400);
     const data = await response.json();
     expect(data.error).toBe('Invalid search parameters');

@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { POST, GET, DELETE } from '@/app/(chat)/api/chat/route';
-import { setupNeonTestBranching, runMigrationsOnTestBranch } from '../config/neon-branch-setup';
+import {
+  setupNeonTestBranching,
+  runMigrationsOnTestBranch,
+} from '../config/neon-branch-setup';
 import {
   createMockRequest,
   createTestUser,
@@ -11,9 +14,9 @@ import {
 import { db } from '@/lib/db';
 import { user, chat, message, ragDocument } from '@/lib/db/schema';
 import { nanoid } from 'nanoid';
-import { 
-  getNeonApiClient, 
-  type PerformanceMetrics 
+import {
+  getNeonApiClient,
+  type PerformanceMetrics,
 } from '@/lib/testing/neon-api-client';
 import { getNeonLogger } from '@/lib/testing/neon-logger';
 
@@ -42,9 +45,9 @@ export class ChatTestDataFactory {
 
   async createUserWithChats(chatCount: number = 1) {
     const startTime = Date.now();
-    
+
     const userData = createTestUser();
-    
+
     // Insert user into real database
     const [insertedUser] = await db
       .insert(user)
@@ -57,7 +60,7 @@ export class ChatTestDataFactory {
       .returning();
 
     const chats = [];
-    
+
     for (let i = 0; i < chatCount; i++) {
       const chatData = createTestChat(insertedUser.id, {
         title: `Enhanced Chat ${i + 1}`,
@@ -79,7 +82,9 @@ export class ChatTestDataFactory {
           id: nanoid(),
           chatId: insertedChat.id,
           role: j % 2 === 0 ? 'user' : 'assistant',
-          parts: [{ type: 'text', text: `Test message ${j + 1} in chat ${i + 1}` }],
+          parts: [
+            { type: 'text', text: `Test message ${j + 1} in chat ${i + 1}` },
+          ],
           createdAt: new Date(),
         };
 
@@ -98,7 +103,7 @@ export class ChatTestDataFactory {
     }
 
     this.metrics.creationTime += Date.now() - startTime;
-    
+
     logger.info('chat_factory', 'Created user with chats', {
       userId: insertedUser.id,
       chatCount,
@@ -113,7 +118,7 @@ export class ChatTestDataFactory {
 
   async createChatWithDocuments(userId: string, documentCount: number = 2) {
     const startTime = Date.now();
-    
+
     // Create chat
     const chatData = createTestChat(userId, {
       title: 'RAG Chat with Documents',
@@ -151,7 +156,7 @@ export class ChatTestDataFactory {
     }
 
     this.metrics.insertTime += Date.now() - startTime;
-    
+
     logger.info('chat_factory', 'Created chat with documents', {
       chatId: insertedChat.id,
       documentCount,
@@ -211,7 +216,10 @@ vi.mock('resumable-stream', () => ({
 }));
 
 // Mock authentication
-const mockAuthenticatedUser = (userId: string, userType: 'regular' | 'premium' | 'admin' = 'regular') => {
+const mockAuthenticatedUser = (
+  userId: string,
+  userType: 'regular' | 'premium' | 'admin' = 'regular',
+) => {
   vi.doMock('@/lib/auth/get-auth', () => ({
     getAuth: vi.fn().mockResolvedValue({
       userId,
@@ -237,20 +245,20 @@ describe('Enhanced Chat API Routes', () => {
   beforeEach(async () => {
     // Run migrations on the test branch before each test
     await runMigrationsOnTestBranch();
-    
+
     factory = new ChatTestDataFactory();
     factory.resetMetrics();
-    
+
     vi.clearAllMocks();
   });
 
   describe('POST /api/chat - Enhanced Chat Creation and Messaging', () => {
     it('should create new chat and process message with real database operations', async () => {
       const startTime = Date.now();
-      
+
       const { user: testUser } = await factory.createUserWithChats(0);
       const chatId = nanoid();
-      
+
       mockAuthenticatedUser(testUser.id);
 
       // Mock database query functions
@@ -263,23 +271,25 @@ describe('Enhanced Chat API Routes', () => {
             .select()
             .from(chat)
             .where(db.eq(chat.id, id));
-          
+
           testMetrics = factory.getMetrics();
           testMetrics.queryTime += Date.now() - queryStartTime;
-          
+
           return chatInDb || null;
         }),
-        getMessageCountByUserId: vi.fn().mockImplementation(async (userId: string) => {
-          const queryStartTime = Date.now();
-          const [{ count }] = await db
-            .select({ count: db.count() })
-            .from(message)
-            .innerJoin(chat, db.eq(message.chatId, chat.id))
-            .where(db.eq(chat.userId, userId));
-          
-          testMetrics.queryTime += Date.now() - queryStartTime;
-          return count;
-        }),
+        getMessageCountByUserId: vi
+          .fn()
+          .mockImplementation(async (userId: string) => {
+            const queryStartTime = Date.now();
+            const [{ count }] = await db
+              .select({ count: db.count() })
+              .from(message)
+              .innerJoin(chat, db.eq(message.chatId, chat.id))
+              .where(db.eq(chat.userId, userId));
+
+            testMetrics.queryTime += Date.now() - queryStartTime;
+            return count;
+          }),
         getMessagesByChatId: vi.fn().mockResolvedValue([]),
         getStreamIdsByChatId: vi.fn().mockResolvedValue(['stream-123']),
         saveChat: vi.fn().mockImplementation(async (chatData: any) => {
@@ -300,28 +310,32 @@ describe('Enhanced Chat API Routes', () => {
 
       // Mock title generation
       vi.doMock('../../actions', () => ({
-        generateTitleFromUserMessage: vi.fn().mockResolvedValue('Enhanced Test Chat Title'),
+        generateTitleFromUserMessage: vi
+          .fn()
+          .mockResolvedValue('Enhanced Test Chat Title'),
       }));
 
       const mockHandler = vi.fn().mockImplementation(async (request) => {
         const body = await request.json();
-        
+
         expect(body.id).toBe(chatId);
         expect(body.message).toBeDefined();
 
         // Simulate real chat creation and message processing
-        const { getChatById, saveChat, saveMessages, getMessageCountByUserId } = await import('@/lib/db/queries');
+        const { getChatById, saveChat, saveMessages, getMessageCountByUserId } =
+          await import('@/lib/db/queries');
         const { generateTitleFromUserMessage } = await import('../../actions');
 
         // Check if chat exists
         const existingChat = await getChatById(chatId);
-        
+
         if (!existingChat) {
           // Check rate limiting
           const messageCount = await getMessageCountByUserId(testUser.id);
-          if (messageCount >= 100) { // Rate limit for regular users
+          if (messageCount >= 100) {
+            // Rate limit for regular users
             return new Response(
-              JSON.stringify({ 
+              JSON.stringify({
                 error: 'Rate limit exceeded',
                 code: 'RATE_LIMITED',
                 limit: 100,
@@ -331,7 +345,9 @@ describe('Enhanced Chat API Routes', () => {
           }
 
           // Generate title and save chat
-          const title = await generateTitleFromUserMessage(body.message.parts[0].text);
+          const title = await generateTitleFromUserMessage(
+            body.message.parts[0].text,
+          );
           await saveChat({
             id: chatId,
             userId: testUser.id,
@@ -343,26 +359,31 @@ describe('Enhanced Chat API Routes', () => {
 
         // Save user message
         await saveMessages({
-          messages: [{
-            id: nanoid(),
-            chatId,
-            role: 'user',
-            parts: body.message.parts,
-            createdAt: new Date(),
-          }],
+          messages: [
+            {
+              id: nanoid(),
+              chatId,
+              role: 'user',
+              parts: body.message.parts,
+              createdAt: new Date(),
+            },
+          ],
         });
 
         // Simulate AI response
-        const aiResponse = 'This is an enhanced AI response that demonstrates the improved chat functionality with real database integration.';
-        
+        const aiResponse =
+          'This is an enhanced AI response that demonstrates the improved chat functionality with real database integration.';
+
         await saveMessages({
-          messages: [{
-            id: nanoid(),
-            chatId,
-            role: 'assistant',
-            parts: [{ type: 'text', text: aiResponse }],
-            createdAt: new Date(),
-          }],
+          messages: [
+            {
+              id: nanoid(),
+              chatId,
+              role: 'assistant',
+              parts: [{ type: 'text', text: aiResponse }],
+              createdAt: new Date(),
+            },
+          ],
         });
 
         // Return streaming response
@@ -371,10 +392,12 @@ describe('Enhanced Chat API Routes', () => {
             start(controller) {
               const chunks = aiResponse.split(' ');
               let index = 0;
-              
+
               const pushChunk = () => {
                 if (index < chunks.length) {
-                  controller.enqueue(`data: ${JSON.stringify({ content: chunks[index] + ' ' })}\n\n`);
+                  controller.enqueue(
+                    `data: ${JSON.stringify({ content: chunks[index] + ' ' })}\n\n`,
+                  );
                   index++;
                   setTimeout(pushChunk, 50);
                 } else {
@@ -382,7 +405,7 @@ describe('Enhanced Chat API Routes', () => {
                   controller.close();
                 }
               };
-              
+
               pushChunk();
             },
           }),
@@ -391,7 +414,7 @@ describe('Enhanced Chat API Routes', () => {
             headers: {
               'Content-Type': 'text/event-stream',
               'Cache-Control': 'no-cache',
-              'Connection': 'keep-alive',
+              Connection: 'keep-alive',
             },
           },
         );
@@ -401,11 +424,16 @@ describe('Enhanced Chat API Routes', () => {
 
       const chatRequest = createChatRequest(chatId, {
         message: createChatMessage({
-          parts: [{ type: 'text', text: 'Tell me about the enhanced chat functionality' }],
+          parts: [
+            {
+              type: 'text',
+              text: 'Tell me about the enhanced chat functionality',
+            },
+          ],
         }),
         selectedVisibilityType: 'private',
       });
-      
+
       const request = createMockRequest('http://localhost:3000/api/chat', {
         method: 'POST',
         body: chatRequest,
@@ -421,7 +449,7 @@ describe('Enhanced Chat API Routes', () => {
         .select()
         .from(chat)
         .where(db.eq(chat.id, chatId));
-      
+
       testMetrics.queryTime += Date.now() - queryStartTime;
 
       expect(chatInDb).toBeDefined();
@@ -438,7 +466,7 @@ describe('Enhanced Chat API Routes', () => {
       expect(messagesInDb).toHaveLength(2); // User message + AI response
       expect(messagesInDb[0].role).toBe('user');
       expect(messagesInDb[1].role).toBe('assistant');
-      
+
       logger.info('chat_test', 'New chat creation test completed', {
         userId: testUser.id,
         chatId,
@@ -450,28 +478,30 @@ describe('Enhanced Chat API Routes', () => {
 
     it('should process message for existing chat with conversation history', async () => {
       const startTime = Date.now();
-      
+
       const { user: testUser, chats } = await factory.createUserWithChats(1);
       const existingChat = chats[0].chat;
-      
+
       mockAuthenticatedUser(testUser.id);
 
       // Mock database queries to return existing chat and messages
       vi.doMock('@/lib/db/queries', () => ({
         getChatById: vi.fn().mockResolvedValue(existingChat),
-        getMessagesByChatId: vi.fn().mockImplementation(async (chatId: string) => {
-          const queryStartTime = Date.now();
-          const messagesInDb = await db
-            .select()
-            .from(message)
-            .where(db.eq(message.chatId, chatId))
-            .orderBy(message.createdAt);
-          
-          testMetrics = factory.getMetrics();
-          testMetrics.queryTime += Date.now() - queryStartTime;
-          
-          return messagesInDb;
-        }),
+        getMessagesByChatId: vi
+          .fn()
+          .mockImplementation(async (chatId: string) => {
+            const queryStartTime = Date.now();
+            const messagesInDb = await db
+              .select()
+              .from(message)
+              .where(db.eq(message.chatId, chatId))
+              .orderBy(message.createdAt);
+
+            testMetrics = factory.getMetrics();
+            testMetrics.queryTime += Date.now() - queryStartTime;
+
+            return messagesInDb;
+          }),
         saveMessages: vi.fn().mockImplementation(async ({ messages }: any) => {
           const insertStartTime = Date.now();
           if (messages.length > 0) {
@@ -486,16 +516,18 @@ describe('Enhanced Chat API Routes', () => {
 
       const mockHandler = vi.fn().mockImplementation(async (request) => {
         const body = await request.json();
-        
+
         expect(body.id).toBe(existingChat.id);
 
-        const { getChatById, getMessagesByChatId, saveMessages } = await import('@/lib/db/queries');
+        const { getChatById, getMessagesByChatId, saveMessages } = await import(
+          '@/lib/db/queries'
+        );
 
         // Verify chat exists and user has access
         const chatInDb = await getChatById(existingChat.id);
         if (!chatInDb || chatInDb.userId !== testUser.id) {
           return new Response(
-            JSON.stringify({ 
+            JSON.stringify({
               error: 'Chat not found or access denied',
               code: 'CHAT_NOT_FOUND',
             }),
@@ -505,29 +537,33 @@ describe('Enhanced Chat API Routes', () => {
 
         // Get conversation history
         const conversationHistory = await getMessagesByChatId(existingChat.id);
-        
+
         // Save new user message
         await saveMessages({
-          messages: [{
-            id: nanoid(),
-            chatId: existingChat.id,
-            role: 'user',
-            parts: body.message.parts,
-            createdAt: new Date(),
-          }],
+          messages: [
+            {
+              id: nanoid(),
+              chatId: existingChat.id,
+              role: 'user',
+              parts: body.message.parts,
+              createdAt: new Date(),
+            },
+          ],
         });
 
         // Generate contextual AI response
         const contextualResponse = `Based on our previous conversation (${conversationHistory.length} messages), here's my enhanced response: This demonstrates conversation continuity with real database integration.`;
-        
+
         await saveMessages({
-          messages: [{
-            id: nanoid(),
-            chatId: existingChat.id,
-            role: 'assistant',
-            parts: [{ type: 'text', text: contextualResponse }],
-            createdAt: new Date(),
-          }],
+          messages: [
+            {
+              id: nanoid(),
+              chatId: existingChat.id,
+              role: 'assistant',
+              parts: [{ type: 'text', text: contextualResponse }],
+              createdAt: new Date(),
+            },
+          ],
         });
 
         return new Response(
@@ -545,10 +581,15 @@ describe('Enhanced Chat API Routes', () => {
 
       const chatRequest = createChatRequest(existingChat.id, {
         message: createChatMessage({
-          parts: [{ type: 'text', text: 'Continue our conversation with enhanced context' }],
+          parts: [
+            {
+              type: 'text',
+              text: 'Continue our conversation with enhanced context',
+            },
+          ],
         }),
       });
-      
+
       const request = createMockRequest('http://localhost:3000/api/chat', {
         method: 'POST',
         body: chatRequest,
@@ -569,7 +610,7 @@ describe('Enhanced Chat API Routes', () => {
         .orderBy(message.createdAt);
 
       expect(messagesInDb.length).toBeGreaterThan(2); // Original + new messages
-      
+
       logger.info('chat_test', 'Existing chat message test completed', {
         userId: testUser.id,
         chatId: existingChat.id,
@@ -581,9 +622,9 @@ describe('Enhanced Chat API Routes', () => {
 
     it('should enforce rate limiting with real database message counting', async () => {
       const startTime = Date.now();
-      
+
       const { user: testUser } = await factory.createUserWithChats(0);
-      
+
       // Create many messages to exceed rate limit
       const messagesData = Array.from({ length: 105 }, (_, i) => ({
         id: nanoid(),
@@ -594,68 +635,72 @@ describe('Enhanced Chat API Routes', () => {
       }));
 
       // Create chats first
-      const chatIds = Array.from(new Set(messagesData.map(m => m.chatId)));
+      const chatIds = Array.from(new Set(messagesData.map((m) => m.chatId)));
       await db.insert(chat).values(
-        chatIds.map(id => ({
+        chatIds.map((id) => ({
           id,
           userId: testUser.id,
           title: `Chat for ${id}`,
           visibility: 'private',
           createdAt: new Date(),
-        }))
+        })),
       );
 
       // Insert messages
       await db.insert(message).values(messagesData);
-      
+
       mockAuthenticatedUser(testUser.id, 'regular');
 
       // Mock rate limiting check
       vi.doMock('@/lib/db/queries', () => ({
-        getMessageCountByUserId: vi.fn().mockImplementation(async (userId: string) => {
-          const queryStartTime = Date.now();
-          const [{ count }] = await db
-            .select({ count: db.count() })
-            .from(message)
-            .innerJoin(chat, db.eq(message.chatId, chat.id))
-            .where(db.eq(chat.userId, userId));
-          
-          testMetrics = factory.getMetrics();
-          testMetrics.queryTime += Date.now() - queryStartTime;
-          
-          return count;
-        }),
+        getMessageCountByUserId: vi
+          .fn()
+          .mockImplementation(async (userId: string) => {
+            const queryStartTime = Date.now();
+            const [{ count }] = await db
+              .select({ count: db.count() })
+              .from(message)
+              .innerJoin(chat, db.eq(message.chatId, chat.id))
+              .where(db.eq(chat.userId, userId));
+
+            testMetrics = factory.getMetrics();
+            testMetrics.queryTime += Date.now() - queryStartTime;
+
+            return count;
+          }),
         getChatById: vi.fn().mockResolvedValue(null),
       }));
 
       const mockHandler = vi.fn().mockImplementation(async (request) => {
         const { getMessageCountByUserId } = await import('@/lib/db/queries');
-        
+
         // Check rate limit (100 messages per day for regular users)
         const messageCount = await getMessageCountByUserId(testUser.id);
         if (messageCount >= 100) {
           return new Response(
-            JSON.stringify({ 
+            JSON.stringify({
               error: 'Rate limit exceeded',
               code: 'RATE_LIMITED',
               limit: 100,
               current: messageCount,
-              resetTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+              resetTime: new Date(
+                Date.now() + 24 * 60 * 60 * 1000,
+              ).toISOString(),
             }),
-            { 
-              status: 429, 
-              headers: { 
+            {
+              status: 429,
+              headers: {
                 'Content-Type': 'application/json',
                 'Retry-After': '86400',
-              } 
+              },
             },
           );
         }
 
-        return new Response(
-          JSON.stringify({ success: true }),
-          { status: 200, headers: { 'Content-Type': 'application/json' } },
-        );
+        return new Response(JSON.stringify({ success: true }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
       });
 
       vi.mocked(POST).mockImplementation(mockHandler);
@@ -665,7 +710,7 @@ describe('Enhanced Chat API Routes', () => {
           parts: [{ type: 'text', text: 'This should be rate limited' }],
         }),
       });
-      
+
       const request = createMockRequest('http://localhost:3000/api/chat', {
         method: 'POST',
         body: chatRequest,
@@ -678,7 +723,7 @@ describe('Enhanced Chat API Routes', () => {
       expect(data.code).toBe('RATE_LIMITED');
       expect(data.current).toBeGreaterThan(100);
       expect(response.headers.get('Retry-After')).toBe('86400');
-      
+
       logger.info('chat_test', 'Rate limiting test completed', {
         userId: testUser.id,
         messageCount: data.current,
@@ -689,10 +734,11 @@ describe('Enhanced Chat API Routes', () => {
 
     it('should handle RAG integration with document context', async () => {
       const startTime = Date.now();
-      
+
       const { user: testUser } = await factory.createUserWithChats(0);
-      const { chat: ragChat, documents } = await factory.createChatWithDocuments(testUser.id, 3);
-      
+      const { chat: ragChat, documents } =
+        await factory.createChatWithDocuments(testUser.id, 3);
+
       mockAuthenticatedUser(testUser.id);
 
       // Mock RAG-enabled database queries
@@ -710,7 +756,7 @@ describe('Enhanced Chat API Routes', () => {
 
       const mockHandler = vi.fn().mockImplementation(async (request) => {
         const body = await request.json();
-        
+
         expect(body.id).toBe(ragChat.id);
 
         // Simulate RAG document retrieval
@@ -724,7 +770,7 @@ describe('Enhanced Chat API Routes', () => {
           .from(ragDocument)
           .where(db.eq(ragDocument.uploadedBy, testUser.id))
           .where(db.eq(ragDocument.status, 'processed'));
-        
+
         testMetrics = factory.getMetrics();
         testMetrics.queryTime += Date.now() - queryStartTime;
 
@@ -732,33 +778,39 @@ describe('Enhanced Chat API Routes', () => {
 
         // Save user message
         await saveMessages({
-          messages: [{
-            id: nanoid(),
-            chatId: ragChat.id,
-            role: 'user',
-            parts: body.message.parts,
-            createdAt: new Date(),
-          }],
+          messages: [
+            {
+              id: nanoid(),
+              chatId: ragChat.id,
+              role: 'user',
+              parts: body.message.parts,
+              createdAt: new Date(),
+            },
+          ],
         });
 
         // Generate RAG-enhanced response
-        const ragResponse = `Based on ${relevantDocuments.length} processed documents (${relevantDocuments.map(d => d.fileName).join(', ')}), here's my enhanced response: This demonstrates RAG integration with real document context retrieval.`;
-        
+        const ragResponse = `Based on ${relevantDocuments.length} processed documents (${relevantDocuments.map((d) => d.fileName).join(', ')}), here's my enhanced response: This demonstrates RAG integration with real document context retrieval.`;
+
         await saveMessages({
-          messages: [{
-            id: nanoid(),
-            chatId: ragChat.id,
-            role: 'assistant',
-            parts: [{ 
-              type: 'text', 
-              text: ragResponse,
-              metadata: {
-                ragSources: relevantDocuments.map(d => d.id),
-                documentCount: relevantDocuments.length,
-              },
-            }],
-            createdAt: new Date(),
-          }],
+          messages: [
+            {
+              id: nanoid(),
+              chatId: ragChat.id,
+              role: 'assistant',
+              parts: [
+                {
+                  type: 'text',
+                  text: ragResponse,
+                  metadata: {
+                    ragSources: relevantDocuments.map((d) => d.id),
+                    documentCount: relevantDocuments.length,
+                  },
+                },
+              ],
+              createdAt: new Date(),
+            },
+          ],
         });
 
         return new Response(
@@ -779,10 +831,15 @@ describe('Enhanced Chat API Routes', () => {
 
       const chatRequest = createChatRequest(ragChat.id, {
         message: createChatMessage({
-          parts: [{ type: 'text', text: 'What information can you find in my documents?' }],
+          parts: [
+            {
+              type: 'text',
+              text: 'What information can you find in my documents?',
+            },
+          ],
         }),
       });
-      
+
       const request = createMockRequest('http://localhost:3000/api/chat', {
         method: 'POST',
         body: chatRequest,
@@ -803,10 +860,12 @@ describe('Enhanced Chat API Routes', () => {
         .where(db.eq(message.chatId, ragChat.id))
         .orderBy(message.createdAt);
 
-      const assistantMessage = messagesInDb.find(m => m.role === 'assistant');
+      const assistantMessage = messagesInDb.find((m) => m.role === 'assistant');
       expect(assistantMessage).toBeDefined();
-      expect(assistantMessage?.parts[0].metadata?.documentCount).toBe(documents.length);
-      
+      expect(assistantMessage?.parts[0].metadata?.documentCount).toBe(
+        documents.length,
+      );
+
       logger.info('chat_test', 'RAG integration test completed', {
         userId: testUser.id,
         chatId: ragChat.id,
@@ -820,38 +879,42 @@ describe('Enhanced Chat API Routes', () => {
   describe('GET /api/chat - Enhanced Stream Resumption', () => {
     it('should resume streaming for valid chat with real session tracking', async () => {
       const startTime = Date.now();
-      
+
       const { user: testUser, chats } = await factory.createUserWithChats(1);
       const existingChat = chats[0].chat;
-      
+
       mockAuthenticatedUser(testUser.id);
 
       // Mock stream resumption queries
       vi.doMock('@/lib/db/queries', () => ({
         getChatById: vi.fn().mockResolvedValue(existingChat),
-        getStreamIdsByChatId: vi.fn().mockImplementation(async (chatId: string) => {
-          const queryStartTime = Date.now();
-          // Simulate stream ID lookup (would be in a separate table in real implementation)
-          testMetrics = factory.getMetrics();
-          testMetrics.queryTime += Date.now() - queryStartTime;
-          
-          return [`stream-${chatId}-123`, `stream-${chatId}-456`];
-        }),
+        getStreamIdsByChatId: vi
+          .fn()
+          .mockImplementation(async (chatId: string) => {
+            const queryStartTime = Date.now();
+            // Simulate stream ID lookup (would be in a separate table in real implementation)
+            testMetrics = factory.getMetrics();
+            testMetrics.queryTime += Date.now() - queryStartTime;
+
+            return [`stream-${chatId}-123`, `stream-${chatId}-456`];
+          }),
       }));
 
       const mockHandler = vi.fn().mockImplementation(async (request) => {
         const url = new URL(request.url);
         const chatId = url.searchParams.get('chatId');
-        
+
         expect(chatId).toBe(existingChat.id);
 
-        const { getChatById, getStreamIdsByChatId } = await import('@/lib/db/queries');
+        const { getChatById, getStreamIdsByChatId } = await import(
+          '@/lib/db/queries'
+        );
 
         // Verify chat exists and user has access
         const chatInDb = await getChatById(chatId!);
         if (!chatInDb || chatInDb.userId !== testUser.id) {
           return new Response(
-            JSON.stringify({ 
+            JSON.stringify({
               error: 'Chat not found or access denied',
               code: 'CHAT_ACCESS_DENIED',
             }),
@@ -866,18 +929,22 @@ describe('Enhanced Chat API Routes', () => {
           new ReadableStream({
             start(controller) {
               // Simulate resumable stream
-              controller.enqueue(`data: ${JSON.stringify({ 
-                type: 'stream_resumed',
-                chatId,
-                streamIds,
-                timestamp: new Date().toISOString(),
-              })}\n\n`);
-              
-              controller.enqueue(`data: ${JSON.stringify({ 
-                type: 'content',
-                content: 'Resuming previous stream...',
-              })}\n\n`);
-              
+              controller.enqueue(
+                `data: ${JSON.stringify({
+                  type: 'stream_resumed',
+                  chatId,
+                  streamIds,
+                  timestamp: new Date().toISOString(),
+                })}\n\n`,
+              );
+
+              controller.enqueue(
+                `data: ${JSON.stringify({
+                  type: 'content',
+                  content: 'Resuming previous stream...',
+                })}\n\n`,
+              );
+
               controller.enqueue('data: [DONE]\n\n');
               controller.close();
             },
@@ -887,7 +954,7 @@ describe('Enhanced Chat API Routes', () => {
             headers: {
               'Content-Type': 'text/event-stream',
               'Cache-Control': 'no-cache',
-              'Connection': 'keep-alive',
+              Connection: 'keep-alive',
             },
           },
         );
@@ -902,7 +969,7 @@ describe('Enhanced Chat API Routes', () => {
       const response = await GET(request);
       expect(response.status).toBe(200);
       expect(response.headers.get('Content-Type')).toBe('text/event-stream');
-      
+
       logger.info('chat_test', 'Stream resumption test completed', {
         userId: testUser.id,
         chatId: existingChat.id,
@@ -915,47 +982,51 @@ describe('Enhanced Chat API Routes', () => {
   describe('DELETE /api/chat - Enhanced Chat Deletion', () => {
     it('should delete chat and all associated data', async () => {
       const startTime = Date.now();
-      
+
       const { user: testUser, chats } = await factory.createUserWithChats(1);
       const chatToDelete = chats[0].chat;
-      
+
       mockAuthenticatedUser(testUser.id);
 
       // Mock deletion operations
       vi.doMock('@/lib/db/queries', () => ({
         getChatById: vi.fn().mockResolvedValue(chatToDelete),
-        deleteChatById: vi.fn().mockImplementation(async ({ id }: { id: string }) => {
-          const deleteStartTime = Date.now();
-          
-          // Delete messages first (foreign key constraint)
-          await db.delete(message).where(db.eq(message.chatId, id));
-          
-          // Delete chat
-          const [deletedChat] = await db
-            .delete(chat)
-            .where(db.eq(chat.id, id))
-            .returning();
-          
-          testMetrics = factory.getMetrics();
-          testMetrics.queryTime += Date.now() - deleteStartTime;
-          
-          return deletedChat;
-        }),
+        deleteChatById: vi
+          .fn()
+          .mockImplementation(async ({ id }: { id: string }) => {
+            const deleteStartTime = Date.now();
+
+            // Delete messages first (foreign key constraint)
+            await db.delete(message).where(db.eq(message.chatId, id));
+
+            // Delete chat
+            const [deletedChat] = await db
+              .delete(chat)
+              .where(db.eq(chat.id, id))
+              .returning();
+
+            testMetrics = factory.getMetrics();
+            testMetrics.queryTime += Date.now() - deleteStartTime;
+
+            return deletedChat;
+          }),
       }));
 
       const mockHandler = vi.fn().mockImplementation(async (request) => {
         const url = new URL(request.url);
         const chatId = url.searchParams.get('id');
-        
+
         expect(chatId).toBe(chatToDelete.id);
 
-        const { getChatById, deleteChatById } = await import('@/lib/db/queries');
+        const { getChatById, deleteChatById } = await import(
+          '@/lib/db/queries'
+        );
 
         // Verify chat exists and user owns it
         const chatInDb = await getChatById(chatId!);
         if (!chatInDb || chatInDb.userId !== testUser.id) {
           return new Response(
-            JSON.stringify({ 
+            JSON.stringify({
               error: 'Chat not found or access denied',
               code: 'CHAT_ACCESS_DENIED',
             }),
@@ -999,7 +1070,7 @@ describe('Enhanced Chat API Routes', () => {
         .select()
         .from(chat)
         .where(db.eq(chat.id, chatToDelete.id));
-      
+
       testMetrics.queryTime += Date.now() - queryStartTime;
 
       expect(chatInDb).toBeUndefined();
@@ -1011,7 +1082,7 @@ describe('Enhanced Chat API Routes', () => {
         .where(db.eq(message.chatId, chatToDelete.id));
 
       expect(messagesInDb).toHaveLength(0);
-      
+
       logger.info('chat_test', 'Chat deletion test completed', {
         userId: testUser.id,
         deletedChatId: chatToDelete.id,
@@ -1024,31 +1095,33 @@ describe('Enhanced Chat API Routes', () => {
   describe('Performance and Scalability Tests', () => {
     it('should handle concurrent chat operations efficiently', async () => {
       const startTime = Date.now();
-      
+
       // Create multiple users with chats for concurrent testing
-      const userPromises = Array.from({ length: 5 }, () => 
-        factory.createUserWithChats(2)
+      const userPromises = Array.from({ length: 5 }, () =>
+        factory.createUserWithChats(2),
       );
-      
+
       const userResults = await Promise.all(userPromises);
-      
+
       // Perform concurrent chat operations
       const operationPromises = userResults.map(async ({ user, chats }) => {
         const operationStartTime = Date.now();
-        
+
         // Concurrent message additions
         const messagePromises = chats.map(async ({ chat }) => {
           return await db.insert(message).values({
             id: nanoid(),
             chatId: chat.id,
             role: 'user',
-            parts: [{ type: 'text', text: `Concurrent message for ${chat.id}` }],
+            parts: [
+              { type: 'text', text: `Concurrent message for ${chat.id}` },
+            ],
             createdAt: new Date(),
           });
         });
 
         await Promise.all(messagePromises);
-        
+
         return {
           userId: user.id,
           chatCount: chats.length,
@@ -1057,7 +1130,7 @@ describe('Enhanced Chat API Routes', () => {
       });
 
       const operationResults = await Promise.all(operationPromises);
-      
+
       // Measure aggregate query performance
       const queryStartTime = Date.now();
       const aggregateData = await db
@@ -1069,16 +1142,21 @@ describe('Enhanced Chat API Routes', () => {
         .from(chat)
         .leftJoin(message, db.eq(chat.id, message.chatId))
         .groupBy(chat.userId);
-      
+
       const queryTime = Date.now() - queryStartTime;
       const totalTime = Date.now() - startTime;
-      
+
       const performanceMetrics = {
         totalUsers: userResults.length,
-        totalChats: userResults.reduce((sum, result) => sum + result.chats.length, 0),
+        totalChats: userResults.reduce(
+          (sum, result) => sum + result.chats.length,
+          0,
+        ),
         totalTime,
         queryTime,
-        avgOperationTime: operationResults.reduce((sum, result) => sum + result.duration, 0) / operationResults.length,
+        avgOperationTime:
+          operationResults.reduce((sum, result) => sum + result.duration, 0) /
+          operationResults.length,
         memoryUsage: process.memoryUsage(),
         concurrentOperations: true,
         branchIsolation: true,
@@ -1087,7 +1165,7 @@ describe('Enhanced Chat API Routes', () => {
       expect(aggregateData).toHaveLength(userResults.length);
       expect(queryTime).toBeLessThan(2000);
       expect(totalTime).toBeLessThan(15000);
-      
+
       logger.info('chat_test', 'Concurrent operations test completed', {
         metrics: performanceMetrics,
         operationResults,
@@ -1099,10 +1177,18 @@ describe('Enhanced Chat API Routes', () => {
       console.log(`Total Chats: ${performanceMetrics.totalChats}`);
       console.log(`Total Test Time: ${performanceMetrics.totalTime}ms`);
       console.log(`Aggregate Query Time: ${performanceMetrics.queryTime}ms`);
-      console.log(`Avg Operation Time: ${performanceMetrics.avgOperationTime.toFixed(2)}ms`);
-      console.log(`Memory Usage: ${Math.round(performanceMetrics.memoryUsage.heapUsed / 1024 / 1024)}MB`);
-      console.log(`Concurrent Operations: ${performanceMetrics.concurrentOperations ? 'Enabled' : 'Disabled'}`);
-      console.log(`Branch Isolation: ${performanceMetrics.branchIsolation ? 'Enabled' : 'Disabled'}`);
+      console.log(
+        `Avg Operation Time: ${performanceMetrics.avgOperationTime.toFixed(2)}ms`,
+      );
+      console.log(
+        `Memory Usage: ${Math.round(performanceMetrics.memoryUsage.heapUsed / 1024 / 1024)}MB`,
+      );
+      console.log(
+        `Concurrent Operations: ${performanceMetrics.concurrentOperations ? 'Enabled' : 'Disabled'}`,
+      );
+      console.log(
+        `Branch Isolation: ${performanceMetrics.branchIsolation ? 'Enabled' : 'Disabled'}`,
+      );
       console.log('============================================\n');
     });
   });

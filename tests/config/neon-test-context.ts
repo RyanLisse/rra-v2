@@ -11,18 +11,24 @@ export interface TestMetrics {
 }
 
 export interface TestFactories {
-  createUser(overrides?: Partial<typeof schema.user.$inferInsert>): Promise<typeof schema.user.$inferSelect>;
-  createUserWithAuth(overrides?: Partial<typeof schema.user.$inferInsert>): Promise<{
+  createUser(
+    overrides?: Partial<typeof schema.user.$inferInsert>,
+  ): Promise<typeof schema.user.$inferSelect>;
+  createUserWithAuth(
+    overrides?: Partial<typeof schema.user.$inferInsert>,
+  ): Promise<{
     user: typeof schema.user.$inferSelect;
     password: string;
   }>;
-  createDocument(overrides?: Partial<typeof schema.ragDocument.$inferInsert>): Promise<typeof schema.ragDocument.$inferSelect>;
+  createDocument(
+    overrides?: Partial<typeof schema.ragDocument.$inferInsert>,
+  ): Promise<typeof schema.ragDocument.$inferSelect>;
   createUserWithDocuments(options?: {
     documentCount?: number;
     processDocuments?: boolean;
   }): Promise<{
     user: typeof schema.user.$inferSelect;
-    documents: typeof schema.ragDocument.$inferSelect[];
+    documents: (typeof schema.ragDocument.$inferSelect)[];
   }>;
 }
 
@@ -50,11 +56,14 @@ class SimpleMetrics implements TestMetrics {
       stop: () => {
         const duration = Date.now() - start;
         this.record(name, duration);
-      }
+      },
     };
   }
 
-  getMetrics(): Record<string, { count: number; avg: number; min: number; max: number }> {
+  getMetrics(): Record<
+    string,
+    { count: number; avg: number; min: number; max: number }
+  > {
     const result: Record<string, any> = {};
     for (const [name, values] of this.metrics) {
       result[name] = {
@@ -68,7 +77,9 @@ class SimpleMetrics implements TestMetrics {
   }
 }
 
-function createTestFactories(database: PostgresJsDatabase<typeof schema>): TestFactories {
+function createTestFactories(
+  database: PostgresJsDatabase<typeof schema>,
+): TestFactories {
   return {
     async createUser(overrides = {}) {
       const userData = {
@@ -83,7 +94,10 @@ function createTestFactories(database: PostgresJsDatabase<typeof schema>): TestF
         ...overrides,
       };
 
-      const [user] = await database.insert(schema.user).values(userData).returning();
+      const [user] = await database
+        .insert(schema.user)
+        .values(userData)
+        .returning();
       return user;
     },
 
@@ -91,7 +105,7 @@ function createTestFactories(database: PostgresJsDatabase<typeof schema>): TestF
       const password = `password-${nanoid(8)}`;
       // For testing, we'll use a simple hash simulation
       const hashedPassword = `hashed_${password}`;
-      
+
       const user = await this.createUser({
         ...overrides,
         password: hashedPassword,
@@ -102,7 +116,7 @@ function createTestFactories(database: PostgresJsDatabase<typeof schema>): TestF
 
     async createDocument(overrides = {}) {
       const userId = overrides.uploadedBy || (await this.createUser()).id;
-      
+
       const documentData = {
         id: randomUUID(),
         fileName: `document-${nanoid(8)}.pdf`,
@@ -117,16 +131,19 @@ function createTestFactories(database: PostgresJsDatabase<typeof schema>): TestF
         ...overrides,
       };
 
-      const [document] = await database.insert(schema.ragDocument).values(documentData).returning();
+      const [document] = await database
+        .insert(schema.ragDocument)
+        .values(documentData)
+        .returning();
       return document;
     },
 
     async createUserWithDocuments(options = {}) {
       const { documentCount = 1, processDocuments = false } = options;
-      
+
       const user = await this.createUser();
       const documents = [];
-      
+
       for (let i = 0; i < documentCount; i++) {
         const doc = await this.createDocument({
           uploadedBy: user.id,
@@ -134,39 +151,49 @@ function createTestFactories(database: PostgresJsDatabase<typeof schema>): TestF
           status: processDocuments ? 'processed' : 'uploaded',
         });
         documents.push(doc);
-        
+
         if (processDocuments) {
           // Create mock content for the document
-          const [content] = await database.insert(schema.documentContent).values({
-            documentId: doc.id,
-            extractedText: `This is test content for RoboRail documentation part ${i + 1}. It contains information about calibration, alignment, and chuck procedures.`,
-            pageCount: '10',
-            charCount: '1000',
-            metadata: {},
-          }).returning();
-          
+          const [content] = await database
+            .insert(schema.documentContent)
+            .values({
+              documentId: doc.id,
+              extractedText: `This is test content for RoboRail documentation part ${i + 1}. It contains information about calibration, alignment, and chuck procedures.`,
+              pageCount: '10',
+              charCount: '1000',
+              metadata: {},
+            })
+            .returning();
+
           // Create mock chunks
           for (let j = 0; j < 3; j++) {
-            const [chunk] = await database.insert(schema.documentChunk).values({
-              documentId: doc.id,
-              chunkIndex: j.toString(),
-              content: `This is test chunk ${j} of document ${i}: RoboRail calibration measurement and alignment procedures. Test content for searching.`,
-              tokenCount: '100',
-              metadata: { startChar: j * 100, endChar: (j + 1) * 100 },
-            }).returning();
-            
+            const [chunk] = await database
+              .insert(schema.documentChunk)
+              .values({
+                documentId: doc.id,
+                chunkIndex: j.toString(),
+                content: `This is test chunk ${j} of document ${i}: RoboRail calibration measurement and alignment procedures. Test content for searching.`,
+                tokenCount: '100',
+                metadata: { startChar: j * 100, endChar: (j + 1) * 100 },
+              })
+              .returning();
+
             // Create mock embeddings
             await database.insert(schema.documentEmbedding).values({
               chunkId: chunk.id,
-              embedding: JSON.stringify(Array(1024).fill(0).map(() => Math.random())),
+              embedding: JSON.stringify(
+                Array(1024)
+                  .fill(0)
+                  .map(() => Math.random()),
+              ),
               model: 'cohere-embed-v4.0',
             });
           }
         }
       }
-      
+
       return { user, documents };
-    }
+    },
   };
 }
 
@@ -174,12 +201,16 @@ function createTestFactories(database: PostgresJsDatabase<typeof schema>): TestF
  * Setup a Neon branch context for testing
  * This provides a simplified interface that matches what the tests expect
  */
-export async function setupNeonBranch(suiteName: string): Promise<NeonBranchContext> {
+export async function setupNeonBranch(
+  suiteName: string,
+): Promise<NeonBranchContext> {
   // Use test database URL if available, otherwise fall back to main database
   const databaseUrl = process.env.POSTGRES_URL_TEST || process.env.POSTGRES_URL;
-  
+
   if (!databaseUrl) {
-    throw new Error('POSTGRES_URL or POSTGRES_URL_TEST environment variable is required');
+    throw new Error(
+      'POSTGRES_URL or POSTGRES_URL_TEST environment variable is required',
+    );
   }
 
   // Create a dedicated test connection
@@ -188,9 +219,9 @@ export async function setupNeonBranch(suiteName: string): Promise<NeonBranchCont
     idle_timeout: 20,
     connect_timeout: 10,
   });
-  
+
   const db = drizzle(client, { schema });
-  
+
   const metrics = new SimpleMetrics();
   const factories = createTestFactories(db);
 
@@ -203,6 +234,6 @@ export async function setupNeonBranch(suiteName: string): Promise<NeonBranchCont
       // Close the database connection
       await client.end();
       console.log(`Cleanup for test suite: ${suiteName}`);
-    }
+    },
   };
 }

@@ -60,12 +60,14 @@ describe('Search Facets Validation', () => {
 
     const result = searchSchema.safeParse(validRequest);
     expect(result.success).toBe(true);
-    
+
     if (result.success) {
       expect(result.data.facets?.elementTypes).toEqual(['paragraph', 'title']);
       expect(result.data.facets?.pageNumbers).toEqual([1, 2, 3]);
       expect(result.data.facets?.spatialSearch?.pageNumber).toBe(1);
-      expect(result.data.facets?.spatialSearch?.bbox).toEqual([100, 200, 300, 400]);
+      expect(result.data.facets?.spatialSearch?.bbox).toEqual([
+        100, 200, 300, 400,
+      ]);
     }
   });
 
@@ -102,10 +104,10 @@ describe('Search Facets Validation', () => {
 
     const result = searchSchema.safeParse(invalidRequest);
     expect(result.success).toBe(false);
-    
+
     if (!result.success) {
-      const bboxError = result.error.issues.find(
-        issue => issue.path.includes('bbox')
+      const bboxError = result.error.issues.find((issue) =>
+        issue.path.includes('bbox'),
       );
       expect(bboxError).toBeDefined();
     }
@@ -242,13 +244,18 @@ describe('Facet Filtering Logic', () => {
     ];
 
     const targetElementTypes = ['paragraph', 'title'];
-    
+
     const filteredResults = mockResults.filter((result) => {
-      return result.elementType && targetElementTypes.includes(result.elementType);
+      return (
+        result.elementType && targetElementTypes.includes(result.elementType)
+      );
     });
 
     expect(filteredResults).toHaveLength(2);
-    expect(filteredResults.map(r => r.elementType)).toEqual(['paragraph', 'title']);
+    expect(filteredResults.map((r) => r.elementType)).toEqual([
+      'paragraph',
+      'title',
+    ]);
   });
 
   it('should test page number filtering logic', () => {
@@ -260,12 +267,12 @@ describe('Facet Filtering Logic', () => {
     ];
 
     const targetPageNumbers = [1, 3];
-    
+
     const filteredResults = mockResults.filter((result) => {
       return result.pageNumber && targetPageNumbers.includes(result.pageNumber);
     });
 
     expect(filteredResults).toHaveLength(2);
-    expect(filteredResults.map(r => r.pageNumber)).toEqual([1, 3]);
+    expect(filteredResults.map((r) => r.pageNumber)).toEqual([1, 3]);
   });
 });

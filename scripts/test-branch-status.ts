@@ -2,11 +2,14 @@
 /**
  * Test Branch Status Monitoring and Health Checks
  * Usage: bun run scripts/test-branch-status.ts [command] [options]
- * 
+ *
  * Provides comprehensive monitoring, health checks, and status reporting for test branches
  */
 
-import { EnhancedNeonApiClient, type NeonBranch } from '../lib/testing/neon-api-client';
+import {
+  EnhancedNeonApiClient,
+  type NeonBranch,
+} from '../lib/testing/neon-api-client';
 import { config } from 'dotenv';
 import { resolve } from 'path';
 import { writeFile } from 'fs/promises';
@@ -101,18 +104,18 @@ const COMMANDS = {
   health: 'Perform comprehensive health check',
   monitor: 'Continuous monitoring with alerts',
   report: 'Generate detailed report',
-  alerts: 'Check for alert conditions'
+  alerts: 'Check for alert conditions',
 } as const;
 
 function parseArgs(): Partial<MonitoringConfig> & { help?: boolean } {
   const args = process.argv.slice(2);
   const result: Partial<MonitoringConfig> & { help?: boolean } = {
-    command: 'status'
+    command: 'status',
   };
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    
+
     if (arg === '--help' || arg === '-h') {
       result.help = true;
     } else if (arg === '--include-primary') {
@@ -165,9 +168,9 @@ function getDefaultConfig(): MonitoringConfig {
       staleBranchHours: 72,
       largeBranchMB: 500,
       maxTestBranches: 20,
-      errorRatePercent: 10
+      errorRatePercent: 10,
     },
-    filters: {}
+    filters: {},
   };
 }
 
@@ -229,14 +232,18 @@ Environment Variables Required:
 `);
 }
 
-function categorizeBranchAge(ageHours: number): 'new' | 'recent' | 'old' | 'stale' {
+function categorizeBranchAge(
+  ageHours: number,
+): 'new' | 'recent' | 'old' | 'stale' {
   if (ageHours < 1) return 'new';
   if (ageHours < 24) return 'recent';
   if (ageHours < 72) return 'old';
   return 'stale';
 }
 
-function categorizeBranchSize(sizeMB: number): 'small' | 'medium' | 'large' | 'huge' {
+function categorizeBranchSize(
+  sizeMB: number,
+): 'small' | 'medium' | 'large' | 'huge' {
   if (sizeMB < 10) return 'small';
   if (sizeMB < 100) return 'medium';
   if (sizeMB < 500) return 'large';
@@ -245,15 +252,15 @@ function categorizeBranchSize(sizeMB: number): 'small' | 'medium' | 'large' | 'h
 
 function analyzeBranchHealth(
   branch: NeonBranch,
-  config: MonitoringConfig
+  config: MonitoringConfig,
 ): BranchHealth {
   const ageMs = Date.now() - new Date(branch.created_at).getTime();
   const ageHours = ageMs / (1000 * 60 * 60);
   const sizeMB = (branch.logical_size || 0) / (1024 * 1024);
-  
+
   const ageCategory = categorizeBranchAge(ageHours);
   const sizeCategory = categorizeBranchSize(sizeMB);
-  
+
   const issues: string[] = [];
   const recommendations: string[] = [];
   let status: BranchHealth['status'] = 'healthy';
@@ -289,7 +296,8 @@ function analyzeBranchHealth(
   // Check for naming patterns that suggest test environment
   let testEnvironment: string | undefined;
   if (branch.name.includes('-unit')) testEnvironment = 'unit';
-  else if (branch.name.includes('-integration')) testEnvironment = 'integration';
+  else if (branch.name.includes('-integration'))
+    testEnvironment = 'integration';
   else if (branch.name.includes('-e2e')) testEnvironment = 'e2e';
 
   // Size recommendations
@@ -316,8 +324,8 @@ function analyzeBranchHealth(
     metadata: {
       testEnvironment,
       estimatedCost: sizeMB * 0.023, // Rough estimate
-      tags: testEnvironment ? [testEnvironment, 'test'] : ['test']
-    }
+      tags: testEnvironment ? [testEnvironment, 'test'] : ['test'],
+    },
   };
 }
 
@@ -325,12 +333,13 @@ function analyzeSystemHealth(
   branches: NeonBranch[],
   branchHealth: BranchHealth[],
   metrics: any[],
-  config: MonitoringConfig
+  config: MonitoringConfig,
 ): SystemHealth {
-  const testBranches = branches.filter(b => b.name.startsWith('test-'));
-  const activeBranches = branches.filter(b => b.current_state === 'ready');
-  const staleBranches = testBranches.filter(b => {
-    const ageHours = (Date.now() - new Date(b.created_at).getTime()) / (1000 * 60 * 60);
+  const testBranches = branches.filter((b) => b.name.startsWith('test-'));
+  const activeBranches = branches.filter((b) => b.current_state === 'ready');
+  const staleBranches = testBranches.filter((b) => {
+    const ageHours =
+      (Date.now() - new Date(b.created_at).getTime()) / (1000 * 60 * 60);
     return ageHours > config.alertThresholds.staleBranchHours;
   });
 
@@ -339,16 +348,19 @@ function analyzeSystemHealth(
   const estimatedCost = (totalSize / (1024 * 1024)) * 0.023; // Rough estimate
 
   // Performance analysis
-  const recentMetrics = metrics.filter(m => 
-    Date.now() - new Date(m.timestamp).getTime() < 60 * 60 * 1000 // Last hour
+  const recentMetrics = metrics.filter(
+    (m) => Date.now() - new Date(m.timestamp).getTime() < 60 * 60 * 1000, // Last hour
   );
-  const avgOperationTime = recentMetrics.length > 0 
-    ? recentMetrics.reduce((sum, m) => sum + m.duration, 0) / recentMetrics.length
-    : 0;
-  const failedOps = recentMetrics.filter(m => !m.success);
-  const successRate = recentMetrics.length > 0 
-    ? ((recentMetrics.length - failedOps.length) / recentMetrics.length) * 100
-    : 100;
+  const avgOperationTime =
+    recentMetrics.length > 0
+      ? recentMetrics.reduce((sum, m) => sum + m.duration, 0) /
+        recentMetrics.length
+      : 0;
+  const failedOps = recentMetrics.filter((m) => !m.success);
+  const successRate =
+    recentMetrics.length > 0
+      ? ((recentMetrics.length - failedOps.length) / recentMetrics.length) * 100
+      : 100;
 
   const issues: string[] = [];
   const recommendations: string[] = [];
@@ -367,20 +379,24 @@ function analyzeSystemHealth(
     if (overall === 'healthy') overall = 'warning';
   }
 
-  if (successRate < (100 - config.alertThresholds.errorRatePercent)) {
-    issues.push(`High error rate: ${Math.round((100 - successRate) * 10) / 10}%`);
+  if (successRate < 100 - config.alertThresholds.errorRatePercent) {
+    issues.push(
+      `High error rate: ${Math.round((100 - successRate) * 10) / 10}%`,
+    );
     recommendations.push('Investigate recent operation failures');
     overall = 'critical';
   }
 
   if (estimatedCost > 100) {
-    issues.push(`High estimated cost: $${Math.round(estimatedCost * 100) / 100}/month`);
+    issues.push(
+      `High estimated cost: $${Math.round(estimatedCost * 100) / 100}/month`,
+    );
     recommendations.push('Review resource usage and cleanup policies');
     if (overall === 'healthy') overall = 'warning';
   }
 
   // Critical issues from branch health
-  const criticalBranches = branchHealth.filter(b => b.status === 'critical');
+  const criticalBranches = branchHealth.filter((b) => b.status === 'critical');
   if (criticalBranches.length > 0) {
     issues.push(`${criticalBranches.length} branches in critical state`);
     overall = 'critical';
@@ -392,49 +408,59 @@ function analyzeSystemHealth(
       total: branches.length,
       test: testBranches.length,
       active: activeBranches.length,
-      stale: staleBranches.length
+      stale: staleBranches.length,
     },
     resourceUsage: {
       totalSize: Math.round(totalSize / (1024 * 1024)),
       averageSize: Math.round(averageSize / (1024 * 1024)),
-      estimatedCost: Math.round(estimatedCost * 100) / 100
+      estimatedCost: Math.round(estimatedCost * 100) / 100,
     },
     performance: {
       avgOperationTime: Math.round(avgOperationTime),
       recentErrors: failedOps.length,
-      successRate: Math.round(successRate * 10) / 10
+      successRate: Math.round(successRate * 10) / 10,
     },
     issues,
-    recommendations
+    recommendations,
   };
 }
 
-function applyFilters(branchHealth: BranchHealth[], config: MonitoringConfig): BranchHealth[] {
+function applyFilters(
+  branchHealth: BranchHealth[],
+  config: MonitoringConfig,
+): BranchHealth[] {
   let filtered = branchHealth;
 
   if (config.filters.environment) {
-    filtered = filtered.filter(b => 
-      b.metadata?.testEnvironment === config.filters.environment
+    filtered = filtered.filter(
+      (b) => b.metadata?.testEnvironment === config.filters.environment,
     );
   }
 
   if (config.filters.status) {
-    filtered = filtered.filter(b => b.status === config.filters.status);
+    filtered = filtered.filter((b) => b.status === config.filters.status);
   }
 
   if (config.filters.ageCategory) {
-    filtered = filtered.filter(b => b.ageCategory === config.filters.ageCategory);
+    filtered = filtered.filter(
+      (b) => b.ageCategory === config.filters.ageCategory,
+    );
   }
 
   return filtered;
 }
 
-function formatTableOutput(report: StatusReport, config: MonitoringConfig): void {
+function formatTableOutput(
+  report: StatusReport,
+  config: MonitoringConfig,
+): void {
   const { systemHealth, branchHealth } = report;
-  
+
   console.log('📊 Test Branch Status Dashboard');
   console.log(`   Timestamp: ${report.timestamp}`);
-  console.log(`   Overall Health: ${getHealthEmoji(systemHealth.overall)} ${systemHealth.overall.toUpperCase()}`);
+  console.log(
+    `   Overall Health: ${getHealthEmoji(systemHealth.overall)} ${systemHealth.overall.toUpperCase()}`,
+  );
   console.log('');
 
   // System overview
@@ -444,12 +470,16 @@ function formatTableOutput(report: StatusReport, config: MonitoringConfig): void
   console.log(`   Active branches: ${systemHealth.branchCount.active}`);
   console.log(`   Stale branches: ${systemHealth.branchCount.stale}`);
   console.log(`   Total size: ${systemHealth.resourceUsage.totalSize}MB`);
-  console.log(`   Estimated cost: $${systemHealth.resourceUsage.estimatedCost}/month`);
+  console.log(
+    `   Estimated cost: $${systemHealth.resourceUsage.estimatedCost}/month`,
+  );
   console.log('');
 
   if (systemHealth.performance.recentErrors > 0) {
     console.log('⚡ Performance:');
-    console.log(`   Avg operation time: ${systemHealth.performance.avgOperationTime}ms`);
+    console.log(
+      `   Avg operation time: ${systemHealth.performance.avgOperationTime}ms`,
+    );
     console.log(`   Success rate: ${systemHealth.performance.successRate}%`);
     console.log(`   Recent errors: ${systemHealth.performance.recentErrors}`);
     console.log('');
@@ -458,59 +488,78 @@ function formatTableOutput(report: StatusReport, config: MonitoringConfig): void
   // Issues and recommendations
   if (systemHealth.issues.length > 0) {
     console.log('⚠️  System Issues:');
-    systemHealth.issues.forEach(issue => console.log(`   • ${issue}`));
+    systemHealth.issues.forEach((issue) => console.log(`   • ${issue}`));
     console.log('');
   }
 
   if (systemHealth.recommendations.length > 0) {
     console.log('💡 System Recommendations:');
-    systemHealth.recommendations.forEach(rec => console.log(`   • ${rec}`));
+    systemHealth.recommendations.forEach((rec) => console.log(`   • ${rec}`));
     console.log('');
   }
 
   // Branch details
   const filteredBranches = applyFilters(branchHealth, config);
-  
+
   if (filteredBranches.length > 0) {
     console.log('🌿 Branch Details:');
-    console.log('   Name                                    | Status   | Age      | Size     | Issues');
-    console.log('   ----------------------------------------|----------|----------|----------|--------');
-    
-    filteredBranches.forEach(branch => {
-      const name = branch.branchName.length > 40 
-        ? branch.branchName.slice(0, 37) + '...' 
-        : branch.branchName;
+    console.log(
+      '   Name                                    | Status   | Age      | Size     | Issues',
+    );
+    console.log(
+      '   ----------------------------------------|----------|----------|----------|--------',
+    );
+
+    filteredBranches.forEach((branch) => {
+      const name =
+        branch.branchName.length > 40
+          ? branch.branchName.slice(0, 37) + '...'
+          : branch.branchName;
       const status = `${getHealthEmoji(branch.status)} ${branch.status}`;
       const age = `${branch.age}h`;
       const size = `${branch.size}MB`;
       const issues = branch.issues.length > 0 ? `${branch.issues.length}` : '-';
-      
-      console.log(`   ${name.padEnd(40)}| ${status.padEnd(9)}| ${age.padEnd(9)}| ${size.padEnd(9)}| ${issues}`);
+
+      console.log(
+        `   ${name.padEnd(40)}| ${status.padEnd(9)}| ${age.padEnd(9)}| ${size.padEnd(9)}| ${issues}`,
+      );
     });
   }
 
   // Summary
   console.log('');
   console.log('📈 Summary:');
-  console.log(`   ${getHealthEmoji('healthy')} Healthy: ${report.summary.healthyBranches}`);
-  console.log(`   ${getHealthEmoji('warning')} Warning: ${report.summary.warningBranches}`);
-  console.log(`   ${getHealthEmoji('critical')} Critical: ${report.summary.criticalBranches}`);
+  console.log(
+    `   ${getHealthEmoji('healthy')} Healthy: ${report.summary.healthyBranches}`,
+  );
+  console.log(
+    `   ${getHealthEmoji('warning')} Warning: ${report.summary.warningBranches}`,
+  );
+  console.log(
+    `   ${getHealthEmoji('critical')} Critical: ${report.summary.criticalBranches}`,
+  );
   console.log(`   Total issues: ${report.summary.totalIssues}`);
-  console.log(`   Total recommendations: ${report.summary.totalRecommendations}`);
+  console.log(
+    `   Total recommendations: ${report.summary.totalRecommendations}`,
+  );
 }
 
 function getHealthEmoji(status: string): string {
   switch (status) {
-    case 'healthy': return '✅';
-    case 'warning': return '⚠️';
-    case 'critical': return '❌';
-    default: return '❓';
+    case 'healthy':
+      return '✅';
+    case 'warning':
+      return '⚠️';
+    case 'critical':
+      return '❌';
+    default:
+      return '❓';
   }
 }
 
 async function generateStatusReport(
   client: EnhancedNeonApiClient,
-  config: MonitoringConfig
+  config: MonitoringConfig,
 ): Promise<StatusReport> {
   // Get branches
   const branchesResult = await client.listBranches();
@@ -519,28 +568,38 @@ async function generateStatusReport(
   }
 
   const allBranches = branchesResult.data;
-  const branches = config.includePrimary 
-    ? allBranches 
-    : allBranches.filter(b => !b.primary);
+  const branches = config.includePrimary
+    ? allBranches
+    : allBranches.filter((b) => !b.primary);
 
   // Analyze each branch
-  const branchHealth = branches.map(branch => 
-    analyzeBranchHealth(branch, config)
+  const branchHealth = branches.map((branch) =>
+    analyzeBranchHealth(branch, config),
   );
 
   // Get performance metrics
   const metrics = client.getPerformanceMetrics();
 
   // Analyze system health
-  const systemHealth = analyzeSystemHealth(allBranches, branchHealth, metrics, config);
+  const systemHealth = analyzeSystemHealth(
+    allBranches,
+    branchHealth,
+    metrics,
+    config,
+  );
 
   // Generate summary
   const summary = {
-    healthyBranches: branchHealth.filter(b => b.status === 'healthy').length,
-    warningBranches: branchHealth.filter(b => b.status === 'warning').length,
-    criticalBranches: branchHealth.filter(b => b.status === 'critical').length,
-    totalIssues: branchHealth.reduce((sum, b) => sum + b.issues.length, 0) + systemHealth.issues.length,
-    totalRecommendations: branchHealth.reduce((sum, b) => sum + b.recommendations.length, 0) + systemHealth.recommendations.length
+    healthyBranches: branchHealth.filter((b) => b.status === 'healthy').length,
+    warningBranches: branchHealth.filter((b) => b.status === 'warning').length,
+    criticalBranches: branchHealth.filter((b) => b.status === 'critical')
+      .length,
+    totalIssues:
+      branchHealth.reduce((sum, b) => sum + b.issues.length, 0) +
+      systemHealth.issues.length,
+    totalRecommendations:
+      branchHealth.reduce((sum, b) => sum + b.recommendations.length, 0) +
+      systemHealth.recommendations.length,
   };
 
   return {
@@ -552,8 +611,8 @@ async function generateStatusReport(
       project: process.env.NEON_PROJECT_ID || 'unknown',
       environment: config.filters.environment || 'all',
       includePrimary: config.includePrimary,
-      verbose: config.verbose
-    }
+      verbose: config.verbose,
+    },
   };
 }
 
@@ -561,8 +620,8 @@ async function runCommand(config: MonitoringConfig): Promise<void> {
   const client = new EnhancedNeonApiClient({
     rateLimitConfig: {
       maxRequestsPerMinute: 60,
-      burstLimit: 10
-    }
+      burstLimit: 10,
+    },
   });
 
   switch (config.command) {
@@ -570,17 +629,19 @@ async function runCommand(config: MonitoringConfig): Promise<void> {
     case 'health':
     case 'report':
       const report = await generateStatusReport(client, config);
-      
+
       if (config.format === 'table') {
         formatTableOutput(report, config);
       } else if (config.format === 'json') {
         console.log(JSON.stringify(report, null, 2));
       } else if (config.format === 'summary') {
         console.log(`Health: ${report.systemHealth.overall}`);
-        console.log(`Branches: ${report.summary.healthyBranches}✅ ${report.summary.warningBranches}⚠️ ${report.summary.criticalBranches}❌`);
+        console.log(
+          `Branches: ${report.summary.healthyBranches}✅ ${report.summary.warningBranches}⚠️ ${report.summary.criticalBranches}❌`,
+        );
         console.log(`Issues: ${report.summary.totalIssues}`);
       }
-      
+
       if (config.outputFile) {
         await writeFile(config.outputFile, JSON.stringify(report, null, 2));
         console.log(`\n📄 Report saved to: ${config.outputFile}`);
@@ -592,24 +653,28 @@ async function runCommand(config: MonitoringConfig): Promise<void> {
       console.log(`   Interval: ${config.interval}s`);
       console.log('   Press Ctrl+C to stop');
       console.log('');
-      
+
       while (config.continuous) {
         try {
           const report = await generateStatusReport(client, config);
-          
+
           console.clear();
           formatTableOutput(report, config);
           console.log(`\n🔄 Next update in ${config.interval}s...`);
-          
+
           // Check for critical issues
           if (report.systemHealth.overall === 'critical') {
             console.log('\n🚨 CRITICAL ALERT: System health is critical!');
           }
-          
-          await new Promise(resolve => setTimeout(resolve, config.interval * 1000));
+
+          await new Promise((resolve) =>
+            setTimeout(resolve, config.interval * 1000),
+          );
         } catch (error) {
           console.error('❌ Monitoring error:', error);
-          await new Promise(resolve => setTimeout(resolve, config.interval * 1000));
+          await new Promise((resolve) =>
+            setTimeout(resolve, config.interval * 1000),
+          );
         }
       }
       break;
@@ -618,12 +683,14 @@ async function runCommand(config: MonitoringConfig): Promise<void> {
       const alertReport = await generateStatusReport(client, config);
       const alerts = [
         ...alertReport.systemHealth.issues,
-        ...alertReport.branchHealth.flatMap(b => b.issues.map(issue => `${b.branchName}: ${issue}`))
+        ...alertReport.branchHealth.flatMap((b) =>
+          b.issues.map((issue) => `${b.branchName}: ${issue}`),
+        ),
       ];
-      
+
       if (alerts.length > 0) {
         console.log('🚨 Active Alerts:');
-        alerts.forEach(alert => console.log(`   • ${alert}`));
+        alerts.forEach((alert) => console.log(`   • ${alert}`));
         process.exit(1);
       } else {
         console.log('✅ No alerts detected');
@@ -665,7 +732,7 @@ process.on('SIGINT', () => {
   process.exit(0);
 });
 
-main().catch(error => {
+main().catch((error) => {
   console.error('❌ Unexpected error:', error);
   process.exit(1);
 });

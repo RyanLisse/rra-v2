@@ -64,7 +64,9 @@ describe('DocumentUploader Component', () => {
       render(<DocumentUploader />);
 
       expect(screen.getByText(/Upload Documents/i)).toBeInTheDocument();
-      expect(screen.getByText(/Drag & drop PDF files here, or click to select/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Drag & drop PDF files here, or click to select/i),
+      ).toBeInTheDocument();
     });
 
     it('should show accepted file types', () => {
@@ -88,7 +90,9 @@ describe('DocumentUploader Component', () => {
     it('should handle single file selection', async () => {
       render(<DocumentUploader />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        'input[type="file"]',
+      ) as HTMLInputElement;
       const testFile = createTestFile('single.pdf');
 
       await user.upload(fileInput, testFile);
@@ -100,7 +104,9 @@ describe('DocumentUploader Component', () => {
     it('should handle multiple file selection', async () => {
       render(<DocumentUploader />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        'input[type="file"]',
+      ) as HTMLInputElement;
       const files = [
         createTestFile('first.pdf'),
         createTestFile('second.pdf'),
@@ -117,30 +123,40 @@ describe('DocumentUploader Component', () => {
     it('should validate file types', async () => {
       render(<DocumentUploader />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        'input[type="file"]',
+      ) as HTMLInputElement;
       const invalidFile = createInvalidFile();
 
       await user.upload(fileInput, invalidFile);
 
-      expect(vi.mocked(toast.error)).toHaveBeenCalledWith('invalid.txt is not a PDF file');
+      expect(vi.mocked(toast.error)).toHaveBeenCalledWith(
+        'invalid.txt is not a PDF file',
+      );
       expect(screen.queryByText('invalid.txt')).not.toBeInTheDocument();
     });
 
     it('should validate file sizes', async () => {
       render(<DocumentUploader />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        'input[type="file"]',
+      ) as HTMLInputElement;
       const largeFile = createLargeFile();
 
       await user.upload(fileInput, largeFile);
 
-      expect(vi.mocked(toast.error)).toHaveBeenCalledWith('large.pdf exceeds 50MB limit');
+      expect(vi.mocked(toast.error)).toHaveBeenCalledWith(
+        'large.pdf exceeds 50MB limit',
+      );
     });
 
     it('should allow removing selected files', async () => {
       render(<DocumentUploader />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        'input[type="file"]',
+      ) as HTMLInputElement;
       const testFile = createTestFile('removable.pdf');
 
       await user.upload(fileInput, testFile);
@@ -150,7 +166,7 @@ describe('DocumentUploader Component', () => {
       const fileItem = screen.getByText('removable.pdf').closest('div');
       const removeButton = fileItem?.querySelector('button');
       expect(removeButton).toBeInTheDocument();
-      
+
       await user.click(removeButton!);
 
       expect(screen.queryByText('removable.pdf')).not.toBeInTheDocument();
@@ -329,7 +345,9 @@ describe('DocumentUploader Component', () => {
       await user.click(uploadButton);
 
       await waitFor(() => {
-        expect(vi.mocked(toast.success)).toHaveBeenCalledWith('Successfully uploaded 1 file(s)');
+        expect(vi.mocked(toast.success)).toHaveBeenCalledWith(
+          'Successfully uploaded 1 file(s)',
+        );
       });
 
       // Form should reset
@@ -342,14 +360,18 @@ describe('DocumentUploader Component', () => {
     it('should have proper ARIA labels', () => {
       render(<DocumentUploader />);
 
-      const uploadButton = screen.getByRole('button', { name: /upload 0 file/i });
+      const uploadButton = screen.getByRole('button', {
+        name: /upload 0 file/i,
+      });
       expect(uploadButton).toBeInTheDocument();
     });
 
     it('should support keyboard navigation', async () => {
       render(<DocumentUploader />);
 
-      const dropZone = screen.getByText(/Drag & drop PDF files here/i).closest('div');
+      const dropZone = screen
+        .getByText(/Drag & drop PDF files here/i)
+        .closest('div');
       expect(dropZone).toBeInTheDocument();
 
       // Test file input is accessible
@@ -360,7 +382,9 @@ describe('DocumentUploader Component', () => {
     it('should announce upload status to screen readers', async () => {
       render(<DocumentUploader />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        'input[type="file"]',
+      ) as HTMLInputElement;
       const testFile = createTestFile('accessible.pdf');
 
       await user.upload(fileInput, testFile);
@@ -379,7 +403,9 @@ describe('DocumentUploader Component', () => {
     it('should have proper color contrast for error states', async () => {
       render(<DocumentUploader />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        'input[type="file"]',
+      ) as HTMLInputElement;
       const invalidFile = createInvalidFile();
 
       await user.upload(fileInput, invalidFile);
@@ -393,7 +419,9 @@ describe('DocumentUploader Component', () => {
     it('should handle large numbers of files efficiently', async () => {
       render(<DocumentUploader />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        'input[type="file"]',
+      ) as HTMLInputElement;
       const manyFiles = Array.from({ length: 50 }, (_, i) =>
         createTestFile(`file-${i}.pdf`),
       );
@@ -409,7 +437,9 @@ describe('DocumentUploader Component', () => {
     it('should not cause memory leaks with repeated uploads', async () => {
       render(<DocumentUploader />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        'input[type="file"]',
+      ) as HTMLInputElement;
 
       // Simulate multiple upload cycles
       for (let i = 0; i < 10; i++) {
@@ -422,14 +452,16 @@ describe('DocumentUploader Component', () => {
         await user.click(uploadButton);
 
         await waitFor(() => {
-          expect(vi.mocked(toast.success)).toHaveBeenCalledWith('Successfully uploaded 1 file(s)');
+          expect(vi.mocked(toast.success)).toHaveBeenCalledWith(
+            'Successfully uploaded 1 file(s)',
+          );
         });
 
         // Wait for form reset
         await waitFor(() => {
           expect(screen.queryByText(`cycle-${i}.pdf`)).not.toBeInTheDocument();
         });
-        
+
         // Clear mocks for next iteration
         vi.mocked(toast.success).mockClear();
       }
@@ -443,7 +475,9 @@ describe('DocumentUploader Component', () => {
     it('should read file metadata correctly', async () => {
       render(<DocumentUploader />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        'input[type="file"]',
+      ) as HTMLInputElement;
       const testFile = createTestFile('metadata.pdf', 'application/pdf', 2048);
 
       await user.upload(fileInput, testFile);
@@ -455,7 +489,9 @@ describe('DocumentUploader Component', () => {
     it('should handle FileReader errors gracefully', async () => {
       render(<DocumentUploader />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        'input[type="file"]',
+      ) as HTMLInputElement;
       const testFile = createTestFile('reader-error.pdf');
 
       await user.upload(fileInput, testFile);

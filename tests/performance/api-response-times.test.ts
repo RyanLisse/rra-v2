@@ -1,7 +1,19 @@
-import { describe, it, expect, beforeAll, beforeEach, afterAll, vi } from 'vitest';
+import {
+  describe,
+  it,
+  expect,
+  beforeAll,
+  beforeEach,
+  afterAll,
+  vi,
+} from 'vitest';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { setupNeonTestBranching, getTestDatabaseUrl, isNeonBranchingEnabled } from '../config/neon-branch-setup';
+import {
+  setupNeonTestBranching,
+  getTestDatabaseUrl,
+  isNeonBranchingEnabled,
+} from '../config/neon-branch-setup';
 import { measurePerformance, waitFor } from '../utils/test-helpers';
 import { POST as uploadPOST } from '@/app/api/documents/upload/route';
 import { POST as chatPOST } from '@/app/(chat)/api/chat/route';
@@ -28,16 +40,16 @@ const TEST_SUITE_NAME = 'api-response-times';
 
 // Enhanced performance configuration
 const PERFORMANCE_CONFIG = {
-  SMALL_FILE_SIZE: 1024 * 1024,      // 1MB
-  MEDIUM_FILE_SIZE: 5 * 1024 * 1024,  // 5MB
+  SMALL_FILE_SIZE: 1024 * 1024, // 1MB
+  MEDIUM_FILE_SIZE: 5 * 1024 * 1024, // 5MB
   LARGE_FILE_SIZE: 25 * 1024 * 1024, // 25MB
-  XL_FILE_SIZE: 45 * 1024 * 1024,    // 45MB
-  CONCURRENT_REQUESTS: 50,            // Increased for realistic load testing
-  STRESS_TEST_DURATION: 30000,       // 30 seconds
-  TIMEOUT_EXTENDED: 300000,           // 5 minutes
-  MEMORY_LIMIT_MB: 512,               // 512MB memory limit for API tests
-  TARGET_RESPONSE_TIME: 2000,         // 2 seconds target
-  TARGET_THROUGHPUT: 100,             // 100 requests/second target
+  XL_FILE_SIZE: 45 * 1024 * 1024, // 45MB
+  CONCURRENT_REQUESTS: 50, // Increased for realistic load testing
+  STRESS_TEST_DURATION: 30000, // 30 seconds
+  TIMEOUT_EXTENDED: 300000, // 5 minutes
+  MEMORY_LIMIT_MB: 512, // 512MB memory limit for API tests
+  TARGET_RESPONSE_TIME: 2000, // 2 seconds target
+  TARGET_THROUGHPUT: 100, // 100 requests/second target
 };
 
 // Enhanced mocking for realistic performance testing with database integration
@@ -56,21 +68,27 @@ vi.mock('@/lib/db', () => ({
         returning: vi.fn().mockImplementation(async () => {
           const start = Date.now();
           mockDbOperations.insertCount++;
-          
+
           // Simulate realistic database insert times
-          await new Promise(resolve => setTimeout(resolve, Math.random() * 50 + 10));
-          
-          mockDbOperations.avgInsertTime = 
-            (mockDbOperations.avgInsertTime * (mockDbOperations.insertCount - 1) + 
-             (Date.now() - start)) / mockDbOperations.insertCount;
-          
-          return [{
-            id: `doc-${nanoid()}`,
-            fileName: 'performance-test-file.pdf',
-            originalName: 'test.pdf',
-            status: 'uploaded',
-            createdAt: new Date(),
-          }];
+          await new Promise((resolve) =>
+            setTimeout(resolve, Math.random() * 50 + 10),
+          );
+
+          mockDbOperations.avgInsertTime =
+            (mockDbOperations.avgInsertTime *
+              (mockDbOperations.insertCount - 1) +
+              (Date.now() - start)) /
+            mockDbOperations.insertCount;
+
+          return [
+            {
+              id: `doc-${nanoid()}`,
+              fileName: 'performance-test-file.pdf',
+              originalName: 'test.pdf',
+              status: 'uploaded',
+              createdAt: new Date(),
+            },
+          ];
         }),
       })),
     })),
@@ -79,14 +97,17 @@ vi.mock('@/lib/db', () => ({
         findMany: vi.fn().mockImplementation(async () => {
           const start = Date.now();
           mockDbOperations.queryCount++;
-          
+
           // Simulate realistic database query times
-          await new Promise(resolve => setTimeout(resolve, Math.random() * 30 + 5));
-          
-          mockDbOperations.avgQueryTime = 
-            (mockDbOperations.avgQueryTime * (mockDbOperations.queryCount - 1) + 
-             (Date.now() - start)) / mockDbOperations.queryCount;
-          
+          await new Promise((resolve) =>
+            setTimeout(resolve, Math.random() * 30 + 5),
+          );
+
+          mockDbOperations.avgQueryTime =
+            (mockDbOperations.avgQueryTime * (mockDbOperations.queryCount - 1) +
+              (Date.now() - start)) /
+            mockDbOperations.queryCount;
+
           return [];
         }),
         findFirst: vi.fn().mockResolvedValue(null),
@@ -94,8 +115,10 @@ vi.mock('@/lib/db', () => ({
       documentChunk: {
         findMany: vi.fn().mockImplementation(async () => {
           const start = Date.now();
-          await new Promise(resolve => setTimeout(resolve, Math.random() * 20 + 3));
-          
+          await new Promise((resolve) =>
+            setTimeout(resolve, Math.random() * 20 + 3),
+          );
+
           // Return realistic search results
           return Array.from({ length: 20 }, (_, i) => ({
             id: nanoid(),
@@ -123,22 +146,26 @@ vi.mock('node:fs/promises', () => ({
   writeFile: vi.fn().mockImplementation(async (path, data) => {
     const start = Date.now();
     mockFsPerformance.writeOperations++;
-    
+
     const size = typeof data === 'string' ? data.length : data.byteLength || 0;
     mockFsPerformance.totalBytesWritten += size;
-    
+
     // Simulate realistic file write times based on size
-    const writeTime = Math.max(10, size / (10 * 1024 * 1024) * 1000); // 10MB/s write speed
-    await new Promise(resolve => setTimeout(resolve, writeTime + Math.random() * 50));
-    
-    mockFsPerformance.avgWriteTime = 
-      (mockFsPerformance.avgWriteTime * (mockFsPerformance.writeOperations - 1) + 
-       (Date.now() - start)) / mockFsPerformance.writeOperations;
-    
+    const writeTime = Math.max(10, (size / (10 * 1024 * 1024)) * 1000); // 10MB/s write speed
+    await new Promise((resolve) =>
+      setTimeout(resolve, writeTime + Math.random() * 50),
+    );
+
+    mockFsPerformance.avgWriteTime =
+      (mockFsPerformance.avgWriteTime *
+        (mockFsPerformance.writeOperations - 1) +
+        (Date.now() - start)) /
+      mockFsPerformance.writeOperations;
+
     return undefined;
   }),
   mkdir: vi.fn().mockImplementation(async () => {
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 20 + 5));
+    await new Promise((resolve) => setTimeout(resolve, Math.random() * 20 + 5));
     return undefined;
   }),
 }));
@@ -155,42 +182,54 @@ vi.mock('@/lib/db/queries', () => ({
   getChatById: vi.fn().mockImplementation(async () => {
     const start = Date.now();
     mockQueryPerformance.getChatCalls++;
-    
+
     // Simulate database lookup time
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 40 + 10));
-    
-    mockQueryPerformance.avgChatQueryTime = 
-      (mockQueryPerformance.avgChatQueryTime * (mockQueryPerformance.getChatCalls - 1) + 
-       (Date.now() - start)) / mockQueryPerformance.getChatCalls;
-    
+    await new Promise((resolve) =>
+      setTimeout(resolve, Math.random() * 40 + 10),
+    );
+
+    mockQueryPerformance.avgChatQueryTime =
+      (mockQueryPerformance.avgChatQueryTime *
+        (mockQueryPerformance.getChatCalls - 1) +
+        (Date.now() - start)) /
+      mockQueryPerformance.getChatCalls;
+
     return null;
   }),
   getMessageCountByUserId: vi.fn().mockImplementation(async (userId) => {
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 20 + 5));
+    await new Promise((resolve) => setTimeout(resolve, Math.random() * 20 + 5));
     return Math.floor(Math.random() * 100); // Realistic message count
   }),
   getMessagesByChatId: vi.fn().mockImplementation(async () => {
     const start = Date.now();
     mockQueryPerformance.getMessageCalls++;
-    
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 60 + 15));
-    
-    mockQueryPerformance.avgMessageQueryTime = 
-      (mockQueryPerformance.avgMessageQueryTime * (mockQueryPerformance.getMessageCalls - 1) + 
-       (Date.now() - start)) / mockQueryPerformance.getMessageCalls;
-    
+
+    await new Promise((resolve) =>
+      setTimeout(resolve, Math.random() * 60 + 15),
+    );
+
+    mockQueryPerformance.avgMessageQueryTime =
+      (mockQueryPerformance.avgMessageQueryTime *
+        (mockQueryPerformance.getMessageCalls - 1) +
+        (Date.now() - start)) /
+      mockQueryPerformance.getMessageCalls;
+
     return [];
   }),
   saveChat: vi.fn().mockImplementation(async () => {
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 30 + 10));
+    await new Promise((resolve) =>
+      setTimeout(resolve, Math.random() * 30 + 10),
+    );
     return undefined;
   }),
   saveMessages: vi.fn().mockImplementation(async () => {
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 50 + 15));
+    await new Promise((resolve) =>
+      setTimeout(resolve, Math.random() * 50 + 15),
+    );
     return undefined;
   }),
   createStreamId: vi.fn().mockImplementation(async () => {
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 10 + 3));
+    await new Promise((resolve) => setTimeout(resolve, Math.random() * 10 + 3));
     return nanoid();
   }),
 }));
@@ -199,8 +238,10 @@ vi.mock('@/lib/db/queries', () => ({
 vi.mock('ai', () => ({
   streamText: vi.fn().mockImplementation(async () => {
     // Simulate AI response time
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 500 + 200));
-    
+    await new Promise((resolve) =>
+      setTimeout(resolve, Math.random() * 500 + 200),
+    );
+
     return {
       consumeStream: vi.fn(),
       mergeIntoDataStream: vi.fn(),
@@ -212,7 +253,7 @@ vi.mock('ai', () => ({
         // Simulate streaming chunks with realistic timing
         let chunkCount = 0;
         const maxChunks = 10;
-        
+
         const sendChunk = () => {
           if (chunkCount < maxChunks) {
             controller.enqueue(`data: chunk ${chunkCount}\n\n`);
@@ -222,7 +263,7 @@ vi.mock('ai', () => ({
             controller.close();
           }
         };
-        
+
         setTimeout(sendChunk, 100); // Initial delay
       },
     });
@@ -247,10 +288,14 @@ describe('API Response Time Performance Tests (Enhanced with Neon Branching)', (
 
   beforeAll(async () => {
     const connectionString = getTestDatabaseUrl();
-    logger.info('performance_setup', 'Initializing API performance test database', {
-      branchingEnabled: isNeonBranchingEnabled(),
-      connectionString: connectionString.replace(/\/\/[^@]+@/, '//***@'),
-    });
+    logger.info(
+      'performance_setup',
+      'Initializing API performance test database',
+      {
+        branchingEnabled: isNeonBranchingEnabled(),
+        connectionString: connectionString.replace(/\/\/[^@]+@/, '//***@'),
+      },
+    );
 
     client = postgres(connectionString, {
       max: 15, // Connection pool for API tests
@@ -265,7 +310,7 @@ describe('API Response Time Performance Tests (Enhanced with Neon Branching)', (
 
     // Run migrations on test branch
     await migrate();
-    
+
     logger.info('performance_setup', 'API performance test database ready');
   }, PERFORMANCE_CONFIG.TIMEOUT_EXTENDED);
 
@@ -281,470 +326,645 @@ describe('API Response Time Performance Tests (Enhanced with Neon Branching)', (
   });
 
   describe('Document Upload Performance (Enhanced)', () => {
-    it('should handle single file upload with comprehensive performance metrics', async () => {
-      const testStart = Date.now();
-      logger.info('performance_test', 'Starting enhanced single file upload test');
-
-      const userId = nanoid();
-      const mockWithAuth = mockAuthSuccess(userId);
-      vi.mocked(uploadPOST).mockImplementation(mockWithAuth);
-
-      // Test with various file sizes for comprehensive benchmarking
-      const fileSizes = [
-        PERFORMANCE_CONFIG.SMALL_FILE_SIZE,
-        PERFORMANCE_CONFIG.MEDIUM_FILE_SIZE,
-        PERFORMANCE_CONFIG.LARGE_FILE_SIZE,
-      ];
-      
-      const uploadResults = [];
-
-      for (const size of fileSizes) {
-        const testFile = performanceFactory.createLargeTestFile(
-          `performance-test-${size}.pdf`,
-          'application/pdf',
-          size,
-        );
-        const formData = createFormDataWithFiles([testFile]);
-
-        const { duration, result, memoryUsage } = await measurePerformance(async () => {
-          const request = createMockFormDataRequest(
-            'http://localhost:3000/api/documents/upload',
-            formData,
-          );
-          return uploadPOST(request);
-        });
-
-        const uploadThroughput = size / (duration / 1000); // bytes per second
-        const uploadThroughputMBps = uploadThroughput / (1024 * 1024);
-        
-        uploadResults.push({
-          fileSize: size,
-          fileSizeMB: size / (1024 * 1024),
-          duration,
-          throughput: uploadThroughput,
-          throughputMBps: uploadThroughputMBps,
-          memoryUsageMB: memoryUsage.heapUsed / (1024 * 1024),
-          status: result.status,
-        });
-
-        // Enhanced performance assertions
-        const expectedDuration = Math.max(1000, size / (5 * 1024 * 1024) * 1000); // 5MB/s minimum
-        expect(duration).toBeLessThan(expectedDuration);
-        expect(result.status).toBe(200);
-        expect(memoryUsage.heapUsed).toBeLessThan(PERFORMANCE_CONFIG.MEMORY_LIMIT_MB * 1024 * 1024);
-        expect(uploadThroughputMBps).toBeGreaterThan(1); // At least 1MB/s
-
-        logger.info('performance_metrics', `File upload completed for size ${size}`, {
-          fileSizeMB: size / (1024 * 1024),
-          duration,
-          throughputMBps: uploadThroughputMBps,
-          memoryUsageMB: memoryUsage.heapUsed / (1024 * 1024),
-        });
-      }
-
-      // Analyze scaling characteristics
-      const avgThroughput = uploadResults.reduce((sum, r) => sum + r.throughputMBps, 0) / uploadResults.length;
-      const throughputVariance = uploadResults.reduce((sum, r) => sum + Math.pow(r.throughputMBps - avgThroughput, 2), 0) / uploadResults.length;
-      
-      expect(avgThroughput).toBeGreaterThan(2); // Average throughput should be good
-      expect(throughputVariance).toBeLessThan(4); // Consistent performance across file sizes
-
-      logger.info('performance_test', 'Enhanced single file upload test completed', {
-        totalTime: Date.now() - testStart,
-        avgThroughputMBps: avgThroughput,
-        throughputVariance,
-        uploadResults,
-      });
-    }, PERFORMANCE_CONFIG.TIMEOUT_EXTENDED);
-
-    it('should handle multiple file uploads with excellent scaling', async () => {
-      const testStart = Date.now();
-      logger.info('performance_test', 'Starting multiple file upload scaling test');
-
-      const userId = nanoid();
-      const mockWithAuth = mockAuthSuccess(userId);
-      vi.mocked(uploadPOST).mockImplementation(mockWithAuth);
-
-      // Test with realistic file count variations
-      const fileCounts = [1, 3, 5, 10, 15, 25];
-      const performanceResults = [];
-
-      for (const fileCount of fileCounts) {
-        const batchStart = Date.now();
-        logger.info('performance_metrics', `Testing ${fileCount} file upload`);
-        
-        // Create files with varied sizes for realistic testing
-        const files = Array.from({ length: fileCount }, (_, i) => {
-          const sizeVariation = 0.5 + Math.random(); // 0.5x to 1.5x base size
-          const size = Math.floor(PERFORMANCE_CONFIG.SMALL_FILE_SIZE * sizeVariation);
-          return performanceFactory.createLargeTestFile(
-            `batch-test-${i}.pdf`, 
-            'application/pdf', 
-            size
-          );
-        });
-        
-        const formData = createFormDataWithFiles(files);
-        const totalSize = files.reduce((sum, file) => sum + file.size, 0);
-
-        const { duration, result, memoryUsage } = await measurePerformance(async () => {
-          const request = createMockFormDataRequest(
-            'http://localhost:3000/api/documents/upload',
-            formData,
-          );
-          return uploadPOST(request);
-        });
-
-        const throughput = totalSize / (duration / 1000); // bytes per second
-        const throughputMBps = throughput / (1024 * 1024);
-        const avgTimePerFile = duration / fileCount;
-        const memoryPerFile = memoryUsage.heapUsed / fileCount;
-        
-        performanceResults.push({
-          fileCount,
-          totalSizeMB: totalSize / (1024 * 1024),
-          duration,
-          avgTimePerFile,
-          throughputMBps,
-          memoryUsageMB: memoryUsage.heapUsed / (1024 * 1024),
-          memoryPerFileMB: memoryPerFile / (1024 * 1024),
-          status: result.status,
-        });
-
-        // Performance assertions for each batch
-        const maxExpectedDuration = fileCount * 500 + 2000; // 500ms per file + 2s overhead
-        expect(duration).toBeLessThan(maxExpectedDuration);
-        expect(result.status).toBe(200);
-        expect(memoryUsage.heapUsed).toBeLessThan(PERFORMANCE_CONFIG.MEMORY_LIMIT_MB * 1024 * 1024);
-        expect(avgTimePerFile).toBeLessThan(3000); // Max 3 seconds per file
-        expect(throughputMBps).toBeGreaterThan(0.5); // At least 0.5MB/s
-
-        logger.info('performance_metrics', `Batch ${fileCount} completed`, {
-          duration,
-          throughputMBps,
-          avgTimePerFile,
-          memoryUsageMB: memoryUsage.heapUsed / (1024 * 1024),
-        });
-      }
-
-      // Advanced scaling analysis
-      const scalingMetrics = [];
-      for (let i = 1; i < performanceResults.length; i++) {
-        const prev = performanceResults[i - 1];
-        const curr = performanceResults[i];
-        
-        const fileCountRatio = curr.fileCount / prev.fileCount;
-        const durationRatio = curr.duration / prev.duration;
-        const scalingEfficiency = fileCountRatio / durationRatio; // Higher is better
-        
-        scalingMetrics.push({
-          fromCount: prev.fileCount,
-          toCount: curr.fileCount,
-          scalingEfficiency,
-          throughputChange: curr.throughputMBps / prev.throughputMBps,
-        });
-      }
-
-      // Performance expectations
-      const avgScalingEfficiency = scalingMetrics.reduce((sum, m) => sum + m.scalingEfficiency, 0) / scalingMetrics.length;
-      const maxAvgTimePerFile = Math.max(...performanceResults.map(r => r.avgTimePerFile));
-      const minThroughput = Math.min(...performanceResults.map(r => r.throughputMBps));
-      
-      expect(avgScalingEfficiency).toBeGreaterThan(0.7); // Good scaling efficiency
-      expect(maxAvgTimePerFile).toBeLessThan(2000); // Consistent per-file performance
-      expect(minThroughput).toBeGreaterThan(0.5); // Minimum acceptable throughput
-
-      logger.info('performance_test', 'Multiple file upload scaling test completed', {
-        totalTime: Date.now() - testStart,
-        avgScalingEfficiency,
-        maxAvgTimePerFile,
-        minThroughput,
-        scalingMetrics,
-        performanceResults,
-      });
-    }, PERFORMANCE_CONFIG.TIMEOUT_EXTENDED);
-
-    it('should handle extra large file uploads with optimized performance', async () => {
-      const testStart = Date.now();
-      logger.info('performance_test', 'Starting extra large file upload test');
-
-      const userId = nanoid();
-      const mockWithAuth = mockAuthSuccess(userId);
-      vi.mocked(uploadPOST).mockImplementation(mockWithAuth);
-
-      // Test comprehensive range including near-limit sizes
-      const fileSizes = [
-        PERFORMANCE_CONFIG.SMALL_FILE_SIZE,   // 1MB
-        PERFORMANCE_CONFIG.MEDIUM_FILE_SIZE,  // 5MB
-        PERFORMANCE_CONFIG.LARGE_FILE_SIZE,   // 25MB
-        PERFORMANCE_CONFIG.XL_FILE_SIZE,      // 45MB (near limit)
-      ];
-
-      const sizePerformance = [];
-
-      for (const size of fileSizes) {
-        const sizeStart = Date.now();
-        logger.info('performance_metrics', `Testing ${size / (1024 * 1024)}MB file upload`);
-        
-        const testFile = performanceFactory.createLargeTestFile(
-          `xl-test-${size}.pdf`,
-          'application/pdf',
-          size,
-        );
-        const formData = createFormDataWithFiles([testFile]);
-
-        const { duration, result, memoryUsage } = await measurePerformance(
-          async () => {
-            const request = createMockFormDataRequest(
-              'http://localhost:3000/api/documents/upload',
-              formData,
-            );
-            return uploadPOST(request);
-          },
+    it(
+      'should handle single file upload with comprehensive performance metrics',
+      async () => {
+        const testStart = Date.now();
+        logger.info(
+          'performance_test',
+          'Starting enhanced single file upload test',
         );
 
-        const sizeMB = size / (1024 * 1024);
-        const throughputMBps = sizeMB / (duration / 1000);
-        const memoryEfficiency = size / memoryUsage.heapUsed; // Higher is better
-        const memoryOverheadRatio = memoryUsage.heapUsed / size;
-        
-        sizePerformance.push({
-          sizeMB,
-          duration,
-          throughputMBps,
-          memoryUsageMB: memoryUsage.heapUsed / (1024 * 1024),
-          memoryEfficiency,
-          memoryOverheadRatio,
-          status: result.status,
-        });
+        const userId = nanoid();
+        const mockWithAuth = mockAuthSuccess(userId);
+        vi.mocked(uploadPOST).mockImplementation(mockWithAuth);
 
-        // Enhanced performance assertions
-        const expectedMaxDuration = Math.max(5000, sizeMB * 1000); // 1 second per MB minimum
-        const expectedMaxMemory = Math.min(PERFORMANCE_CONFIG.MEMORY_LIMIT_MB * 1024 * 1024, size * 3); // Max 3x file size or limit
-        
-        expect(result.status).toBe(200);
-        expect(duration).toBeLessThan(expectedMaxDuration);
-        expect(memoryUsage.heapUsed).toBeLessThan(expectedMaxMemory);
-        expect(throughputMBps).toBeGreaterThan(0.5); // At least 0.5MB/s
-        expect(memoryOverheadRatio).toBeLessThan(5); // Memory overhead should be reasonable
+        // Test with various file sizes for comprehensive benchmarking
+        const fileSizes = [
+          PERFORMANCE_CONFIG.SMALL_FILE_SIZE,
+          PERFORMANCE_CONFIG.MEDIUM_FILE_SIZE,
+          PERFORMANCE_CONFIG.LARGE_FILE_SIZE,
+        ];
 
-        logger.info('performance_metrics', `${sizeMB}MB file completed`, {
-          duration,
-          throughputMBps,
-          memoryUsageMB: memoryUsage.heapUsed / (1024 * 1024),
-          memoryOverheadRatio,
-        });
-      }
+        const uploadResults = [];
 
-      // Analyze performance scaling with file size
-      const throughputs = sizePerformance.map(p => p.throughputMBps);
-      const avgThroughput = throughputs.reduce((sum, t) => sum + t, 0) / throughputs.length;
-      const throughputVariance = throughputs.reduce((sum, t) => sum + Math.pow(t - avgThroughput, 2), 0) / throughputs.length;
-      const throughputConsistency = 1 / (throughputVariance + 0.1); // Higher is better
-      
-      const largestFile = sizePerformance[sizePerformance.length - 1];
-      const smallestFile = sizePerformance[0];
-      const scalingFactor = (largestFile.duration / largestFile.sizeMB) / (smallestFile.duration / smallestFile.sizeMB);
-      
-      // Performance expectations
-      expect(avgThroughput).toBeGreaterThan(1); // Average throughput should be good
-      expect(throughputConsistency).toBeGreaterThan(2); // Reasonably consistent performance
-      expect(scalingFactor).toBeLessThan(2); // Scaling should not be worse than linear
-      expect(largestFile.duration).toBeLessThan(60000); // Even 45MB should complete in 1 minute
+        for (const size of fileSizes) {
+          const testFile = performanceFactory.createLargeTestFile(
+            `performance-test-${size}.pdf`,
+            'application/pdf',
+            size,
+          );
+          const formData = createFormDataWithFiles([testFile]);
 
-      logger.info('performance_test', 'Extra large file upload test completed', {
-        totalTime: Date.now() - testStart,
-        avgThroughputMBps: avgThroughput,
-        throughputVariance,
-        throughputConsistency,
-        scalingFactor,
-        sizePerformance,
-      });
-    }, PERFORMANCE_CONFIG.TIMEOUT_EXTENDED);
-  });
+          const { duration, result, memoryUsage } = await measurePerformance(
+            async () => {
+              const request = createMockFormDataRequest(
+                'http://localhost:3000/api/documents/upload',
+                formData,
+              );
+              return uploadPOST(request);
+            },
+          );
 
-  describe('Chat API Performance (Enhanced)', () => {
-    it('should respond to chat messages with exceptional speed and consistency', async () => {
-      const testStart = Date.now();
-      logger.info('performance_test', 'Starting enhanced chat response performance test');
+          const uploadThroughput = size / (duration / 1000); // bytes per second
+          const uploadThroughputMBps = uploadThroughput / (1024 * 1024);
 
-      const userId = nanoid();
-      const mockWithAuth = mockAuthSuccess(userId);
-      vi.mocked(chatPOST).mockImplementation(mockWithAuth);
-
-      // Test various message complexities
-      const messageComplexities = [
-        { type: 'simple', content: 'Hello', expectedMaxTime: 1500 },
-        { type: 'medium', content: 'Can you help me understand how vector embeddings work in detail?', expectedMaxTime: 2000 },
-        { type: 'complex', content: 'Analyze this large dataset and provide insights on performance optimization strategies for distributed systems handling real-time data processing', expectedMaxTime: 3000 },
-      ];
-      
-      const responseResults = [];
-
-      for (const complexity of messageComplexities) {
-        const chatId = nanoid();
-        const chatRequest = createChatRequest(chatId, complexity.content);
-        
-        // Test multiple iterations for consistency
-        const iterations = 5;
-        const iterationResults = [];
-        
-        for (let i = 0; i < iterations; i++) {
-          const { duration, result, memoryUsage } = await measurePerformance(async () => {
-            const request = createMockRequest('http://localhost:3000/api/chat', {
-              method: 'POST',
-              body: chatRequest,
-            });
-            return chatPOST(request);
-          });
-          
-          iterationResults.push({
-            iteration: i,
+          uploadResults.push({
+            fileSize: size,
+            fileSizeMB: size / (1024 * 1024),
             duration,
+            throughput: uploadThroughput,
+            throughputMBps: uploadThroughputMBps,
             memoryUsageMB: memoryUsage.heapUsed / (1024 * 1024),
             status: result.status,
           });
-          
+
+          // Enhanced performance assertions
+          const expectedDuration = Math.max(
+            1000,
+            (size / (5 * 1024 * 1024)) * 1000,
+          ); // 5MB/s minimum
+          expect(duration).toBeLessThan(expectedDuration);
           expect(result.status).toBe(200);
-          expect(duration).toBeLessThan(complexity.expectedMaxTime);
+          expect(memoryUsage.heapUsed).toBeLessThan(
+            PERFORMANCE_CONFIG.MEMORY_LIMIT_MB * 1024 * 1024,
+          );
+          expect(uploadThroughputMBps).toBeGreaterThan(1); // At least 1MB/s
+
+          logger.info(
+            'performance_metrics',
+            `File upload completed for size ${size}`,
+            {
+              fileSizeMB: size / (1024 * 1024),
+              duration,
+              throughputMBps: uploadThroughputMBps,
+              memoryUsageMB: memoryUsage.heapUsed / (1024 * 1024),
+            },
+          );
         }
-        
-        const avgDuration = iterationResults.reduce((sum, r) => sum + r.duration, 0) / iterations;
-        const maxDuration = Math.max(...iterationResults.map(r => r.duration));
-        const minDuration = Math.min(...iterationResults.map(r => r.duration));
-        const durationVariance = iterationResults.reduce((sum, r) => sum + Math.pow(r.duration - avgDuration, 2), 0) / iterations;
-        const consistencyScore = 1 / (durationVariance + 1); // Higher is better
-        
-        responseResults.push({
-          complexity: complexity.type,
-          messageLength: complexity.content.length,
-          avgDuration,
-          maxDuration,
-          minDuration,
-          durationVariance,
-          consistencyScore,
-          iterations,
-        });
-        
-        logger.info('performance_metrics', `Chat ${complexity.type} complexity completed`, {
-          avgDuration,
-          maxDuration,
-          consistencyScore,
-        });
-      }
 
-      // Overall performance analysis
-      const overallAvgDuration = responseResults.reduce((sum, r) => sum + r.avgDuration, 0) / responseResults.length;
-      const overallConsistency = responseResults.reduce((sum, r) => sum + r.consistencyScore, 0) / responseResults.length;
-      
-      expect(overallAvgDuration).toBeLessThan(PERFORMANCE_CONFIG.TARGET_RESPONSE_TIME);
-      expect(overallConsistency).toBeGreaterThan(0.5); // Reasonable consistency
-      expect(responseResults.every(r => r.maxDuration < r.messageLength * 10 + 1000)).toBe(true); // Scaling expectation
+        // Analyze scaling characteristics
+        const avgThroughput =
+          uploadResults.reduce((sum, r) => sum + r.throughputMBps, 0) /
+          uploadResults.length;
+        const throughputVariance =
+          uploadResults.reduce(
+            (sum, r) => sum + Math.pow(r.throughputMBps - avgThroughput, 2),
+            0,
+          ) / uploadResults.length;
 
-      logger.info('performance_test', 'Enhanced chat response performance test completed', {
-        totalTime: Date.now() - testStart,
-        overallAvgDuration,
-        overallConsistency,
-        responseResults,
-      });
-    }, PERFORMANCE_CONFIG.TIMEOUT_EXTENDED);
+        expect(avgThroughput).toBeGreaterThan(2); // Average throughput should be good
+        expect(throughputVariance).toBeLessThan(4); // Consistent performance across file sizes
 
-    it('should handle high-volume concurrent chat requests with excellent throughput', async () => {
-      const testStart = Date.now();
-      logger.info('performance_test', 'Starting high-volume concurrent chat test');
+        logger.info(
+          'performance_test',
+          'Enhanced single file upload test completed',
+          {
+            totalTime: Date.now() - testStart,
+            avgThroughputMBps: avgThroughput,
+            throughputVariance,
+            uploadResults,
+          },
+        );
+      },
+      PERFORMANCE_CONFIG.TIMEOUT_EXTENDED,
+    );
 
-      const userId = nanoid();
-      const mockWithAuth = mockAuthSuccess(userId);
-      vi.mocked(chatPOST).mockImplementation(mockWithAuth);
+    it(
+      'should handle multiple file uploads with excellent scaling',
+      async () => {
+        const testStart = Date.now();
+        logger.info(
+          'performance_test',
+          'Starting multiple file upload scaling test',
+        );
 
-      // Test progressive concurrency levels
-      const concurrencyLevels = [5, 10, 20, 30, PERFORMANCE_CONFIG.CONCURRENT_REQUESTS];
-      const concurrencyResults = [];
+        const userId = nanoid();
+        const mockWithAuth = mockAuthSuccess(userId);
+        vi.mocked(uploadPOST).mockImplementation(mockWithAuth);
 
-      for (const concurrentRequests of concurrencyLevels) {
-        const levelStart = Date.now();
-        logger.info('performance_metrics', `Testing ${concurrentRequests} concurrent chat requests`);
-        
-        // Create varied chat requests for realistic testing
-        const chatRequests = Array.from({ length: concurrentRequests }, (_, i) => {
-          const chatId = nanoid();
-          const messageVariations = [
-            'Quick question',
-            'Can you explain the concept of machine learning?',
-            'I need help with a complex data analysis problem involving multiple variables and statistical methods',
-            'What are the best practices for optimizing database performance?',
-          ];
-          const message = messageVariations[i % messageVariations.length];
-          return createChatRequest(chatId, message);
-        });
+        // Test with realistic file count variations
+        const fileCounts = [1, 3, 5, 10, 15, 25];
+        const performanceResults = [];
 
-        const { duration, result, memoryUsage } = await measurePerformance(async () => {
-          const requestPromises = chatRequests.map((chatRequest, index) => {
-            const request = createMockRequest('http://localhost:3000/api/chat', {
-              method: 'POST',
-              body: chatRequest,
-            });
-            
-            // Add slight staggering to simulate realistic user behavior
-            return new Promise(resolve => {
-              setTimeout(() => {
-                resolve(chatPOST(request));
-              }, Math.random() * 100);
-            });
+        for (const fileCount of fileCounts) {
+          const batchStart = Date.now();
+          logger.info(
+            'performance_metrics',
+            `Testing ${fileCount} file upload`,
+          );
+
+          // Create files with varied sizes for realistic testing
+          const files = Array.from({ length: fileCount }, (_, i) => {
+            const sizeVariation = 0.5 + Math.random(); // 0.5x to 1.5x base size
+            const size = Math.floor(
+              PERFORMANCE_CONFIG.SMALL_FILE_SIZE * sizeVariation,
+            );
+            return performanceFactory.createLargeTestFile(
+              `batch-test-${i}.pdf`,
+              'application/pdf',
+              size,
+            );
           });
 
-          return Promise.all(requestPromises);
-        });
+          const formData = createFormDataWithFiles(files);
+          const totalSize = files.reduce((sum, file) => sum + file.size, 0);
 
-        const successfulRequests = result.filter(r => r.status === 200).length;
-        const throughput = concurrentRequests / (duration / 1000); // requests per second
-        const avgResponseTime = duration / concurrentRequests;
-        const successRate = successfulRequests / concurrentRequests;
-        
-        concurrencyResults.push({
-          concurrentRequests,
-          duration,
-          throughput,
-          avgResponseTime,
-          successRate,
-          memoryUsageMB: memoryUsage.heapUsed / (1024 * 1024),
-          levelTime: Date.now() - levelStart,
-        });
+          const { duration, result, memoryUsage } = await measurePerformance(
+            async () => {
+              const request = createMockFormDataRequest(
+                'http://localhost:3000/api/documents/upload',
+                formData,
+              );
+              return uploadPOST(request);
+            },
+          );
 
-        // Performance assertions for each level
-        const expectedMaxDuration = concurrentRequests * 100 + 5000; // 100ms per request + 5s overhead
-        expect(duration).toBeLessThan(expectedMaxDuration);
-        expect(successRate).toBeGreaterThan(0.95); // 95% success rate minimum
-        expect(throughput).toBeGreaterThan(1); // At least 1 request/second
-        expect(avgResponseTime).toBeLessThan(PERFORMANCE_CONFIG.TARGET_RESPONSE_TIME * 2);
-        expect(memoryUsage.heapUsed).toBeLessThan(PERFORMANCE_CONFIG.MEMORY_LIMIT_MB * 1024 * 1024);
+          const throughput = totalSize / (duration / 1000); // bytes per second
+          const throughputMBps = throughput / (1024 * 1024);
+          const avgTimePerFile = duration / fileCount;
+          const memoryPerFile = memoryUsage.heapUsed / fileCount;
 
-        logger.info('performance_metrics', `Concurrency level ${concurrentRequests} completed`, {
-          duration,
-          throughput,
-          successRate,
-          avgResponseTime,
-        });
-      }
+          performanceResults.push({
+            fileCount,
+            totalSizeMB: totalSize / (1024 * 1024),
+            duration,
+            avgTimePerFile,
+            throughputMBps,
+            memoryUsageMB: memoryUsage.heapUsed / (1024 * 1024),
+            memoryPerFileMB: memoryPerFile / (1024 * 1024),
+            status: result.status,
+          });
 
-      // Analyze scaling characteristics
-      const maxThroughput = Math.max(...concurrencyResults.map(r => r.throughput));
-      const avgSuccessRate = concurrencyResults.reduce((sum, r) => sum + r.successRate, 0) / concurrencyResults.length;
-      const throughputDegradation = concurrencyResults.map((r, i) => i > 0 ? r.throughput / concurrencyResults[i-1].throughput : 1);
-      const avgThroughputRetention = throughputDegradation.slice(1).reduce((sum, t) => sum + t, 0) / (throughputDegradation.length - 1);
-      
-      expect(maxThroughput).toBeGreaterThan(10); // Should achieve good peak throughput
-      expect(avgSuccessRate).toBeGreaterThan(0.98); // High overall success rate
-      expect(avgThroughputRetention).toBeGreaterThan(0.7); // Reasonable throughput retention under load
+          // Performance assertions for each batch
+          const maxExpectedDuration = fileCount * 500 + 2000; // 500ms per file + 2s overhead
+          expect(duration).toBeLessThan(maxExpectedDuration);
+          expect(result.status).toBe(200);
+          expect(memoryUsage.heapUsed).toBeLessThan(
+            PERFORMANCE_CONFIG.MEMORY_LIMIT_MB * 1024 * 1024,
+          );
+          expect(avgTimePerFile).toBeLessThan(3000); // Max 3 seconds per file
+          expect(throughputMBps).toBeGreaterThan(0.5); // At least 0.5MB/s
 
-      logger.info('performance_test', 'High-volume concurrent chat test completed', {
-        totalTime: Date.now() - testStart,
-        maxThroughput,
-        avgSuccessRate,
-        avgThroughputRetention,
-        concurrencyResults,
-      });
-    }, PERFORMANCE_CONFIG.TIMEOUT_EXTENDED);
+          logger.info('performance_metrics', `Batch ${fileCount} completed`, {
+            duration,
+            throughputMBps,
+            avgTimePerFile,
+            memoryUsageMB: memoryUsage.heapUsed / (1024 * 1024),
+          });
+        }
+
+        // Advanced scaling analysis
+        const scalingMetrics = [];
+        for (let i = 1; i < performanceResults.length; i++) {
+          const prev = performanceResults[i - 1];
+          const curr = performanceResults[i];
+
+          const fileCountRatio = curr.fileCount / prev.fileCount;
+          const durationRatio = curr.duration / prev.duration;
+          const scalingEfficiency = fileCountRatio / durationRatio; // Higher is better
+
+          scalingMetrics.push({
+            fromCount: prev.fileCount,
+            toCount: curr.fileCount,
+            scalingEfficiency,
+            throughputChange: curr.throughputMBps / prev.throughputMBps,
+          });
+        }
+
+        // Performance expectations
+        const avgScalingEfficiency =
+          scalingMetrics.reduce((sum, m) => sum + m.scalingEfficiency, 0) /
+          scalingMetrics.length;
+        const maxAvgTimePerFile = Math.max(
+          ...performanceResults.map((r) => r.avgTimePerFile),
+        );
+        const minThroughput = Math.min(
+          ...performanceResults.map((r) => r.throughputMBps),
+        );
+
+        expect(avgScalingEfficiency).toBeGreaterThan(0.7); // Good scaling efficiency
+        expect(maxAvgTimePerFile).toBeLessThan(2000); // Consistent per-file performance
+        expect(minThroughput).toBeGreaterThan(0.5); // Minimum acceptable throughput
+
+        logger.info(
+          'performance_test',
+          'Multiple file upload scaling test completed',
+          {
+            totalTime: Date.now() - testStart,
+            avgScalingEfficiency,
+            maxAvgTimePerFile,
+            minThroughput,
+            scalingMetrics,
+            performanceResults,
+          },
+        );
+      },
+      PERFORMANCE_CONFIG.TIMEOUT_EXTENDED,
+    );
+
+    it(
+      'should handle extra large file uploads with optimized performance',
+      async () => {
+        const testStart = Date.now();
+        logger.info(
+          'performance_test',
+          'Starting extra large file upload test',
+        );
+
+        const userId = nanoid();
+        const mockWithAuth = mockAuthSuccess(userId);
+        vi.mocked(uploadPOST).mockImplementation(mockWithAuth);
+
+        // Test comprehensive range including near-limit sizes
+        const fileSizes = [
+          PERFORMANCE_CONFIG.SMALL_FILE_SIZE, // 1MB
+          PERFORMANCE_CONFIG.MEDIUM_FILE_SIZE, // 5MB
+          PERFORMANCE_CONFIG.LARGE_FILE_SIZE, // 25MB
+          PERFORMANCE_CONFIG.XL_FILE_SIZE, // 45MB (near limit)
+        ];
+
+        const sizePerformance = [];
+
+        for (const size of fileSizes) {
+          const sizeStart = Date.now();
+          logger.info(
+            'performance_metrics',
+            `Testing ${size / (1024 * 1024)}MB file upload`,
+          );
+
+          const testFile = performanceFactory.createLargeTestFile(
+            `xl-test-${size}.pdf`,
+            'application/pdf',
+            size,
+          );
+          const formData = createFormDataWithFiles([testFile]);
+
+          const { duration, result, memoryUsage } = await measurePerformance(
+            async () => {
+              const request = createMockFormDataRequest(
+                'http://localhost:3000/api/documents/upload',
+                formData,
+              );
+              return uploadPOST(request);
+            },
+          );
+
+          const sizeMB = size / (1024 * 1024);
+          const throughputMBps = sizeMB / (duration / 1000);
+          const memoryEfficiency = size / memoryUsage.heapUsed; // Higher is better
+          const memoryOverheadRatio = memoryUsage.heapUsed / size;
+
+          sizePerformance.push({
+            sizeMB,
+            duration,
+            throughputMBps,
+            memoryUsageMB: memoryUsage.heapUsed / (1024 * 1024),
+            memoryEfficiency,
+            memoryOverheadRatio,
+            status: result.status,
+          });
+
+          // Enhanced performance assertions
+          const expectedMaxDuration = Math.max(5000, sizeMB * 1000); // 1 second per MB minimum
+          const expectedMaxMemory = Math.min(
+            PERFORMANCE_CONFIG.MEMORY_LIMIT_MB * 1024 * 1024,
+            size * 3,
+          ); // Max 3x file size or limit
+
+          expect(result.status).toBe(200);
+          expect(duration).toBeLessThan(expectedMaxDuration);
+          expect(memoryUsage.heapUsed).toBeLessThan(expectedMaxMemory);
+          expect(throughputMBps).toBeGreaterThan(0.5); // At least 0.5MB/s
+          expect(memoryOverheadRatio).toBeLessThan(5); // Memory overhead should be reasonable
+
+          logger.info('performance_metrics', `${sizeMB}MB file completed`, {
+            duration,
+            throughputMBps,
+            memoryUsageMB: memoryUsage.heapUsed / (1024 * 1024),
+            memoryOverheadRatio,
+          });
+        }
+
+        // Analyze performance scaling with file size
+        const throughputs = sizePerformance.map((p) => p.throughputMBps);
+        const avgThroughput =
+          throughputs.reduce((sum, t) => sum + t, 0) / throughputs.length;
+        const throughputVariance =
+          throughputs.reduce(
+            (sum, t) => sum + Math.pow(t - avgThroughput, 2),
+            0,
+          ) / throughputs.length;
+        const throughputConsistency = 1 / (throughputVariance + 0.1); // Higher is better
+
+        const largestFile = sizePerformance[sizePerformance.length - 1];
+        const smallestFile = sizePerformance[0];
+        const scalingFactor =
+          largestFile.duration /
+          largestFile.sizeMB /
+          (smallestFile.duration / smallestFile.sizeMB);
+
+        // Performance expectations
+        expect(avgThroughput).toBeGreaterThan(1); // Average throughput should be good
+        expect(throughputConsistency).toBeGreaterThan(2); // Reasonably consistent performance
+        expect(scalingFactor).toBeLessThan(2); // Scaling should not be worse than linear
+        expect(largestFile.duration).toBeLessThan(60000); // Even 45MB should complete in 1 minute
+
+        logger.info(
+          'performance_test',
+          'Extra large file upload test completed',
+          {
+            totalTime: Date.now() - testStart,
+            avgThroughputMBps: avgThroughput,
+            throughputVariance,
+            throughputConsistency,
+            scalingFactor,
+            sizePerformance,
+          },
+        );
+      },
+      PERFORMANCE_CONFIG.TIMEOUT_EXTENDED,
+    );
+  });
+
+  describe('Chat API Performance (Enhanced)', () => {
+    it(
+      'should respond to chat messages with exceptional speed and consistency',
+      async () => {
+        const testStart = Date.now();
+        logger.info(
+          'performance_test',
+          'Starting enhanced chat response performance test',
+        );
+
+        const userId = nanoid();
+        const mockWithAuth = mockAuthSuccess(userId);
+        vi.mocked(chatPOST).mockImplementation(mockWithAuth);
+
+        // Test various message complexities
+        const messageComplexities = [
+          { type: 'simple', content: 'Hello', expectedMaxTime: 1500 },
+          {
+            type: 'medium',
+            content:
+              'Can you help me understand how vector embeddings work in detail?',
+            expectedMaxTime: 2000,
+          },
+          {
+            type: 'complex',
+            content:
+              'Analyze this large dataset and provide insights on performance optimization strategies for distributed systems handling real-time data processing',
+            expectedMaxTime: 3000,
+          },
+        ];
+
+        const responseResults = [];
+
+        for (const complexity of messageComplexities) {
+          const chatId = nanoid();
+          const chatRequest = createChatRequest(chatId, complexity.content);
+
+          // Test multiple iterations for consistency
+          const iterations = 5;
+          const iterationResults = [];
+
+          for (let i = 0; i < iterations; i++) {
+            const { duration, result, memoryUsage } = await measurePerformance(
+              async () => {
+                const request = createMockRequest(
+                  'http://localhost:3000/api/chat',
+                  {
+                    method: 'POST',
+                    body: chatRequest,
+                  },
+                );
+                return chatPOST(request);
+              },
+            );
+
+            iterationResults.push({
+              iteration: i,
+              duration,
+              memoryUsageMB: memoryUsage.heapUsed / (1024 * 1024),
+              status: result.status,
+            });
+
+            expect(result.status).toBe(200);
+            expect(duration).toBeLessThan(complexity.expectedMaxTime);
+          }
+
+          const avgDuration =
+            iterationResults.reduce((sum, r) => sum + r.duration, 0) /
+            iterations;
+          const maxDuration = Math.max(
+            ...iterationResults.map((r) => r.duration),
+          );
+          const minDuration = Math.min(
+            ...iterationResults.map((r) => r.duration),
+          );
+          const durationVariance =
+            iterationResults.reduce(
+              (sum, r) => sum + Math.pow(r.duration - avgDuration, 2),
+              0,
+            ) / iterations;
+          const consistencyScore = 1 / (durationVariance + 1); // Higher is better
+
+          responseResults.push({
+            complexity: complexity.type,
+            messageLength: complexity.content.length,
+            avgDuration,
+            maxDuration,
+            minDuration,
+            durationVariance,
+            consistencyScore,
+            iterations,
+          });
+
+          logger.info(
+            'performance_metrics',
+            `Chat ${complexity.type} complexity completed`,
+            {
+              avgDuration,
+              maxDuration,
+              consistencyScore,
+            },
+          );
+        }
+
+        // Overall performance analysis
+        const overallAvgDuration =
+          responseResults.reduce((sum, r) => sum + r.avgDuration, 0) /
+          responseResults.length;
+        const overallConsistency =
+          responseResults.reduce((sum, r) => sum + r.consistencyScore, 0) /
+          responseResults.length;
+
+        expect(overallAvgDuration).toBeLessThan(
+          PERFORMANCE_CONFIG.TARGET_RESPONSE_TIME,
+        );
+        expect(overallConsistency).toBeGreaterThan(0.5); // Reasonable consistency
+        expect(
+          responseResults.every(
+            (r) => r.maxDuration < r.messageLength * 10 + 1000,
+          ),
+        ).toBe(true); // Scaling expectation
+
+        logger.info(
+          'performance_test',
+          'Enhanced chat response performance test completed',
+          {
+            totalTime: Date.now() - testStart,
+            overallAvgDuration,
+            overallConsistency,
+            responseResults,
+          },
+        );
+      },
+      PERFORMANCE_CONFIG.TIMEOUT_EXTENDED,
+    );
+
+    it(
+      'should handle high-volume concurrent chat requests with excellent throughput',
+      async () => {
+        const testStart = Date.now();
+        logger.info(
+          'performance_test',
+          'Starting high-volume concurrent chat test',
+        );
+
+        const userId = nanoid();
+        const mockWithAuth = mockAuthSuccess(userId);
+        vi.mocked(chatPOST).mockImplementation(mockWithAuth);
+
+        // Test progressive concurrency levels
+        const concurrencyLevels = [
+          5,
+          10,
+          20,
+          30,
+          PERFORMANCE_CONFIG.CONCURRENT_REQUESTS,
+        ];
+        const concurrencyResults = [];
+
+        for (const concurrentRequests of concurrencyLevels) {
+          const levelStart = Date.now();
+          logger.info(
+            'performance_metrics',
+            `Testing ${concurrentRequests} concurrent chat requests`,
+          );
+
+          // Create varied chat requests for realistic testing
+          const chatRequests = Array.from(
+            { length: concurrentRequests },
+            (_, i) => {
+              const chatId = nanoid();
+              const messageVariations = [
+                'Quick question',
+                'Can you explain the concept of machine learning?',
+                'I need help with a complex data analysis problem involving multiple variables and statistical methods',
+                'What are the best practices for optimizing database performance?',
+              ];
+              const message = messageVariations[i % messageVariations.length];
+              return createChatRequest(chatId, message);
+            },
+          );
+
+          const { duration, result, memoryUsage } = await measurePerformance(
+            async () => {
+              const requestPromises = chatRequests.map((chatRequest, index) => {
+                const request = createMockRequest(
+                  'http://localhost:3000/api/chat',
+                  {
+                    method: 'POST',
+                    body: chatRequest,
+                  },
+                );
+
+                // Add slight staggering to simulate realistic user behavior
+                return new Promise((resolve) => {
+                  setTimeout(() => {
+                    resolve(chatPOST(request));
+                  }, Math.random() * 100);
+                });
+              });
+
+              return Promise.all(requestPromises);
+            },
+          );
+
+          const successfulRequests = result.filter(
+            (r) => r.status === 200,
+          ).length;
+          const throughput = concurrentRequests / (duration / 1000); // requests per second
+          const avgResponseTime = duration / concurrentRequests;
+          const successRate = successfulRequests / concurrentRequests;
+
+          concurrencyResults.push({
+            concurrentRequests,
+            duration,
+            throughput,
+            avgResponseTime,
+            successRate,
+            memoryUsageMB: memoryUsage.heapUsed / (1024 * 1024),
+            levelTime: Date.now() - levelStart,
+          });
+
+          // Performance assertions for each level
+          const expectedMaxDuration = concurrentRequests * 100 + 5000; // 100ms per request + 5s overhead
+          expect(duration).toBeLessThan(expectedMaxDuration);
+          expect(successRate).toBeGreaterThan(0.95); // 95% success rate minimum
+          expect(throughput).toBeGreaterThan(1); // At least 1 request/second
+          expect(avgResponseTime).toBeLessThan(
+            PERFORMANCE_CONFIG.TARGET_RESPONSE_TIME * 2,
+          );
+          expect(memoryUsage.heapUsed).toBeLessThan(
+            PERFORMANCE_CONFIG.MEMORY_LIMIT_MB * 1024 * 1024,
+          );
+
+          logger.info(
+            'performance_metrics',
+            `Concurrency level ${concurrentRequests} completed`,
+            {
+              duration,
+              throughput,
+              successRate,
+              avgResponseTime,
+            },
+          );
+        }
+
+        // Analyze scaling characteristics
+        const maxThroughput = Math.max(
+          ...concurrencyResults.map((r) => r.throughput),
+        );
+        const avgSuccessRate =
+          concurrencyResults.reduce((sum, r) => sum + r.successRate, 0) /
+          concurrencyResults.length;
+        const throughputDegradation = concurrencyResults.map((r, i) =>
+          i > 0 ? r.throughput / concurrencyResults[i - 1].throughput : 1,
+        );
+        const avgThroughputRetention =
+          throughputDegradation.slice(1).reduce((sum, t) => sum + t, 0) /
+          (throughputDegradation.length - 1);
+
+        expect(maxThroughput).toBeGreaterThan(10); // Should achieve good peak throughput
+        expect(avgSuccessRate).toBeGreaterThan(0.98); // High overall success rate
+        expect(avgThroughputRetention).toBeGreaterThan(0.7); // Reasonable throughput retention under load
+
+        logger.info(
+          'performance_test',
+          'High-volume concurrent chat test completed',
+          {
+            totalTime: Date.now() - testStart,
+            maxThroughput,
+            avgSuccessRate,
+            avgThroughputRetention,
+            concurrencyResults,
+          },
+        );
+      },
+      PERFORMANCE_CONFIG.TIMEOUT_EXTENDED,
+    );
 
     it('should maintain performance with message history', async () => {
       const userId = nanoid();

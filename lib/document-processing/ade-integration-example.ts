@@ -1,6 +1,6 @@
 /**
  * Example: ADE Integration Usage in Document Processing
- * 
+ *
  * This file demonstrates how to use the enhanced DocumentProcessor
  * with ADE metadata integration for creating intelligent document chunks.
  */
@@ -33,7 +33,9 @@ export async function processDocumentWithADEExample(documentId: string) {
 
     console.log(`Successfully processed document ${documentId}:`);
     console.log(`- Created ${result.chunks.length} chunks`);
-    console.log(`- ADE metadata available: ${result.chunks.some(c => c.elementType !== null)}`);
+    console.log(
+      `- ADE metadata available: ${result.chunks.some((c) => c.elementType !== null)}`,
+    );
 
     return result;
   } catch (error) {
@@ -61,7 +63,7 @@ export async function processDocumentTraditionalExample(documentId: string) {
     });
 
     // Generate embeddings
-    const chunkData = chunks.map(chunk => ({
+    const chunkData = chunks.map((chunk) => ({
       id: chunk.id,
       content: chunk.content,
     }));
@@ -95,22 +97,33 @@ export async function workWithADEChunksExample(documentId: string) {
     console.log(`- ${structure.headers.length} headers`);
 
     // Get chunks by element type
-    const paragraphs = await ADEChunkHelpers.getChunksByElementType(documentId, 'paragraph');
-    const tables = await ADEChunkHelpers.getChunksByElementType(documentId, 'table_text');
+    const paragraphs = await ADEChunkHelpers.getChunksByElementType(
+      documentId,
+      'paragraph',
+    );
+    const tables = await ADEChunkHelpers.getChunksByElementType(
+      documentId,
+      'table_text',
+    );
 
     console.log(`Content breakdown:`);
     console.log(`- ${paragraphs.length} paragraph chunks`);
     console.log(`- ${tables.length} table chunks`);
 
     // Generate enriched context for LLM prompts
-    const enrichedContext = await ADEChunkHelpers.generateEnrichedContext(documentId, {
-      includePageNumbers: true,
-      includeElementTypes: true,
-      includeStructuralContext: true,
-      maxChunks: 20,
-    });
+    const enrichedContext = await ADEChunkHelpers.generateEnrichedContext(
+      documentId,
+      {
+        includePageNumbers: true,
+        includeElementTypes: true,
+        includeStructuralContext: true,
+        maxChunks: 20,
+      },
+    );
 
-    console.log(`Generated enriched context (${enrichedContext.length} characters)`);
+    console.log(
+      `Generated enriched context (${enrichedContext.length} characters)`,
+    );
 
     return {
       chunks,
@@ -136,23 +149,25 @@ export async function searchDocumentRegionExample(
     minY?: number;
     maxX?: number;
     maxY?: number;
-  }
+  },
 ) {
   try {
     // Get chunks in a specific region of a page
     const chunks = await ADEChunkHelpers.getChunksInRegion(
       documentId,
       pageNumber,
-      searchRegion
+      searchRegion,
     );
 
-    console.log(`Found ${chunks.length} chunks in region on page ${pageNumber}`);
+    console.log(
+      `Found ${chunks.length} chunks in region on page ${pageNumber}`,
+    );
 
     // Example: Get chunks from the top half of page 1
     const topHalfChunks = await ADEChunkHelpers.getChunksInRegion(
       documentId,
       1,
-      { maxY: 400 } // Assuming page height is ~800 units
+      { maxY: 400 }, // Assuming page height is ~800 units
     );
 
     return {
@@ -175,7 +190,7 @@ export async function batchProcessDocumentsExample(documentIds: string[]) {
   for (const documentId of documentIds) {
     try {
       console.log(`Processing document ${documentId}...`);
-      
+
       const result = await processor.processDocumentComplete({
         documentId,
         db,
@@ -187,13 +202,13 @@ export async function batchProcessDocumentsExample(documentIds: string[]) {
         documentId,
         success: true,
         chunksCreated: result.chunks.length,
-        adeDataAvailable: result.chunks.some(c => c.elementType !== null),
+        adeDataAvailable: result.chunks.some((c) => c.elementType !== null),
       });
 
       console.log(`✓ Completed ${documentId}`);
     } catch (error) {
       console.error(`✗ Failed ${documentId}:`, error);
-      
+
       results.push({
         documentId,
         success: false,
@@ -214,7 +229,7 @@ export async function robustDocumentProcessingExample(documentId: string) {
   try {
     // Try ADE processing first
     console.log(`Attempting ADE processing for ${documentId}`);
-    
+
     const result = await processor.processDocumentComplete({
       documentId,
       db,
@@ -222,8 +237,8 @@ export async function robustDocumentProcessingExample(documentId: string) {
       generateEmbeddings: true,
     });
 
-    const adeSuccess = result.chunks.some(c => c.elementType !== null);
-    
+    const adeSuccess = result.chunks.some((c) => c.elementType !== null);
+
     if (adeSuccess) {
       console.log(`✓ ADE processing successful`);
       return { ...result, processingMethod: 'ADE' };
@@ -250,22 +265,22 @@ export async function robustDocumentProcessingExample(documentId: string) {
  */
 export async function enhancedDocumentSearchExample(
   documentId: string,
-  query: string
+  query: string,
 ) {
   try {
     // Get all chunks with their ADE metadata
     const chunks = await ADEChunkHelpers.getChunksOrdered(documentId);
 
     // Filter chunks by element type for more precise search
-    const searchableChunks = chunks.filter(chunk => {
+    const searchableChunks = chunks.filter((chunk) => {
       // Prioritize certain element types for search
       const priorityTypes = ['title', 'paragraph', 'table_text'];
       return !chunk.elementType || priorityTypes.includes(chunk.elementType);
     });
 
     // Simple text matching (in real implementation, use vector search)
-    const matchingChunks = searchableChunks.filter(chunk =>
-      chunk.content.toLowerCase().includes(query.toLowerCase())
+    const matchingChunks = searchableChunks.filter((chunk) =>
+      chunk.content.toLowerCase().includes(query.toLowerCase()),
     );
 
     // Sort by element type priority (titles first, then paragraphs, etc.)
@@ -273,9 +288,9 @@ export async function enhancedDocumentSearchExample(
       const typeOrder = ['title', 'paragraph', 'table_text', 'list_item'];
       const aIndex = a.elementType ? typeOrder.indexOf(a.elementType) : 999;
       const bIndex = b.elementType ? typeOrder.indexOf(b.elementType) : 999;
-      
+
       if (aIndex !== bIndex) return aIndex - bIndex;
-      
+
       // Secondary sort by page number
       return (a.pageNumber || 0) - (b.pageNumber || 0);
     });
@@ -285,7 +300,7 @@ export async function enhancedDocumentSearchExample(
       totalChunks: chunks.length,
       searchableChunks: searchableChunks.length,
       matches: sortedMatches,
-      hasAdeData: chunks.some(c => c.elementType !== null),
+      hasAdeData: chunks.some((c) => c.elementType !== null),
     };
   } catch (error) {
     console.error(`Enhanced search failed:`, error);

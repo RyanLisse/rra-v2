@@ -10,7 +10,8 @@ export async function GET(request: NextRequest) {
 
     if (existingSession?.user) {
       // If user already has a session (guest or regular), redirect to the requested URL
-      const redirectUrl = request.nextUrl.searchParams.get('redirectUrl') || '/';
+      const redirectUrl =
+        request.nextUrl.searchParams.get('redirectUrl') || '/';
       return NextResponse.redirect(redirectUrl);
     }
 
@@ -25,10 +26,10 @@ export async function GET(request: NextRequest) {
 
     // Get redirect URL from query params
     const redirectUrl = request.nextUrl.searchParams.get('redirectUrl') || '/';
-    
+
     // Create redirect response
     const redirectResponse = NextResponse.redirect(redirectUrl);
-    
+
     // Copy over the session cookies from the auth response
     const authCookies = response.headers.get('set-cookie');
     if (authCookies) {
@@ -40,7 +41,7 @@ export async function GET(request: NextRequest) {
     console.error('Guest auth error:', error);
     return NextResponse.json(
       { error: 'Failed to create guest session' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -2,10 +2,10 @@
 
 /**
  * Test Data Reset Script
- * 
+ *
  * This script resets test databases by cleaning all data and optionally
  * re-initializing with fresh seed data.
- * 
+ *
  * Usage:
  *   bun run scripts/test-data/reset-test-data.ts --env=unit
  *   bun run scripts/test-data/reset-test-data.ts --branch=test-branch-123 --reinitialize
@@ -59,7 +59,7 @@ function parseArguments(): ResetOptions {
     branch: values.branch,
     databaseUrl: values.database,
     reinitialize: values.reinitialize ?? false,
-    size: values.size as any || 'minimal',
+    size: (values.size as any) || 'minimal',
     allBranches: values['all-branches'] ?? false,
     force: values.force ?? false,
     verbose: values.verbose ?? false,
@@ -108,12 +108,15 @@ Examples:
 /**
  * Confirm dangerous operations
  */
-async function confirmOperation(message: string, force: boolean): Promise<boolean> {
+async function confirmOperation(
+  message: string,
+  force: boolean,
+): Promise<boolean> {
   if (force) return true;
 
   console.log(`⚠️  ${message}`);
   console.log('This operation cannot be undone.');
-  
+
   const response = prompt('Type "yes" to continue: ');
   return response?.toLowerCase() === 'yes';
 }
@@ -124,7 +127,7 @@ async function confirmOperation(message: string, force: boolean): Promise<boolea
 async function resetDatabase(
   databaseUrl: string,
   options: ResetOptions,
-  branchId?: string
+  branchId?: string,
 ): Promise<void> {
   console.log(`🧹 Resetting database: ${databaseUrl.split('@')[1] || 'local'}`);
 
@@ -148,7 +151,7 @@ async function resetDatabase(
     // Reinitialize if requested
     if (options.reinitialize) {
       console.log('  🌱 Reinitializing with fresh data...');
-      
+
       let reinitSeeder;
       switch (options.environment) {
         case 'e2e':
@@ -162,14 +165,19 @@ async function resetDatabase(
       }
 
       const result = await reinitSeeder.seed();
-      
+
       if (result.success) {
-        const totalRows = Object.values(result.rowsCreated).reduce((sum, count) => sum + count, 0);
-        console.log(`  ✓ Reinitialized with ${totalRows.toLocaleString()} rows`);
+        const totalRows = Object.values(result.rowsCreated).reduce(
+          (sum, count) => sum + count,
+          0,
+        );
+        console.log(
+          `  ✓ Reinitialized with ${totalRows.toLocaleString()} rows`,
+        );
       } else {
         console.error('  ❌ Reinitialization failed');
         if (result.errors) {
-          result.errors.forEach(error => {
+          result.errors.forEach((error) => {
             console.error(`    ${error.message}`);
           });
         }
@@ -177,7 +185,6 @@ async function resetDatabase(
 
       await reinitSeeder.close();
     }
-
   } finally {
     await seeder.close();
   }
@@ -188,12 +195,14 @@ async function resetDatabase(
  */
 async function resetAllBranches(options: ResetOptions): Promise<void> {
   if (!process.env.NEON_API_KEY || !process.env.NEON_PROJECT_ID) {
-    throw new Error('NEON_API_KEY and NEON_PROJECT_ID required for branch operations');
+    throw new Error(
+      'NEON_API_KEY and NEON_PROJECT_ID required for branch operations',
+    );
   }
 
   const confirmed = await confirmOperation(
     'This will reset ALL test branches in your Neon project!',
-    options.force
+    options.force,
   );
 
   if (!confirmed) {
@@ -202,11 +211,11 @@ async function resetAllBranches(options: ResetOptions): Promise<void> {
   }
 
   console.log('🔍 Finding test branches...');
-  
+
   const branchManager = getTestBranchManager();
   const branches = await branchManager.listBranches();
-  const testBranches = branches.filter(branch => 
-    branch.name.startsWith('test-') && !branch.primary
+  const testBranches = branches.filter(
+    (branch) => branch.name.startsWith('test-') && !branch.primary,
   );
 
   if (testBranches.length === 0) {
@@ -215,33 +224,36 @@ async function resetAllBranches(options: ResetOptions): Promise<void> {
   }
 
   console.log(`Found ${testBranches.length} test branches to reset:`);
-  testBranches.forEach(branch => {
+  testBranches.forEach((branch) => {
     console.log(`  - ${branch.name} (${branch.id})`);
   });
 
   for (const branch of testBranches) {
     try {
       console.log(`\n🌿 Resetting branch: ${branch.name}`);
-      
+
       // We can't directly reset a branch, so we'll delete and recreate it
       console.log('  🗑️  Deleting branch...');
       await branchManager.deleteTestBranch(branch.id);
-      
+
       console.log('  ✓ Branch deleted');
-      
+
       // If reinitialize is requested, create a new branch with the same name pattern
       if (options.reinitialize) {
         console.log('  🌱 Creating fresh branch...');
         const newBranch = await branchManager.createTestBranch(
           branch.name.replace('test-', ''),
-          { parentBranchId: branch.parent_id }
+          { parentBranchId: branch.parent_id },
         );
-        
+
         // Initialize the new branch
-        await resetDatabase(newBranch.connectionString, options, newBranch.branchId);
+        await resetDatabase(
+          newBranch.connectionString,
+          options,
+          newBranch.branchId,
+        );
         console.log(`  ✓ Fresh branch created: ${newBranch.branchName}`);
       }
-
     } catch (error) {
       console.error(`  ❌ Failed to reset branch ${branch.name}:`, error);
     }
@@ -251,14 +263,19 @@ async function resetAllBranches(options: ResetOptions): Promise<void> {
 /**
  * Reset specific branch
  */
-async function resetBranch(branchId: string, options: ResetOptions): Promise<void> {
+async function resetBranch(
+  branchId: string,
+  options: ResetOptions,
+): Promise<void> {
   if (!process.env.NEON_API_KEY || !process.env.NEON_PROJECT_ID) {
-    throw new Error('NEON_API_KEY and NEON_PROJECT_ID required for branch operations');
+    throw new Error(
+      'NEON_API_KEY and NEON_PROJECT_ID required for branch operations',
+    );
   }
 
   const confirmed = await confirmOperation(
     `This will reset branch: ${branchId}`,
-    options.force
+    options.force,
   );
 
   if (!confirmed) {
@@ -267,28 +284,31 @@ async function resetBranch(branchId: string, options: ResetOptions): Promise<voi
   }
 
   console.log(`🌿 Resetting branch: ${branchId}`);
-  
+
   const branchManager = getTestBranchManager();
-  
+
   try {
     // Get branch info to get connection string
     const branches = await branchManager.listBranches();
-    const branch = branches.find(b => b.id === branchId || b.name === branchId);
-    
+    const branch = branches.find(
+      (b) => b.id === branchId || b.name === branchId,
+    );
+
     if (!branch) {
       throw new Error(`Branch not found: ${branchId}`);
     }
 
     // Build connection string (this is simplified - in practice you'd need the full connection details)
     const connectionString = branchManager.getConnectionString(branch.name);
-    
+
     if (!connectionString) {
-      throw new Error(`Could not get connection string for branch: ${branchId}`);
+      throw new Error(
+        `Could not get connection string for branch: ${branchId}`,
+      );
     }
 
     await resetDatabase(connectionString, options, branch.id);
     console.log(`✓ Branch reset completed: ${branch.name}`);
-
   } catch (error) {
     console.error(`❌ Failed to reset branch:`, error);
     throw error;
@@ -299,17 +319,20 @@ async function resetBranch(branchId: string, options: ResetOptions): Promise<voi
  * Reset default database
  */
 async function resetDefaultDatabase(options: ResetOptions): Promise<void> {
-  const databaseUrl = options.databaseUrl || 
-    process.env.TEST_DATABASE_URL || 
+  const databaseUrl =
+    options.databaseUrl ||
+    process.env.TEST_DATABASE_URL ||
     process.env.DATABASE_URL;
 
   if (!databaseUrl) {
-    throw new Error('No database URL specified. Use --database or set TEST_DATABASE_URL/DATABASE_URL');
+    throw new Error(
+      'No database URL specified. Use --database or set TEST_DATABASE_URL/DATABASE_URL',
+    );
   }
 
   const confirmed = await confirmOperation(
     `This will reset database: ${databaseUrl.split('@')[1] || 'local'}`,
-    options.force
+    options.force,
   );
 
   if (!confirmed) {
@@ -325,7 +348,7 @@ async function resetDefaultDatabase(options: ResetOptions): Promise<void> {
  */
 async function main(): Promise<void> {
   const options = parseArguments();
-  
+
   if (options.verbose) {
     console.log('🔄 Starting test data reset...');
     console.log('Options:', JSON.stringify(options, null, 2));
@@ -341,14 +364,13 @@ async function main(): Promise<void> {
     }
 
     console.log('\n✅ Reset completed successfully!');
-
   } catch (error) {
     console.error('❌ Reset failed:', error);
-    
+
     if (options.verbose && error instanceof Error) {
       console.error('Stack trace:', error.stack);
     }
-    
+
     process.exit(1);
   }
 }

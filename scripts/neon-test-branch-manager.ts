@@ -2,10 +2,10 @@
 /**
  * Enhanced Neon Test Branch Manager - Main management script
  * Usage: bun run scripts/neon-test-branch-manager.ts <command> [options]
- * 
+ *
  * Commands:
  *   create    - Create test branches
- *   cleanup   - Cleanup old branches  
+ *   cleanup   - Cleanup old branches
  *   status    - Check branch status
  *   health    - Health check
  *   list      - List branches
@@ -13,7 +13,11 @@
  *   export    - Export monitoring data
  */
 
-import { EnhancedNeonApiClient, type BranchCreationOptions, type CleanupFilters } from '../lib/testing/neon-api-client';
+import {
+  EnhancedNeonApiClient,
+  type BranchCreationOptions,
+  type CleanupFilters,
+} from '../lib/testing/neon-api-client';
 import { config } from 'dotenv';
 import { resolve } from 'path';
 import { writeFile } from 'fs/promises';
@@ -43,7 +47,7 @@ const COMMANDS = {
   health: 'Health check',
   list: 'List branches',
   stats: 'Show statistics',
-  export: 'Export monitoring data'
+  export: 'Export monitoring data',
 } as const;
 
 function parseArgs(): CliArgs {
@@ -57,12 +61,12 @@ function parseArgs(): CliArgs {
     count: 1,
     format: 'table',
     help: false,
-    verbose: false
+    verbose: false,
   };
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    
+
     if (arg === '--help' || arg === '-h') {
       result.help = true;
     } else if (arg === '--dry-run') {
@@ -142,14 +146,20 @@ Environment Variables Required:
 `);
 }
 
-async function createBranches(client: EnhancedNeonApiClient, args: CliArgs): Promise<void> {
+async function createBranches(
+  client: EnhancedNeonApiClient,
+  args: CliArgs,
+): Promise<void> {
   if (!args.testSuite) {
-    throw new Error('Test suite name is required for create command. Use --suite=NAME');
+    throw new Error(
+      'Test suite name is required for create command. Use --suite=NAME',
+    );
   }
 
-  const environments = args.environment === 'all' 
-    ? ['unit', 'integration', 'e2e'] as const
-    : [args.environment!];
+  const environments =
+    args.environment === 'all'
+      ? (['unit', 'integration', 'e2e'] as const)
+      : [args.environment!];
 
   console.log('🌿 Creating test branches...');
   console.log(`   Suite: ${args.testSuite}`);
@@ -162,14 +172,14 @@ async function createBranches(client: EnhancedNeonApiClient, args: CliArgs): Pro
 
   for (const env of environments) {
     console.log(`📋 Creating branches for ${env} environment...`);
-    
+
     const branchPromises = Array.from({ length: args.count! }, async (_, i) => {
       const options: BranchCreationOptions = {
         testSuite: `${args.testSuite}-${env}`,
         purpose: `${env} testing`,
         tags: [env, 'automated', 'ci'],
         waitForReady: true,
-        timeoutMs: 120000
+        timeoutMs: 120000,
       };
 
       if (args.verbose) {
@@ -177,7 +187,7 @@ async function createBranches(client: EnhancedNeonApiClient, args: CliArgs): Pro
       }
 
       const result = await client.createTestBranch(options);
-      
+
       if (result.success && result.data) {
         console.log(`   ✅ Created: ${result.data.branchName}`);
         return result.data;
@@ -189,11 +199,15 @@ async function createBranches(client: EnhancedNeonApiClient, args: CliArgs): Pro
 
     if (args.parallel) {
       const envResults = await Promise.allSettled(branchPromises);
-      const successful = envResults.filter(r => r.status === 'fulfilled');
-      const failed = envResults.filter(r => r.status === 'rejected');
-      
-      console.log(`   ${env}: ${successful.length} created, ${failed.length} failed`);
-      results.push(...successful.map(r => (r as PromiseFulfilledResult<any>).value));
+      const successful = envResults.filter((r) => r.status === 'fulfilled');
+      const failed = envResults.filter((r) => r.status === 'rejected');
+
+      console.log(
+        `   ${env}: ${successful.length} created, ${failed.length} failed`,
+      );
+      results.push(
+        ...successful.map((r) => (r as PromiseFulfilledResult<any>).value),
+      );
     } else {
       for (const promise of branchPromises) {
         try {
@@ -209,7 +223,7 @@ async function createBranches(client: EnhancedNeonApiClient, args: CliArgs): Pro
   console.log('');
   console.log('🎉 Branch creation summary:');
   console.log(`   ✅ Total created: ${results.length}`);
-  
+
   if (args.format === 'json' || args.output) {
     const output = JSON.stringify(results, null, 2);
     if (args.output) {
@@ -221,7 +235,10 @@ async function createBranches(client: EnhancedNeonApiClient, args: CliArgs): Pro
   }
 }
 
-async function cleanupBranches(client: EnhancedNeonApiClient, args: CliArgs): Promise<void> {
+async function cleanupBranches(
+  client: EnhancedNeonApiClient,
+  args: CliArgs,
+): Promise<void> {
   console.log('🧹 Cleaning up old test branches...');
   console.log(`   Max age: ${args.maxAgeHours} hours`);
   console.log(`   Dry run: ${args.dryRun}`);
@@ -231,36 +248,36 @@ async function cleanupBranches(client: EnhancedNeonApiClient, args: CliArgs): Pr
     maxAgeHours: args.maxAgeHours,
     namePattern: /^test-/,
     preservePrimary: true,
-    dryRun: args.dryRun
+    dryRun: args.dryRun,
   };
 
   const result = await client.cleanupTestBranches(filters);
-  
+
   if (result.success && result.data) {
     const { deleted, failed, skipped } = result.data;
-    
+
     console.log('📊 Cleanup results:');
     console.log(`   ✅ Deleted: ${deleted.length} branches`);
     console.log(`   ❌ Failed: ${failed.length} branches`);
     console.log(`   ⏭️  Skipped: ${skipped.length} branches`);
-    
+
     if (args.verbose) {
       if (deleted.length > 0) {
         console.log('\n🗑️  Deleted branches:');
-        deleted.forEach(name => console.log(`   - ${name}`));
+        deleted.forEach((name) => console.log(`   - ${name}`));
       }
-      
+
       if (failed.length > 0) {
         console.log('\n❌ Failed to delete:');
-        failed.forEach(name => console.log(`   - ${name}`));
+        failed.forEach((name) => console.log(`   - ${name}`));
       }
-      
+
       if (skipped.length > 0) {
         console.log('\n⏭️  Skipped branches:');
-        skipped.forEach(name => console.log(`   - ${name}`));
+        skipped.forEach((name) => console.log(`   - ${name}`));
       }
     }
-    
+
     if (args.output) {
       await writeFile(args.output, JSON.stringify(result.data, null, 2));
       console.log(`   📄 Results saved to: ${args.output}`);
@@ -271,55 +288,81 @@ async function cleanupBranches(client: EnhancedNeonApiClient, args: CliArgs): Pr
   }
 }
 
-async function showStatus(client: EnhancedNeonApiClient, args: CliArgs): Promise<void> {
+async function showStatus(
+  client: EnhancedNeonApiClient,
+  args: CliArgs,
+): Promise<void> {
   console.log('📊 Branch Status Check...');
   console.log('');
 
   const branchesResult = await client.listBranches();
-  
+
   if (!branchesResult.success || !branchesResult.data) {
     console.error('❌ Failed to list branches:', branchesResult.error);
     process.exit(1);
   }
 
   const branches = branchesResult.data;
-  const testBranches = branches.filter(b => b.name.startsWith('test-'));
-  
+  const testBranches = branches.filter((b) => b.name.startsWith('test-'));
+
   // Status summary
-  const statusCounts = testBranches.reduce((acc, branch) => {
-    acc[branch.current_state] = (acc[branch.current_state] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const statusCounts = testBranches.reduce(
+    (acc, branch) => {
+      acc[branch.current_state] = (acc[branch.current_state] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   console.log('🔍 Status Summary:');
   console.log(`   Total branches: ${branches.length}`);
   console.log(`   Test branches: ${testBranches.length}`);
   Object.entries(statusCounts).forEach(([status, count]) => {
-    const emoji = status === 'ready' ? '✅' : status === 'creating' ? '⏳' : '❌';
+    const emoji =
+      status === 'ready' ? '✅' : status === 'creating' ? '⏳' : '❌';
     console.log(`   ${emoji} ${status}: ${count}`);
   });
 
   if (args.format === 'table' && testBranches.length > 0) {
     console.log('\n📋 Test Branches:');
-    console.log('   Name                                    | Status    | Age      | Size');
-    console.log('   ----------------------------------------|-----------|----------|----------');
-    
-    testBranches.forEach(branch => {
-      const age = Math.round((Date.now() - new Date(branch.created_at).getTime()) / (1000 * 60 * 60));
-      const size = branch.logical_size ? `${Math.round(branch.logical_size / 1024 / 1024)}MB` : 'Unknown';
-      const name = branch.name.length > 40 ? branch.name.slice(0, 37) + '...' : branch.name;
-      console.log(`   ${name.padEnd(40)}| ${branch.current_state.padEnd(9)}| ${age}h`.padEnd(9) + `| ${size}`);
+    console.log(
+      '   Name                                    | Status    | Age      | Size',
+    );
+    console.log(
+      '   ----------------------------------------|-----------|----------|----------',
+    );
+
+    testBranches.forEach((branch) => {
+      const age = Math.round(
+        (Date.now() - new Date(branch.created_at).getTime()) / (1000 * 60 * 60),
+      );
+      const size = branch.logical_size
+        ? `${Math.round(branch.logical_size / 1024 / 1024)}MB`
+        : 'Unknown';
+      const name =
+        branch.name.length > 40
+          ? branch.name.slice(0, 37) + '...'
+          : branch.name;
+      console.log(
+        `   ${name.padEnd(40)}| ${branch.current_state.padEnd(9)}| ${age}h`.padEnd(
+          9,
+        ) + `| ${size}`,
+      );
     });
   }
 
   if (args.format === 'json' || args.output) {
-    const output = JSON.stringify({
-      total_branches: branches.length,
-      test_branches: testBranches.length,
-      status_counts: statusCounts,
-      branches: args.format === 'json' ? testBranches : undefined
-    }, null, 2);
-    
+    const output = JSON.stringify(
+      {
+        total_branches: branches.length,
+        test_branches: testBranches.length,
+        status_counts: statusCounts,
+        branches: args.format === 'json' ? testBranches : undefined,
+      },
+      null,
+      2,
+    );
+
     if (args.output) {
       await writeFile(args.output, output);
       console.log(`\n📄 Status saved to: ${args.output}`);
@@ -330,7 +373,10 @@ async function showStatus(client: EnhancedNeonApiClient, args: CliArgs): Promise
   }
 }
 
-async function performHealthCheck(client: EnhancedNeonApiClient, args: CliArgs): Promise<void> {
+async function performHealthCheck(
+  client: EnhancedNeonApiClient,
+  args: CliArgs,
+): Promise<void> {
   console.log('🏥 Performing health check...');
   console.log('');
 
@@ -339,46 +385,55 @@ async function performHealthCheck(client: EnhancedNeonApiClient, args: CliArgs):
       name: 'Project Access',
       check: async () => {
         const result = await client.getProject();
-        return { success: result.success, message: result.success ? 'OK' : result.error };
-      }
+        return {
+          success: result.success,
+          message: result.success ? 'OK' : result.error,
+        };
+      },
     },
     {
       name: 'Branch Listing',
       check: async () => {
         const result = await client.listBranches();
-        return { 
-          success: result.success, 
-          message: result.success ? `Found ${result.data?.length || 0} branches` : result.error 
+        return {
+          success: result.success,
+          message: result.success
+            ? `Found ${result.data?.length || 0} branches`
+            : result.error,
         };
-      }
+      },
     },
     {
       name: 'Statistics',
       check: async () => {
         const result = await client.getBranchStatistics();
-        return { 
-          success: result.success, 
-          message: result.success ? 
-            `${result.data?.test_branches || 0} test branches, ${result.data?.active_branches || 0} active` : 
-            result.error 
+        return {
+          success: result.success,
+          message: result.success
+            ? `${result.data?.test_branches || 0} test branches, ${result.data?.active_branches || 0} active`
+            : result.error,
         };
-      }
+      },
     },
     {
       name: 'Recent Operations',
       check: async () => {
         const logs = client.getOperationLogs(10);
-        const recentErrors = logs.filter(log => !log.success && 
-          Date.now() - new Date(log.metadata.timestamp).getTime() < 60000 * 60 // Last hour
+        const recentErrors = logs.filter(
+          (log) =>
+            !log.success &&
+            Date.now() - new Date(log.metadata.timestamp).getTime() <
+              60000 * 60, // Last hour
         );
-        return { 
-          success: recentErrors.length === 0, 
-          message: recentErrors.length === 0 ? 
-            `${logs.length} recent operations, no errors` : 
-            `${recentErrors.length} errors in last hour`
+        return {
+          success: recentErrors.length === 0,
+          message:
+            recentErrors.length === 0
+              ? `${logs.length} recent operations, no errors`
+              : `${recentErrors.length} errors in last hour`,
         };
-      }
-    }
+      },
+    },
   ];
 
   const results = [];
@@ -386,7 +441,7 @@ async function performHealthCheck(client: EnhancedNeonApiClient, args: CliArgs):
     if (args.verbose) {
       console.log(`⏳ Checking ${name}...`);
     }
-    
+
     try {
       const result = await check();
       const emoji = result.success ? '✅' : '❌';
@@ -398,33 +453,43 @@ async function performHealthCheck(client: EnhancedNeonApiClient, args: CliArgs):
     }
   }
 
-  const allHealthy = results.every(r => r.success);
+  const allHealthy = results.every((r) => r.success);
   console.log('');
   console.log(`🏥 Health Check ${allHealthy ? 'PASSED' : 'FAILED'}`);
-  
+
   if (!allHealthy) {
     console.log('❌ Issues detected. Check the failed items above.');
     process.exit(1);
   }
 
   if (args.output) {
-    await writeFile(args.output, JSON.stringify({ 
-      timestamp: new Date().toISOString(),
-      healthy: allHealthy,
-      checks: results
-    }, null, 2));
+    await writeFile(
+      args.output,
+      JSON.stringify(
+        {
+          timestamp: new Date().toISOString(),
+          healthy: allHealthy,
+          checks: results,
+        },
+        null,
+        2,
+      ),
+    );
     console.log(`📄 Health check saved to: ${args.output}`);
   }
 }
 
-async function showStatistics(client: EnhancedNeonApiClient, args: CliArgs): Promise<void> {
+async function showStatistics(
+  client: EnhancedNeonApiClient,
+  args: CliArgs,
+): Promise<void> {
   console.log('📊 Gathering statistics...');
   console.log('');
 
   const [statsResult, metricsData, errorSummary] = await Promise.all([
     client.getBranchStatistics(),
     client.getPerformanceMetrics(),
-    client.getErrorSummary()
+    client.getErrorSummary(),
   ]);
 
   if (!statsResult.success || !statsResult.data) {
@@ -433,13 +498,15 @@ async function showStatistics(client: EnhancedNeonApiClient, args: CliArgs): Pro
   }
 
   const stats = statsResult.data;
-  
+
   console.log('📈 Branch Statistics:');
   console.log(`   Total branches: ${stats.total_branches}`);
   console.log(`   Test branches: ${stats.test_branches}`);
   console.log(`   Active branches: ${stats.active_branches}`);
-  console.log(`   Total size: ${Math.round(stats.total_size_bytes / 1024 / 1024)}MB`);
-  
+  console.log(
+    `   Total size: ${Math.round(stats.total_size_bytes / 1024 / 1024)}MB`,
+  );
+
   if (stats.oldest_test_branch) {
     console.log(`   Oldest test branch: ${stats.oldest_test_branch}`);
   }
@@ -449,15 +516,19 @@ async function showStatistics(client: EnhancedNeonApiClient, args: CliArgs): Pro
 
   if (metricsData.length > 0) {
     console.log('\n⚡ Performance Metrics:');
-    const avgDuration = metricsData.reduce((sum, m) => sum + m.duration, 0) / metricsData.length;
+    const avgDuration =
+      metricsData.reduce((sum, m) => sum + m.duration, 0) / metricsData.length;
     console.log(`   Average operation time: ${Math.round(avgDuration)}ms`);
     console.log(`   Total operations: ${metricsData.length}`);
-    
-    const operationCounts = metricsData.reduce((acc, m) => {
-      acc[m.operation] = (acc[m.operation] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-    
+
+    const operationCounts = metricsData.reduce(
+      (acc, m) => {
+        acc[m.operation] = (acc[m.operation] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+
     Object.entries(operationCounts).forEach(([op, count]) => {
       console.log(`   ${op}: ${count}`);
     });
@@ -467,23 +538,27 @@ async function showStatistics(client: EnhancedNeonApiClient, args: CliArgs): Pro
     console.log('\n❌ Error Summary:');
     console.log(`   Total errors: ${errorSummary.totalErrors}`);
     console.log(`   Recent errors: ${errorSummary.recentErrors}`);
-    
+
     if (errorSummary.topErrors.length > 0) {
       console.log('   Top errors:');
-      errorSummary.topErrors.forEach(error => {
+      errorSummary.topErrors.forEach((error) => {
         console.log(`     - ${error.message} (${error.count}x)`);
       });
     }
   }
 
   if (args.output || args.format === 'json') {
-    const output = JSON.stringify({
-      timestamp: new Date().toISOString(),
-      branch_statistics: stats,
-      performance_metrics: metricsData,
-      error_summary: errorSummary
-    }, null, 2);
-    
+    const output = JSON.stringify(
+      {
+        timestamp: new Date().toISOString(),
+        branch_statistics: stats,
+        performance_metrics: metricsData,
+        error_summary: errorSummary,
+      },
+      null,
+      2,
+    );
+
     if (args.output) {
       await writeFile(args.output, output);
       console.log(`\n📄 Statistics saved to: ${args.output}`);
@@ -494,17 +569,24 @@ async function showStatistics(client: EnhancedNeonApiClient, args: CliArgs): Pro
   }
 }
 
-async function exportMonitoringData(client: EnhancedNeonApiClient, args: CliArgs): Promise<void> {
+async function exportMonitoringData(
+  client: EnhancedNeonApiClient,
+  args: CliArgs,
+): Promise<void> {
   console.log('📤 Exporting monitoring data...');
-  
+
   const data = client.exportMonitoringData();
   const output = JSON.stringify(data, null, 2);
-  
-  const filename = args.output || `neon-monitoring-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
-  
+
+  const filename =
+    args.output ||
+    `neon-monitoring-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+
   await writeFile(filename, output);
   console.log(`✅ Monitoring data exported to: ${filename}`);
-  console.log(`📊 Exported ${data.operationLogs.length} operations, ${data.activeBranches.length} active branches`);
+  console.log(
+    `📊 Exported ${data.operationLogs.length} operations, ${data.activeBranches.length} active branches`,
+  );
 }
 
 async function main() {
@@ -533,18 +615,18 @@ async function main() {
   const client = new EnhancedNeonApiClient({
     rateLimitConfig: {
       maxRequestsPerMinute: 100,
-      burstLimit: 15
+      burstLimit: 15,
     },
     retryConfig: {
       maxRetries: 3,
       baseDelayMs: 1000,
-      maxDelayMs: 10000
+      maxDelayMs: 10000,
     },
     cleanupConfig: {
       maxBranchAgeHours: args.maxAgeHours || 24,
       autoCleanupEnabled: true,
-      preserveTaggedBranches: true
-    }
+      preserveTaggedBranches: true,
+    },
   });
 
   try {
@@ -583,7 +665,7 @@ async function main() {
   }
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error('❌ Unexpected error:', error);
   process.exit(1);
 });

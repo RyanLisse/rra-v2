@@ -19,7 +19,9 @@ describe('Text Extraction Workflow Units', () => {
 
   beforeEach(async () => {
     // Setup test database connection
-    const databaseUrl = process.env.POSTGRES_URL || 'postgresql://test:test@localhost:5432/test_db';
+    const databaseUrl =
+      process.env.POSTGRES_URL ||
+      'postgresql://test:test@localhost:5432/test_db';
     connection = postgres(databaseUrl, { max: 1 });
     testDb = drizzle(connection, { schema });
 
@@ -31,22 +33,28 @@ describe('Text Extraction Workflow Units', () => {
     await testDb.delete(schema.user);
 
     // Create test user
-    const [user] = await testDb.insert(schema.user).values({
-      email: 'test@example.com',
-      name: 'Test User',
-    }).returning();
+    const [user] = await testDb
+      .insert(schema.user)
+      .values({
+        email: 'test@example.com',
+        name: 'Test User',
+      })
+      .returning();
     userId = user.id;
 
     // Create test document
-    const [doc] = await testDb.insert(schema.ragDocument).values({
-      userId,
-      title: 'Test Document.pdf',
-      fileType: 'pdf',
-      fileSize: 1024,
-      fileName: 'test-document.pdf',
-      filePath: '/uploads/test-document.pdf',
-      status: 'uploaded',
-    }).returning();
+    const [doc] = await testDb
+      .insert(schema.ragDocument)
+      .values({
+        userId,
+        title: 'Test Document.pdf',
+        fileType: 'pdf',
+        fileSize: 1024,
+        fileName: 'test-document.pdf',
+        filePath: '/uploads/test-document.pdf',
+        status: 'uploaded',
+      })
+      .returning();
     documentId = doc.id;
   });
 
@@ -60,14 +68,17 @@ describe('Text Extraction Workflow Units', () => {
     it('should create document content record', async () => {
       // Arrange
       const textContent = 'This is extracted text from the PDF';
-      
+
       // Act - Insert document content
-      const [content] = await testDb.insert(schema.documentContent).values({
-        documentId,
-        content: textContent,
-        contentType: 'text',
-        extractedAt: new Date(),
-      }).returning();
+      const [content] = await testDb
+        .insert(schema.documentContent)
+        .values({
+          documentId,
+          content: textContent,
+          contentType: 'text',
+          extractedAt: new Date(),
+        })
+        .returning();
 
       // Assert
       expect(content).toBeTruthy();
@@ -87,7 +98,7 @@ describe('Text Extraction Workflow Units', () => {
             textLength: 100,
             extractedAt: new Date().toISOString(),
             extractionDuration: 1500,
-          }
+          },
         })
         .where(eq(schema.ragDocument.id, documentId))
         .returning();
@@ -111,7 +122,7 @@ describe('Text Extraction Workflow Units', () => {
           metadata: {
             error: 'PDF parsing failed',
             failedAt: new Date().toISOString(),
-          }
+          },
         })
         .where(eq(schema.ragDocument.id, documentId))
         .returning();
@@ -134,22 +145,25 @@ describe('Text Extraction Workflow Units', () => {
       });
 
       // Act & Assert - Try to insert duplicate (should not throw due to ON CONFLICT handling)
-      const [secondContent] = await testDb.insert(schema.documentContent).values({
-        documentId,
-        content: 'Second content',
-        contentType: 'text',
-        extractedAt: new Date(),
-      }).returning();
+      const [secondContent] = await testDb
+        .insert(schema.documentContent)
+        .values({
+          documentId,
+          content: 'Second content',
+          contentType: 'text',
+          extractedAt: new Date(),
+        })
+        .returning();
 
       // Verify we can have the second content (multiple content records allowed)
       expect(secondContent).toBeTruthy();
-      
+
       // Verify both records exist
       const allContent = await testDb
         .select()
         .from(schema.documentContent)
         .where(eq(schema.documentContent.documentId, documentId));
-      
+
       expect(allContent).toHaveLength(2);
     });
   });
@@ -189,7 +203,7 @@ describe('Text Extraction Workflow Units', () => {
     it('should handle transaction rollback scenario', async () => {
       // This test demonstrates how database transactions should work
       // in the actual implementation to maintain data consistency
-      
+
       try {
         await testDb.transaction(async (tx) => {
           // Update document status
@@ -239,7 +253,7 @@ describe('Text Extraction Workflow Units', () => {
           documentId,
           userId,
           filePath: '/uploads/test-document.pdf',
-        }
+        },
       };
 
       const extractionEvent = {
@@ -249,7 +263,7 @@ describe('Text Extraction Workflow Units', () => {
           userId,
           textLength: 500,
           extractedAt: new Date(),
-        }
+        },
       };
 
       // Assert event structures are valid
@@ -276,13 +290,13 @@ describe('Text Extraction Workflow Units', () => {
       ];
 
       // Validate good paths
-      validPaths.forEach(path => {
+      validPaths.forEach((path) => {
         expect(path).toMatch(/^\/uploads\//);
         expect(path).not.toContain('..');
       });
 
       // Validate bad paths are caught
-      invalidPaths.forEach(path => {
+      invalidPaths.forEach((path) => {
         const isValid = path.startsWith('/uploads/') && !path.includes('..');
         expect(isValid).toBe(false);
       });

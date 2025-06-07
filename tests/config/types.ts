@@ -10,44 +10,44 @@ export interface TestEnvironmentConfig {
   nodeEnv: 'test' | 'development' | 'production';
   isCI: boolean;
   isNeonEnabled: boolean;
-  
+
   // Database configuration
   postgresUrl: string;
   postgresPooledUrl?: string;
-  
+
   // Authentication
   betterAuthSecret: string;
   betterAuthUrl: string;
-  
+
   // Neon-specific configuration
   neonApiKey?: string;
   neonProjectId?: string;
   neonDatabaseName?: string;
   neonRoleName?: string;
-  
+
   // Test behavior
   testIsolationMode: 'branch' | 'savepoint' | 'none';
   testBranchReuse: boolean;
   autoCleanupTestData: boolean;
-  
+
   // Timeouts
   vitestTimeout: number;
   vitestHookTimeout: number;
   vitestTeardownTimeout: number;
   playwrightTimeout: number;
   playwrightExpectTimeout: number;
-  
+
   // Performance and monitoring
   enableTestMetrics: boolean;
   enableBranchMetrics: boolean;
   enableConsoleCapture: boolean;
   enableRequestLogging: boolean;
   testMetricsOutputDir: string;
-  
+
   // Logging
   verboseLogging: boolean;
   testLogLevel: 'debug' | 'info' | 'warn' | 'error';
-  
+
   // Cleanup
   forceCleanupOnExit: boolean;
   preserveTestArtifactsOnFailure: boolean;
@@ -64,7 +64,7 @@ export interface NeonTestConfig {
   roleName: string;
   usePooling: boolean;
   dbPassword?: string;
-  
+
   // Enhanced API configuration
   apiBaseUrl: string;
   rateLimitPerMinute: number;
@@ -72,7 +72,7 @@ export interface NeonTestConfig {
   maxRetries: number;
   baseDelayMs: number;
   maxDelayMs: number;
-  
+
   // Branch management
   branchTimeout: number;
   maxConcurrentBranches: number;
@@ -80,12 +80,12 @@ export interface NeonTestConfig {
   maxBranchAgeHours: number;
   autoCleanupEnabled: boolean;
   preserveTaggedBranches: boolean;
-  
+
   // Branch naming and tagging
   branchNamePrefix: string;
   defaultBranchTags: string[];
   preserveTags: string[];
-  
+
   // Performance and monitoring
   enablePerformanceMetrics: boolean;
   enableOperationLogging: boolean;
@@ -99,17 +99,17 @@ export interface TestSuiteConfig {
   // Basic info
   name: string;
   type: 'unit' | 'integration' | 'e2e' | 'performance';
-  
+
   // Timeouts
   testTimeout?: number;
   hookTimeout?: number;
   teardownTimeout?: number;
-  
+
   // Concurrency
   maxConcurrency?: number;
   sequential?: boolean;
   isolate?: boolean;
-  
+
   // Neon configuration
   neonConfig?: {
     useEnhancedClient?: boolean;
@@ -123,7 +123,7 @@ export interface TestSuiteConfig {
     enableMetrics?: boolean;
     enableIsolation?: boolean;
   };
-  
+
   // Reporting
   enableMetrics?: boolean;
   reportingOptions?: {
@@ -142,16 +142,16 @@ export interface TestBranchState {
   isActive: boolean;
   createdAt?: Date;
   lastUsedAt?: Date;
-  
+
   // Usage statistics
   testCount: number;
   failureCount: number;
-  
+
   // Metadata
   testSuiteName: string;
   testType: string;
   tags: string[];
-  
+
   // Performance metrics
   creationTime?: number;
   totalUsageTime?: number;
@@ -167,14 +167,14 @@ export interface TestMetrics {
     failedTests: number;
     skippedTests: number;
     duration: number;
-    
+
     // Neon-specific metrics
     branchOperations?: number;
     totalBranchCreationTime?: number;
     totalBranchDeletionTime?: number;
     branchFailures?: number;
   };
-  
+
   // Performance metrics
   performanceMetrics: {
     memoryUsage: NodeJS.MemoryUsage;
@@ -185,14 +185,14 @@ export interface TestMetrics {
       avgResponseTime: number;
     };
   };
-  
+
   // Error tracking
   errorSummary: {
     totalErrors: number;
     errorsByType: Record<string, number>;
     criticalErrors: string[];
   };
-  
+
   // Neon-specific metrics
   neonMetrics?: {
     activeBranches: number;
@@ -220,13 +220,15 @@ export interface TestSetupHooks {
   afterAll?: () => Promise<void> | void;
   beforeEach?: () => Promise<void> | void;
   afterEach?: () => Promise<void> | void;
-  
+
   // Neon-specific hooks
   beforeBranchCreation?: (branchName: string) => Promise<void> | void;
-  afterBranchCreation?: (branchInfo: EnhancedTestBranchInfo) => Promise<void> | void;
+  afterBranchCreation?: (
+    branchInfo: EnhancedTestBranchInfo,
+  ) => Promise<void> | void;
   beforeBranchDeletion?: (branchName: string) => Promise<void> | void;
   afterBranchDeletion?: (branchName: string) => Promise<void> | void;
-  
+
   // Error handling hooks
   onTestFailure?: (error: Error, testName: string) => Promise<void> | void;
   onBranchFailure?: (error: Error, operation: string) => Promise<void> | void;
@@ -237,18 +239,18 @@ export interface TestReporterConfig {
   // Basic reporting
   format: ('console' | 'json' | 'html' | 'junit' | 'custom')[];
   outputDirectory: string;
-  
+
   // Content options
   includeMetrics: boolean;
   includeConsoleLog: boolean;
   includeScreenshots: boolean;
   includeNetworkLog: boolean;
   includeBranchInfo: boolean;
-  
+
   // Filtering
   reportFailuresOnly: boolean;
   minimumSeverity?: 'info' | 'warn' | 'error';
-  
+
   // Custom reporting
   customReporters?: {
     name: string;
@@ -265,12 +267,12 @@ export interface TestDataConfig {
     autoLoad: boolean;
     formats: ('json' | 'yaml' | 'csv' | 'sql')[];
   };
-  
+
   // Data cleanup
   autoCleanup: boolean;
   cleanupStrategy: 'truncate' | 'delete' | 'recreate';
   preserveData: boolean;
-  
+
   // Seeding
   seedData: boolean;
   seedScript?: string;
@@ -285,7 +287,7 @@ export interface ExternalIntegrationConfig {
     reportingWebhook?: string;
     failureNotifications?: boolean;
   };
-  
+
   // Monitoring integration
   monitoring: {
     enabled: boolean;
@@ -293,7 +295,7 @@ export interface ExternalIntegrationConfig {
     endpoint?: string;
     apiKey?: string;
   };
-  
+
   // Error tracking
   errorTracking: {
     enabled: boolean;
@@ -317,7 +319,10 @@ export interface CompleteTestConfig {
 export interface ConfigBuilder {
   fromEnvironment(): CompleteTestConfig;
   validate(config: CompleteTestConfig): ConfigValidationResult;
-  merge(base: CompleteTestConfig, override: Partial<CompleteTestConfig>): CompleteTestConfig;
+  merge(
+    base: CompleteTestConfig,
+    override: Partial<CompleteTestConfig>,
+  ): CompleteTestConfig;
   export(config: CompleteTestConfig, format: 'json' | 'yaml'): string;
 }
 
@@ -328,18 +333,18 @@ export interface TestExecutionContext {
   testFile: string;
   testSuite: string;
   testType: 'unit' | 'integration' | 'e2e' | 'performance';
-  
+
   // Execution state
   startTime: Date;
   endTime?: Date;
   duration?: number;
   status: 'pending' | 'running' | 'passed' | 'failed' | 'skipped';
-  
+
   // Resources
   branchInfo?: EnhancedTestBranchInfo;
   databaseUrl?: string;
   tempFiles?: string[];
-  
+
   // Metrics
   metrics?: TestMetrics;
   logs?: Array<{
@@ -348,15 +353,13 @@ export interface TestExecutionContext {
     timestamp: Date;
     metadata?: Record<string, any>;
   }>;
-  
+
   // Cleanup functions
   cleanup?: Array<() => Promise<void>>;
 }
 
 // Export all types
-export type {
-  EnhancedTestBranchInfo,
-};
+export type { EnhancedTestBranchInfo };
 
 // Utility type for environment variable mapping
 export type EnvironmentVariableMap = {
@@ -370,13 +373,27 @@ export type EnvironmentVariableMap = {
 
 // Type guards
 export function isNeonTestConfig(config: any): config is NeonTestConfig {
-  return config && typeof config.apiKey === 'string' && typeof config.projectId === 'string';
+  return (
+    config &&
+    typeof config.apiKey === 'string' &&
+    typeof config.projectId === 'string'
+  );
 }
 
 export function isTestBranchState(state: any): state is TestBranchState {
-  return state && typeof state.testSuiteName === 'string' && typeof state.isActive === 'boolean';
+  return (
+    state &&
+    typeof state.testSuiteName === 'string' &&
+    typeof state.isActive === 'boolean'
+  );
 }
 
-export function isTestExecutionContext(context: any): context is TestExecutionContext {
-  return context && typeof context.testName === 'string' && typeof context.testFile === 'string';
+export function isTestExecutionContext(
+  context: any,
+): context is TestExecutionContext {
+  return (
+    context &&
+    typeof context.testName === 'string' &&
+    typeof context.testFile === 'string'
+  );
 }

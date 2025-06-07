@@ -8,7 +8,7 @@ vi.mock('fs', () => ({
     mkdir: vi.fn(),
     access: vi.fn(),
     stat: vi.fn(),
-  }
+  },
 }));
 
 vi.mock('@/lib/inngest/client', () => ({
@@ -16,8 +16,8 @@ vi.mock('@/lib/inngest/client', () => ({
     send: vi.fn(),
     step: {
       run: vi.fn(),
-    }
-  }
+    },
+  },
 }));
 
 // Import after mocks
@@ -42,7 +42,9 @@ describe('Document Workflow Integration', () => {
 
   beforeEach(async () => {
     // Setup test database connection
-    const databaseUrl = process.env.POSTGRES_URL || 'postgresql://test:test@localhost:5432/test_db';
+    const databaseUrl =
+      process.env.POSTGRES_URL ||
+      'postgresql://test:test@localhost:5432/test_db';
     connection = postgres(databaseUrl, { max: 1 });
     testDb = drizzle(connection, { schema });
 
@@ -54,10 +56,13 @@ describe('Document Workflow Integration', () => {
     await testDb.delete(schema.user);
 
     // Create test user
-    const [user] = await testDb.insert(schema.user).values({
-      email: 'integration-test@example.com',
-      name: 'Integration Test User',
-    }).returning();
+    const [user] = await testDb
+      .insert(schema.user)
+      .values({
+        email: 'integration-test@example.com',
+        name: 'Integration Test User',
+      })
+      .returning();
     userId = user.id;
 
     testFilePath = '/tmp/test-upload.pdf';
@@ -74,21 +79,22 @@ describe('Document Workflow Integration', () => {
     it('should process document from upload to text extraction', async () => {
       // Arrange - Mock file operations
       const mockFileBuffer = Buffer.from('mock pdf content');
-      const extractedText = 'This is extracted text from the integration test PDF';
-      
+      const extractedText =
+        'This is extracted text from the integration test PDF';
+
       vi.mocked(fs.readFile).mockResolvedValue(mockFileBuffer);
       vi.mocked(fs.writeFile).mockResolvedValue(undefined);
       vi.mocked(fs.mkdir).mockResolvedValue(undefined);
       vi.mocked(fs.access).mockResolvedValue(undefined);
-      vi.mocked(fs.stat).mockResolvedValue({ 
+      vi.mocked(fs.stat).mockResolvedValue({
         size: 1024,
-        isFile: () => true 
+        isFile: () => true,
       } as any);
 
       // Mock PDF extraction
       const mockExtractText = vi.fn().mockResolvedValue(extractedText);
       vi.doMock('@/lib/document-processing/pdf-extractor', () => ({
-        extractTextFromPdf: mockExtractText
+        extractTextFromPdf: mockExtractText,
       }));
 
       const mockSend = vi.fn().mockResolvedValue({ ids: ['event-id'] });
@@ -103,7 +109,7 @@ describe('Document Workflow Integration', () => {
           type: 'application/pdf',
           size: 1024,
           buffer: mockFileBuffer,
-        }
+        },
       });
 
       expect(uploadResult.success).toBe(true);
@@ -129,7 +135,7 @@ describe('Document Workflow Integration', () => {
           documentId,
           userId,
           filePath: expect.stringContaining('test-document.pdf'),
-        }
+        },
       });
 
       // Step 2: Process text extraction workflow
@@ -138,12 +144,12 @@ describe('Document Workflow Integration', () => {
           documentId,
           userId,
           filePath: document.filePath,
-        }
+        },
       };
 
       const extractionResult = await textExtractionWorkflow.run({
         event: extractionEvent,
-        step: inngest.step
+        step: inngest.step,
       });
 
       expect(extractionResult.success).toBe(true);
@@ -181,27 +187,29 @@ describe('Document Workflow Integration', () => {
           userId,
           textLength: extractedText.length,
           extractedAt: expect.any(Date),
-        }
+        },
       });
     });
 
     it('should handle workflow failure and maintain data consistency', async () => {
       // Arrange - Successful upload but failed extraction
       const mockFileBuffer = Buffer.from('mock pdf content');
-      
+
       vi.mocked(fs.readFile).mockResolvedValue(mockFileBuffer);
       vi.mocked(fs.writeFile).mockResolvedValue(undefined);
       vi.mocked(fs.mkdir).mockResolvedValue(undefined);
       vi.mocked(fs.access).mockResolvedValue(undefined);
-      vi.mocked(fs.stat).mockResolvedValue({ 
+      vi.mocked(fs.stat).mockResolvedValue({
         size: 1024,
-        isFile: () => true 
+        isFile: () => true,
       } as any);
 
       // Mock failed PDF extraction
-      const mockExtractText = vi.fn().mockRejectedValue(new Error('Corrupted PDF'));
+      const mockExtractText = vi
+        .fn()
+        .mockRejectedValue(new Error('Corrupted PDF'));
       vi.doMock('@/lib/document-processing/pdf-extractor', () => ({
-        extractTextFromPdf: mockExtractText
+        extractTextFromPdf: mockExtractText,
       }));
 
       const mockSend = vi.fn().mockResolvedValue({ ids: ['event-id'] });
@@ -216,7 +224,7 @@ describe('Document Workflow Integration', () => {
           type: 'application/pdf',
           size: 1024,
           buffer: mockFileBuffer,
-        }
+        },
       });
 
       const documentId = uploadResult.documentId!;
@@ -227,14 +235,14 @@ describe('Document Workflow Integration', () => {
           documentId,
           userId,
           filePath: '/uploads/corrupted.pdf',
-        }
+        },
       };
 
       await expect(
         textExtractionWorkflow.run({
           event: extractionEvent,
-          step: inngest.step
-        })
+          step: inngest.step,
+        }),
       ).rejects.toThrow('Corrupted PDF');
 
       // Step 3: Verify document state shows failure
@@ -259,22 +267,23 @@ describe('Document Workflow Integration', () => {
       const mockFileBuffer = Buffer.from('mock pdf content');
       const extractedText1 = 'First document text';
       const extractedText2 = 'Second document text';
-      
+
       vi.mocked(fs.readFile).mockResolvedValue(mockFileBuffer);
       vi.mocked(fs.writeFile).mockResolvedValue(undefined);
       vi.mocked(fs.mkdir).mockResolvedValue(undefined);
       vi.mocked(fs.access).mockResolvedValue(undefined);
-      vi.mocked(fs.stat).mockResolvedValue({ 
+      vi.mocked(fs.stat).mockResolvedValue({
         size: 1024,
-        isFile: () => true 
+        isFile: () => true,
       } as any);
 
-      const mockExtractText = vi.fn()
+      const mockExtractText = vi
+        .fn()
         .mockResolvedValueOnce(extractedText1)
         .mockResolvedValueOnce(extractedText2);
-      
+
       vi.doMock('@/lib/document-processing/pdf-extractor', () => ({
-        extractTextFromPdf: mockExtractText
+        extractTextFromPdf: mockExtractText,
       }));
 
       const mockSend = vi.fn().mockResolvedValue({ ids: ['event-id'] });
@@ -291,7 +300,7 @@ describe('Document Workflow Integration', () => {
             type: 'application/pdf',
             size: 1024,
             buffer: mockFileBuffer,
-          }
+          },
         }),
         uploadHandler.processUpload({
           userId,
@@ -300,8 +309,8 @@ describe('Document Workflow Integration', () => {
             type: 'application/pdf',
             size: 1024,
             buffer: mockFileBuffer,
-          }
-        })
+          },
+        }),
       ]);
 
       expect(upload1.success).toBe(true);
@@ -320,9 +329,9 @@ describe('Document Workflow Integration', () => {
               documentId: doc1.id,
               userId,
               filePath: doc1.filePath,
-            }
+            },
           },
-          step: inngest.step
+          step: inngest.step,
         }),
         textExtractionWorkflow.run({
           event: {
@@ -330,10 +339,10 @@ describe('Document Workflow Integration', () => {
               documentId: doc2.id,
               userId,
               filePath: doc2.filePath,
-            }
+            },
           },
-          step: inngest.step
-        })
+          step: inngest.step,
+        }),
       ]);
 
       // Step 3: Verify both documents processed successfully
@@ -343,7 +352,9 @@ describe('Document Workflow Integration', () => {
         .where(eq(schema.ragDocument.userId, userId));
 
       expect(finalDocs).toHaveLength(2);
-      expect(finalDocs.every(doc => doc.status === 'text_extracted')).toBe(true);
+      expect(finalDocs.every((doc) => doc.status === 'text_extracted')).toBe(
+        true,
+      );
 
       const contents = await testDb
         .select()
@@ -356,11 +367,11 @@ describe('Document Workflow Integration', () => {
     it('should validate file system path security', async () => {
       // Arrange - Attempt directory traversal attack
       const mockFileBuffer = Buffer.from('mock pdf content');
-      
+
       vi.mocked(fs.access).mockResolvedValue(undefined);
-      vi.mocked(fs.stat).mockResolvedValue({ 
+      vi.mocked(fs.stat).mockResolvedValue({
         size: 1024,
-        isFile: () => true 
+        isFile: () => true,
       } as any);
 
       const uploadHandler = new DocumentUploadHandler();
@@ -374,8 +385,8 @@ describe('Document Workflow Integration', () => {
             type: 'application/pdf',
             size: 1024,
             buffer: mockFileBuffer,
-          }
-        })
+          },
+        }),
       ).rejects.toThrow(/Invalid filename/);
     });
 
@@ -383,24 +394,24 @@ describe('Document Workflow Integration', () => {
       // Arrange
       const mockFileBuffer = Buffer.from('mock pdf content');
       const extractedText = 'Timeline test text';
-      
+
       vi.mocked(fs.readFile).mockResolvedValue(mockFileBuffer);
       vi.mocked(fs.writeFile).mockResolvedValue(undefined);
       vi.mocked(fs.mkdir).mockResolvedValue(undefined);
       vi.mocked(fs.access).mockResolvedValue(undefined);
-      vi.mocked(fs.stat).mockResolvedValue({ 
+      vi.mocked(fs.stat).mockResolvedValue({
         size: 1024,
-        isFile: () => true 
+        isFile: () => true,
       } as any);
 
       const mockExtractText = vi.fn().mockImplementation(async () => {
         // Simulate processing time
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
         return extractedText;
       });
-      
+
       vi.doMock('@/lib/document-processing/pdf-extractor', () => ({
-        extractTextFromPdf: mockExtractText
+        extractTextFromPdf: mockExtractText,
       }));
 
       const mockSend = vi.fn().mockResolvedValue({ ids: ['event-id'] });
@@ -417,7 +428,7 @@ describe('Document Workflow Integration', () => {
           type: 'application/pdf',
           size: 1024,
           buffer: mockFileBuffer,
-        }
+        },
       });
 
       const [document] = await testDb
@@ -431,9 +442,9 @@ describe('Document Workflow Integration', () => {
             documentId: document.id,
             userId,
             filePath: document.filePath,
-          }
+          },
         },
-        step: inngest.step
+        step: inngest.step,
       });
 
       const endTime = Date.now();
@@ -461,19 +472,19 @@ describe('Document Workflow Integration', () => {
       // Arrange
       const mockFileBuffer = Buffer.from('mock pdf content');
       const extractedText = 'Event sequence test';
-      
+
       vi.mocked(fs.readFile).mockResolvedValue(mockFileBuffer);
       vi.mocked(fs.writeFile).mockResolvedValue(undefined);
       vi.mocked(fs.mkdir).mockResolvedValue(undefined);
       vi.mocked(fs.access).mockResolvedValue(undefined);
-      vi.mocked(fs.stat).mockResolvedValue({ 
+      vi.mocked(fs.stat).mockResolvedValue({
         size: 1024,
-        isFile: () => true 
+        isFile: () => true,
       } as any);
 
       const mockExtractText = vi.fn().mockResolvedValue(extractedText);
       vi.doMock('@/lib/document-processing/pdf-extractor', () => ({
-        extractTextFromPdf: mockExtractText
+        extractTextFromPdf: mockExtractText,
       }));
 
       const mockSend = vi.fn().mockResolvedValue({ ids: ['event-id'] });
@@ -488,7 +499,7 @@ describe('Document Workflow Integration', () => {
           type: 'application/pdf',
           size: 1024,
           buffer: mockFileBuffer,
-        }
+        },
       });
 
       const [document] = await testDb
@@ -502,14 +513,14 @@ describe('Document Workflow Integration', () => {
             documentId: document.id,
             userId,
             filePath: document.filePath,
-          }
+          },
         },
-        step: inngest.step
+        step: inngest.step,
       });
 
       // Assert - Verify event sequence
       expect(mockSend).toHaveBeenCalledTimes(2);
-      
+
       // First event: document.uploaded
       expect(mockSend).toHaveBeenNthCalledWith(1, {
         name: 'document.uploaded',
@@ -517,7 +528,7 @@ describe('Document Workflow Integration', () => {
           documentId: document.id,
           userId,
           filePath: document.filePath,
-        }
+        },
       });
 
       // Second event: document.text-extracted
@@ -528,7 +539,7 @@ describe('Document Workflow Integration', () => {
           userId,
           textLength: extractedText.length,
           extractedAt: expect.any(Date),
-        }
+        },
       });
     });
   });

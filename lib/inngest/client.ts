@@ -1,6 +1,6 @@
 /**
  * Inngest Client Configuration
- * 
+ *
  * This file sets up the Inngest client for handling background jobs and workflows.
  * It provides type-safe event emission and workflow orchestration.
  */
@@ -11,7 +11,7 @@ import type { EventSchemas } from './events';
 /**
  * Inngest client instance with typed event schemas
  */
-export const inngest = new Inngest({ 
+export const inngest = new Inngest({
   id: 'rra-v2-app',
   name: 'RRA V2 RAG Application',
   eventKey: process.env.INNGEST_EVENT_KEY,
@@ -27,7 +27,7 @@ export const sendEvent = async <T extends keyof EventSchemas>(
   options?: {
     id?: string;
     user?: { id: string; email?: string };
-  }
+  },
 ) => {
   return inngest.send({
     name,
@@ -46,7 +46,7 @@ export const sendEvents = async (
     data: any;
     id?: string;
     user?: { id: string; email?: string };
-  }>
+  }>,
 ) => {
   return inngest.send(events);
 };

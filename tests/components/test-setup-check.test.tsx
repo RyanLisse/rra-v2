@@ -11,7 +11,7 @@ describe('Test Setup Check', () => {
     // Test inline mock
     const mockFn = vi.fn();
     mockFn.mockReturnValue('mocked');
-    
+
     expect(mockFn()).toBe('mocked');
     expect(mockFn).toHaveBeenCalled();
   });

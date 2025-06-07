@@ -2,10 +2,10 @@
 
 /**
  * Test Data Export Script
- * 
+ *
  * This script exports test data from databases for sharing, backup,
  * or importing into other environments.
- * 
+ *
  * Usage:
  *   bun run scripts/test-data/export-test-data.ts --env=unit --format=json
  *   bun run scripts/test-data/export-test-data.ts --branch=test-123 --format=sql
@@ -73,7 +73,7 @@ function parseArguments(): ExportOptions {
     environment: values.env as any,
     branch: values.branch,
     databaseUrl: values.database,
-    format: values.format as any || 'json',
+    format: (values.format as any) || 'json',
     output: values.output || './exports',
     tables: values.tables || [],
     compress: values.compress ?? false,
@@ -130,25 +130,32 @@ Available Tables:
 /**
  * Get database connection
  */
-async function getDatabaseConnection(options: ExportOptions): Promise<{ db: any; connection: postgres.Sql }> {
+async function getDatabaseConnection(
+  options: ExportOptions,
+): Promise<{ db: any; connection: postgres.Sql }> {
   let databaseUrl: string;
 
   if (options.branch) {
     if (!process.env.NEON_API_KEY || !process.env.NEON_PROJECT_ID) {
-      throw new Error('NEON_API_KEY and NEON_PROJECT_ID required for branch operations');
+      throw new Error(
+        'NEON_API_KEY and NEON_PROJECT_ID required for branch operations',
+      );
     }
 
     const branchManager = getTestBranchManager();
     const connectionString = branchManager.getConnectionString(options.branch);
-    
+
     if (!connectionString) {
-      throw new Error(`Could not get connection string for branch: ${options.branch}`);
+      throw new Error(
+        `Could not get connection string for branch: ${options.branch}`,
+      );
     }
-    
+
     databaseUrl = connectionString;
   } else {
-    databaseUrl = options.databaseUrl || 
-      process.env.TEST_DATABASE_URL || 
+    databaseUrl =
+      options.databaseUrl ||
+      process.env.TEST_DATABASE_URL ||
       process.env.DATABASE_URL ||
       'postgresql://test:test@localhost:5432/test_db';
   }
@@ -162,7 +169,11 @@ async function getDatabaseConnection(options: ExportOptions): Promise<{ db: any;
 /**
  * Get table definitions and data
  */
-async function getTableData(db: any, tableName: string, options: ExportOptions): Promise<any[]> {
+async function getTableData(
+  db: any,
+  tableName: string,
+  options: ExportOptions,
+): Promise<any[]> {
   const table = getTableByName(tableName);
   if (!table) {
     throw new Error(`Unknown table: ${tableName}`);
@@ -173,7 +184,7 @@ async function getTableData(db: any, tableName: string, options: ExportOptions):
   }
 
   let query = db.select().from(table);
-  
+
   if (options.limit) {
     query = query.limit(options.limit);
   }
@@ -250,14 +261,14 @@ function anonymizeData(data: any[], tableName: string): any[] {
  */
 async function exportAsJSON(
   tableData: Record<string, any[]>,
-  options: ExportOptions
+  options: ExportOptions,
 ): Promise<string[]> {
   const files: string[] = [];
-  
+
   for (const [tableName, data] of Object.entries(tableData)) {
     const filename = `${tableName}.json`;
     const filepath = join(options.output, filename);
-    
+
     const exportData = {
       table: tableName,
       exported_at: new Date().toISOString(),
@@ -268,7 +279,7 @@ async function exportAsJSON(
 
     await writeFile(filepath, JSON.stringify(exportData, null, 2));
     files.push(filepath);
-    
+
     if (options.verbose) {
       console.log(`  ✓ Exported ${data.length} rows to ${filename}`);
     }
@@ -282,16 +293,16 @@ async function exportAsJSON(
  */
 async function exportAsSQL(
   tableData: Record<string, any[]>,
-  options: ExportOptions
+  options: ExportOptions,
 ): Promise<string[]> {
   const files: string[] = [];
-  
+
   for (const [tableName, data] of Object.entries(tableData)) {
     const filename = `${tableName}.sql`;
     const filepath = join(options.output, filename);
-    
+
     const lines: string[] = [];
-    
+
     // Add header
     lines.push(`-- Export of ${tableName}`);
     lines.push(`-- Exported at: ${new Date().toISOString()}`);
@@ -302,39 +313,43 @@ async function exportAsSQL(
     if (data.length > 0) {
       // Get column names from first row
       const columns = Object.keys(data[0]);
-      const quotedColumns = columns.map(col => `"${col}"`).join(', ');
-      
+      const quotedColumns = columns.map((col) => `"${col}"`).join(', ');
+
       // Generate INSERT statements
       const tableName_postgres = getPostgresTableName(tableName);
-      
+
       for (const row of data) {
-        const values = columns.map(col => {
-          const value = row[col];
-          if (value === null || value === undefined) {
-            return 'NULL';
-          }
-          if (typeof value === 'string') {
-            return `'${value.replace(/'/g, "''")}'`;
-          }
-          if (typeof value === 'boolean') {
-            return value ? 'TRUE' : 'FALSE';
-          }
-          if (value instanceof Date) {
-            return `'${value.toISOString()}'`;
-          }
-          if (typeof value === 'object') {
-            return `'${JSON.stringify(value).replace(/'/g, "''")}'`;
-          }
-          return String(value);
-        }).join(', ');
-        
-        lines.push(`INSERT INTO "${tableName_postgres}" (${quotedColumns}) VALUES (${values});`);
+        const values = columns
+          .map((col) => {
+            const value = row[col];
+            if (value === null || value === undefined) {
+              return 'NULL';
+            }
+            if (typeof value === 'string') {
+              return `'${value.replace(/'/g, "''")}'`;
+            }
+            if (typeof value === 'boolean') {
+              return value ? 'TRUE' : 'FALSE';
+            }
+            if (value instanceof Date) {
+              return `'${value.toISOString()}'`;
+            }
+            if (typeof value === 'object') {
+              return `'${JSON.stringify(value).replace(/'/g, "''")}'`;
+            }
+            return String(value);
+          })
+          .join(', ');
+
+        lines.push(
+          `INSERT INTO "${tableName_postgres}" (${quotedColumns}) VALUES (${values});`,
+        );
       }
     }
 
     await writeFile(filepath, lines.join('\n'));
     files.push(filepath);
-    
+
     if (options.verbose) {
       console.log(`  ✓ Exported ${data.length} rows to ${filename}`);
     }
@@ -348,14 +363,14 @@ async function exportAsSQL(
  */
 async function exportAsCSV(
   tableData: Record<string, any[]>,
-  options: ExportOptions
+  options: ExportOptions,
 ): Promise<string[]> {
   const files: string[] = [];
-  
+
   for (const [tableName, data] of Object.entries(tableData)) {
     const filename = `${tableName}.csv`;
     const filepath = join(options.output, filename);
-    
+
     if (data.length === 0) {
       await writeFile(filepath, '');
       files.push(filepath);
@@ -363,30 +378,32 @@ async function exportAsCSV(
     }
 
     const lines: string[] = [];
-    
+
     // Header row
     const columns = Object.keys(data[0]);
-    lines.push(columns.map(col => `"${col}"`).join(','));
-    
+    lines.push(columns.map((col) => `"${col}"`).join(','));
+
     // Data rows
     for (const row of data) {
-      const values = columns.map(col => {
-        const value = row[col];
-        if (value === null || value === undefined) {
-          return '';
-        }
-        if (typeof value === 'object') {
-          return `"${JSON.stringify(value).replace(/"/g, '""')}"`;
-        }
-        return `"${String(value).replace(/"/g, '""')}"`;
-      }).join(',');
-      
+      const values = columns
+        .map((col) => {
+          const value = row[col];
+          if (value === null || value === undefined) {
+            return '';
+          }
+          if (typeof value === 'object') {
+            return `"${JSON.stringify(value).replace(/"/g, '""')}"`;
+          }
+          return `"${String(value).replace(/"/g, '""')}"`;
+        })
+        .join(',');
+
       lines.push(values);
     }
 
     await writeFile(filepath, lines.join('\n'));
     files.push(filepath);
-    
+
     if (options.verbose) {
       console.log(`  ✓ Exported ${data.length} rows to ${filename}`);
     }
@@ -423,9 +440,19 @@ function getPostgresTableName(schemaName: string): string {
  */
 function getAllTableNames(): string[] {
   return [
-    'users', 'sessions', 'accounts', 'chats', 'messages', 'votes',
-    'documents', 'suggestions', 'streams', 'ragDocuments', 
-    'documentContent', 'documentChunks', 'documentEmbeddings'
+    'users',
+    'sessions',
+    'accounts',
+    'chats',
+    'messages',
+    'votes',
+    'documents',
+    'suggestions',
+    'streams',
+    'ragDocuments',
+    'documentContent',
+    'documentChunks',
+    'documentEmbeddings',
   ];
 }
 
@@ -434,7 +461,7 @@ function getAllTableNames(): string[] {
  */
 async function main(): Promise<void> {
   const options = parseArguments();
-  
+
   if (options.verbose) {
     console.log('📤 Starting test data export...');
     console.log('Options:', JSON.stringify(options, null, 2));
@@ -451,11 +478,12 @@ async function main(): Promise<void> {
 
     try {
       // Determine which tables to export
-      const tablesToExport = options.tables.length > 0 
-        ? options.tables 
-        : getAllTableNames();
+      const tablesToExport =
+        options.tables.length > 0 ? options.tables : getAllTableNames();
 
-      console.log(`📊 Exporting ${tablesToExport.length} tables in ${options.format} format...`);
+      console.log(
+        `📊 Exporting ${tablesToExport.length} tables in ${options.format} format...`,
+      );
 
       // Collect data from all tables
       const tableData: Record<string, any[]> = {};
@@ -474,7 +502,7 @@ async function main(): Promise<void> {
 
       // Export data in requested format
       let files: string[] = [];
-      
+
       switch (options.format) {
         case 'json':
           files = await exportAsJSON(tableData, options);
@@ -509,7 +537,7 @@ async function main(): Promise<void> {
       console.log(`Execution Time: ${executionTime}ms`);
       console.log(`Total Size: ${(totalSize / 1024).toFixed(1)} KB`);
       console.log(`Files Created: ${files.length}`);
-      
+
       if (options.anonymize) {
         console.log('🔒 Data anonymized');
       }
@@ -519,27 +547,28 @@ async function main(): Promise<void> {
         console.log(`  ${table}: ${count.toLocaleString()} rows`);
       });
 
-      const totalRows = Object.values(tableCounts).reduce((sum, count) => sum + count, 0);
+      const totalRows = Object.values(tableCounts).reduce(
+        (sum, count) => sum + count,
+        0,
+      );
       console.log(`  Total: ${totalRows.toLocaleString()} rows`);
 
       console.log('\nFiles Created:');
-      files.forEach(file => {
+      files.forEach((file) => {
         console.log(`  ${file}`);
       });
 
       console.log('\n✅ Export completed successfully!');
-
     } finally {
       await connection.end();
     }
-
   } catch (error) {
     console.error('❌ Export failed:', error);
-    
+
     if (options.verbose && error instanceof Error) {
       console.error('Stack trace:', error.stack);
     }
-    
+
     process.exit(1);
   }
 }

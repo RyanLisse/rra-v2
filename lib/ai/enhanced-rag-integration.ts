@@ -1,12 +1,15 @@
 /**
  * Enhanced RAG Integration Example
- * 
+ *
  * This file demonstrates how to use the enhanced RAG pipeline with structural metadata
  * for better context assembly and LLM prompting.
  */
 
 import type { EnhancedChatSource, ContextAssemblyResult } from '@/lib/types';
-import { assembleEnhancedContext, createContextAwareSystemPrompt } from './context-formatter';
+import {
+  assembleEnhancedContext,
+  createContextAwareSystemPrompt,
+} from './context-formatter';
 import { enhancedRagSystemPrompt } from './prompts';
 
 /**
@@ -19,7 +22,7 @@ export async function exampleEnhancedRAGQuery(
     focusElementTypes?: string[];
     prioritizeElementTypes?: string[];
     maxContextTokens?: number;
-  } = {}
+  } = {},
 ): Promise<{
   systemPrompt: string;
   context: string;
@@ -42,15 +45,17 @@ export async function exampleEnhancedRAGQuery(
         elementTypes: options.focusElementTypes, // Filter by specific element types
         prioritizeElementTypes: options.prioritizeElementTypes, // Prioritize certain types
         maxContextTokens: options.maxContextTokens || 4000,
-      }
+      },
     );
 
     // Step 2: Create context-aware system prompt
     const systemPrompt = createContextAwareSystemPrompt(contextResult);
 
     // Step 3: Analyze structural composition
-    const hasStructuralData = Object.keys(contextResult.elementTypeDistribution).length > 0;
-    const totalSources = new Set(contextResult.sources.map(s => s.documentId)).size;
+    const hasStructuralData =
+      Object.keys(contextResult.elementTypeDistribution).length > 0;
+    const totalSources = new Set(contextResult.sources.map((s) => s.documentId))
+      .size;
 
     return {
       systemPrompt,
@@ -61,7 +66,7 @@ export async function exampleEnhancedRAGQuery(
         searchStats: {
           ...contextResult.searchStats,
           totalSources,
-          hasReranking: contextResult.sources.some(s => s.wasReranked),
+          hasReranking: contextResult.sources.some((s) => s.wasReranked),
         },
         elementTypeDistribution: contextResult.elementTypeDistribution,
         hasStructuralData,
@@ -81,26 +86,61 @@ export function getElementTypePrioritiesForQuery(query: string): string[] {
 
   // Technical/procedural queries - prioritize structured content
   if (/\b(how|steps|process|procedure|install|configure)\b/i.test(query)) {
-    return ['list_item', 'heading', 'title', 'table_text', 'paragraph', 'figure_caption'];
+    return [
+      'list_item',
+      'heading',
+      'title',
+      'table_text',
+      'paragraph',
+      'figure_caption',
+    ];
   }
 
   // Troubleshooting queries - prioritize diagnostic content
   if (/\b(error|issue|problem|fix|solve|troubleshoot)\b/i.test(query)) {
-    return ['heading', 'list_item', 'table_text', 'paragraph', 'title', 'figure_caption'];
+    return [
+      'heading',
+      'list_item',
+      'table_text',
+      'paragraph',
+      'title',
+      'figure_caption',
+    ];
   }
 
   // Data/specification queries - prioritize tables and structured data
   if (/\b(specification|data|table|chart|figure|graph)\b/i.test(query)) {
-    return ['table_text', 'figure_caption', 'title', 'heading', 'paragraph', 'list_item'];
+    return [
+      'table_text',
+      'figure_caption',
+      'title',
+      'heading',
+      'paragraph',
+      'list_item',
+    ];
   }
 
   // Conceptual queries - prioritize explanatory content
   if (/\b(what|explain|concept|theory|definition)\b/i.test(query)) {
-    return ['title', 'heading', 'paragraph', 'figure_caption', 'table_text', 'list_item'];
+    return [
+      'title',
+      'heading',
+      'paragraph',
+      'figure_caption',
+      'table_text',
+      'list_item',
+    ];
   }
 
   // Default priority for general queries
-  return ['title', 'heading', 'paragraph', 'list_item', 'table_text', 'figure_caption'];
+  return [
+    'title',
+    'heading',
+    'paragraph',
+    'list_item',
+    'table_text',
+    'figure_caption',
+  ];
 }
 
 /**
@@ -108,11 +148,12 @@ export function getElementTypePrioritiesForQuery(query: string): string[] {
  */
 export function createSpecializedSystemPrompt(
   contextResult: ContextAssemblyResult,
-  queryType: 'technical' | 'troubleshooting' | 'conceptual' | 'comparative'
+  queryType: 'technical' | 'troubleshooting' | 'conceptual' | 'comparative',
 ): string {
-  const hasStructuralData = Object.keys(contextResult.elementTypeDistribution).length > 0;
+  const hasStructuralData =
+    Object.keys(contextResult.elementTypeDistribution).length > 0;
   const elementTypes = Object.keys(contextResult.elementTypeDistribution);
-  
+
   const basePrompt = enhancedRagSystemPrompt(hasStructuralData, elementTypes);
 
   const specialInstructions = {
@@ -159,13 +200,13 @@ export function analyzeContextQuality(contextResult: ContextAssemblyResult): {
   recommendations: string[];
 } {
   const { sources, elementTypeDistribution, searchStats } = contextResult;
-  
+
   let qualityScore = 0.5; // Base score
   const strengths: string[] = [];
   const recommendations: string[] = [];
 
   // Score based on source diversity
-  const uniqueSources = new Set(sources.map(s => s.documentId)).size;
+  const uniqueSources = new Set(sources.map((s) => s.documentId)).size;
   if (uniqueSources >= 3) {
     qualityScore += 0.2;
     strengths.push('Good source diversity');
@@ -179,18 +220,21 @@ export function analyzeContextQuality(contextResult: ContextAssemblyResult): {
     qualityScore += 0.2;
     strengths.push('Rich document structure available');
   } else if (structuralTypes === 0) {
-    recommendations.push('Documents may benefit from ADE processing for better structure');
+    recommendations.push(
+      'Documents may benefit from ADE processing for better structure',
+    );
   }
 
   // Score based on reranking usage
-  const rerankedSources = sources.filter(s => s.wasReranked).length;
+  const rerankedSources = sources.filter((s) => s.wasReranked).length;
   if (rerankedSources > 0) {
     qualityScore += 0.1;
     strengths.push('AI-enhanced relevance ranking applied');
   }
 
   // Score based on average similarity
-  const avgSimilarity = sources.reduce((sum, s) => sum + s.similarity, 0) / sources.length;
+  const avgSimilarity =
+    sources.reduce((sum, s) => sum + s.similarity, 0) / sources.length;
   if (avgSimilarity > 0.7) {
     qualityScore += 0.2;
     strengths.push('High relevance scores');
@@ -221,11 +265,11 @@ export function formatEnhancedCitations(sources: EnhancedChatSource[]): Array<{
   displayText: string;
 }> {
   return sources.map((source, index) => {
-    const elementInfo = source.elementType 
+    const elementInfo = source.elementType
       ? `${source.elementType}${source.pageNumber ? ` (page ${source.pageNumber})` : ''}`
       : 'text chunk';
-    
-    const confidenceInfo = source.confidence 
+
+    const confidenceInfo = source.confidence
       ? ` (${Math.round(source.confidence * 100)}% confidence)`
       : '';
 
@@ -234,9 +278,10 @@ export function formatEnhancedCitations(sources: EnhancedChatSource[]): Array<{
     return {
       id: source.id,
       title: source.title,
-      excerpt: source.content.length > 150 
-        ? source.content.substring(0, 150) + '...'
-        : source.content,
+      excerpt:
+        source.content.length > 150
+          ? source.content.substring(0, 150) + '...'
+          : source.content,
       metadata: {
         elementType: source.elementType || undefined,
         pageNumber: source.pageNumber || undefined,

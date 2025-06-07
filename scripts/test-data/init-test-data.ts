@@ -2,10 +2,10 @@
 
 /**
  * Test Data Initialization Script
- * 
+ *
  * This script initializes test databases with seed data for different environments.
  * It supports both traditional PostgreSQL and Neon branching infrastructure.
- * 
+ *
  * Usage:
  *   bun run scripts/test-data/init-test-data.ts --env=unit
  *   bun run scripts/test-data/init-test-data.ts --env=e2e --branch=test-branch-123
@@ -16,7 +16,11 @@ import { parseArgs } from 'util';
 import { getTestBranchManager } from '@/lib/testing/neon-test-branches';
 import { UnitSeeder } from '@/tests/seeds/unit-seeder';
 import { E2ESeeder, BrowserTestSeeder } from '@/tests/seeds/e2e-seeder';
-import { PerformanceSeeder, LoadTestSeeder, StressTestSeeder } from '@/tests/seeds/performance-seeder';
+import {
+  PerformanceSeeder,
+  LoadTestSeeder,
+  StressTestSeeder,
+} from '@/tests/seeds/performance-seeder';
 import type { SeederConfig, SeederResult } from '@/tests/factories/types';
 
 interface InitOptions {
@@ -58,14 +62,14 @@ function parseArguments(): InitOptions {
   }
 
   return {
-    environment: values.env as any || 'unit',
-    size: values.size as any || 'standard',
+    environment: (values.env as any) || 'unit',
+    size: (values.size as any) || 'standard',
     branch: values.branch,
     databaseUrl: values.database,
     clean: values.clean ?? true,
     scenarios: values.scenarios || [],
     useNeonBranching: values['neon-branching'] ?? false,
-    seedType: values['seed-type'] as any || 'standard',
+    seedType: (values['seed-type'] as any) || 'standard',
     verbose: values.verbose ?? false,
   };
 }
@@ -120,12 +124,12 @@ function createSeeder(options: InitOptions, config: SeederConfig) {
   switch (options.environment) {
     case 'unit':
       return new UnitSeeder(config);
-    
+
     case 'e2e':
-      return options.seedType === 'browser' 
+      return options.seedType === 'browser'
         ? new BrowserTestSeeder(config)
         : new E2ESeeder(config);
-    
+
     case 'performance':
       switch (options.seedType) {
         case 'load':
@@ -135,7 +139,7 @@ function createSeeder(options: InitOptions, config: SeederConfig) {
         default:
           return new PerformanceSeeder(config);
       }
-    
+
     default:
       throw new Error(`Unsupported environment: ${options.environment}`);
   }
@@ -144,27 +148,33 @@ function createSeeder(options: InitOptions, config: SeederConfig) {
 /**
  * Setup Neon branch if requested
  */
-async function setupNeonBranch(options: InitOptions): Promise<string | undefined> {
+async function setupNeonBranch(
+  options: InitOptions,
+): Promise<string | undefined> {
   if (!options.useNeonBranching) {
     return undefined;
   }
 
   if (!process.env.NEON_API_KEY || !process.env.NEON_PROJECT_ID) {
-    throw new Error('NEON_API_KEY and NEON_PROJECT_ID environment variables required for branching');
+    throw new Error(
+      'NEON_API_KEY and NEON_PROJECT_ID environment variables required for branching',
+    );
   }
 
   console.log('🌿 Setting up Neon branch...');
-  
+
   const branchManager = getTestBranchManager();
   const testName = `init-${options.environment}-${Date.now()}`;
-  
+
   const branchInfo = await branchManager.createTestBranch(testName, {
     parentBranchId: options.branch,
   });
 
-  console.log(`✓ Created branch: ${branchInfo.branchName} (${branchInfo.branchId})`);
+  console.log(
+    `✓ Created branch: ${branchInfo.branchName} (${branchInfo.branchId})`,
+  );
   console.log(`  Connection: ${branchInfo.host}/${branchInfo.database}`);
-  
+
   return branchInfo.connectionString;
 }
 
@@ -179,8 +189,10 @@ function printSummary(options: InitOptions, result: SeederResult): void {
   console.log(`Seed Type: ${options.seedType}`);
   console.log(`Success: ${result.success ? '✅' : '❌'}`);
   console.log(`Execution Time: ${result.executionTime}ms`);
-  console.log(`Memory Usage: ${Math.round(result.memoryUsage / 1024 / 1024)}MB`);
-  
+  console.log(
+    `Memory Usage: ${Math.round(result.memoryUsage / 1024 / 1024)}MB`,
+  );
+
   if (result.branchId) {
     console.log(`Branch ID: ${result.branchId}`);
   }
@@ -190,7 +202,10 @@ function printSummary(options: InitOptions, result: SeederResult): void {
     console.log(`  ${table}: ${count.toLocaleString()}`);
   });
 
-  const totalRows = Object.values(result.rowsCreated).reduce((sum, count) => sum + count, 0);
+  const totalRows = Object.values(result.rowsCreated).reduce(
+    (sum, count) => sum + count,
+    0,
+  );
   console.log(`  Total: ${totalRows.toLocaleString()}`);
 
   if (result.errors && result.errors.length > 0) {
@@ -208,7 +223,7 @@ function printSummary(options: InitOptions, result: SeederResult): void {
  */
 async function main(): Promise<void> {
   const options = parseArguments();
-  
+
   if (options.verbose) {
     console.log('🚀 Starting test data initialization...');
     console.log('Options:', JSON.stringify(options, null, 2));
@@ -217,12 +232,13 @@ async function main(): Promise<void> {
   try {
     // Setup database connection
     let databaseUrl: string | undefined;
-    
+
     if (options.useNeonBranching) {
       databaseUrl = await setupNeonBranch(options);
     } else {
-      databaseUrl = options.databaseUrl || 
-        process.env.TEST_DATABASE_URL || 
+      databaseUrl =
+        options.databaseUrl ||
+        process.env.TEST_DATABASE_URL ||
         process.env.DATABASE_URL;
     }
 
@@ -237,11 +253,13 @@ async function main(): Promise<void> {
     };
 
     // Create and run seeder
-    console.log(`🌱 Initializing ${options.environment} environment with ${options.size} dataset...`);
-    
+    console.log(
+      `🌱 Initializing ${options.environment} environment with ${options.size} dataset...`,
+    );
+
     const seeder = createSeeder(options, config);
     const result = await seeder.seed();
-    
+
     // Print results
     printSummary(options, result);
 
@@ -249,14 +267,13 @@ async function main(): Promise<void> {
     await seeder.close();
 
     process.exit(result.success ? 0 : 1);
-
   } catch (error) {
     console.error('❌ Initialization failed:', error);
-    
+
     if (options.verbose && error instanceof Error) {
       console.error('Stack trace:', error.stack);
     }
-    
+
     process.exit(1);
   }
 }
@@ -266,7 +283,7 @@ async function main(): Promise<void> {
  */
 process.on('SIGINT', async () => {
   console.log('\n🛑 Received SIGINT, cleaning up...');
-  
+
   // Cleanup any test branches if using Neon branching
   if (process.env.NEON_API_KEY) {
     try {
@@ -277,7 +294,7 @@ process.on('SIGINT', async () => {
       console.warn('⚠️  Branch cleanup warning:', error);
     }
   }
-  
+
   process.exit(0);
 });
 

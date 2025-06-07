@@ -5,16 +5,18 @@ import { defineConfig, loadEnv } from 'vitest/config';
 export default defineConfig(({ mode }) => {
   // Load environment variables
   const env = loadEnv(mode, process.cwd(), '');
-  
+
   // Configure timeouts based on environment
   const isNeonEnabled = env.USE_NEON_BRANCHING === 'true';
   const baseTimeout = isNeonEnabled ? 120000 : 60000;
   const hookTimeout = isNeonEnabled ? 120000 : 60000;
-  const teardownTimeout = isNeonEnabled ? parseInt(env.VITEST_TEARDOWN_TIMEOUT || '60000') : 30000;
-  
+  const teardownTimeout = isNeonEnabled
+    ? parseInt(env.VITEST_TEARDOWN_TIMEOUT || '60000')
+    : 30000;
+
   // Configure thread pool based on environment
   const minThreads = parseInt(env.VITEST_POOL_THREADS_MIN || '1');
-  const maxThreads = isNeonEnabled 
+  const maxThreads = isNeonEnabled
     ? Math.min(parseInt(env.VITEST_POOL_THREADS_MAX || '2'), 4)
     : parseInt(env.VITEST_POOL_THREADS_MAX || '4');
 
@@ -39,16 +41,17 @@ export default defineConfig(({ mode }) => {
       testTimeout: parseInt(env.VITEST_TIMEOUT) || baseTimeout,
       hookTimeout: parseInt(env.VITEST_HOOK_TIMEOUT) || hookTimeout,
       teardownTimeout: teardownTimeout,
-      
+
       // Enhanced configuration for Neon branching
       sequence: {
-        concurrent: env.VITEST_SEQUENCE_CONCURRENT !== 'false' && !isNeonEnabled,
+        concurrent:
+          env.VITEST_SEQUENCE_CONCURRENT !== 'false' && !isNeonEnabled,
       },
       isolate: env.VITEST_ISOLATE === 'true' || isNeonEnabled,
-      
+
       // Test file patterns and metadata
       testNamePattern: env.VITEST_NAME_PATTERN,
-      
+
       coverage: {
         provider: 'v8',
         reporter: ['text', 'json', 'html'],
@@ -75,7 +78,7 @@ export default defineConfig(({ mode }) => {
         skipFull: false,
         clean: true,
       },
-      
+
       pool: 'threads',
       poolOptions: {
         threads: {
@@ -85,19 +88,25 @@ export default defineConfig(({ mode }) => {
           isolate: env.VITEST_ISOLATE === 'true' || isNeonEnabled,
         },
       },
-      
+
       // Enhanced logging and debugging
       logHeapUsage: env.VERBOSE_LOGGING === 'true',
       outputFile: {
-        json: path.join(env.TEST_METRICS_OUTPUT_DIR || './test-results', 'vitest-report.json'),
-        junit: path.join(env.TEST_METRICS_OUTPUT_DIR || './test-results', 'vitest-junit.xml'),
+        json: path.join(
+          env.TEST_METRICS_OUTPUT_DIR || './test-results',
+          'vitest-report.json',
+        ),
+        junit: path.join(
+          env.TEST_METRICS_OUTPUT_DIR || './test-results',
+          'vitest-junit.xml',
+        ),
       },
-      
+
       // Reporter configuration
-      reporter: env.CI 
+      reporter: env.CI
         ? ['verbose', 'json', 'junit']
         : ['verbose', env.VERBOSE_LOGGING === 'true' ? 'verbose' : 'basic'],
-      
+
       // Enhanced environment setup
       env: {
         ...env,
@@ -112,10 +121,10 @@ export default defineConfig(({ mode }) => {
         ENABLE_TEST_METRICS: env.ENABLE_TEST_METRICS || 'true',
         ENABLE_BRANCH_METRICS: env.ENABLE_BRANCH_METRICS || 'true',
       },
-      
+
       // Retry configuration
       retry: env.CI ? 1 : 0,
-      
+
       // Watch configuration for development
       watch: false,
       watchExclude: [
@@ -125,13 +134,13 @@ export default defineConfig(({ mode }) => {
         '**/test-results/**',
       ],
     },
-    
+
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
       },
     },
-    
+
     // Define constants for tests
     define: {
       __TEST_ENV__: JSON.stringify(mode),
