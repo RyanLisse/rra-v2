@@ -19,6 +19,7 @@ export function getInngestConfig(): InngestConfig {
     name: isDev ? 'RRA V2 Development' : 'RRA V2 Production',
     eventKey: process.env.INNGEST_EVENT_KEY || (isDev ? 'local-dev-key' : ''),
     isDev,
+    env: isDev ? 'development' : 'production',
   };
 
   if (isDev) {
@@ -109,22 +110,6 @@ export const inngest = new Inngest({
     // Maximum number of retries for failed function runs
     max: 3,
   },
-});
-
-/**
- * Helper function to create properly typed Inngest events (compatibility with existing system)
- * This ensures type safety when sending events
- */
-export const createEvent = <T extends Record<string, any>>(
-  name: string,
-  data: T,
-  user?: { id: string },
-  ts?: number
-) => ({
-  name,
-  data,
-  user,
-  ts: ts || Date.now(),
 });
 
 /**
@@ -269,6 +254,36 @@ export async function checkDevServerHealth(): Promise<InngestHealth> {
       devServerAvailable: false,
       error: error instanceof Error ? error.message : 'Unknown error',
     };
+  }
+}
+
+/**
+ * Send event utility function (TDD compatibility)
+ */
+export async function sendEvent(event: InngestEvent) {
+  try {
+    return await inngest.send(event);
+  } catch (error) {
+    console.error('Failed to send Inngest event:', error);
+    throw error;
+  }
+}
+
+/**
+ * Create event utility function (existing system compatibility)
+ */
+export async function createEvent<T extends EventName>(
+  eventName: T,
+  payload: EventMap[T]
+): Promise<void> {
+  try {
+    await inngest.send({
+      name: eventName,
+      data: payload,
+    });
+  } catch (error) {
+    console.error(`Failed to send event ${eventName}:`, error);
+    throw error;
   }
 }
 
