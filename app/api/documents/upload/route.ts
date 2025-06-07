@@ -5,6 +5,7 @@ import { nanoid } from 'nanoid';
 import { db } from '@/lib/db';
 import { ragDocument } from '@/lib/db/schema';
 import { withAuth } from '@/lib/auth';
+import { sendEvent } from '@/lib/inngest/client';
 
 const UPLOAD_DIR = join(process.cwd(), 'uploads');
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
@@ -78,6 +79,23 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
             uploadedBy: session.user.id,
           })
           .returning();
+
+        // Emit Inngest event to trigger text extraction workflow
+        try {
+          await sendEvent('document.uploaded', {
+            documentId: newDocument.id,
+            userId: session.user.id,
+            filePath: filePath,
+            metadata: {
+              originalName: file.name,
+              fileSize: file.size,
+              mimeType: file.type,
+            },
+          });
+        } catch (eventError) {
+          console.error(`Failed to emit upload event for ${file.name}:`, eventError);
+          // Continue execution - don't fail the upload if event emission fails
+        }
 
         uploadedFiles.push({
           documentId: newDocument.id,

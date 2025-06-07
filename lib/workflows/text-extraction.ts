@@ -10,6 +10,7 @@ import { extractTextFromPDF } from '@/lib/document-processing/pdf-extractor';
 import { db } from '@/lib/db';
 import { ragDocument, documentContent } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { DocumentStatusManager } from '@/lib/document-processing/status-manager';
 import type { EventSchemas } from '@/lib/inngest/events';
 
 interface WorkflowContext {
@@ -34,6 +35,9 @@ export const textExtractionWorkflow = async (
 ): Promise<WorkflowResult> => {
   const { event, step } = context;
   const { documentId, userId, filePath, metadata } = event.data;
+
+  // Initialize status manager
+  const statusManager = await DocumentStatusManager.create(documentId);
 
   try {
     // Step 1: Validate document exists and get details
@@ -76,17 +80,47 @@ export const textExtractionWorkflow = async (
 
     // Step 3: Extract text from PDF
     const extractionResult = await step.run('extract-text', async () => {
+      // Start text extraction step
+      await statusManager.startStep('text_extraction', {
+        filePath,
+        mimeType: documentDetails.mimeType,
+      });
+
+      await statusManager.updateStepProgress(
+        'text_extraction',
+        25,
+        'Reading PDF file...',
+      );
+
       const startTime = Date.now();
 
       try {
         const result = await extractTextFromPDF(filePath);
+
+        await statusManager.updateStepProgress(
+          'text_extraction',
+          75,
+          'Processing extracted text...',
+        );
+
         const endTime = Date.now();
+
+        // Complete the text extraction step
+        await statusManager.completeStep('text_extraction', {
+          textLength: result.text.length,
+          pageCount: result.pageCount,
+          duration: endTime - startTime,
+        });
 
         return {
           ...result,
           extractionDuration: endTime - startTime,
         };
       } catch (error) {
+        await statusManager.failStep(
+          'text_extraction',
+          error instanceof Error ? error.message : 'Unknown error',
+        );
         throw new Error(
           `PDF extraction failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
         );
@@ -143,15 +177,14 @@ export const textExtractionWorkflow = async (
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error';
 
-    // Update document status to error
+    // Update document status to error using status manager
     await step.run('handle-error', async () => {
-      await db
-        .update(ragDocument)
-        .set({
-          status: 'error',
-          updatedAt: new Date(),
-        })
-        .where(eq(ragDocument.id, documentId));
+      // If we haven't started any steps yet, fail the general workflow
+      await statusManager.updateStatus({
+        status: 'error',
+        error: errorMessage,
+        message: 'Workflow failed',
+      });
     });
 
     // Emit failure event
