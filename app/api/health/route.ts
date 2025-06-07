@@ -26,10 +26,10 @@ interface HealthResponse {
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now();
-  
+
   try {
     logger.debug('Health check requested');
-    
+
     const checks: HealthCheck[] = await Promise.all([
       checkDatabase(),
       checkRedis(),
@@ -58,20 +58,23 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     metrics.timing('health_check.response_time', responseTime);
     metrics.increment('health_check.requests', 1, { status: overallStatus });
 
-    const statusCode = overallStatus === 'healthy' ? 200 : 
-                      overallStatus === 'degraded' ? 200 : 503;
+    const statusCode =
+      overallStatus === 'healthy'
+        ? 200
+        : overallStatus === 'degraded'
+          ? 200
+          : 503;
 
     logger.info(`Health check completed`, {
       status: overallStatus,
       responseTime,
-      failedChecks: checks.filter(c => c.status !== 'healthy').length,
+      failedChecks: checks.filter((c) => c.status !== 'healthy').length,
     });
 
     return NextResponse.json(healthResponse, { status: statusCode });
-
   } catch (error) {
     const responseTime = Date.now() - startTime;
-    
+
     logger.error('Health check failed', error as Error, { responseTime });
     metrics.increment('health_check.errors');
 
@@ -82,27 +85,29 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         error: 'Health check failed',
         responseTime,
       },
-      { status: 503 }
+      { status: 503 },
     );
   }
 }
 
 async function checkDatabase(): Promise<HealthCheck> {
   const startTime = Date.now();
-  
+
   try {
     const isHealthy = await checkDatabaseHealth();
     const responseTime = Date.now() - startTime;
-    
+
     return {
       name: 'database',
       status: isHealthy ? 'healthy' : 'unhealthy',
-      message: isHealthy ? 'Database connection successful' : 'Database connection failed',
+      message: isHealthy
+        ? 'Database connection successful'
+        : 'Database connection failed',
       responseTime,
     };
   } catch (error) {
     const responseTime = Date.now() - startTime;
-    
+
     return {
       name: 'database',
       status: 'unhealthy',
@@ -114,14 +119,14 @@ async function checkDatabase(): Promise<HealthCheck> {
 
 async function checkRedis(): Promise<HealthCheck> {
   const startTime = Date.now();
-  
+
   try {
     // If Redis is configured for resumable streams
     if (process.env.REDIS_URL) {
       // Simple Redis ping would go here
       // For now, we'll assume it's healthy if configured
       const responseTime = Date.now() - startTime;
-      
+
       return {
         name: 'redis',
         status: 'healthy',
@@ -138,7 +143,7 @@ async function checkRedis(): Promise<HealthCheck> {
     }
   } catch (error) {
     const responseTime = Date.now() - startTime;
-    
+
     return {
       name: 'redis',
       status: 'unhealthy',
@@ -150,14 +155,14 @@ async function checkRedis(): Promise<HealthCheck> {
 
 async function checkExternalServices(): Promise<HealthCheck> {
   const startTime = Date.now();
-  
+
   try {
     const checks = await Promise.allSettled([
       checkAIService(),
       checkCohereService(),
     ]);
 
-    const failedChecks = checks.filter(c => c.status === 'rejected').length;
+    const failedChecks = checks.filter((c) => c.status === 'rejected').length;
     const responseTime = Date.now() - startTime;
 
     if (failedChecks === 0) {
@@ -184,7 +189,7 @@ async function checkExternalServices(): Promise<HealthCheck> {
     }
   } catch (error) {
     const responseTime = Date.now() - startTime;
-    
+
     return {
       name: 'external_services',
       status: 'unhealthy',
@@ -198,12 +203,13 @@ async function checkAIService(): Promise<boolean> {
   // Check if at least one AI provider is configured
   const hasOpenAI = !!process.env.OPENAI_API_KEY;
   const hasAnthropic = !!process.env.ANTHROPIC_API_KEY;
-  const hasGemini = !!process.env.GEMINI_API_KEY || !!process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-  
+  const hasGemini =
+    !!process.env.GEMINI_API_KEY || !!process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+
   if (!hasOpenAI && !hasAnthropic && !hasGemini) {
     throw new Error('No AI provider API key configured');
   }
-  
+
   // Simple check - in a real app, you might make a lightweight API call
   return true;
 }
@@ -212,13 +218,13 @@ async function checkCohereService(): Promise<boolean> {
   if (!process.env.COHERE_API_KEY) {
     throw new Error('Cohere API key not configured');
   }
-  
+
   return true;
 }
 
 async function checkDiskSpace(): Promise<HealthCheck> {
   const startTime = Date.now();
-  
+
   try {
     // In a real application, you would check available disk space
     // For now, we'll do a simple check
@@ -226,13 +232,13 @@ async function checkDiskSpace(): Promise<HealthCheck> {
       free: 1000000000, // 1GB - placeholder
       total: 10000000000, // 10GB - placeholder
     };
-    
+
     const usagePercent = ((stats.total - stats.free) / stats.total) * 100;
     const responseTime = Date.now() - startTime;
-    
+
     let status: 'healthy' | 'degraded' | 'unhealthy' = 'healthy';
     let message = `Disk usage: ${usagePercent.toFixed(1)}%`;
-    
+
     if (usagePercent > 90) {
       status = 'unhealthy';
       message += ' - Critical disk space';
@@ -240,7 +246,7 @@ async function checkDiskSpace(): Promise<HealthCheck> {
       status = 'degraded';
       message += ' - High disk usage';
     }
-    
+
     return {
       name: 'disk_space',
       status,
@@ -254,7 +260,7 @@ async function checkDiskSpace(): Promise<HealthCheck> {
     };
   } catch (error) {
     const responseTime = Date.now() - startTime;
-    
+
     return {
       name: 'disk_space',
       status: 'unhealthy',
@@ -266,15 +272,15 @@ async function checkDiskSpace(): Promise<HealthCheck> {
 
 async function checkMemoryUsage(): Promise<HealthCheck> {
   const startTime = Date.now();
-  
+
   try {
     const memUsage = process.memoryUsage();
     const usagePercent = (memUsage.heapUsed / memUsage.heapTotal) * 100;
     const responseTime = Date.now() - startTime;
-    
+
     let status: 'healthy' | 'degraded' | 'unhealthy' = 'healthy';
     let message = `Memory usage: ${usagePercent.toFixed(1)}%`;
-    
+
     if (usagePercent > 90) {
       status = 'unhealthy';
       message += ' - Critical memory usage';
@@ -282,7 +288,7 @@ async function checkMemoryUsage(): Promise<HealthCheck> {
       status = 'degraded';
       message += ' - High memory usage';
     }
-    
+
     return {
       name: 'memory',
       status,
@@ -297,7 +303,7 @@ async function checkMemoryUsage(): Promise<HealthCheck> {
     };
   } catch (error) {
     const responseTime = Date.now() - startTime;
-    
+
     return {
       name: 'memory',
       status: 'unhealthy',
@@ -307,10 +313,12 @@ async function checkMemoryUsage(): Promise<HealthCheck> {
   }
 }
 
-function determineOverallStatus(checks: HealthCheck[]): 'healthy' | 'degraded' | 'unhealthy' {
-  const unhealthyChecks = checks.filter(c => c.status === 'unhealthy');
-  const degradedChecks = checks.filter(c => c.status === 'degraded');
-  
+function determineOverallStatus(
+  checks: HealthCheck[],
+): 'healthy' | 'degraded' | 'unhealthy' {
+  const unhealthyChecks = checks.filter((c) => c.status === 'unhealthy');
+  const degradedChecks = checks.filter((c) => c.status === 'degraded');
+
   if (unhealthyChecks.length > 0) {
     return 'unhealthy';
   } else if (degradedChecks.length > 0) {
@@ -325,7 +333,7 @@ export async function HEAD(request: NextRequest): Promise<NextResponse> {
   try {
     // Quick readiness check - just database
     const isReady = await checkDatabaseHealth();
-    
+
     if (isReady) {
       return new NextResponse(null, { status: 200 });
     } else {

@@ -2,7 +2,7 @@ import { db } from '@/lib/db';
 import { ragDocument } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
-export type DocumentStatus = 
+export type DocumentStatus =
   | 'uploaded'
   | 'processing'
   | 'text_extracted'
@@ -46,12 +46,12 @@ export class DocumentStatusManager {
     const stepNames = [
       'text_extraction',
       'quality_assessment',
-      'chunking', 
+      'chunking',
       'embedding',
       'indexing',
     ];
 
-    stepNames.forEach(name => {
+    stepNames.forEach((name) => {
       this.steps.set(name, {
         name,
         status: 'pending',
@@ -83,22 +83,32 @@ export class DocumentStatusManager {
       });
 
       // Log status change for monitoring
-      console.log(`Document ${this.documentId} status updated to: ${update.status}`, {
-        progress: update.progress,
-        message: update.message,
-        error: update.error,
-      });
-
+      console.log(
+        `Document ${this.documentId} status updated to: ${update.status}`,
+        {
+          progress: update.progress,
+          message: update.message,
+          error: update.error,
+        },
+      );
     } catch (error) {
-      console.error(`Failed to update status for document ${this.documentId}:`, error);
-      throw new Error(`Status update failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error(
+        `Failed to update status for document ${this.documentId}:`,
+        error,
+      );
+      throw new Error(
+        `Status update failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
   }
 
   /**
    * Start a processing step
    */
-  async startStep(stepName: string, metadata?: Record<string, any>): Promise<void> {
+  async startStep(
+    stepName: string,
+    metadata?: Record<string, any>,
+  ): Promise<void> {
     const step = this.steps.get(stepName);
     if (!step) {
       throw new Error(`Unknown processing step: ${stepName}`);
@@ -120,14 +130,18 @@ export class DocumentStatusManager {
   /**
    * Update step progress
    */
-  async updateStepProgress(stepName: string, progress: number, message?: string): Promise<void> {
+  async updateStepProgress(
+    stepName: string,
+    progress: number,
+    message?: string,
+  ): Promise<void> {
     const step = this.steps.get(stepName);
     if (!step) {
       throw new Error(`Unknown processing step: ${stepName}`);
     }
 
     step.progress = Math.max(0, Math.min(100, progress));
-    
+
     await this.updateStatus({
       status: 'processing',
       progress: this.calculateOverallProgress(),
@@ -139,7 +153,10 @@ export class DocumentStatusManager {
   /**
    * Complete a processing step
    */
-  async completeStep(stepName: string, metadata?: Record<string, any>): Promise<void> {
+  async completeStep(
+    stepName: string,
+    metadata?: Record<string, any>,
+  ): Promise<void> {
     const step = this.steps.get(stepName);
     if (!step) {
       throw new Error(`Unknown processing step: ${stepName}`);
@@ -154,7 +171,7 @@ export class DocumentStatusManager {
 
     // Determine next status based on completed steps
     const newStatus = this.determineStatusFromSteps();
-    
+
     await this.updateStatus({
       status: newStatus,
       progress: this.calculateOverallProgress(),
@@ -166,7 +183,11 @@ export class DocumentStatusManager {
   /**
    * Fail a processing step
    */
-  async failStep(stepName: string, error: string, metadata?: Record<string, any>): Promise<void> {
+  async failStep(
+    stepName: string,
+    error: string,
+    metadata?: Record<string, any>,
+  ): Promise<void> {
     const step = this.steps.get(stepName);
     if (!step) {
       throw new Error(`Unknown processing step: ${stepName}`);
@@ -199,7 +220,7 @@ export class DocumentStatusManager {
     // Reset this step and all subsequent steps
     const stepNames = Array.from(this.steps.keys());
     const startIndex = stepNames.indexOf(stepName);
-    
+
     for (let i = startIndex; i < stepNames.length; i++) {
       const resetStep = this.steps.get(stepNames[i])!;
       resetStep.status = 'pending';
@@ -222,7 +243,10 @@ export class DocumentStatusManager {
    */
   private calculateOverallProgress(): number {
     const steps = Array.from(this.steps.values());
-    const totalProgress = steps.reduce((sum, step) => sum + (step.progress || 0), 0);
+    const totalProgress = steps.reduce(
+      (sum, step) => sum + (step.progress || 0),
+      0,
+    );
     return Math.round(totalProgress / steps.length);
   }
 
@@ -231,9 +255,9 @@ export class DocumentStatusManager {
    */
   private determineStatusFromSteps(): DocumentStatus {
     const steps = Array.from(this.steps.values());
-    
+
     // Check if any step failed
-    if (steps.some(step => step.status === 'failed')) {
+    if (steps.some((step) => step.status === 'failed')) {
       return 'error';
     }
 
@@ -242,16 +266,24 @@ export class DocumentStatusManager {
     const chunkingStep = this.steps.get('chunking');
     const embeddingStep = this.steps.get('embedding');
 
-    if (extractionStep?.status === 'completed' && chunkingStep?.status === 'pending') {
+    if (
+      extractionStep?.status === 'completed' &&
+      chunkingStep?.status === 'pending'
+    ) {
       return 'text_extracted';
     }
 
-    if (chunkingStep?.status === 'completed' && embeddingStep?.status === 'pending') {
+    if (
+      chunkingStep?.status === 'completed' &&
+      embeddingStep?.status === 'pending'
+    ) {
       return 'chunked';
     }
 
     if (embeddingStep?.status === 'completed') {
-      return steps.every(step => step.status === 'completed') ? 'processed' : 'embedded';
+      return steps.every((step) => step.status === 'completed')
+        ? 'processed'
+        : 'embedded';
     }
 
     return 'processing';
@@ -266,24 +298,27 @@ export class DocumentStatusManager {
     steps: Array<ProcessingStep & { duration?: number }>;
     estimatedTimeRemaining?: number;
   } {
-    const steps = Array.from(this.steps.values()).map(step => {
-      const duration = step.startTime && step.endTime 
-        ? step.endTime.getTime() - step.startTime.getTime()
-        : undefined;
-      
+    const steps = Array.from(this.steps.values()).map((step) => {
+      const duration =
+        step.startTime && step.endTime
+          ? step.endTime.getTime() - step.startTime.getTime()
+          : undefined;
+
       return { ...step, duration };
     });
 
-    const runningStep = steps.find(step => step.status === 'running');
-    const completedSteps = steps.filter(step => step.status === 'completed');
-    
+    const runningStep = steps.find((step) => step.status === 'running');
+    const completedSteps = steps.filter((step) => step.status === 'completed');
+
     // Estimate remaining time based on completed steps
     let estimatedTimeRemaining: number | undefined;
     if (completedSteps.length > 0 && runningStep) {
-      const avgDuration = completedSteps.reduce((sum, step) => 
-        sum + (step.duration || 0), 0) / completedSteps.length;
-      const remainingSteps = steps.filter(step => 
-        step.status === 'pending' || step.status === 'running').length;
+      const avgDuration =
+        completedSteps.reduce((sum, step) => sum + (step.duration || 0), 0) /
+        completedSteps.length;
+      const remainingSteps = steps.filter(
+        (step) => step.status === 'pending' || step.status === 'running',
+      ).length;
       estimatedTimeRemaining = avgDuration * remainingSteps;
     }
 
@@ -334,19 +369,26 @@ export class DocumentStatusManager {
 
       const stats = {
         totalDocuments: allDocuments.length,
-        processingDocuments: allDocuments.filter(doc => 
-          ['processing', 'retrying'].includes(doc.status)).length,
-        completedDocuments: allDocuments.filter(doc => 
-          doc.status === 'processed').length,
-        errorDocuments: allDocuments.filter(doc => 
-          doc.status === 'error').length,
+        processingDocuments: allDocuments.filter((doc) =>
+          ['processing', 'retrying'].includes(doc.status),
+        ).length,
+        completedDocuments: allDocuments.filter(
+          (doc) => doc.status === 'processed',
+        ).length,
+        errorDocuments: allDocuments.filter((doc) => doc.status === 'error')
+          .length,
       };
 
       // Calculate average processing time for completed documents
-      const completedDocs = allDocuments.filter(doc => doc.status === 'processed');
+      const completedDocs = allDocuments.filter(
+        (doc) => doc.status === 'processed',
+      );
       if (completedDocs.length > 0) {
-        const totalTime = completedDocs.reduce((sum, doc) => 
-          sum + (doc.updatedAt.getTime() - doc.createdAt.getTime()), 0);
+        const totalTime = completedDocs.reduce(
+          (sum, doc) =>
+            sum + (doc.updatedAt.getTime() - doc.createdAt.getTime()),
+          0,
+        );
         (stats as any).averageProcessingTime = totalTime / completedDocs.length;
       }
 

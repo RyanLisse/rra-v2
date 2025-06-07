@@ -16,12 +16,7 @@ import {
   Filter,
   RefreshCw,
 } from 'lucide-react';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -51,9 +46,14 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { getManagedDocuments, deleteDocument, getDocumentStats, type ManagedDocumentView, type DocumentStats } from '@/app/(chat)/documents/actions';
+import {
+  getManagedDocuments,
+  deleteDocument,
+  getDocumentStats,
+  type ManagedDocumentView,
+  type DocumentStats,
+} from '@/app/(chat)/documents/actions';
 import { DocumentDetail } from '@/components/document-detail';
-
 
 const statusConfig = {
   uploaded: {
@@ -65,19 +65,22 @@ const statusConfig = {
   processing: {
     label: 'Processing',
     icon: Loader2,
-    color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+    color:
+      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
     description: 'Currently being processed',
   },
   text_extracted: {
     label: 'Text Extracted',
     icon: FileText,
-    color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
+    color:
+      'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
     description: 'Text has been extracted from document',
   },
   chunked: {
     label: 'Chunked',
     icon: FileText,
-    color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300',
+    color:
+      'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300',
     description: 'Text has been split into searchable chunks',
   },
   embedded: {
@@ -111,7 +114,9 @@ export function DocumentList({ userId }: DocumentListProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
+  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(
+    null,
+  );
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -148,9 +153,9 @@ export function DocumentList({ userId }: DocumentListProps) {
     startTransition(async () => {
       try {
         const result = await deleteDocument(documentId);
-        
+
         if (result.success) {
-          setDocuments(docs => docs.filter(doc => doc.id !== documentId));
+          setDocuments((docs) => docs.filter((doc) => doc.id !== documentId));
           toast.success(`Document "${fileName}" has been deleted.`);
           // Refresh stats
           await loadDocuments();
@@ -168,9 +173,10 @@ export function DocumentList({ userId }: DocumentListProps) {
     setIsDetailOpen(true);
   };
 
-  const filteredDocuments = documents.filter(doc => {
-    const matchesSearch = doc.originalName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         doc.fileName.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredDocuments = documents.filter((doc) => {
+    const matchesSearch =
+      doc.originalName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doc.fileName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || doc.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -200,7 +206,9 @@ export function DocumentList({ userId }: DocumentListProps) {
         <div className="grid gap-4 md:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Documents</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Documents
+              </CardTitle>
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -209,7 +217,9 @@ export function DocumentList({ userId }: DocumentListProps) {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Ready for Chat</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Ready for Chat
+              </CardTitle>
               <CheckCircle className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
@@ -223,7 +233,11 @@ export function DocumentList({ userId }: DocumentListProps) {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {stats.processing + stats.uploaded + stats.textExtracted + stats.chunked + stats.embedded}
+                {stats.processing +
+                  stats.uploaded +
+                  stats.textExtracted +
+                  stats.chunked +
+                  stats.embedded}
               </div>
             </CardContent>
           </Card>
@@ -265,12 +279,10 @@ export function DocumentList({ userId }: DocumentListProps) {
             </SelectContent>
           </Select>
         </div>
-        <Button 
-          variant="outline" 
-          onClick={handleRefresh}
-          disabled={refreshing}
-        >
-          <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+        <Button variant="outline" onClick={handleRefresh} disabled={refreshing}>
+          <RefreshCw
+            className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`}
+          />
           Refresh
         </Button>
       </div>
@@ -281,20 +293,23 @@ export function DocumentList({ userId }: DocumentListProps) {
           <CardContent className="text-center py-8">
             <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
             <h3 className="text-lg font-semibold mb-2">
-              {documents.length === 0 ? 'No documents uploaded yet' : 'No documents match your filters'}
+              {documents.length === 0
+                ? 'No documents uploaded yet'
+                : 'No documents match your filters'}
             </h3>
             <p className="text-muted-foreground">
-              {documents.length === 0 
+              {documents.length === 0
                 ? 'Upload your first document to get started with intelligent chat conversations.'
-                : 'Try adjusting your search term or filter settings.'
-              }
+                : 'Try adjusting your search term or filter settings.'}
             </p>
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-4">
           {filteredDocuments.map((doc) => {
-            const statusInfo = statusConfig[doc.status as keyof typeof statusConfig] || statusConfig.processing;
+            const statusInfo =
+              statusConfig[doc.status as keyof typeof statusConfig] ||
+              statusConfig.processing;
             const StatusIcon = statusInfo.icon;
             return (
               <Card key={doc.id}>
@@ -306,9 +321,13 @@ export function DocumentList({ userId }: DocumentListProps) {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-2 mb-2">
-                          <h3 className="font-semibold truncate">{doc.originalName}</h3>
+                          <h3 className="font-semibold truncate">
+                            {doc.originalName}
+                          </h3>
                           <Badge className={statusInfo.color}>
-                            <StatusIcon className={`h-3 w-3 mr-1 ${doc.status === 'processing' ? 'animate-spin' : ''}`} />
+                            <StatusIcon
+                              className={`h-3 w-3 mr-1 ${doc.status === 'processing' ? 'animate-spin' : ''}`}
+                            />
                             {statusInfo.label}
                           </Badge>
                         </div>
@@ -316,7 +335,10 @@ export function DocumentList({ userId }: DocumentListProps) {
                           <div>{statusInfo.description}</div>
                           <div className="flex items-center space-x-4">
                             <span>{formatFileSize(doc.fileSize)}</span>
-                            <span>Uploaded {formatDistanceToNow(new Date(doc.createdAt))} ago</span>
+                            <span>
+                              Uploaded{' '}
+                              {formatDistanceToNow(new Date(doc.createdAt))} ago
+                            </span>
                             {doc.chunkCount && doc.chunkCount > 0 && (
                               <span>{doc.chunkCount} chunks</span>
                             )}
@@ -358,16 +380,22 @@ export function DocumentList({ userId }: DocumentListProps) {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Document</AlertDialogTitle>
+                              <AlertDialogTitle>
+                                Delete Document
+                              </AlertDialogTitle>
                               <AlertDialogDescription>
-                                Are you sure you want to delete &quot;{doc.originalName}&quot;? 
-                                This action cannot be undone and will remove all associated data including text chunks and embeddings.
+                                Are you sure you want to delete &quot;
+                                {doc.originalName}&quot;? This action cannot be
+                                undone and will remove all associated data
+                                including text chunks and embeddings.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction
-                                onClick={() => handleDelete(doc.id, doc.originalName)}
+                                onClick={() =>
+                                  handleDelete(doc.id, doc.originalName)
+                                }
                                 className="bg-red-600 hover:bg-red-700"
                               >
                                 Delete

@@ -30,12 +30,14 @@ vi.mock('@/lib/db', () => ({
   db: {
     insert: vi.fn().mockReturnValue({
       values: vi.fn().mockReturnValue({
-        returning: vi.fn().mockResolvedValue([{
-          id: 'doc-id-123',
-          fileName: 'test-file.pdf',
-          originalName: 'test.pdf',
-          status: 'uploaded',
-        }]),
+        returning: vi.fn().mockResolvedValue([
+          {
+            id: 'doc-id-123',
+            fileName: 'test-file.pdf',
+            originalName: 'test.pdf',
+            status: 'uploaded',
+          },
+        ]),
       }),
     }),
   },
@@ -65,7 +67,7 @@ describe('Document Upload API', () => {
       const formData = createFormDataWithFiles([testFile]);
       const request = createMockFormDataRequest(
         'http://localhost:3000/api/documents/upload',
-        formData
+        formData,
       );
 
       const response = await POST(request);
@@ -94,7 +96,7 @@ describe('Document Upload API', () => {
       const formData = createFormDataWithFiles(files);
       const request = createMockFormDataRequest(
         'http://localhost:3000/api/documents/upload',
-        formData
+        formData,
       );
 
       const response = await POST(request);
@@ -112,7 +114,7 @@ describe('Document Upload API', () => {
       const formData = createFormDataWithFiles([testFile]);
       const request = createMockFormDataRequest(
         'http://localhost:3000/api/documents/upload',
-        formData
+        formData,
       );
 
       const response = await POST(request);
@@ -127,7 +129,7 @@ describe('Document Upload API', () => {
       const formData = new FormData();
       const request = createMockFormDataRequest(
         'http://localhost:3000/api/documents/upload',
-        formData
+        formData,
       );
 
       const response = await POST(request);
@@ -143,7 +145,7 @@ describe('Document Upload API', () => {
       const formData = createFormDataWithFiles([largeFile]);
       const request = createMockFormDataRequest(
         'http://localhost:3000/api/documents/upload',
-        formData
+        formData,
       );
 
       const response = await POST(request);
@@ -159,7 +161,7 @@ describe('Document Upload API', () => {
       const formData = createFormDataWithFiles([invalidFile]);
       const request = createMockFormDataRequest(
         'http://localhost:3000/api/documents/upload',
-        formData
+        formData,
       );
 
       const response = await POST(request);
@@ -179,7 +181,7 @@ describe('Document Upload API', () => {
       const formData = createFormDataWithFiles(files);
       const request = createMockFormDataRequest(
         'http://localhost:3000/api/documents/upload',
-        formData
+        formData,
       );
 
       const response = await POST(request);
@@ -191,7 +193,7 @@ describe('Document Upload API', () => {
         expect.arrayContaining([
           expect.stringContaining('Only PDF files are allowed'),
           expect.stringContaining('File size exceeds 50MB limit'),
-        ])
+        ]),
       );
     });
 
@@ -207,7 +209,7 @@ describe('Document Upload API', () => {
       const formData = createFormDataWithFiles(files);
       const request = createMockFormDataRequest(
         'http://localhost:3000/api/documents/upload',
-        formData
+        formData,
       );
 
       const response = await POST(request);
@@ -226,7 +228,7 @@ describe('Document Upload API', () => {
       const formData = createFormDataWithFiles([testFile]);
       const request = createMockFormDataRequest(
         'http://localhost:3000/api/documents/upload',
-        formData
+        formData,
       );
 
       const response = await POST(request);
@@ -248,11 +250,15 @@ describe('Document Upload API', () => {
       const formData = createFormDataWithFiles([testFile]);
       const request = createMockFormDataRequest(
         'http://localhost:3000/api/documents/upload',
-        formData
+        formData,
       );
 
       const response = await POST(request);
-      await assertErrorResponse(response, 400, 'No files were successfully uploaded');
+      await assertErrorResponse(
+        response,
+        400,
+        'No files were successfully uploaded',
+      );
     });
 
     it('should handle database errors gracefully', async () => {
@@ -264,7 +270,9 @@ describe('Document Upload API', () => {
       const { db } = await import('@/lib/db');
       vi.mocked(db.insert).mockReturnValue({
         values: vi.fn().mockReturnValue({
-          returning: vi.fn().mockRejectedValue(new Error('Database connection lost')),
+          returning: vi
+            .fn()
+            .mockRejectedValue(new Error('Database connection lost')),
         }),
       } as any);
 
@@ -272,7 +280,7 @@ describe('Document Upload API', () => {
       const formData = createFormDataWithFiles([testFile]);
       const request = createMockFormDataRequest(
         'http://localhost:3000/api/documents/upload',
-        formData
+        formData,
       );
 
       const response = await POST(request);
@@ -291,14 +299,14 @@ describe('Document Upload API', () => {
       const formData = createFormDataWithFiles([testFile]);
       const request = createMockFormDataRequest(
         'http://localhost:3000/api/documents/upload',
-        formData
+        formData,
       );
 
       await POST(request);
 
       expect(mkdirMock).toHaveBeenCalledWith(
         expect.stringContaining('uploads'),
-        { recursive: true }
+        { recursive: true },
       );
     });
 
@@ -307,11 +315,15 @@ describe('Document Upload API', () => {
       const mockWithAuth = mockAuthSuccess(userId);
       vi.mocked(POST).mockImplementation(mockWithAuth);
 
-      const testFile = createTestFile('test-metadata.pdf', 'application/pdf', 2048);
+      const testFile = createTestFile(
+        'test-metadata.pdf',
+        'application/pdf',
+        2048,
+      );
       const formData = createFormDataWithFiles([testFile]);
       const request = createMockFormDataRequest(
         'http://localhost:3000/api/documents/upload',
-        formData
+        formData,
       );
 
       const response = await POST(request);
@@ -320,7 +332,7 @@ describe('Document Upload API', () => {
       const { db } = await import('@/lib/db');
       const insertMock = vi.mocked(db.insert);
       expect(insertMock).toHaveBeenCalledWith(schema.ragDocument);
-      
+
       const valuesMock = insertMock.mock.results[0]?.value?.values;
       expect(valuesMock).toHaveBeenCalledWith({
         fileName: expect.stringContaining('test-metadata.pdf'),
@@ -344,7 +356,7 @@ describe('Document Upload API', () => {
       const formData = createFormDataWithFiles([testFile]);
       const request = createMockFormDataRequest(
         'http://localhost:3000/api/documents/upload',
-        formData
+        formData,
       );
 
       const response = await POST(request);

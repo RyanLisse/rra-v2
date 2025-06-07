@@ -1,4 +1,4 @@
-import { describe, it, expect, } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 // TDD: These imports will fail until we implement the actual modules
 describe('Landing AI ADE Client - Implementation Tests', () => {
@@ -37,36 +37,36 @@ describe('Landing AI ADE Client - Implementation Tests', () => {
 describe('Landing AI ADE API Integration Tests', () => {
   it('should create ADE client with valid configuration', async () => {
     const { AdeClient } = await import('@/lib/ade/client');
-    
+
     // Should work with valid config
     const client = new AdeClient({
       apiKey: 'test-key',
       endpoint: 'https://api.landing.ai/v1/ade',
     });
-    
+
     expect(client).toBeDefined();
     expect(client).toBeInstanceOf(AdeClient);
   });
 
   it('should validate ADE processing request', async () => {
     const { AdeProcessRequestSchema } = await import('@/lib/ade/types');
-    
+
     // Valid request should pass validation
     const validRequest = {
       documentId: 'doc-123',
       filePath: '/uploads/test.pdf',
       documentType: 'pdf' as const,
     };
-    
+
     expect(() => AdeProcessRequestSchema.parse(validRequest)).not.toThrow();
-    
+
     // Invalid request should fail validation
     const invalidRequest = {
       documentId: '',
       filePath: '',
       documentType: 'invalid' as any,
     };
-    
+
     expect(() => AdeProcessRequestSchema.parse(invalidRequest)).toThrow();
   });
 });

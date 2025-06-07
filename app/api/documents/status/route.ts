@@ -71,7 +71,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
 
     if (action === 'retry') {
       const { documentId, fromStep } = body;
-      
+
       if (!documentId) {
         return NextResponse.json(
           { error: 'Document ID is required for retry' },
@@ -105,10 +105,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
       });
     }
 
-    return NextResponse.json(
-      { error: 'Invalid action' },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error) {
     console.error('Status action error:', error);
     return NextResponse.json(

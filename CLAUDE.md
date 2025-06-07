@@ -129,3 +129,8 @@ This codebase was designed with a multi-agent development approach:
 - **Testing Agent**: Quality assurance and test coverage
 
 When working on features, consider which "agent" domain you're operating in and maintain separation of concerns accordingly.
+
+## Core Development Principles
+- **Test-Driven Development (TDD)**: Write tests first, fail red, implement green, refactor
+- **TypeScript Everywhere**: Full type safety with Zod runtime validation
+- **Minimal Code**: Keep files under 500 lines, remove all redundancy

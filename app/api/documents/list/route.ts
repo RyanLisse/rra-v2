@@ -6,12 +6,9 @@ import { ChatSDKError } from '@/lib/errors';
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession();
-    
+
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -22,24 +19,20 @@ export async function GET(request: NextRequest) {
       limit: Math.min(limit, 100), // Cap at 100 documents
     });
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       documents,
-      count: documents.length 
+      count: documents.length,
     });
-
   } catch (error) {
     console.error('Document list error:', error);
-    
+
     if (error instanceof ChatSDKError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
     return NextResponse.json(
       { error: 'Failed to fetch documents' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

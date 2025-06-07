@@ -10,16 +10,14 @@ vi.mock('@/lib/db', () => ({
     insert: vi.fn().mockReturnThis(),
     values: vi.fn().mockReturnThis(),
     returning: vi.fn().mockReturnThis(),
-    execute: vi
-      .fn()
-      .mockResolvedValue([
-        {
-          id: 'chunk-123',
-          documentId: 'doc-123',
-          content: 'Test chunk content',
-          index: 0,
-        },
-      ]),
+    execute: vi.fn().mockResolvedValue([
+      {
+        id: 'chunk-123',
+        documentId: 'doc-123',
+        content: 'Test chunk content',
+        index: 0,
+      },
+    ]),
     transaction: vi.fn().mockImplementation((cb) => cb()),
     select: vi.fn().mockReturnThis(),
     from: vi.fn().mockReturnThis(),

@@ -66,7 +66,10 @@ export async function getManagedDocuments(): Promise<ManagedDocumentView[]> {
         content: documentContentsTable,
       })
       .from(documentsTable)
-      .leftJoin(documentContentsTable, eq(documentsTable.id, documentContentsTable.documentId))
+      .leftJoin(
+        documentContentsTable,
+        eq(documentsTable.id, documentContentsTable.documentId),
+      )
       .where(eq(documentsTable.uploadedBy, session.user.id))
       .orderBy(desc(documentsTable.updatedAt));
 
@@ -77,7 +80,7 @@ export async function getManagedDocuments(): Promise<ManagedDocumentView[]> {
         .select({ count: sql<number>`count(*)` })
         .from(documentChunksTable)
         .where(eq(documentChunksTable.documentId, row.document.id));
-      
+
       results.push({
         id: row.document.id,
         originalName: row.document.originalName,
@@ -88,20 +91,24 @@ export async function getManagedDocuments(): Promise<ManagedDocumentView[]> {
         status: row.document.status,
         createdAt: row.document.createdAt,
         updatedAt: row.document.updatedAt,
-        pageCount: row.content?.pageCount ? Number.parseInt(row.content.pageCount) : null,
+        pageCount: row.content?.pageCount
+          ? Number.parseInt(row.content.pageCount)
+          : null,
         chunkCount: Number(chunkStats[0]?.count || 0),
         hasContent: !!row.content,
       });
     }
-    
+
     return results;
   } catch (error) {
-    console.error("Error fetching managed documents:", error);
+    console.error('Error fetching managed documents:', error);
     return [];
   }
 }
 
-export async function getDocumentDetails(documentId: string): Promise<DocumentDetailView | null> {
+export async function getDocumentDetails(
+  documentId: string,
+): Promise<DocumentDetailView | null> {
   const session = await getServerSession();
   if (!session?.user?.id) {
     return null;
@@ -115,11 +122,16 @@ export async function getDocumentDetails(documentId: string): Promise<DocumentDe
         content: documentContentsTable,
       })
       .from(documentsTable)
-      .leftJoin(documentContentsTable, eq(documentsTable.id, documentContentsTable.documentId))
-      .where(and(
-        eq(documentsTable.id, documentId),
-        eq(documentsTable.uploadedBy, session.user.id)
-      ))
+      .leftJoin(
+        documentContentsTable,
+        eq(documentsTable.id, documentContentsTable.documentId),
+      )
+      .where(
+        and(
+          eq(documentsTable.id, documentId),
+          eq(documentsTable.uploadedBy, session.user.id),
+        ),
+      )
       .limit(1);
 
     if (!docData.length) {
@@ -162,7 +174,7 @@ export async function getDocumentDetails(documentId: string): Promise<DocumentDe
       extractedText: content?.extractedText || null,
       textFilePath: content?.textFilePath || null,
       metadata: content?.metadata || null,
-      chunks: chunks.map(chunk => ({
+      chunks: chunks.map((chunk) => ({
         id: chunk.id,
         chunkIndex: chunk.chunkIndex,
         content: chunk.content,
@@ -175,10 +187,12 @@ export async function getDocumentDetails(documentId: string): Promise<DocumentDe
   }
 }
 
-export async function deleteDocument(documentId: string): Promise<{ success: boolean; message?: string }> {
+export async function deleteDocument(
+  documentId: string,
+): Promise<{ success: boolean; message?: string }> {
   const session = await getServerSession();
   if (!session?.user?.id) {
-    return { success: false, message: "Unauthorized" };
+    return { success: false, message: 'Unauthorized' };
   }
 
   try {
@@ -189,28 +203,36 @@ export async function deleteDocument(documentId: string): Promise<{ success: boo
         content: documentContentsTable,
       })
       .from(documentsTable)
-      .leftJoin(documentContentsTable, eq(documentsTable.id, documentContentsTable.documentId))
-      .where(and(
-        eq(documentsTable.id, documentId),
-        eq(documentsTable.uploadedBy, session.user.id)
-      ))
+      .leftJoin(
+        documentContentsTable,
+        eq(documentsTable.id, documentContentsTable.documentId),
+      )
+      .where(
+        and(
+          eq(documentsTable.id, documentId),
+          eq(documentsTable.uploadedBy, session.user.id),
+        ),
+      )
       .limit(1);
 
     if (!docData.length) {
-      return { success: false, message: "Document not found or access denied." };
+      return {
+        success: false,
+        message: 'Document not found or access denied.',
+      };
     }
 
     const { document: doc, content } = docData[0];
 
     // Delete files from filesystem
     const filesToDelete: string[] = [];
-    
+
     // Add original file
     if (doc.filePath) {
-      const fullPath = path.isAbsolute(doc.filePath) 
-        ? doc.filePath 
+      const fullPath = path.isAbsolute(doc.filePath)
+        ? doc.filePath
         : path.join(UPLOAD_DIR, doc.filePath);
-      
+
       if (fullPath.startsWith(UPLOAD_DIR)) {
         filesToDelete.push(fullPath);
       }
@@ -221,7 +243,7 @@ export async function deleteDocument(documentId: string): Promise<{ success: boo
       const fullPath = path.isAbsolute(content.textFilePath)
         ? content.textFilePath
         : path.join(UPLOAD_DIR, content.textFilePath);
-      
+
       if (fullPath.startsWith(UPLOAD_DIR)) {
         filesToDelete.push(fullPath);
       }
@@ -249,8 +271,7 @@ export async function deleteDocument(documentId: string): Promise<{ success: boo
     }
 
     // Delete from database (CASCADE will handle related tables)
-    await db.delete(documentsTable)
-      .where(eq(documentsTable.id, documentId));
+    await db.delete(documentsTable).where(eq(documentsTable.id, documentId));
 
     revalidatePath('/documents');
     return { success: true };
@@ -299,7 +320,7 @@ export async function getDocumentStats(): Promise<DocumentStats> {
     for (const stat of stats) {
       const count = Number(stat.count);
       result.total += count;
-      
+
       switch (stat.status) {
         case 'uploaded':
           result.uploaded = count;
@@ -327,7 +348,7 @@ export async function getDocumentStats(): Promise<DocumentStats> {
 
     return result;
   } catch (error) {
-    console.error("Error fetching document stats:", error);
+    console.error('Error fetching document stats:', error);
     return {
       total: 0,
       uploaded: 0,

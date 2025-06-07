@@ -8,9 +8,7 @@ import {
   assertErrorResponse,
   setupTestEnvironment,
 } from '../utils/test-helpers';
-import {
-  createChatRequest,
-} from '../fixtures/test-data';
+import { createChatRequest } from '../fixtures/test-data';
 import { nanoid } from 'nanoid';
 
 // Mock dependencies
@@ -76,7 +74,7 @@ describe('Chat API Routes', () => {
 
       const response = await POST(request);
       expect(response.status).toBe(200);
-      
+
       // Verify chat creation
       const { saveChat } = await import('@/lib/db/queries');
       expect(saveChat).toHaveBeenCalledWith({
@@ -263,7 +261,7 @@ describe('Chat API Routes', () => {
             'updateDocument',
             'requestSuggestions',
           ],
-        })
+        }),
       );
     });
 
@@ -286,7 +284,7 @@ describe('Chat API Routes', () => {
       expect(streamText).toHaveBeenCalledWith(
         expect.objectContaining({
           experimental_activeTools: [],
-        })
+        }),
       );
     });
   });
@@ -299,7 +297,9 @@ describe('Chat API Routes', () => {
       vi.mocked(GET).mockImplementation(mockWithAuth);
 
       // Mock chat and stream data
-      const { getChatById, getStreamIdsByChatId } = await import('@/lib/db/queries');
+      const { getChatById, getStreamIdsByChatId } = await import(
+        '@/lib/db/queries'
+      );
       vi.mocked(getChatById).mockResolvedValue({
         id: chatId,
         userId,
@@ -310,7 +310,7 @@ describe('Chat API Routes', () => {
       vi.mocked(getStreamIdsByChatId).mockResolvedValue(['stream-123']);
 
       const request = createMockRequest(
-        `http://localhost:3000/api/chat?chatId=${chatId}`
+        `http://localhost:3000/api/chat?chatId=${chatId}`,
       );
 
       const response = await GET(request);
@@ -335,7 +335,7 @@ describe('Chat API Routes', () => {
       });
 
       const request = createMockRequest(
-        `http://localhost:3000/api/chat?chatId=${chatId}`
+        `http://localhost:3000/api/chat?chatId=${chatId}`,
       );
 
       const response = await GET(request);
@@ -350,7 +350,9 @@ describe('Chat API Routes', () => {
       vi.mocked(GET).mockImplementation(mockWithAuth);
 
       // Mock public chat owned by different user
-      const { getChatById, getStreamIdsByChatId } = await import('@/lib/db/queries');
+      const { getChatById, getStreamIdsByChatId } = await import(
+        '@/lib/db/queries'
+      );
       vi.mocked(getChatById).mockResolvedValue({
         id: chatId,
         userId: otherUserId,
@@ -361,7 +363,7 @@ describe('Chat API Routes', () => {
       vi.mocked(getStreamIdsByChatId).mockResolvedValue(['stream-123']);
 
       const request = createMockRequest(
-        `http://localhost:3000/api/chat?chatId=${chatId}`
+        `http://localhost:3000/api/chat?chatId=${chatId}`,
       );
 
       const response = await GET(request);
@@ -389,7 +391,7 @@ describe('Chat API Routes', () => {
       vi.mocked(getChatById).mockResolvedValue(null);
 
       const request = createMockRequest(
-        'http://localhost:3000/api/chat?chatId=non-existent'
+        'http://localhost:3000/api/chat?chatId=non-existent',
       );
 
       const response = await GET(request);
@@ -416,14 +418,14 @@ describe('Chat API Routes', () => {
 
       const request = createMockRequest(
         `http://localhost:3000/api/chat?id=${chatId}`,
-        { method: 'DELETE' }
+        { method: 'DELETE' },
       );
 
       const response = await DELETE(request);
       const data = await assertSuccessResponse(response);
 
       expect(data.id).toBe('chat-123');
-      
+
       const { deleteChatById } = await import('@/lib/db/queries');
       expect(deleteChatById).toHaveBeenCalledWith({ id: chatId });
     });
@@ -447,7 +449,7 @@ describe('Chat API Routes', () => {
 
       const request = createMockRequest(
         `http://localhost:3000/api/chat?id=${chatId}`,
-        { method: 'DELETE' }
+        { method: 'DELETE' },
       );
 
       const response = await DELETE(request);
@@ -459,10 +461,9 @@ describe('Chat API Routes', () => {
       const mockWithAuth = mockAuthSuccess(userId);
       vi.mocked(DELETE).mockImplementation(mockWithAuth);
 
-      const request = createMockRequest(
-        'http://localhost:3000/api/chat',
-        { method: 'DELETE' }
-      );
+      const request = createMockRequest('http://localhost:3000/api/chat', {
+        method: 'DELETE',
+      });
 
       const response = await DELETE(request);
       await assertErrorResponse(response, 400, 'bad_request');

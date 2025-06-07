@@ -44,7 +44,10 @@ class ConsoleErrorTracker implements ErrorTracker {
         ...context?.extra,
         breadcrumbs: this.breadcrumbs.slice(-10), // Last 10 breadcrumbs
         contexts: this.contexts,
-        userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : undefined,
+        userAgent:
+          typeof window !== 'undefined'
+            ? window.navigator.userAgent
+            : undefined,
         url: typeof window !== 'undefined' ? window.location.href : undefined,
         timestamp: new Date().toISOString(),
       },
@@ -61,7 +64,10 @@ class ConsoleErrorTracker implements ErrorTracker {
     }
   }
 
-  captureMessage(message: string, level: 'info' | 'warning' | 'error' = 'info'): void {
+  captureMessage(
+    message: string,
+    level: 'info' | 'warning' | 'error' = 'info',
+  ): void {
     const context = {
       level,
       user: this.user,
@@ -106,7 +112,10 @@ class ConsoleErrorTracker implements ErrorTracker {
     }
   }
 
-  private async sendToService(type: 'exception' | 'message', payload: any): Promise<void> {
+  private async sendToService(
+    type: 'exception' | 'message',
+    payload: any,
+  ): Promise<void> {
     try {
       // In a real application, integrate with services like:
       // - Sentry
@@ -141,7 +150,7 @@ export const errorTracker = new ConsoleErrorTracker();
 // React Error Boundary integration
 export function captureComponentError(
   error: Error,
-  errorInfo: { componentStack: string }
+  errorInfo: { componentStack: string },
 ): void {
   errorTracker.captureException(error, {
     tags: {
@@ -163,7 +172,7 @@ if (typeof window !== 'undefined') {
       {
         tags: { type: 'unhandled-promise-rejection' },
         level: 'error',
-      }
+      },
     );
   });
 
@@ -182,9 +191,12 @@ if (typeof window !== 'undefined') {
 }
 
 // Performance monitoring
-export function trackPerformance(name: string, fn: () => Promise<any> | any): any {
+export function trackPerformance(
+  name: string,
+  fn: () => Promise<any> | any,
+): any {
   const startTime = performance.now();
-  
+
   errorTracker.addBreadcrumb({
     message: `Starting ${name}`,
     category: 'performance',
@@ -194,7 +206,7 @@ export function trackPerformance(name: string, fn: () => Promise<any> | any): an
 
   try {
     const result = fn();
-    
+
     if (result instanceof Promise) {
       return result
         .then((value) => {
@@ -240,7 +252,10 @@ export function trackPerformance(name: string, fn: () => Promise<any> | any): an
 }
 
 // User interaction tracking
-export function trackUserAction(action: string, data?: Record<string, any>): void {
+export function trackUserAction(
+  action: string,
+  data?: Record<string, any>,
+): void {
   errorTracker.addBreadcrumb({
     message: action,
     category: 'user',
@@ -254,7 +269,7 @@ export function trackAPIRequest(
   method: string,
   url: string,
   status?: number,
-  duration?: number
+  duration?: number,
 ): void {
   errorTracker.addBreadcrumb({
     message: `${method} ${url}`,
@@ -273,7 +288,7 @@ export function trackAPIRequest(
 if (typeof window !== 'undefined') {
   // Track page navigation
   let currentPath = window.location.pathname;
-  
+
   const trackNavigation = () => {
     const newPath = window.location.pathname;
     if (newPath !== currentPath) {
@@ -292,17 +307,17 @@ if (typeof window !== 'undefined') {
 
   // Listen for navigation events
   window.addEventListener('popstate', trackNavigation);
-  
+
   // Override pushState and replaceState
   const originalPushState = history.pushState;
   const originalReplaceState = history.replaceState;
-  
-  history.pushState = function(...args) {
+
+  history.pushState = function (...args) {
     originalPushState.apply(this, args);
     trackNavigation();
   };
-  
-  history.replaceState = function(...args) {
+
+  history.replaceState = function (...args) {
     originalReplaceState.apply(this, args);
     trackNavigation();
   };

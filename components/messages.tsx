@@ -70,7 +70,7 @@ function PureMessages({
       {status === 'submitted' &&
         messages.length > 0 &&
         messages[messages.length - 1].role === 'user' && <ThinkingMessage />}
-      
+
       {status === 'streaming' && messages.length > 0 && (
         <div className="w-full mx-auto max-w-3xl px-4">
           <TypingIndicator isVisible={true} />

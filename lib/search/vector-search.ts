@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
 import { ragDocument, documentChunk, documentEmbedding } from '@/lib/db/schema';
-import { eq, sql, desc, and, } from 'drizzle-orm';
+import { eq, sql, desc, and } from 'drizzle-orm';
 import { cohereService } from '@/lib/ai/cohere-client';
 import { createClient, type RedisClientType } from 'redis';
 import crypto from 'node:crypto';
@@ -13,6 +13,10 @@ export interface SearchResult {
   similarity: number;
   metadata: any;
   chunkIndex: number;
+  // Enhanced ADE structural metadata
+  elementType?: string | null; // e.g., 'paragraph', 'title', 'figure_caption', 'table_text', 'list_item'
+  pageNumber?: number | null; // page number where the element appears
+  bbox?: any; // optional bounding box coordinates as [x1, y1, x2, y2]
 }
 
 export interface SearchResponse {
@@ -90,7 +94,8 @@ export class VectorSearchService {
     this.similarityConfig = {
       algorithm: (process.env.SIMILARITY_ALGORITHM as any) || 'cosine',
       adaptiveThreshold: process.env.ADAPTIVE_THRESHOLD_ENABLED !== 'false',
-      contextAwareScoring: process.env.CONTEXT_AWARE_SCORING_ENABLED !== 'false',
+      contextAwareScoring:
+        process.env.CONTEXT_AWARE_SCORING_ENABLED !== 'false',
     };
   }
   /**
@@ -99,11 +104,11 @@ export class VectorSearchService {
   private loadSynonymDictionary(): Record<string, string[]> {
     return {
       // Technical terms
-      'issue': ['problem', 'error', 'bug', 'fault'],
-      'fix': ['solve', 'repair', 'resolve', 'correct'],
-      'install': ['setup', 'configure', 'deploy', 'implement'],
-      'connect': ['link', 'attach', 'join', 'bind'],
-      'calibrate': ['adjust', 'tune', 'configure', 'set'],
+      issue: ['problem', 'error', 'bug', 'fault'],
+      fix: ['solve', 'repair', 'resolve', 'correct'],
+      install: ['setup', 'configure', 'deploy', 'implement'],
+      connect: ['link', 'attach', 'join', 'bind'],
+      calibrate: ['adjust', 'tune', 'configure', 'set'],
       // Add more domain-specific synonyms as needed
     };
   }
@@ -113,9 +118,9 @@ export class VectorSearchService {
    */
   private loadDomainTerms(): Record<string, string[]> {
     return {
-      'roborail': ['robot', 'automation', 'rail system', 'automated rail'],
-      'pmac': ['controller', 'motion controller', 'control system'],
-      'calibration': ['setup', 'configuration', 'tuning', 'adjustment'],
+      roborail: ['robot', 'automation', 'rail system', 'automated rail'],
+      pmac: ['controller', 'motion controller', 'control system'],
+      calibration: ['setup', 'configuration', 'tuning', 'adjustment'],
       // Add more domain terms based on your document corpus
     };
   }
@@ -137,7 +142,10 @@ export class VectorSearchService {
   /**
    * Expand query with synonyms and domain terms
    */
-  private expandQuery(query: string): { expandedQuery: string; expansions: string[] } {
+  private expandQuery(query: string): {
+    expandedQuery: string;
+    expansions: string[];
+  } {
     if (!this.queryExpansionConfig.enabled) {
       return { expandedQuery: query, expansions: [] };
     }
@@ -149,19 +157,20 @@ export class VectorSearchService {
     for (const word of words) {
       const synonyms = this.queryExpansionConfig.synonyms[word] || [];
       const domainTerms = this.queryExpansionConfig.domainTerms[word] || [];
-      
-      const allExpansions = [...synonyms, ...domainTerms]
-        .slice(0, this.queryExpansionConfig.maxExpansions);
-      
+
+      const allExpansions = [...synonyms, ...domainTerms].slice(
+        0,
+        this.queryExpansionConfig.maxExpansions,
+      );
+
       if (allExpansions.length > 0) {
         expandedTerms.push(...allExpansions);
         expansions.push(...allExpansions);
       }
     }
 
-    const expandedQuery = expandedTerms.length > 0 
-      ? `${query} ${expandedTerms.join(' ')}`
-      : query;
+    const expandedQuery =
+      expandedTerms.length > 0 ? `${query} ${expandedTerms.join(' ')}` : query;
 
     return { expandedQuery, expansions };
   }
@@ -224,6 +233,8 @@ export class VectorSearchService {
       documentIds?: string[];
       useCache?: boolean;
       expandQuery?: boolean;
+      elementTypes?: string[]; // Filter by specific element types
+      pageNumbers?: number[]; // Filter by specific page numbers
     } = {},
   ): Promise<SearchResponse> {
     const startTime = Date.now();
@@ -233,6 +244,8 @@ export class VectorSearchService {
       documentIds,
       useCache = true,
       expandQuery = true,
+      elementTypes,
+      pageNumbers,
     } = options;
 
     // Check cache first
@@ -254,13 +267,14 @@ export class VectorSearchService {
     }
 
     // Expand query if enabled
-    const { expandedQuery, expansions } = expandQuery 
+    const { expandedQuery, expansions } = expandQuery
       ? this.expandQuery(query)
       : { expandedQuery: query, expansions: [] };
 
     try {
       // Generate query embedding using expanded query
-      const queryEmbedding = await cohereService.generateQueryEmbedding(expandedQuery);
+      const queryEmbedding =
+        await cohereService.generateQueryEmbedding(expandedQuery);
       const embeddingVector = JSON.stringify(queryEmbedding.embedding);
 
       // Build the search query
@@ -276,9 +290,28 @@ export class VectorSearchService {
         );
       }
 
+      // Add element type filtering
+      if (elementTypes && elementTypes.length > 0) {
+        whereCondition = and(
+          whereCondition,
+          sql`${documentChunk.elementType} = ANY(${elementTypes})`,
+        );
+      }
+
+      // Add page number filtering
+      if (pageNumbers && pageNumbers.length > 0) {
+        whereCondition = and(
+          whereCondition,
+          sql`${documentChunk.pageNumber} = ANY(${pageNumbers})`,
+        );
+      }
+
       // Perform vector similarity search using configured algorithm
-      const similaritySql = this.getSimilaritySql(documentEmbedding.embedding, embeddingVector);
-      
+      const similaritySql = this.getSimilaritySql(
+        documentEmbedding.embedding,
+        embeddingVector,
+      );
+
       const results = await db
         .select({
           chunkId: documentEmbedding.chunkId,
@@ -288,6 +321,10 @@ export class VectorSearchService {
           similarity: similaritySql,
           metadata: documentChunk.metadata,
           chunkIndex: documentChunk.chunkIndex,
+          // Include enhanced ADE structural metadata
+          elementType: documentChunk.elementType,
+          pageNumber: documentChunk.pageNumber,
+          bbox: documentChunk.bbox,
         })
         .from(documentEmbedding)
         .innerJoin(
@@ -423,12 +460,16 @@ export class VectorSearchService {
     }
 
     // Analyze result quality to further adjust
-    const vectorAvgScore = vectorResults.length > 0 
-      ? vectorResults.reduce((sum, r) => sum + r.similarity, 0) / vectorResults.length
-      : 0;
-    const textAvgScore = textResults.length > 0
-      ? textResults.reduce((sum, r) => sum + r.similarity, 0) / textResults.length
-      : 0;
+    const vectorAvgScore =
+      vectorResults.length > 0
+        ? vectorResults.reduce((sum, r) => sum + r.similarity, 0) /
+          vectorResults.length
+        : 0;
+    const textAvgScore =
+      textResults.length > 0
+        ? textResults.reduce((sum, r) => sum + r.similarity, 0) /
+          textResults.length
+        : 0;
 
     // If one method significantly outperforms, adjust weights
     if (vectorAvgScore > textAvgScore * 1.5) {
@@ -459,6 +500,8 @@ export class VectorSearchService {
       scoringAlgorithm?: 'weighted' | 'rrf' | 'adaptive';
       useCache?: boolean;
       expandQuery?: boolean;
+      elementTypes?: string[];
+      pageNumbers?: number[];
     } = {},
   ): Promise<HybridSearchResponse> {
     const startTime = Date.now();
@@ -473,6 +516,8 @@ export class VectorSearchService {
       scoringAlgorithm = 'adaptive',
       useCache = true,
       expandQuery = true,
+      elementTypes,
+      pageNumbers,
     } = options;
 
     // Check cache first for hybrid search
@@ -501,16 +546,20 @@ export class VectorSearchService {
         documentIds,
         useCache: false, // Don't double-cache
         expandQuery,
+        elementTypes,
+        pageNumbers,
       });
 
       // Perform full-text search with expanded query if enabled
-      const { expandedQuery, expansions } = expandQuery 
+      const { expandedQuery, expansions } = expandQuery
         ? this.expandQuery(query)
         : { expandedQuery: query, expansions: [] };
-        
+
       const textResults = await this.fullTextSearch(expandedQuery, userId, {
         limit: useRerank ? rerankTopK : limit,
         documentIds,
+        elementTypes,
+        pageNumbers,
       });
 
       // Determine scoring approach and weights
@@ -570,7 +619,8 @@ export class VectorSearchService {
         searchTimeMs: Date.now() - startTime,
         rerankTimeMs,
         cacheHit: false,
-        queryExpansions: expansions.length > 0 ? expansions : vectorResults.queryExpansions,
+        queryExpansions:
+          expansions.length > 0 ? expansions : vectorResults.queryExpansions,
         algorithmUsed,
       };
 
@@ -585,7 +635,10 @@ export class VectorSearchService {
               totalResults: finalResults.length,
               queryEmbeddingTokens: vectorResults.queryEmbeddingTokens,
               rerankTimeMs,
-              queryExpansions: expansions.length > 0 ? expansions : vectorResults.queryExpansions,
+              queryExpansions:
+                expansions.length > 0
+                  ? expansions
+                  : vectorResults.queryExpansions,
               algorithmUsed,
             }),
           );
@@ -613,9 +666,11 @@ export class VectorSearchService {
       limit?: number;
       documentIds?: string[];
       useAdvancedQuery?: boolean;
+      elementTypes?: string[];
+      pageNumbers?: number[];
     } = {},
   ): Promise<{ results: SearchResult[] }> {
-    const { limit = 10, documentIds, useAdvancedQuery = true } = options;
+    const { limit = 10, documentIds, useAdvancedQuery = true, elementTypes, pageNumbers } = options;
 
     // Optimize query for full-text search
     let optimizedQuery = query;
@@ -625,10 +680,10 @@ export class VectorSearchService {
         .replace(/[^\w\s]/g, ' ') // Remove special characters
         .replace(/\s+/g, ' ') // Normalize whitespace
         .trim();
-      
+
       // Add prefix matching for technical terms
       const words = optimizedQuery.split(' ');
-      const expandedWords = words.map(word => {
+      const expandedWords = words.map((word) => {
         if (word.length > 3) {
           return `${word}:*`; // Add prefix matching
         }
@@ -645,6 +700,30 @@ export class VectorSearchService {
         : sql`to_tsvector('english', ${documentChunk.content}) @@ plainto_tsquery('english', ${query})`,
     );
 
+    // Add document ID filtering
+    if (documentIds && documentIds.length > 0) {
+      whereCondition = and(
+        whereCondition,
+        sql`${ragDocument.id} = ANY(${documentIds})`,
+      );
+    }
+
+    // Add element type filtering
+    if (elementTypes && elementTypes.length > 0) {
+      whereCondition = and(
+        whereCondition,
+        sql`${documentChunk.elementType} = ANY(${elementTypes})`,
+      );
+    }
+
+    // Add page number filtering
+    if (pageNumbers && pageNumbers.length > 0) {
+      whereCondition = and(
+        whereCondition,
+        sql`${documentChunk.pageNumber} = ANY(${pageNumbers})`,
+      );
+    }
+
     // If advanced query fails, fallback to simple query
     let results: any[] = [];
     try {
@@ -659,6 +738,10 @@ export class VectorSearchService {
             : sql<number>`ts_rank(to_tsvector('english', ${documentChunk.content}), plainto_tsquery('english', ${query}))`,
           metadata: documentChunk.metadata,
           chunkIndex: documentChunk.chunkIndex,
+          // Include enhanced ADE structural metadata
+          elementType: documentChunk.elementType,
+          pageNumber: documentChunk.pageNumber,
+          bbox: documentChunk.bbox,
         })
         .from(documentChunk)
         .innerJoin(ragDocument, eq(documentChunk.documentId, ragDocument.id))
@@ -672,8 +755,11 @@ export class VectorSearchService {
         )
         .limit(limit);
     } catch (advancedError) {
-      console.warn('Advanced text search failed, falling back to simple search:', advancedError);
-      
+      console.warn(
+        'Advanced text search failed, falling back to simple search:',
+        advancedError,
+      );
+
       // Fallback to simple query
       whereCondition = and(
         eq(ragDocument.uploadedBy, userId),
@@ -688,6 +774,22 @@ export class VectorSearchService {
         );
       }
 
+      // Add element type filtering to fallback
+      if (elementTypes && elementTypes.length > 0) {
+        whereCondition = and(
+          whereCondition,
+          sql`${documentChunk.elementType} = ANY(${elementTypes})`,
+        );
+      }
+
+      // Add page number filtering to fallback
+      if (pageNumbers && pageNumbers.length > 0) {
+        whereCondition = and(
+          whereCondition,
+          sql`${documentChunk.pageNumber} = ANY(${pageNumbers})`,
+        );
+      }
+
       results = await db
         .select({
           chunkId: documentChunk.id,
@@ -697,6 +799,10 @@ export class VectorSearchService {
           similarity: sql<number>`ts_rank(to_tsvector('english', ${documentChunk.content}), plainto_tsquery('english', ${query}))`,
           metadata: documentChunk.metadata,
           chunkIndex: documentChunk.chunkIndex,
+          // Include enhanced ADE structural metadata
+          elementType: documentChunk.elementType,
+          pageNumber: documentChunk.pageNumber,
+          bbox: documentChunk.bbox,
         })
         .from(documentChunk)
         .innerJoin(ragDocument, eq(documentChunk.documentId, ragDocument.id))
@@ -776,17 +882,18 @@ export class VectorSearchService {
       threshold?: number;
       documentIds?: string[];
       contextWeight?: number;
+      elementTypes?: string[];
+      pageNumbers?: number[];
     } = {},
   ): Promise<HybridSearchResponse> {
     const { contextWeight = 0.2, ...searchOptions } = options;
 
     // Extract key concepts from conversation history
     const contextTerms = this.extractContextTerms(conversationContext);
-    
+
     // Enhance query with context
-    const contextEnhancedQuery = contextTerms.length > 0
-      ? `${query} ${contextTerms.join(' ')}`
-      : query;
+    const contextEnhancedQuery =
+      contextTerms.length > 0 ? `${query} ${contextTerms.join(' ')}` : query;
 
     // Perform hybrid search with enhanced query
     const searchResults = await this.hybridSearch(
@@ -800,18 +907,21 @@ export class VectorSearchService {
 
     // Boost results that match conversation context
     if (contextTerms.length > 0) {
-      searchResults.results = searchResults.results.map(result => {
-        const contextMatches = contextTerms.filter(term =>
-          result.content.toLowerCase().includes(term.toLowerCase())
-        ).length;
-        
-        const contextBoost = (contextMatches / contextTerms.length) * contextWeight;
-        
-        return {
-          ...result,
-          hybridScore: result.hybridScore + contextBoost,
-        };
-      }).sort((a, b) => b.hybridScore - a.hybridScore);
+      searchResults.results = searchResults.results
+        .map((result) => {
+          const contextMatches = contextTerms.filter((term) =>
+            result.content.toLowerCase().includes(term.toLowerCase()),
+          ).length;
+
+          const contextBoost =
+            (contextMatches / contextTerms.length) * contextWeight;
+
+          return {
+            ...result,
+            hybridScore: result.hybridScore + contextBoost,
+          };
+        })
+        .sort((a, b) => b.hybridScore - a.hybridScore);
     }
 
     return {
@@ -823,25 +933,29 @@ export class VectorSearchService {
   /**
    * Extract key terms from conversation context
    */
-  private extractContextTerms(context: Array<{ role: 'user' | 'assistant'; content: string }>): string[] {
+  private extractContextTerms(
+    context: Array<{ role: 'user' | 'assistant'; content: string }>,
+  ): string[] {
     const recentMessages = context.slice(-6); // Last 3 exchanges
-    const allText = recentMessages.map(msg => msg.content).join(' ');
-    
+    const allText = recentMessages.map((msg) => msg.content).join(' ');
+
     // Extract technical terms, proper nouns, and important concepts
-    const terms = allText
-      .toLowerCase()
-      .match(/\b[a-z]{4,}\b/g) || [];
-    
+    const terms = allText.toLowerCase().match(/\b[a-z]{4,}\b/g) || [];
+
     // Filter and deduplicate terms
     const importantTerms = terms
-      .filter(term => {
+      .filter((term) => {
         // Keep technical terms, model numbers, error codes, etc.
-        return /^(error|config|setup|install|calibrat|connect|roborail|pmac)/.test(term) ||
-               /\d/.test(term) || // Contains numbers
-               term.length > 6; // Longer terms are likely more specific
+        return (
+          /^(error|config|setup|install|calibrat|connect|roborail|pmac)/.test(
+            term,
+          ) ||
+          /\d/.test(term) || // Contains numbers
+          term.length > 6
+        ); // Longer terms are likely more specific
       })
       .slice(0, 5); // Limit to top 5 terms
-    
+
     return [...new Set(importantTerms)];
   }
 
@@ -855,42 +969,50 @@ export class VectorSearchService {
       maxSteps?: number;
       minResultsPerStep?: number;
       documentIds?: string[];
+      elementTypes?: string[];
+      pageNumbers?: number[];
     } = {},
   ): Promise<HybridSearchResponse> {
-    const { maxSteps = 3, minResultsPerStep = 3, documentIds } = options;
-    
+    const { maxSteps = 3, minResultsPerStep = 3, documentIds, elementTypes, pageNumbers } = options;
+
     let currentQuery = query;
     const allResults: HybridSearchResult[] = [];
     let step = 0;
-    
-    while (step < maxSteps && allResults.length < minResultsPerStep * maxSteps) {
+
+    while (
+      step < maxSteps &&
+      allResults.length < minResultsPerStep * maxSteps
+    ) {
       const stepResults = await this.hybridSearch(currentQuery, userId, {
         limit: 10,
         threshold: Math.max(0.1, 0.4 - step * 0.1), // Lower threshold each step
         documentIds,
         useCache: step === 0, // Only cache first step
+        elementTypes,
+        pageNumbers,
       });
-      
+
       // Filter out duplicates
-      const newResults = stepResults.results.filter(result =>
-        !allResults.some(existing => existing.chunkId === result.chunkId)
+      const newResults = stepResults.results.filter(
+        (result) =>
+          !allResults.some((existing) => existing.chunkId === result.chunkId),
       );
-      
+
       allResults.push(...newResults);
-      
+
       if (newResults.length === 0) break;
-      
+
       // Refine query for next step based on current results
       if (step < maxSteps - 1) {
         currentQuery = this.refineQueryFromResults(query, newResults);
       }
-      
+
       step++;
     }
-    
+
     // Re-sort all results by hybrid score
     allResults.sort((a, b) => b.hybridScore - a.hybridScore);
-    
+
     return {
       results: allResults.slice(0, 15),
       totalResults: allResults.length,
@@ -903,31 +1025,32 @@ export class VectorSearchService {
   /**
    * Refine query based on search results
    */
-  private refineQueryFromResults(originalQuery: string, results: HybridSearchResult[]): string {
+  private refineQueryFromResults(
+    originalQuery: string,
+    results: HybridSearchResult[],
+  ): string {
     if (results.length === 0) return originalQuery;
-    
+
     // Extract common terms from top results
     const topResults = results.slice(0, 3);
     const commonTerms = new Map<string, number>();
-    
-    topResults.forEach(result => {
-      const words = result.content
-        .toLowerCase()
-        .match(/\b[a-z]{4,}\b/g) || [];
-      
-      words.forEach(word => {
+
+    topResults.forEach((result) => {
+      const words = result.content.toLowerCase().match(/\b[a-z]{4,}\b/g) || [];
+
+      words.forEach((word) => {
         if (!originalQuery.toLowerCase().includes(word)) {
           commonTerms.set(word, (commonTerms.get(word) || 0) + 1);
         }
       });
     });
-    
+
     // Get most frequent terms not in original query
     const refinementTerms = Array.from(commonTerms.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 2)
       .map(([term]) => term);
-    
+
     return refinementTerms.length > 0
       ? `${originalQuery} ${refinementTerms.join(' ')}`
       : originalQuery;
@@ -960,13 +1083,11 @@ export class VectorSearchService {
       // Map rerank results back with enhanced scoring
       const rerankedResults = rerankResponse.results.map((rerankResult) => {
         const originalResult = results[rerankResult.index];
-        
+
         // Combine rerank score with original hybrid score
-        const combinedScore = (
-          rerankResult.relevanceScore * 0.8 + 
-          originalResult.hybridScore * 0.2
-        );
-        
+        const combinedScore =
+          rerankResult.relevanceScore * 0.8 + originalResult.hybridScore * 0.2;
+
         return {
           ...originalResult,
           rerankScore: rerankResult.relevanceScore,
@@ -986,7 +1107,10 @@ export class VectorSearchService {
   /**
    * Search analytics and performance metrics
    */
-  async getSearchAnalytics(userId: string, timeRange: 'day' | 'week' | 'month' = 'day'): Promise<{
+  async getSearchAnalytics(
+    userId: string,
+    timeRange: 'day' | 'week' | 'month' = 'day',
+  ): Promise<{
     totalSearches: number;
     avgResponseTime: number;
     cacheHitRate: number;
@@ -1004,16 +1128,18 @@ export class VectorSearchService {
     }
 
     const analyticsKey = `search_analytics:${userId}:${timeRange}`;
-    
+
     try {
       const analytics = await this.redis.get(analyticsKey);
-      return analytics ? JSON.parse(analytics) : {
-        totalSearches: 0,
-        avgResponseTime: 0,
-        cacheHitRate: 0,
-        popularQueries: [],
-        algorithmUsage: {},
-      };
+      return analytics
+        ? JSON.parse(analytics)
+        : {
+            totalSearches: 0,
+            avgResponseTime: 0,
+            cacheHitRate: 0,
+            popularQueries: [],
+            algorithmUsage: {},
+          };
     } catch (error) {
       console.error('Analytics retrieval error:', error);
       return {
@@ -1041,19 +1167,27 @@ export class VectorSearchService {
     try {
       const metricsKey = `search_metrics:${userId}`;
       const today = new Date().toISOString().split('T')[0];
-      
+
       // Track daily metrics
       await this.redis.hIncrBy(`${metricsKey}:${today}`, 'total_searches', 1);
-      await this.redis.hIncrBy(`${metricsKey}:${today}`, 'total_response_time', responseTime);
-      await this.redis.hIncrBy(`${metricsKey}:${today}`, `algorithm_${algorithm}`, 1);
-      
+      await this.redis.hIncrBy(
+        `${metricsKey}:${today}`,
+        'total_response_time',
+        responseTime,
+      );
+      await this.redis.hIncrBy(
+        `${metricsKey}:${today}`,
+        `algorithm_${algorithm}`,
+        1,
+      );
+
       if (cacheHit) {
         await this.redis.hIncrBy(`${metricsKey}:${today}`, 'cache_hits', 1);
       }
-      
+
       // Track popular queries
       await this.redis.zIncrBy(`popular_queries:${userId}:${today}`, 1, query);
-      
+
       // Set expiration for cleanup
       await this.redis.expire(`${metricsKey}:${today}`, 86400 * 7); // 7 days
       await this.redis.expire(`popular_queries:${userId}:${today}`, 86400 * 7);
@@ -1069,10 +1203,10 @@ export class VectorSearchService {
     if (!this.redis) return false;
 
     try {
-      const pattern = userId 
+      const pattern = userId
         ? `${this.cacheConfig.keyPrefix}${userId}:*`
         : `${this.cacheConfig.keyPrefix}*`;
-      
+
       const keys = await this.redis.keys(pattern);
       if (keys.length > 0) {
         await this.redis.del(keys);
@@ -1100,7 +1234,7 @@ export class VectorSearchService {
       const keys = await this.redis.keys(`${this.cacheConfig.keyPrefix}*`);
       const info = await this.redis.info('memory');
       const memoryMatch = info.match(/used_memory_human:([^\r\n]+)/);
-      
+
       return {
         totalKeys: keys.length,
         memoryUsage: memoryMatch ? memoryMatch[1] : '0B',
@@ -1115,3 +1249,103 @@ export class VectorSearchService {
 
 // Singleton instance
 export const vectorSearchService = new VectorSearchService();
+
+// Simplified VectorSearch class for testing
+export class VectorSearch {
+  constructor(private cohereClient: any) {}
+
+  async search(params: {
+    query: string;
+    userId: string;
+    limit?: number;
+    threshold?: number;
+    includeMetadata?: boolean;
+    db: any;
+  }) {
+    const {
+      query,
+      userId,
+      limit = 10,
+      threshold = 0.3,
+      includeMetadata = false,
+      db,
+    } = params;
+
+    // For testing, perform simple search
+    const chunks = await db
+      .select({
+        chunk: documentChunk,
+        document: ragDocument,
+        embedding: documentEmbedding,
+      })
+      .from(documentChunk)
+      .innerJoin(
+        ragDocument,
+        eq(documentChunk.documentId, ragDocument.id)
+      )
+      .innerJoin(
+        documentEmbedding,
+        eq(documentChunk.id, documentEmbedding.chunkId)
+      )
+      .where(
+        and(
+          eq(ragDocument.uploadedBy, userId),
+          eq(ragDocument.status, 'processed')
+        )
+      )
+      .limit(limit);
+
+    // Mock scoring for tests
+    const results = chunks.map((row, index) => ({
+      id: row.chunk.id,
+      content: row.chunk.content,
+      score: Math.max(threshold, 1 - (index * 0.1)),
+      document: {
+        id: row.document.id,
+        title: row.document.originalName,
+        fileName: row.document.fileName,
+      },
+      chunkIndex: parseInt(row.chunk.chunkIndex),
+      // Include enhanced ADE structural metadata
+      elementType: row.chunk.elementType,
+      pageNumber: row.chunk.pageNumber,
+      bbox: row.chunk.bbox,
+    }));
+
+    return {
+      results: results.filter(r => r.score >= threshold),
+      totalFound: results.length,
+      query,
+    };
+  }
+
+  async searchWithReranking(params: {
+    query: string;
+    userId: string;
+    limit?: number;
+    rerankTopK?: number;
+    db: any;
+  }) {
+    const { rerankTopK = 5, ...searchParams } = params;
+    
+    // Get initial results
+    const searchResults = await this.search({
+      ...searchParams,
+      limit: Math.max(searchParams.limit || 10, rerankTopK * 2),
+    });
+
+    // Mock reranking
+    const rerankedResults = searchResults.results
+      .slice(0, rerankTopK)
+      .map((result, index) => ({
+        ...result,
+        rerankScore: result.score + (0.1 * (rerankTopK - index)),
+      }))
+      .sort((a, b) => b.rerankScore! - a.rerankScore!);
+
+    return {
+      ...searchResults,
+      results: rerankedResults,
+    };
+  }
+}

@@ -1,0 +1,75 @@
+name: Dependency Updates
+
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      
+      - name: Update dependencies
+        run: |
+          # Update all dependencies
+          bun update
+          
+          # Check for changes
+          if [[ `git status --porcelain` ]]; then
+            echo "changes=true" >> $GITHUB_ENV
+          else
+            echo "changes=false" >> $GITHUB_ENV
+          fi
+      
+      - name: Run tests if changes
+        if: env.changes == 'true'
+        env:
+          DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+        run: |
+          # Install updated dependencies
+          bun install
+          
+          # Run tests to verify updates
+          bun test
+      
+      - name: Create Pull Request
+        if: env.changes == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: update dependencies'
+          title: 'chore: weekly dependency updates'
+          body: |
+            ## Weekly Dependency Updates
+            
+            This PR contains automatic dependency updates from the weekly scheduled run.
+            
+            ### Changes
+            - Updated dependencies to latest versions
+            - All tests have been run and passed
+            
+            ### Checklist
+            - [ ] Review dependency changes
+            - [ ] Check for breaking changes
+            - [ ] Verify application still works correctly
+            
+            ---
+            *This PR was automatically created by the dependency update workflow.*
+          branch: deps/weekly-update-${{ github.run_number }}
+          delete-branch: true
+          labels: |
+            dependencies
+            automated

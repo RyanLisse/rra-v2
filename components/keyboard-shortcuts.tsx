@@ -2,24 +2,24 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  AlertDialog, 
-  AlertDialogContent, 
-  AlertDialogHeader, 
-  AlertDialogTitle 
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Keyboard, 
-  Command, 
-  Search, 
-  MessageSquare, 
+import {
+  Keyboard,
+  Command,
+  Search,
+  MessageSquare,
   Settings,
   Moon,
   Copy,
   Edit,
-  RotateCcw
+  RotateCcw,
 } from 'lucide-react';
 
 interface KeyboardShortcut {
@@ -36,19 +36,23 @@ interface UseKeyboardShortcutsProps {
   enabled?: boolean;
 }
 
-export function useKeyboardShortcuts({ shortcuts, enabled = true }: UseKeyboardShortcutsProps) {
+export function useKeyboardShortcuts({
+  shortcuts,
+  enabled = true,
+}: UseKeyboardShortcutsProps) {
   useEffect(() => {
     if (!enabled) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
       const activeElement = document.activeElement;
-      const isInputFocused = activeElement?.tagName === 'INPUT' || 
-                            activeElement?.tagName === 'TEXTAREA' ||
-                            (activeElement as HTMLElement)?.contentEditable === 'true';
+      const isInputFocused =
+        activeElement?.tagName === 'INPUT' ||
+        activeElement?.tagName === 'TEXTAREA' ||
+        (activeElement as HTMLElement)?.contentEditable === 'true';
 
       for (const shortcut of shortcuts) {
         const keys = shortcut.key;
-        const isMatch = keys.every(key => {
+        const isMatch = keys.every((key) => {
           switch (key) {
             case 'cmd':
             case 'ctrl':
@@ -66,9 +70,10 @@ export function useKeyboardShortcuts({ shortcuts, enabled = true }: UseKeyboardS
 
         if (isMatch) {
           // Don't prevent default for some shortcuts when input is focused
-          const allowInInput = ['cmd', 'ctrl'].some(modifier => keys.includes(modifier)) &&
-                              ['c', 'v', 'x', 'z', 'y', 'a'].includes(event.key.toLowerCase());
-          
+          const allowInInput =
+            ['cmd', 'ctrl'].some((modifier) => keys.includes(modifier)) &&
+            ['c', 'v', 'x', 'z', 'y', 'a'].includes(event.key.toLowerCase());
+
           if (isInputFocused && !allowInInput) {
             continue;
           }
@@ -91,17 +96,17 @@ interface KeyboardShortcutsDialogProps {
   shortcuts: KeyboardShortcut[];
 }
 
-export function KeyboardShortcutsDialog({ 
-  isOpen, 
-  onClose, 
-  shortcuts 
+export function KeyboardShortcutsDialog({
+  isOpen,
+  onClose,
+  shortcuts,
 }: KeyboardShortcutsDialogProps) {
   const categoryIcons = {
     navigation: <Command className="h-4 w-4" />,
     chat: <MessageSquare className="h-4 w-4" />,
     editing: <Edit className="h-4 w-4" />,
     search: <Search className="h-4 w-4" />,
-    general: <Settings className="h-4 w-4" />
+    general: <Settings className="h-4 w-4" />,
   };
 
   const categoryLabels = {
@@ -109,33 +114,36 @@ export function KeyboardShortcutsDialog({
     chat: 'Chat & Messages',
     editing: 'Editing',
     search: 'Search',
-    general: 'General'
+    general: 'General',
   };
 
-  const groupedShortcuts = shortcuts.reduce((acc, shortcut) => {
-    if (!acc[shortcut.category]) {
-      acc[shortcut.category] = [];
-    }
-    acc[shortcut.category].push(shortcut);
-    return acc;
-  }, {} as Record<string, KeyboardShortcut[]>);
+  const groupedShortcuts = shortcuts.reduce(
+    (acc, shortcut) => {
+      if (!acc[shortcut.category]) {
+        acc[shortcut.category] = [];
+      }
+      acc[shortcut.category].push(shortcut);
+      return acc;
+    },
+    {} as Record<string, KeyboardShortcut[]>,
+  );
 
   const formatKey = (key: string) => {
     const keyMap: Record<string, string> = {
-      'cmd': '⌘',
-      'ctrl': 'Ctrl',
-      'shift': '⇧',
-      'alt': '⌥',
-      'escape': 'Esc',
-      'enter': '↵',
-      'space': 'Space',
-      'tab': 'Tab',
-      'arrowup': '↑',
-      'arrowdown': '↓',
-      'arrowleft': '←',
-      'arrowright': '→'
+      cmd: '⌘',
+      ctrl: 'Ctrl',
+      shift: '⇧',
+      alt: '⌥',
+      escape: 'Esc',
+      enter: '↵',
+      space: 'Space',
+      tab: 'Tab',
+      arrowup: '↑',
+      arrowdown: '↓',
+      arrowleft: '←',
+      arrowright: '→',
     };
-    
+
     return keyMap[key.toLowerCase()] || key.toUpperCase();
   };
 
@@ -150,47 +158,58 @@ export function KeyboardShortcutsDialog({
         </AlertDialogHeader>
 
         <div className="space-y-6">
-          {Object.entries(groupedShortcuts).map(([category, categoryShortcuts]) => (
-            <div key={category}>
-              <div className="flex items-center gap-2 mb-3">
-                {categoryIcons[category as keyof typeof categoryIcons]}
-                <h3 className="font-medium">
-                  {categoryLabels[category as keyof typeof categoryLabels]}
-                </h3>
-              </div>
-              
-              <div className="space-y-2">
-                {categoryShortcuts.map((shortcut) => (
-                  <div 
-                    key={shortcut.id}
-                    className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50"
-                  >
-                    <div className="flex items-center gap-2">
-                      {shortcut.icon}
-                      <span className="text-sm">{shortcut.description}</span>
+          {Object.entries(groupedShortcuts).map(
+            ([category, categoryShortcuts]) => (
+              <div key={category}>
+                <div className="flex items-center gap-2 mb-3">
+                  {categoryIcons[category as keyof typeof categoryIcons]}
+                  <h3 className="font-medium">
+                    {categoryLabels[category as keyof typeof categoryLabels]}
+                  </h3>
+                </div>
+
+                <div className="space-y-2">
+                  {categoryShortcuts.map((shortcut) => (
+                    <div
+                      key={shortcut.id}
+                      className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50"
+                    >
+                      <div className="flex items-center gap-2">
+                        {shortcut.icon}
+                        <span className="text-sm">{shortcut.description}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {shortcut.key.map((key, index) => (
+                          <div key={index} className="flex items-center">
+                            <Badge
+                              variant="outline"
+                              className="text-xs px-2 py-1"
+                            >
+                              {formatKey(key)}
+                            </Badge>
+                            {index < shortcut.key.length - 1 && (
+                              <span className="mx-1 text-muted-foreground">
+                                +
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      {shortcut.key.map((key, index) => (
-                        <div key={index} className="flex items-center">
-                          <Badge variant="outline" className="text-xs px-2 py-1">
-                            {formatKey(key)}
-                          </Badge>
-                          {index < shortcut.key.length - 1 && (
-                            <span className="mx-1 text-muted-foreground">+</span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ),
+          )}
         </div>
 
         <div className="pt-4 border-t">
           <p className="text-xs text-muted-foreground">
-            Press <Badge variant="outline" className="text-xs">?</Badge> anytime to view shortcuts
+            Press{' '}
+            <Badge variant="outline" className="text-xs">
+              ?
+            </Badge>{' '}
+            anytime to view shortcuts
           </p>
         </div>
       </AlertDialogContent>
@@ -199,14 +218,14 @@ export function KeyboardShortcutsDialog({
 }
 
 // Toast notification for keyboard shortcuts
-export function ShortcutToast({ 
-  message, 
-  keys, 
-  isVisible 
-}: { 
-  message: string; 
-  keys: string[]; 
-  isVisible: boolean 
+export function ShortcutToast({
+  message,
+  keys,
+  isVisible,
+}: {
+  message: string;
+  keys: string[];
+  isVisible: boolean;
 }) {
   return (
     <AnimatePresence>
@@ -228,7 +247,9 @@ export function ShortcutToast({
                       {key}
                     </Badge>
                     {index < keys.length - 1 && (
-                      <span className="mx-1 text-muted-foreground text-xs">+</span>
+                      <span className="mx-1 text-muted-foreground text-xs">
+                        +
+                      </span>
                     )}
                   </div>
                 ))}
@@ -252,7 +273,7 @@ export function useDefaultShortcuts({
   onShowShortcuts,
   onNavigateUp,
   onNavigateDown,
-  onFocusInput
+  onFocusInput,
 }: {
   onNewChat?: () => void;
   onSearch?: () => void;
@@ -273,7 +294,7 @@ export function useDefaultShortcuts({
       description: 'Start new chat',
       category: 'navigation',
       action: onNewChat || (() => {}),
-      icon: <MessageSquare className="h-4 w-4" />
+      icon: <MessageSquare className="h-4 w-4" />,
     },
     {
       id: 'focus-input',
@@ -281,7 +302,7 @@ export function useDefaultShortcuts({
       description: 'Focus chat input',
       category: 'navigation',
       action: onFocusInput || (() => {}),
-      icon: <MessageSquare className="h-4 w-4" />
+      icon: <MessageSquare className="h-4 w-4" />,
     },
     {
       id: 'navigate-up',
@@ -305,7 +326,7 @@ export function useDefaultShortcuts({
       description: 'Search documents',
       category: 'search',
       action: onSearch || (() => {}),
-      icon: <Search className="h-4 w-4" />
+      icon: <Search className="h-4 w-4" />,
     },
 
     // Chat & Messages
@@ -315,7 +336,7 @@ export function useDefaultShortcuts({
       description: 'Copy selected message',
       category: 'chat',
       action: onCopyMessage || (() => {}),
-      icon: <Copy className="h-4 w-4" />
+      icon: <Copy className="h-4 w-4" />,
     },
     {
       id: 'edit-message',
@@ -323,7 +344,7 @@ export function useDefaultShortcuts({
       description: 'Edit message',
       category: 'editing',
       action: onEditMessage || (() => {}),
-      icon: <Edit className="h-4 w-4" />
+      icon: <Edit className="h-4 w-4" />,
     },
     {
       id: 'regenerate',
@@ -331,7 +352,7 @@ export function useDefaultShortcuts({
       description: 'Regenerate response',
       category: 'chat',
       action: onRegenerateMessage || (() => {}),
-      icon: <RotateCcw className="h-4 w-4" />
+      icon: <RotateCcw className="h-4 w-4" />,
     },
 
     // General
@@ -341,7 +362,7 @@ export function useDefaultShortcuts({
       description: 'Toggle dark/light theme',
       category: 'general',
       action: onToggleTheme || (() => {}),
-      icon: <Moon className="h-4 w-4" />
+      icon: <Moon className="h-4 w-4" />,
     },
     {
       id: 'show-shortcuts',
@@ -349,7 +370,7 @@ export function useDefaultShortcuts({
       description: 'Show keyboard shortcuts',
       category: 'general',
       action: onShowShortcuts || (() => {}),
-      icon: <Keyboard className="h-4 w-4" />
+      icon: <Keyboard className="h-4 w-4" />,
     },
   ];
 

@@ -22,19 +22,19 @@ const defaultConfig: CompressionConfig = {
 export async function compressResponse(
   response: NextResponse,
   request: NextRequest,
-  config: CompressionConfig = defaultConfig
+  config: CompressionConfig = defaultConfig,
 ): Promise<NextResponse> {
   const acceptEncoding = request.headers.get('accept-encoding') || '';
   const contentType = response.headers.get('content-type') || '';
-  
+
   // Only compress text-based responses
   if (!shouldCompress(contentType)) {
     return response;
   }
-  
+
   // Get response body
   const originalBody = await response.text();
-  
+
   // Check if response meets threshold
   if (originalBody.length < (config.threshold || 1024)) {
     return new NextResponse(originalBody, {
@@ -42,27 +42,34 @@ export async function compressResponse(
       headers: response.headers,
     });
   }
-  
+
   // Determine best compression algorithm
-  const algorithm = getBestCompression(acceptEncoding, config.algorithms || ['gzip']);
-  
+  const algorithm = getBestCompression(
+    acceptEncoding,
+    config.algorithms || ['gzip'],
+  );
+
   if (!algorithm) {
     return new NextResponse(originalBody, {
       status: response.status,
       headers: response.headers,
     });
   }
-  
+
   try {
     let compressedBody: Buffer;
     const inputBuffer = Buffer.from(originalBody, 'utf8');
-    
+
     switch (algorithm) {
       case 'gzip':
-        compressedBody = await gzipAsync(inputBuffer, { level: config.level || 6 });
+        compressedBody = await gzipAsync(inputBuffer, {
+          level: config.level || 6,
+        });
         break;
       case 'deflate':
-        compressedBody = await deflateAsync(inputBuffer, { level: config.level || 6 });
+        compressedBody = await deflateAsync(inputBuffer, {
+          level: config.level || 6,
+        });
         break;
       default:
         return new NextResponse(originalBody, {
@@ -70,22 +77,24 @@ export async function compressResponse(
           headers: response.headers,
         });
     }
-    
+
     // Create new response with compressed body
     const headers = new Headers(response.headers);
     headers.set('content-encoding', algorithm);
     headers.set('content-length', compressedBody.length.toString());
     headers.set('vary', 'accept-encoding');
-    
+
     // Add compression ratio for monitoring
-    const ratio = ((originalBody.length - compressedBody.length) / originalBody.length * 100).toFixed(1);
+    const ratio = (
+      ((originalBody.length - compressedBody.length) / originalBody.length) *
+      100
+    ).toFixed(1);
     headers.set('x-compression-ratio', `${ratio}%`);
-    
+
     return new NextResponse(compressedBody, {
       status: response.status,
       headers,
     });
-    
   } catch (error) {
     console.error('Compression failed:', error);
     return new NextResponse(originalBody, {
@@ -104,25 +113,28 @@ function shouldCompress(contentType: string): boolean {
     'application/hal+json',
     'application/ld+json',
   ];
-  
-  return compressibleTypes.some(type => contentType.includes(type));
+
+  return compressibleTypes.some((type) => contentType.includes(type));
 }
 
 function getBestCompression(
   acceptEncoding: string,
-  supportedAlgorithms: string[]
+  supportedAlgorithms: string[],
 ): string | null {
   const accepted = acceptEncoding.toLowerCase();
-  
+
   // Order of preference
   const preferences = ['gzip', 'deflate', 'br'];
-  
+
   for (const algorithm of preferences) {
-    if (supportedAlgorithms.includes(algorithm) && accepted.includes(algorithm)) {
+    if (
+      supportedAlgorithms.includes(algorithm) &&
+      accepted.includes(algorithm)
+    ) {
       return algorithm;
     }
   }
-  
+
   return null;
 }
 
@@ -135,7 +147,7 @@ export function estimateCompressionSavings(text: string): {
   const original = Buffer.byteLength(text, 'utf8');
   // Rough estimation: JSON typically compresses to 60-80% of original size
   const estimated = Math.round(original * 0.7);
-  const savings = ((original - estimated) / original * 100).toFixed(1);
-  
+  const savings = (((original - estimated) / original) * 100).toFixed(1);
+
   return { original, estimated, savings: `${savings}%` };
 }

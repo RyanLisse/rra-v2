@@ -30,7 +30,10 @@ const getProvider = () => {
       title: anthropic('claude-3-5-haiku-20241022'),
       artifact: anthropic('claude-3-5-sonnet-20241022'),
     };
-  } else if (process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  } else if (
+    process.env.GEMINI_API_KEY ||
+    process.env.GOOGLE_GENERATIVE_AI_API_KEY
+  ) {
     return {
       chat: google('gemini-2.0-flash-exp'),
       reasoning: google('gemini-1.5-flash'),
@@ -38,7 +41,9 @@ const getProvider = () => {
       artifact: google('gemini-2.0-flash-exp'),
     };
   } else {
-    throw new Error('No AI provider API key configured. Please set OPENAI_API_KEY, ANTHROPIC_API_KEY, or GEMINI_API_KEY');
+    throw new Error(
+      'No AI provider API key configured. Please set OPENAI_API_KEY, ANTHROPIC_API_KEY, or GEMINI_API_KEY',
+    );
   }
 };
 

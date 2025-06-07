@@ -38,7 +38,10 @@ import { ChatSDKError } from '../errors';
 import { db } from './index';
 
 // Simple in-memory cache for frequently accessed data
-const queryCache = new Map<string, { data: any; timestamp: number; ttl: number }>();
+const queryCache = new Map<
+  string,
+  { data: any; timestamp: number; ttl: number }
+>();
 
 function getCachedResult<T>(key: string): T | null {
   const cached = queryCache.get(key);
@@ -82,7 +85,9 @@ export async function createUser(email: string, password: string) {
   const hashedPassword = generateHashedPassword(password);
 
   try {
-    const result = await db.insert(user).values({ email, password: hashedPassword });
+    const result = await db
+      .insert(user)
+      .values({ email, password: hashedPassword });
     invalidateCache(`user:email:${email}`);
     return result;
   } catch (error) {
@@ -270,7 +275,7 @@ export async function getMessagesByChatId({ id }: { id: string }) {
       .from(message)
       .where(eq(message.chatId, id))
       .orderBy(asc(message.createdAt));
-    
+
     setCachedResult(cacheKey, result, 120000); // Cache for 2 minutes
     return result;
   } catch (error) {
@@ -591,9 +596,14 @@ export async function getRagDocumentsByUserId({
 }: {
   userId: string;
   limit?: number;
-}): Promise<Array<RAGDocument & { chunkCount?: number; hasContent?: boolean }>> {
+}): Promise<
+  Array<RAGDocument & { chunkCount?: number; hasContent?: boolean }>
+> {
   const cacheKey = `rag_documents:user:${userId}:limit:${limit}`;
-  const cached = getCachedResult<Array<RAGDocument & { chunkCount?: number; hasContent?: boolean }>>(cacheKey);
+  const cached =
+    getCachedResult<
+      Array<RAGDocument & { chunkCount?: number; hasContent?: boolean }>
+    >(cacheKey);
   if (cached) return cached;
 
   try {
@@ -620,7 +630,7 @@ export async function getRagDocumentsByUserId({
       .orderBy(desc(ragDocument.createdAt))
       .limit(limit);
 
-    const result = documents.map(doc => ({
+    const result = documents.map((doc) => ({
       ...doc,
       chunkCount: Number(doc.chunkCount),
       hasContent: Number(doc.hasContent) > 0,
@@ -677,9 +687,9 @@ export async function updateRagDocumentStatus({
   try {
     const result = await db
       .update(ragDocument)
-      .set({ 
-        status, 
-        updatedAt: new Date() 
+      .set({
+        status,
+        updatedAt: new Date(),
       })
       .where(and(eq(ragDocument.id, id), eq(ragDocument.uploadedBy, userId)))
       .returning();
@@ -709,7 +719,7 @@ export async function deleteRagDocumentById({
     // Embeddings will cascade delete with chunks
     // Chunks will cascade delete with document
     // Content will cascade delete with document
-    
+
     const [deletedDocument] = await db
       .delete(ragDocument)
       .where(and(eq(ragDocument.id, id), eq(ragDocument.uploadedBy, userId)))

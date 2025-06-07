@@ -1,5 +1,10 @@
-import { describe, it, expect, vi, beforeEach, } from 'vitest';
-import { getManagedDocuments, getDocumentDetails, deleteDocument, getDocumentStats } from '@/app/(chat)/documents/actions';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import {
+  getManagedDocuments,
+  getDocumentDetails,
+  deleteDocument,
+  getDocumentStats,
+} from '@/app/(chat)/documents/actions';
 import { db } from '@/lib/db';
 import fs from 'node:fs/promises';
 
@@ -41,9 +46,9 @@ describe('Document Server Actions', () => {
   describe('getManagedDocuments', () => {
     it('should return empty array when user is not authenticated', async () => {
       vi.mocked(getServerSession).mockResolvedValue(null);
-      
+
       const result = await getManagedDocuments();
-      
+
       expect(result).toEqual([]);
       expect(db.select).not.toHaveBeenCalled();
     });
@@ -112,9 +117,9 @@ describe('Document Server Actions', () => {
   describe('getDocumentDetails', () => {
     it('should return null when user is not authenticated', async () => {
       vi.mocked(getServerSession).mockResolvedValue(null);
-      
+
       const result = await getDocumentDetails('doc-1');
-      
+
       expect(result).toBeNull();
     });
 
@@ -173,10 +178,12 @@ describe('Document Server Actions', () => {
         id: 'doc-1',
         originalName: 'test.pdf',
         extractedText: 'Test content',
-        chunks: [{
-          id: 'chunk-1',
-          content: 'Chunk content',
-        }],
+        chunks: [
+          {
+            id: 'chunk-1',
+            content: 'Chunk content',
+          },
+        ],
       });
     });
 
@@ -197,9 +204,9 @@ describe('Document Server Actions', () => {
   describe('deleteDocument', () => {
     it('should return error when user is not authenticated', async () => {
       vi.mocked(getServerSession).mockResolvedValue(null);
-      
+
       const result = await deleteDocument('doc-1');
-      
+
       expect(result).toEqual({
         success: false,
         message: 'Unauthorized',
@@ -268,9 +275,9 @@ describe('Document Server Actions', () => {
   describe('getDocumentStats', () => {
     it('should return zero stats when user is not authenticated', async () => {
       vi.mocked(getServerSession).mockResolvedValue(null);
-      
+
       const result = await getDocumentStats();
-      
+
       expect(result).toEqual({
         total: 0,
         uploaded: 0,

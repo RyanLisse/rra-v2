@@ -1,0 +1,305 @@
+name: PR Test Isolation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+  issue_comment:
+    types: [created]
+
+env:
+  BUN_VERSION: 'latest'
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  # Create isolated test environment for PR
+  create-pr-environment:
+    if: github.event_name == 'pull_request' && github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    outputs:
+      branch_id: ${{ steps.create_branch.outputs.branch_id }}
+      branch_name: ${{ steps.create_branch.outputs.branch_name }}
+      database_url: ${{ steps.create_branch.outputs.database_url }}
+      preview_url: ${{ steps.create_branch.outputs.preview_url }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      
+      - name: Check for existing PR branch
+        id: check_existing
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+        run: |
+          BRANCH_NAME="pr-${{ github.event.pull_request.number }}"
+          
+          # Check if branch already exists
+          EXISTING=$(bun run scripts/list-test-branches.ts --output json | \
+            jq -r ".branches[] | select(.name == \"$BRANCH_NAME\") | .id")
+          
+          if [ -n "$EXISTING" ]; then
+            echo "found=true" >> $GITHUB_OUTPUT
+            echo "branch_id=$EXISTING" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Create PR test branch
+        id: create_branch
+        if: steps.check_existing.outputs.found != 'true'
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+        run: |
+          BRANCH_NAME="pr-${{ github.event.pull_request.number }}"
+          
+          OUTPUT=$(bun run scripts/create-test-branch.ts \
+            --name "$BRANCH_NAME" \
+            --parent-branch main \
+            --copy-data \
+            --output json)
+          
+          echo "branch_id=$(echo "$OUTPUT" | jq -r '.branchId')" >> $GITHUB_OUTPUT
+          echo "branch_name=$(echo "$OUTPUT" | jq -r '.branchName')" >> $GITHUB_OUTPUT
+          echo "database_url=$(echo "$OUTPUT" | jq -r '.databaseUrl')" >> $GITHUB_OUTPUT
+          
+          # Generate preview URL (if using Vercel/Netlify)
+          PREVIEW_URL="https://pr-${{ github.event.pull_request.number }}-${{ github.event.repository.name }}.vercel.app"
+          echo "preview_url=$PREVIEW_URL" >> $GITHUB_OUTPUT
+      
+      - name: Run migrations
+        env:
+          DATABASE_URL: ${{ steps.create_branch.outputs.database_url || steps.check_existing.outputs.database_url }}
+        run: bun run db:migrate
+      
+      - name: Create deployment comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branchId = '${{ steps.create_branch.outputs.branch_id || steps.check_existing.outputs.branch_id }}';
+            const branchName = '${{ steps.create_branch.outputs.branch_name || 'pr-${{ github.event.pull_request.number }}' }}';
+            const previewUrl = '${{ steps.create_branch.outputs.preview_url }}';
+            
+            const body = `## 🚀 PR Test Environment Ready
+            
+            Your isolated test environment has been created:
+            
+            - **Branch Name:** \`${branchName}\`
+            - **Branch ID:** \`${branchId}\`
+            ${previewUrl ? `- **Preview URL:** ${previewUrl}` : ''}
+            
+            ### Available Commands
+            
+            You can interact with this PR's test environment using these commands in comments:
+            
+            - \`/test\` - Run all tests
+            - \`/test unit\` - Run unit tests only
+            - \`/test e2e\` - Run E2E tests only
+            - \`/test performance\` - Run performance benchmarks
+            - \`/reset-db\` - Reset database to initial state
+            - \`/seed-data [preset]\` - Seed test data (presets: minimal, standard, performance)
+            - \`/branch-info\` - Get branch details and connection info
+            
+            The test environment will be automatically cleaned up when this PR is closed.`;
+            
+            // Check for existing comment
+            const comments = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            
+            const botComment = comments.data.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('PR Test Environment Ready')
+            );
+            
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body
+              });
+            }
+
+  # Handle slash commands in PR comments
+  handle-pr-commands:
+    if: |
+      github.event_name == 'issue_comment' && 
+      github.event.issue.pull_request && 
+      startsWith(github.event.comment.body, '/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      
+      - name: Parse command
+        id: parse_command
+        run: |
+          COMMAND="${{ github.event.comment.body }}"
+          
+          # Extract command and args
+          if [[ "$COMMAND" =~ ^/([a-z-]+)(.*)$ ]]; then
+            CMD="${BASH_REMATCH[1]}"
+            ARGS="${BASH_REMATCH[2]## }"
+            echo "command=$CMD" >> $GITHUB_OUTPUT
+            echo "args=$ARGS" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Get PR branch info
+        id: get_branch
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+        run: |
+          PR_NUMBER=$(jq -r '.issue.number' < $GITHUB_EVENT_PATH)
+          BRANCH_NAME="pr-$PR_NUMBER"
+          
+          BRANCH_INFO=$(bun run scripts/list-test-branches.ts --output json | \
+            jq -r ".branches[] | select(.name == \"$BRANCH_NAME\")")
+          
+          if [ -n "$BRANCH_INFO" ]; then
+            echo "branch_id=$(echo "$BRANCH_INFO" | jq -r '.id')" >> $GITHUB_OUTPUT
+            echo "database_url=$(echo "$BRANCH_INFO" | jq -r '.connection_uri')" >> $GITHUB_OUTPUT
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Execute command
+        if: steps.get_branch.outputs.found == 'true'
+        env:
+          DATABASE_URL: ${{ steps.get_branch.outputs.database_url }}
+          NEON_BRANCH_ID: ${{ steps.get_branch.outputs.branch_id }}
+        run: |
+          case "${{ steps.parse_command.outputs.command }}" in
+            "test")
+              TEST_TYPE="${{ steps.parse_command.outputs.args }}"
+              if [ -z "$TEST_TYPE" ]; then
+                bun test
+              else
+                case "$TEST_TYPE" in
+                  "unit")
+                    bun test tests/unit tests/lib
+                    ;;
+                  "e2e")
+                    bunx playwright test
+                    ;;
+                  "performance")
+                    bun test tests/performance
+                    ;;
+                  *)
+                    echo "Unknown test type: $TEST_TYPE"
+                    exit 1
+                    ;;
+                esac
+              fi
+              ;;
+            
+            "reset-db")
+              bun run db:migrate --reset
+              ;;
+            
+            "seed-data")
+              PRESET="${{ steps.parse_command.outputs.args }}"
+              bun run scripts/seed-test-data.ts --preset "${PRESET:-standard}"
+              ;;
+            
+            "branch-info")
+              bun run scripts/list-test-branches.ts --branch-id "${{ steps.get_branch.outputs.branch_id }}"
+              ;;
+            
+            *)
+              echo "Unknown command: ${{ steps.parse_command.outputs.command }}"
+              exit 1
+              ;;
+          esac
+      
+      - name: Post result comment
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const command = '${{ steps.parse_command.outputs.command }}';
+            const args = '${{ steps.parse_command.outputs.args }}';
+            const success = '${{ job.status }}' === 'success';
+            
+            const emoji = success ? '✅' : '❌';
+            const status = success ? 'completed successfully' : 'failed';
+            
+            const body = `${emoji} Command \`/${command}${args ? ' ' + args : ''}\` ${status}`;
+            
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body
+            });
+
+  # Cleanup PR environment when PR is closed
+  cleanup-pr-environment:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      
+      - name: Delete PR branch
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+        run: |
+          BRANCH_NAME="pr-${{ github.event.pull_request.number }}"
+          
+          # Find and delete branch
+          BRANCH_ID=$(bun run scripts/list-test-branches.ts --output json | \
+            jq -r ".branches[] | select(.name == \"$BRANCH_NAME\") | .id")
+          
+          if [ -n "$BRANCH_ID" ]; then
+            bun run scripts/delete-test-branch.ts \
+              --branch-id "$BRANCH_ID" \
+              --force
+          fi
+      
+      - name: Post cleanup comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = `🧹 PR test environment has been cleaned up.`;
+            
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body
+            });

@@ -1,0 +1,190 @@
+name: Cleanup Test Branches
+
+on:
+  schedule:
+    # Run every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      max_age_hours:
+        description: 'Maximum age of branches to keep (hours)'
+        required: false
+        default: '24'
+        type: string
+      dry_run:
+        description: 'Perform dry run without deleting'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  BUN_VERSION: 'latest'
+
+jobs:
+  cleanup-branches:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+      
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      
+      - name: List test branches
+        id: list_branches
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+        run: |
+          bun run scripts/list-test-branches.ts \
+            --output json \
+            --verbose > branches.json
+          
+          echo "### Test Branches Found" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY
+          cat branches.json | jq '.' >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Identify branches to cleanup
+        id: identify_cleanup
+        run: |
+          MAX_AGE_HOURS=${{ github.event.inputs.max_age_hours || '24' }}
+          CURRENT_TIME=$(date +%s)
+          
+          # Filter branches older than max age
+          BRANCHES_TO_DELETE=$(cat branches.json | jq -r --arg max_age "$MAX_AGE_HOURS" --arg current_time "$CURRENT_TIME" '
+            .branches[] |
+            select(.name | startswith("ci-test-")) |
+            select((.created_at | fromdateiso8601) < ($current_time | tonumber) - ($max_age | tonumber) * 3600) |
+            .id
+          ')
+          
+          echo "branches_to_delete<<EOF" >> $GITHUB_OUTPUT
+          echo "$BRANCHES_TO_DELETE" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          # Count branches
+          TOTAL_BRANCHES=$(cat branches.json | jq '.branches | length')
+          DELETE_COUNT=$(echo "$BRANCHES_TO_DELETE" | grep -c . || echo 0)
+          
+          echo "### Cleanup Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- Total branches: $TOTAL_BRANCHES" >> $GITHUB_STEP_SUMMARY
+          echo "- Branches to delete: $DELETE_COUNT" >> $GITHUB_STEP_SUMMARY
+          echo "- Max age: $MAX_AGE_HOURS hours" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Cleanup old branches
+        if: ${{ github.event.inputs.dry_run != 'true' && steps.identify_cleanup.outputs.branches_to_delete != '' }}
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+        run: |
+          echo "${{ steps.identify_cleanup.outputs.branches_to_delete }}" | while read -r BRANCH_ID; do
+            if [ -n "$BRANCH_ID" ]; then
+              echo "Deleting branch: $BRANCH_ID"
+              bun run scripts/delete-test-branch.ts \
+                --branch-id "$BRANCH_ID" \
+                --force || echo "Failed to delete branch: $BRANCH_ID"
+            fi
+          done
+      
+      - name: Generate cost report
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+        run: |
+          # Get current month's usage
+          USAGE=$(curl -s -H "Authorization: Bearer $NEON_API_KEY" \
+            "https://console.neon.tech/api/v2/projects/$NEON_PROJECT_ID/usage")
+          
+          echo "### Cost Report" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY
+          echo "$USAGE" | jq '.' >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Send notification if high usage
+        if: always()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          # Check if cleanup was needed
+          DELETE_COUNT=$(echo "${{ steps.identify_cleanup.outputs.branches_to_delete }}" | grep -c . || echo 0)
+          
+          if [ "$DELETE_COUNT" -gt 10 ]; then
+            if [ -n "$SLACK_WEBHOOK_URL" ]; then
+              curl -X POST $SLACK_WEBHOOK_URL \
+                -H 'Content-Type: application/json' \
+                -d "{
+                  \"text\": \"⚠️ High number of test branches cleaned up: $DELETE_COUNT branches deleted\",
+                  \"attachments\": [{
+                    \"color\": \"warning\",
+                    \"fields\": [{
+                      \"title\": \"Action Required\",
+                      \"value\": \"Please check CI/CD pipelines for potential branch leak\",
+                      \"short\": false
+                    }]
+                  }]
+                }"
+            fi
+          fi
+
+  cleanup-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete old artifacts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const daysToKeep = 7;
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
+            
+            const artifacts = await github.paginate(
+              github.rest.actions.listArtifactsForRepo,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                per_page: 100
+              }
+            );
+            
+            let deletedCount = 0;
+            let deletedSize = 0;
+            
+            for (const artifact of artifacts) {
+              if (new Date(artifact.created_at) < cutoffDate) {
+                try {
+                  await github.rest.actions.deleteArtifact({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    artifact_id: artifact.id
+                  });
+                  deletedCount++;
+                  deletedSize += artifact.size_in_bytes;
+                } catch (error) {
+                  console.error(`Failed to delete artifact ${artifact.name}: ${error}`);
+                }
+              }
+            }
+            
+            const deletedSizeMB = (deletedSize / 1024 / 1024).toFixed(2);
+            console.log(`Deleted ${deletedCount} artifacts, freed ${deletedSizeMB} MB`);
+            
+            // Add to summary
+            await core.summary
+              .addHeading('Artifact Cleanup')
+              .addList([
+                `Deleted ${deletedCount} artifacts older than ${daysToKeep} days`,
+                `Freed ${deletedSizeMB} MB of storage`
+              ])
+              .write();

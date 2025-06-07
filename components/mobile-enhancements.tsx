@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, type PanInfo } from 'framer-motion';
-import { 
-  Menu, 
-  ChevronUp, 
+import {
+  Menu,
+  ChevronUp,
   ChevronDown,
   Search,
   MessageSquare,
@@ -14,7 +14,7 @@ import {
   Mic,
   MicOff,
   Camera,
-  Send
+  Send,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -27,10 +27,10 @@ interface MobileNavigationProps {
   currentRoute: string;
 }
 
-export function MobileNavigation({ 
-  children, 
-  onNavigate, 
-  currentRoute 
+export function MobileNavigation({
+  children,
+  onNavigate,
+  currentRoute,
 }: MobileNavigationProps) {
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
@@ -38,7 +38,12 @@ export function MobileNavigation({
   const navigationItems = [
     { id: 'home', label: 'Home', icon: Home, route: '/' },
     { id: 'chat', label: 'Chat', icon: MessageSquare, route: '/chat' },
-    { id: 'documents', label: 'Documents', icon: FileText, route: '/documents' },
+    {
+      id: 'documents',
+      label: 'Documents',
+      icon: FileText,
+      route: '/documents',
+    },
     { id: 'search', label: 'Search', icon: Search, route: '/search' },
     { id: 'settings', label: 'Settings', icon: Settings, route: '/settings' },
   ];
@@ -63,10 +68,10 @@ export function MobileNavigation({
                 <button
                   key={item.id}
                   className={cn(
-                    "w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors",
-                    currentRoute === item.route 
-                      ? "bg-primary text-primary-foreground" 
-                      : "hover:bg-muted"
+                    'w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors',
+                    currentRoute === item.route
+                      ? 'bg-primary text-primary-foreground'
+                      : 'hover:bg-muted',
                   )}
                   onClick={() => {
                     onNavigate(item.route);
@@ -80,16 +85,12 @@ export function MobileNavigation({
             </nav>
           </SheetContent>
         </Sheet>
-
         <h1 className="font-semibold">RoboRail Assistant</h1>
-
         <div className="w-8" /> {/* Spacer for balance */}
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-hidden">
-        {children}
-      </div>
+      <div className="flex-1 overflow-hidden">{children}</div>
 
       {/* Bottom Navigation */}
       <div className="border-t bg-background">
@@ -98,10 +99,10 @@ export function MobileNavigation({
             <button
               key={item.id}
               className={cn(
-                "flex flex-col items-center gap-1 p-2 rounded-lg transition-colors",
-                currentRoute === item.route 
-                  ? "bg-primary/10 text-primary" 
-                  : "text-muted-foreground hover:text-foreground"
+                'flex flex-col items-center gap-1 p-2 rounded-lg transition-colors',
+                currentRoute === item.route
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-muted-foreground hover:text-foreground',
               )}
               onClick={() => onNavigate(item.route)}
             >
@@ -126,7 +127,7 @@ export function SwipeableCard({
   children,
   onSwipeLeft,
   onSwipeRight,
-  className
+  className,
 }: SwipeableCardProps) {
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -134,19 +135,19 @@ export function SwipeableCard({
   const handleDragEnd = (event: any, info: PanInfo) => {
     setIsDragging(false);
     const threshold = 100;
-    
+
     if (info.offset.x > threshold && onSwipeRight) {
       onSwipeRight();
     } else if (info.offset.x < -threshold && onSwipeLeft) {
       onSwipeLeft();
     }
-    
+
     setDragOffset(0);
   };
 
   return (
     <motion.div
-      className={cn("touch-pan-y", className)}
+      className={cn('touch-pan-y', className)}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.2}
@@ -170,10 +171,10 @@ interface PullToRefreshProps {
   threshold?: number;
 }
 
-export function PullToRefresh({ 
-  children, 
-  onRefresh, 
-  threshold = 80 
+export function PullToRefresh({
+  children,
+  onRefresh,
+  threshold = 80,
 }: PullToRefreshProps) {
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -188,10 +189,10 @@ export function PullToRefresh({
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!canRefresh || isRefreshing) return;
-    
+
     const touch = e.touches[0];
     const startY = touch.clientY;
-    
+
     if (startY > 0 && containerRef.current?.scrollTop === 0) {
       const distance = Math.max(0, Math.min(threshold * 1.5, startY / 3));
       setPullDistance(distance);
@@ -232,23 +233,27 @@ export function PullToRefresh({
               {isRefreshing ? (
                 <motion.div
                   animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+                  transition={{
+                    duration: 1,
+                    repeat: Number.POSITIVE_INFINITY,
+                    ease: 'linear',
+                  }}
                 >
                   <ChevronUp className="h-4 w-4" />
                 </motion.div>
               ) : (
-                <ChevronDown 
+                <ChevronDown
                   className={cn(
-                    "h-4 w-4 transition-transform",
-                    pullDistance >= threshold && "rotate-180"
-                  )} 
+                    'h-4 w-4 transition-transform',
+                    pullDistance >= threshold && 'rotate-180',
+                  )}
                 />
               )}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-      
+
       <div style={{ transform: `translateY(${pullDistance}px)` }}>
         {children}
       </div>
@@ -273,7 +278,7 @@ export function MobileChatInput({
   onVoiceInput,
   onImageCapture,
   isLoading,
-  placeholder = "Type a message..."
+  placeholder = 'Type a message...',
 }: MobileChatInputProps) {
   const [isVoiceRecording, setIsVoiceRecording] = useState(false);
   const [inputHeight, setInputHeight] = useState('auto');
@@ -297,7 +302,7 @@ export function MobileChatInput({
         {/* Voice Input Button */}
         {onVoiceInput && (
           <Button
-            variant={isVoiceRecording ? "destructive" : "ghost"}
+            variant={isVoiceRecording ? 'destructive' : 'ghost'}
             size="sm"
             className="mb-1"
             onClick={handleVoiceToggle}
@@ -400,7 +405,7 @@ export function FloatingActionButton({
   icon,
   label,
   position = 'bottom-right',
-  className
+  className,
 }: FloatingActionButtonProps) {
   const positionClasses = {
     'bottom-right': 'bottom-4 right-4',
@@ -411,18 +416,15 @@ export function FloatingActionButton({
 
   return (
     <motion.div
-      className={cn(
-        "fixed z-50",
-        positionClasses[position]
-      )}
+      className={cn('fixed z-50', positionClasses[position])}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
     >
       <Button
         onClick={onClick}
         className={cn(
-          "h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-shadow",
-          className
+          'h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-shadow',
+          className,
         )}
         aria-label={label}
       >
@@ -442,8 +444,9 @@ export function useVirtualKeyboard() {
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.clientHeight;
       const heightDifference = documentHeight - windowHeight;
-      
-      if (heightDifference > 150) { // Threshold for keyboard detection
+
+      if (heightDifference > 150) {
+        // Threshold for keyboard detection
         setKeyboardHeight(heightDifference);
         setIsKeyboardVisible(true);
       } else {

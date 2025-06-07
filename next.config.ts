@@ -11,6 +11,15 @@ const nextConfig: NextConfig = {
       'lucide-react',
       'framer-motion',
     ],
+    // Turbopack configuration (replaces webpack config when using --turbo)
+    // Keep minimal configuration to avoid module resolution issues
+    turbo: {
+      // Resolve aliases for module resolution
+      resolveAlias: {
+        // Tree-shake lodash
+        'lodash': 'lodash-es',
+      },
+    },
   },
   images: {
     remotePatterns: [
@@ -23,50 +32,54 @@ const nextConfig: NextConfig = {
   },
   compress: true,
   poweredByHeader: false,
-  
-  // Bundle analyzer configuration
+
+  // Webpack configuration (only used when not using Turbopack)
+  // Keep this for backward compatibility when running without --turbo flag
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-    if (!dev && !isServer) {
-      // Code splitting optimizations
-      config.optimization.splitChunks = {
-        ...config.optimization.splitChunks,
-        cacheGroups: {
-          ...config.optimization.splitChunks?.cacheGroups,
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-            priority: 10,
+    // Only apply webpack configurations when not using Turbopack
+    if (process.env.TURBOPACK !== '1') {
+      if (!dev && !isServer) {
+        // Code splitting optimizations
+        config.optimization.splitChunks = {
+          ...config.optimization.splitChunks,
+          cacheGroups: {
+            ...config.optimization.splitChunks?.cacheGroups,
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              chunks: 'all',
+              priority: 10,
+            },
+            common: {
+              name: 'common',
+              minChunks: 2,
+              chunks: 'all',
+              priority: 5,
+              reuseExistingChunk: true,
+            },
+            ui: {
+              test: /[\\/]components[\\/]ui[\\/]/,
+              name: 'ui',
+              chunks: 'all',
+              priority: 15,
+            },
           },
-          common: {
-            name: 'common',
-            minChunks: 2,
-            chunks: 'all',
-            priority: 5,
-            reuseExistingChunk: true,
-          },
-          ui: {
-            test: /[\\/]components[\\/]ui[\\/]/,
-            name: 'ui',
-            chunks: 'all',
-            priority: 15,
-          },
-        },
-      };
+        };
+      }
+
+      // Performance optimizations
+      if (!dev) {
+        config.resolve.alias = {
+          ...config.resolve.alias,
+          // Tree-shake lodash
+          lodash: 'lodash-es',
+        };
+      }
     }
-    
-    // Performance optimizations
-    if (!dev) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        // Tree-shake lodash
-        'lodash': 'lodash-es',
-      };
-    }
-    
+
     return config;
   },
-  
+
   // Headers for security and performance
   async headers() {
     return [
@@ -75,23 +88,23 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'X-DNS-Prefetch-Control',
-            value: 'on'
+            value: 'on',
           },
           {
             key: 'X-Content-Type-Options',
-            value: 'nosniff'
+            value: 'nosniff',
           },
           {
             key: 'X-Frame-Options',
-            value: 'DENY'
+            value: 'DENY',
           },
           {
             key: 'X-XSS-Protection',
-            value: '1; mode=block'
+            value: '1; mode=block',
           },
           {
             key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin'
+            value: 'origin-when-cross-origin',
           },
         ],
       },
@@ -100,7 +113,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'no-store, max-age=0'
+            value: 'no-store, max-age=0',
           },
         ],
       },
@@ -109,7 +122,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable'
+            value: 'public, max-age=31536000, immutable',
           },
         ],
       },

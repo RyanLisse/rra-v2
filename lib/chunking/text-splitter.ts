@@ -66,19 +66,22 @@ export class SemanticTextSplitter {
     // Preprocess text to identify structure
     const structuredText = this.preprocessText(text);
     const sections = this.identifyDocumentSections(structuredText);
-    
+
     const chunks: TextChunk[] = [];
     let globalChunkIndex = 0;
 
     for (const section of sections) {
       const sectionChunks = this.chunkSection(section, globalChunkIndex);
-      
+
       // Add overlap between sections if needed
       if (chunks.length > 0 && sectionChunks.length > 0) {
         const lastChunk = chunks[chunks.length - 1];
         const firstNewChunk = sectionChunks[0];
-        const crossSectionOverlap = this.calculateCrossSectionOverlap(lastChunk, firstNewChunk);
-        
+        const crossSectionOverlap = this.calculateCrossSectionOverlap(
+          lastChunk,
+          firstNewChunk,
+        );
+
         if (crossSectionOverlap) {
           firstNewChunk.metadata.overlap = {
             ...firstNewChunk.metadata.overlap,
@@ -86,7 +89,7 @@ export class SemanticTextSplitter {
           };
         }
       }
-      
+
       chunks.push(...sectionChunks);
       globalChunkIndex += sectionChunks.length;
     }
@@ -182,16 +185,16 @@ export class SemanticTextSplitter {
   private preprocessText(text: string): string {
     // Normalize whitespace and line endings
     let processed = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-    
+
     // Fix common OCR artifacts
     processed = processed.replace(/([a-z])\s*-\s*\n\s*([a-z])/g, '$1$2'); // Hyphenated words
     processed = processed.replace(/([.!?])\s*\n\s*([A-Z])/g, '$1\n\n$2'); // Sentence boundaries
-    
+
     // Preserve table structures
     processed = processed.replace(/(\|.*\|.*\n)+/g, (match) => {
       return `\n\n[TABLE]\n${match}\n[/TABLE]\n\n`;
     });
-    
+
     return processed;
   }
 
@@ -209,18 +212,24 @@ export class SemanticTextSplitter {
     const sections = [];
     const lines = text.split('\n');
     let currentIndex = 0;
-    let currentSection: any = { content: '', type: 'paragraph' as const, startIndex: 0 };
-    
+    let currentSection: any = {
+      content: '',
+      type: 'paragraph' as const,
+      startIndex: 0,
+    };
+
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       const trimmed = line.trim();
-      
+
       // Detect headers (# ## ### or numbered headers)
-      const headerMatch = trimmed.match(/^(#{1,6})\s+(.+)$/) || 
-                         trimmed.match(/^(\d+\.?\d*\.?)\s+(.+)$/) ||
-                         (trimmed.length > 0 && i + 1 < lines.length && 
-                          /^[=\-]{3,}$/.test(lines[i + 1].trim()));
-      
+      const headerMatch =
+        trimmed.match(/^(#{1,6})\s+(.+)$/) ||
+        trimmed.match(/^(\d+\.?\d*\.?)\s+(.+)$/) ||
+        (trimmed.length > 0 &&
+          i + 1 < lines.length &&
+          /^[=\-]{3,}$/.test(lines[i + 1].trim()));
+
       if (headerMatch) {
         // Save previous section
         if (currentSection.content.trim()) {
@@ -229,12 +238,14 @@ export class SemanticTextSplitter {
             endIndex: currentIndex,
           });
         }
-        
+
         // Start new header section
         currentSection = {
           content: `${line}\n`,
           type: 'header' as const,
-          level: (headerMatch as RegExpMatchArray)[1] ? (headerMatch as RegExpMatchArray)[1].length : 1,
+          level: (headerMatch as RegExpMatchArray)[1]
+            ? (headerMatch as RegExpMatchArray)[1].length
+            : 1,
           title: (headerMatch as RegExpMatchArray)[2] || trimmed,
           startIndex: currentIndex,
         };
@@ -275,15 +286,15 @@ export class SemanticTextSplitter {
       } else {
         currentSection.content += `${line}\n`;
       }
-      
+
       currentIndex += line.length + 1;
     }
-    
+
     // Add final section
     if (currentSection.content.trim()) {
       sections.push({ ...currentSection, endIndex: currentIndex });
     }
-    
+
     return sections;
   }
 
@@ -293,8 +304,11 @@ export class SemanticTextSplitter {
   private chunkSection(section: any, startChunkIndex: number): TextChunk[] {
     const chunks: TextChunk[] = [];
     let chunkIndex = startChunkIndex;
-    
-    if (section.type === 'header' || section.content.length <= this.options.chunkSize) {
+
+    if (
+      section.type === 'header' ||
+      section.content.length <= this.options.chunkSize
+    ) {
       // Keep headers and small sections intact
       chunks.push({
         content: section.content.trim(),
@@ -313,18 +327,19 @@ export class SemanticTextSplitter {
       });
       return chunks;
     }
-    
+
     // Split large sections using existing logic but preserve section metadata
     let currentIndex = 0;
     while (currentIndex < section.content.length) {
       const chunk = this.getNextChunk(section.content, currentIndex);
-      
+
       if (chunk.content.trim().length === 0) break;
-      
-      const overlap = chunkIndex > startChunkIndex
-        ? this.calculateOverlap(chunks[chunks.length - 1], chunk)
-        : undefined;
-      
+
+      const overlap =
+        chunkIndex > startChunkIndex
+          ? this.calculateOverlap(chunks[chunks.length - 1], chunk)
+          : undefined;
+
       chunks.push({
         content: chunk.content,
         metadata: {
@@ -341,56 +356,64 @@ export class SemanticTextSplitter {
           quality: this.assessChunkQuality(chunk.content, section.type),
         },
       });
-      
+
       currentIndex = this.getNextStartIndex(chunk, section.content.length);
       chunkIndex++;
     }
-    
+
     return chunks;
   }
 
   /**
    * Calculate cross-section overlap for better continuity
    */
-  private calculateCrossSectionOverlap(lastChunk: TextChunk, firstNewChunk: TextChunk): string | undefined {
+  private calculateCrossSectionOverlap(
+    lastChunk: TextChunk,
+    firstNewChunk: TextChunk,
+  ): string | undefined {
     if (!this.options.adaptiveOverlap) return undefined;
-    
+
     const lastContent = lastChunk.content;
     const firstContent = firstNewChunk.content;
-    
+
     // Take last 2 sentences from previous chunk if it helps context
     const sentences = lastContent.match(/[^.!?]+[.!?]+/g) || [];
     if (sentences.length >= 2) {
       return sentences.slice(-2).join(' ').trim();
     }
-    
+
     return undefined;
   }
 
   /**
    * Assess chunk quality for better RAG performance
    */
-  private assessChunkQuality(content: string, sectionType: string): {
+  private assessChunkQuality(
+    content: string,
+    sectionType: string,
+  ): {
     coherence: number;
     completeness: number;
     semanticBoundary: boolean;
   } {
     const sentences = content.match(/[^.!?]+[.!?]+/g) || [];
     const words = content.trim().split(/\s+/);
-    
+
     // Coherence: based on sentence structure and length
-    const coherence = Math.min(1, sentences.length / 3) * 
-                     Math.min(1, words.length / 50) *
-                     (content.includes('...') ? 0.7 : 1.0);
-    
+    const coherence =
+      Math.min(1, sentences.length / 3) *
+      Math.min(1, words.length / 50) *
+      (content.includes('...') ? 0.7 : 1.0);
+
     // Completeness: avoid cutting mid-sentence
     const endsWithPunctuation = /[.!?]$/.test(content.trim());
     const completeness = endsWithPunctuation ? 1.0 : 0.6;
-    
+
     // Semantic boundary: check if chunk starts/ends at natural boundaries
     const startsWithCapital = /^[A-Z]/.test(content.trim());
-    const semanticBoundary = endsWithPunctuation && (startsWithCapital || sectionType === 'header');
-    
+    const semanticBoundary =
+      endsWithPunctuation && (startsWithCapital || sectionType === 'header');
+
     return {
       coherence: Math.round(coherence * 100) / 100,
       completeness: Math.round(completeness * 100) / 100,
@@ -401,41 +424,62 @@ export class SemanticTextSplitter {
   /**
    * Post-process chunks for optimization
    */
-  private postProcessChunks(chunks: TextChunk[], documentType?: string): TextChunk[] {
-    return chunks.map((chunk, index) => {
-      // Add document type metadata
-      chunk.metadata.documentType = documentType;
-      
-      // Recalculate overlaps with quality consideration
-      if (index > 0 && this.options.adaptiveOverlap) {
-        const prevChunk = chunks[index - 1];
-        const adaptiveOverlap = this.calculateAdaptiveOverlap(prevChunk, chunk);
-        chunk.metadata.overlap = { ...chunk.metadata.overlap, ...adaptiveOverlap };
-      }
-      
-      return chunk;
-    }).filter(chunk => 
-      chunk.content.trim().length >= this.options.minChunkSize &&
-      chunk.metadata.quality?.coherence > 0.3
-    );
+  private postProcessChunks(
+    chunks: TextChunk[],
+    documentType?: string,
+  ): TextChunk[] {
+    return chunks
+      .map((chunk, index) => {
+        // Add document type metadata
+        chunk.metadata.documentType = documentType;
+
+        // Recalculate overlaps with quality consideration
+        if (index > 0 && this.options.adaptiveOverlap) {
+          const prevChunk = chunks[index - 1];
+          const adaptiveOverlap = this.calculateAdaptiveOverlap(
+            prevChunk,
+            chunk,
+          );
+          chunk.metadata.overlap = {
+            ...chunk.metadata.overlap,
+            ...adaptiveOverlap,
+          };
+        }
+
+        return chunk;
+      })
+      .filter(
+        (chunk) =>
+          chunk.content.trim().length >= this.options.minChunkSize &&
+          chunk.metadata.quality?.coherence > 0.3,
+      );
   }
 
   /**
    * Calculate adaptive overlap based on chunk quality
    */
-  private calculateAdaptiveOverlap(prevChunk: TextChunk, currentChunk: TextChunk): {
+  private calculateAdaptiveOverlap(
+    prevChunk: TextChunk,
+    currentChunk: TextChunk,
+  ): {
     previousChunk?: string;
   } {
     const prevQuality = prevChunk.metadata.quality!;
     const currentQuality = currentChunk.metadata.quality!;
-    
+
     // Increase overlap for lower quality chunks
-    const qualityFactor = 1 - Math.min(prevQuality.coherence, currentQuality.coherence);
-    const adaptiveOverlapSize = Math.round(this.options.chunkOverlap * (1 + qualityFactor));
-    
-    const overlapLength = Math.min(adaptiveOverlapSize, prevChunk.content.length);
+    const qualityFactor =
+      1 - Math.min(prevQuality.coherence, currentQuality.coherence);
+    const adaptiveOverlapSize = Math.round(
+      this.options.chunkOverlap * (1 + qualityFactor),
+    );
+
+    const overlapLength = Math.min(
+      adaptiveOverlapSize,
+      prevChunk.content.length,
+    );
     const previousOverlap = prevChunk.content.slice(-overlapLength);
-    
+
     return { previousChunk: previousOverlap };
   }
 
@@ -505,5 +549,26 @@ export class SemanticTextSplitter {
     };
 
     return new SemanticTextSplitter(configs[type]);
+  }
+}
+
+// Export as TextSplitter for backward compatibility
+export class TextSplitter extends SemanticTextSplitter {
+  async splitText(text: string, options?: { chunkSize?: number; chunkOverlap?: number }) {
+    // Update options if provided
+    if (options) {
+      this.options = { ...this.options, ...options };
+    }
+    
+    // Get chunks using parent method
+    const chunks = super.splitText(text);
+    
+    // Convert to format expected by tests
+    return chunks.map(chunk => ({
+      text: chunk.content,
+      startChar: chunk.metadata.startIndex,
+      endChar: chunk.metadata.endIndex,
+      tokenCount: chunk.metadata.tokenCount,
+    }));
   }
 }

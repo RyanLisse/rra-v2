@@ -23,7 +23,6 @@ export default function Page() {
     },
   );
 
-
   useEffect(() => {
     if (state.status === 'failed') {
       toast({

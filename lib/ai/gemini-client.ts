@@ -9,6 +9,10 @@ export interface RAGContext {
     documentTitle: string;
     chunkIndex: number;
     similarity: number;
+    // Enhanced ADE metadata for structured context
+    elementType?: string | null;
+    pageNumber?: number | null;
+    bbox?: any; // bounding box coordinates [x1, y1, x2, y2]
   }[];
   totalSources: number;
 }
@@ -26,6 +30,10 @@ export interface Citation {
   chunkIndex: number;
   startIndex?: number;
   endIndex?: number;
+  // Enhanced ADE metadata for richer citations
+  elementType?: string | null;
+  pageNumber?: number | null;
+  bbox?: any;
 }
 
 class GeminiRAGService {
@@ -180,16 +188,27 @@ class GeminiRAGService {
 IMPORTANT INSTRUCTIONS:
 1. Base your answers ONLY on the provided context documents
 2. If the context doesn't contain sufficient information, clearly state this limitation
-3. Include citations using the format [Source: DocumentName, Chunk X] where appropriate
+3. Include citations using the format [Source: DocumentName, Chunk X, Page Y] where appropriate
 4. Provide specific, detailed answers when possible
 5. If you're uncertain about information, express that uncertainty
 6. Do not hallucinate or add information not present in the context
 7. Structure your response clearly with proper formatting
+8. Pay attention to document structure: titles, headings, tables, figures, and lists have different informational value
+9. When referencing specific document elements, mention their type (e.g., "According to the table on page 3..." or "The figure caption indicates...")
+
+UNDERSTANDING DOCUMENT STRUCTURE:
+- Titles and headings provide organizational context
+- Table content contains structured data
+- Figure captions explain visual elements  
+- Lists present sequential or categorical information
+- Paragraphs contain detailed explanations
+- Use this structural information to provide more precise and contextual answers
 
 CITATION FORMAT:
-- Use [Source: DocumentName, Chunk X] after relevant statements
+- Use [Source: DocumentName, Chunk X, Page Y] after relevant statements
+- Include element type when relevant: [Source: DocumentName, Table on Page Y]
 - Include multiple citations when information spans multiple sources
-- Be specific about which parts of your answer come from which sources`;
+- Be specific about which parts of your answer come from which sources and document elements`;
   }
 
   private buildContextPrompt(context: RAGContext): string {
@@ -199,11 +218,51 @@ CITATION FORMAT:
       contextPrompt += `Document: ${chunk.documentTitle}\n`;
       contextPrompt += `Chunk: ${chunk.chunkIndex}\n`;
       contextPrompt += `Relevance Score: ${chunk.similarity.toFixed(3)}\n`;
-      contextPrompt += `Content: ${chunk.content}\n\n`;
+      
+      // Add structural metadata when available
+      if (chunk.elementType) {
+        contextPrompt += `Element Type: ${chunk.elementType}\n`;
+      }
+      if (chunk.pageNumber !== null && chunk.pageNumber !== undefined) {
+        contextPrompt += `Page: ${chunk.pageNumber}\n`;
+      }
+      if (chunk.bbox && Array.isArray(chunk.bbox) && chunk.bbox.length === 4) {
+        contextPrompt += `Position: [${chunk.bbox.join(', ')}]\n`;
+      }
+      
+      // Format content with structural context
+      const structuralPrefix = this.getStructuralPrefix(chunk.elementType, chunk.pageNumber);
+      contextPrompt += `Content: ${structuralPrefix}${chunk.content}\n\n`;
       contextPrompt += '---\n\n';
     });
 
     return contextPrompt;
+  }
+
+  /**
+   * Generate a structural prefix for content based on element type and location
+   */
+  private getStructuralPrefix(elementType?: string | null, pageNumber?: number | null): string {
+    if (!elementType) return '';
+    
+    const pageRef = pageNumber ? ` (Page ${pageNumber})` : '';
+    
+    switch (elementType.toLowerCase()) {
+      case 'title':
+        return `[TITLE${pageRef}] `;
+      case 'heading':
+        return `[HEADING${pageRef}] `;
+      case 'figure_caption':
+        return `[FIGURE CAPTION${pageRef}] `;
+      case 'table_text':
+        return `[TABLE${pageRef}] `;
+      case 'list_item':
+        return `[LIST ITEM${pageRef}] `;
+      case 'paragraph':
+        return `[PARAGRAPH${pageRef}] `;
+      default:
+        return `[${elementType.toUpperCase()}${pageRef}] `;
+    }
   }
 
   private buildUserPrompt(query: string): string {
@@ -219,40 +278,84 @@ Please provide a comprehensive answer based on the context documents above. Incl
     const citations: Citation[] = [];
     const sources = new Set<string>();
 
-    // Extract citations in format [Source: DocumentName, Chunk X]
-    const citationRegex = /\[Source:\s*([^,]+),\s*Chunk\s*(\d+)\]/g;
-    let match: RegExpExecArray | null;
+    // Extract citations in multiple formats:
+    // [Source: DocumentName, Chunk X, Page Y] 
+    // [Source: DocumentName, Table on Page Y]
+    // [Source: DocumentName, Chunk X] (legacy format)
+    const citationRegexes = [
+      /\[Source:\s*([^,]+),\s*Chunk\s*(\d+),\s*Page\s*(\d+)\]/g,
+      /\[Source:\s*([^,]+),\s*(\w+(?:\s+\w+)*)\s+on\s+Page\s*(\d+)\]/g,
+      /\[Source:\s*([^,]+),\s*Chunk\s*(\d+)\]/g,
+    ];
 
     let content = response;
 
-    match = citationRegex.exec(response);
-    while (match !== null) {
-      const [fullMatch, documentName, chunkIndex] = match;
-      const chunkIdx = Number.parseInt(chunkIndex);
+    // Process each citation format
+    citationRegexes.forEach((regex, formatIndex) => {
+      let match: RegExpExecArray | null;
+      regex.lastIndex = 0; // Reset regex state
+      
+      match = regex.exec(response);
+      while (match !== null) {
+        let documentName: string;
+        let chunkIndex: number | undefined;
+        let pageNumber: number | undefined;
+        let elementType: string | undefined;
 
-      // Find the corresponding chunk in context
-      const chunk = context.chunks.find(
-        (c) =>
-          c.documentTitle
-            .toLowerCase()
-            .includes(documentName.toLowerCase().trim()) &&
-          c.chunkIndex === chunkIdx,
-      );
+        if (formatIndex === 0) {
+          // Format: [Source: DocumentName, Chunk X, Page Y]
+          [, documentName, chunkIndex, pageNumber] = match;
+          chunkIndex = Number.parseInt(chunkIndex as any);
+          pageNumber = Number.parseInt(pageNumber as any);
+        } else if (formatIndex === 1) {
+          // Format: [Source: DocumentName, Table on Page Y]
+          [, documentName, elementType, pageNumber] = match;
+          pageNumber = Number.parseInt(pageNumber as any);
+        } else {
+          // Format: [Source: DocumentName, Chunk X] (legacy)
+          [, documentName, chunkIndex] = match;
+          chunkIndex = Number.parseInt(chunkIndex as any);
+        }
 
-      if (chunk) {
-        citations.push({
-          text: fullMatch,
-          source: chunk.documentTitle,
-          chunkIndex: chunk.chunkIndex,
-        });
-        sources.add(chunk.documentTitle);
+        // Find the corresponding chunk in context
+        const chunk = context.chunks.find(
+          (c) => {
+            const nameMatch = c.documentTitle
+              .toLowerCase()
+              .includes(documentName.toLowerCase().trim());
+            
+            if (chunkIndex !== undefined) {
+              return nameMatch && c.chunkIndex === chunkIndex;
+            }
+            
+            if (pageNumber !== undefined) {
+              return nameMatch && c.pageNumber === pageNumber;
+            }
+            
+            return nameMatch;
+          },
+        );
+
+        if (chunk) {
+          citations.push({
+            text: match[0],
+            source: chunk.documentTitle,
+            chunkIndex: chunk.chunkIndex,
+            elementType: chunk.elementType,
+            pageNumber: chunk.pageNumber,
+            bbox: chunk.bbox,
+          });
+          sources.add(chunk.documentTitle);
+        }
+
+        match = regex.exec(response);
       }
+    });
 
-      match = citationRegex.exec(response);
-    }
-
-    // Clean up citations from content for display
-    content = content.replace(citationRegex, '').trim();
+    // Clean up all citation formats from content for display
+    citationRegexes.forEach((regex) => {
+      content = content.replace(regex, '').trim();
+    });
 
     return {
       content,

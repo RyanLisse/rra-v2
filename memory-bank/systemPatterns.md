@@ -107,3 +107,52 @@ Database Query → User Scope → Resource Access Control
 - **Graceful Degradation**: Fallback strategies for AI service failures
 - **Status Tracking**: Document processing state management
 - **User Feedback**: Clear error messages and recovery instructions
+
+## Testing Patterns
+
+### Test Isolation Pattern
+```
+Test Suite → Create Neon Branch → Run Migrations → Seed Data
+     ↓
+Execute Tests → Parallel Test Execution → Collect Results
+     ↓
+Teardown → Delete Branch → Cleanup Resources
+```
+
+### Factory Pattern for Test Data
+- **User Factory**: Generate authenticated users with sessions
+- **Document Factory**: Create documents with various processing states
+- **Chunk Factory**: Generate semantic chunks with embeddings
+- **Embedding Factory**: Create vector embeddings with metadata
+
+### Test Branch Lifecycle
+```
+GitHub Action Trigger → Branch Creation (test-feature-timestamp)
+     ↓
+Database Setup → Migration Run → Seed Data Population
+     ↓
+Test Execution → Unit Tests → Integration Tests → E2E Tests
+     ↓
+Results Collection → Branch Deletion → Resource Cleanup
+```
+
+### Performance Optimization Patterns
+- **Connection Pooling**: Reuse database connections across tests
+- **Parallel Execution**: Run independent test suites concurrently
+- **Branch Caching**: Reuse branches for related test runs
+- **Lazy Loading**: Only create resources when needed
+
+### CI/CD Integration Pattern
+```
+Pull Request → Create Test Branch → Run Test Suite
+     ↓
+Code Coverage → Performance Metrics → Test Results
+     ↓
+Merge Decision → Automatic Cleanup → Deploy to Production
+```
+
+### Best Practices
+- **Naming Conventions**: Clear, consistent naming for test branches
+- **Resource Management**: Automatic cleanup of test resources
+- **Error Recovery**: Graceful handling of test infrastructure failures
+- **Documentation**: Comprehensive guides for test setup and troubleshooting

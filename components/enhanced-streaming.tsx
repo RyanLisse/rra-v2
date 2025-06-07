@@ -11,18 +11,18 @@ interface StreamingIndicatorProps {
   className?: string;
 }
 
-export function StreamingIndicator({ 
-  isStreaming, 
-  progress = 0, 
-  className 
+export function StreamingIndicator({
+  isStreaming,
+  progress = 0,
+  className,
 }: StreamingIndicatorProps) {
   const [dots, setDots] = useState('');
 
   useEffect(() => {
     if (!isStreaming) return;
-    
+
     const interval = setInterval(() => {
-      setDots(prev => prev.length >= 3 ? '' : `${prev}.`);
+      setDots((prev) => (prev.length >= 3 ? '' : `${prev}.`));
     }, 500);
 
     return () => clearInterval(interval);
@@ -40,18 +40,16 @@ export function StreamingIndicator({
       <div className="size-4 flex items-center justify-center">
         <motion.div
           animate={{ rotate: 360 }}
-          transition={{ 
-            duration: 2, 
-            repeat: Number.POSITIVE_INFINITY, 
-            ease: "linear" 
+          transition={{
+            duration: 2,
+            repeat: Number.POSITIVE_INFINITY,
+            ease: 'linear',
           }}
         >
           <SparklesIcon size={12} />
         </motion.div>
       </div>
-      <span className="text-sm">
-        Thinking{dots}
-      </span>
+      <span className="text-sm">Thinking{dots}</span>
       {progress > 0 && (
         <div className="w-16 h-1 bg-muted rounded-full overflow-hidden">
           <motion.div
@@ -108,7 +106,9 @@ interface MessageLoadingSkeletonProps {
   lines?: number;
 }
 
-export function MessageLoadingSkeleton({ lines = 3 }: MessageLoadingSkeletonProps) {
+export function MessageLoadingSkeleton({
+  lines = 3,
+}: MessageLoadingSkeletonProps) {
   return (
     <div className="flex gap-4 w-full">
       <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-background">
@@ -116,7 +116,7 @@ export function MessageLoadingSkeleton({ lines = 3 }: MessageLoadingSkeletonProp
           <SparklesIcon size={14} />
         </div>
       </div>
-      
+
       <div className="flex flex-col gap-3 w-full max-w-2xl">
         {Array.from({ length: lines }).map((_, i) => (
           <motion.div
@@ -141,10 +141,10 @@ interface StreamingMessageProps {
   showCursor?: boolean;
 }
 
-export function StreamingMessage({ 
-  content, 
-  isComplete, 
-  showCursor = true 
+export function StreamingMessage({
+  content,
+  isComplete,
+  showCursor = true,
 }: StreamingMessageProps) {
   const [displayedContent, setDisplayedContent] = useState('');
 
@@ -157,12 +157,12 @@ export function StreamingMessage({
     // Simulate character-by-character streaming for better UX
     const targetLength = content.length;
     const currentLength = displayedContent.length;
-    
+
     if (currentLength < targetLength) {
       const timeout = setTimeout(() => {
         setDisplayedContent(content.slice(0, currentLength + 1));
       }, 10); // Adjust speed as needed
-      
+
       return () => clearTimeout(timeout);
     }
   }, [content, displayedContent]);
@@ -174,10 +174,10 @@ export function StreamingMessage({
         <motion.span
           className="inline-block w-0.5 h-4 bg-foreground ml-0.5"
           animate={{ opacity: [0, 1, 0] }}
-          transition={{ 
-            duration: 1, 
+          transition={{
+            duration: 1,
             repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut"
+            ease: 'easeInOut',
           }}
         />
       )}
@@ -205,23 +205,22 @@ export function ProcessingSteps({ steps }: ProcessingStepsProps) {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
           >
-            <div className={cn(
-              'w-2 h-2 rounded-full',
-              {
+            <div
+              className={cn('w-2 h-2 rounded-full', {
                 'bg-muted-foreground': step.status === 'pending',
                 'bg-blue-500 animate-pulse': step.status === 'processing',
                 'bg-green-500': step.status === 'complete',
                 'bg-red-500': step.status === 'error',
-              }
-            )} />
-            <span className={cn(
-              'text-muted-foreground',
-              {
+              })}
+            />
+            <span
+              className={cn('text-muted-foreground', {
                 'text-foreground': step.status === 'processing',
-                'text-green-600 dark:text-green-400': step.status === 'complete',
+                'text-green-600 dark:text-green-400':
+                  step.status === 'complete',
                 'text-red-600 dark:text-red-400': step.status === 'error',
-              }
-            )}>
+              })}
+            >
               {step.label}
             </span>
           </motion.div>

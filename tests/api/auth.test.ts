@@ -31,17 +31,20 @@ describe('Auth API Routes', () => {
             user: { id: 'user1', email: 'test@example.com' },
             session: { token: 'session-token' },
           }),
-          { status: 200 }
-        )
+          { status: 200 },
+        ),
       );
 
-      const request = createMockRequest('http://localhost:3000/api/auth/sign-in', {
-        method: 'POST',
-        body: {
-          email: 'test@example.com',
-          password: 'password123',
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/sign-in',
+        {
+          method: 'POST',
+          body: {
+            email: 'test@example.com',
+            password: 'password123',
+          },
         },
-      });
+      );
 
       const response = await POST(request);
       expect(response.status).toBe(200);
@@ -55,18 +58,21 @@ describe('Auth API Routes', () => {
             user: { id: 'user1', email: 'newuser@example.com' },
             session: { token: 'new-session-token' },
           }),
-          { status: 201 }
-        )
+          { status: 201 },
+        ),
       );
 
-      const request = createMockRequest('http://localhost:3000/api/auth/sign-up', {
-        method: 'POST',
-        body: {
-          email: 'newuser@example.com',
-          password: 'password123',
-          name: 'New User',
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/sign-up',
+        {
+          method: 'POST',
+          body: {
+            email: 'newuser@example.com',
+            password: 'password123',
+            name: 'New User',
+          },
         },
-      });
+      );
 
       const response = await POST(request);
       expect(response.status).toBe(201);
@@ -75,23 +81,25 @@ describe('Auth API Routes', () => {
     it('should handle invalid credentials', async () => {
       const mockHandler = vi.mocked(POST);
       mockHandler.mockResolvedValue(
-        new Response(
-          JSON.stringify({ error: 'Invalid credentials' }),
-          { status: 401 }
-        )
+        new Response(JSON.stringify({ error: 'Invalid credentials' }), {
+          status: 401,
+        }),
       );
 
-      const request = createMockRequest('http://localhost:3000/api/auth/sign-in', {
-        method: 'POST',
-        body: {
-          email: 'test@example.com',
-          password: 'wrongpassword',
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/sign-in',
+        {
+          method: 'POST',
+          body: {
+            email: 'test@example.com',
+            password: 'wrongpassword',
+          },
         },
-      });
+      );
 
       const response = await POST(request);
       expect(response.status).toBe(401);
-      
+
       const data = await response.json();
       expect(data.error).toBe('Invalid credentials');
     });
@@ -99,18 +107,20 @@ describe('Auth API Routes', () => {
     it('should validate required fields', async () => {
       const mockHandler = vi.mocked(POST);
       mockHandler.mockResolvedValue(
-        new Response(
-          JSON.stringify({ error: 'Email is required' }),
-          { status: 400 }
-        )
+        new Response(JSON.stringify({ error: 'Email is required' }), {
+          status: 400,
+        }),
       );
 
-      const request = createMockRequest('http://localhost:3000/api/auth/sign-in', {
-        method: 'POST',
-        body: {
-          password: 'password123',
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/sign-in',
+        {
+          method: 'POST',
+          body: {
+            password: 'password123',
+          },
         },
-      });
+      );
 
       const response = await POST(request);
       expect(response.status).toBe(400);
@@ -126,19 +136,22 @@ describe('Auth API Routes', () => {
             user: { id: 'user1', email: 'test@example.com' },
             session: { token: 'valid-token' },
           }),
-          { status: 200 }
-        )
+          { status: 200 },
+        ),
       );
 
-      const request = createMockRequest('http://localhost:3000/api/auth/session', {
-        headers: {
-          Authorization: 'Bearer valid-token',
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/session',
+        {
+          headers: {
+            Authorization: 'Bearer valid-token',
+          },
         },
-      });
+      );
 
       const response = await GET(request);
       expect(response.status).toBe(200);
-      
+
       const data = await response.json();
       expect(data.user).toBeDefined();
       expect(data.session).toBeDefined();
@@ -147,17 +160,19 @@ describe('Auth API Routes', () => {
     it('should handle invalid session tokens', async () => {
       const mockHandler = vi.mocked(GET);
       mockHandler.mockResolvedValue(
-        new Response(
-          JSON.stringify({ error: 'Invalid session' }),
-          { status: 401 }
-        )
+        new Response(JSON.stringify({ error: 'Invalid session' }), {
+          status: 401,
+        }),
       );
 
-      const request = createMockRequest('http://localhost:3000/api/auth/session', {
-        headers: {
-          Authorization: 'Bearer invalid-token',
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/session',
+        {
+          headers: {
+            Authorization: 'Bearer invalid-token',
+          },
         },
-      });
+      );
 
       const response = await GET(request);
       expect(response.status).toBe(401);
@@ -166,13 +181,14 @@ describe('Auth API Routes', () => {
     it('should handle missing authorization header', async () => {
       const mockHandler = vi.mocked(GET);
       mockHandler.mockResolvedValue(
-        new Response(
-          JSON.stringify({ error: 'No authorization header' }),
-          { status: 401 }
-        )
+        new Response(JSON.stringify({ error: 'No authorization header' }), {
+          status: 401,
+        }),
       );
 
-      const request = createMockRequest('http://localhost:3000/api/auth/session');
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/session',
+      );
 
       const response = await GET(request);
       expect(response.status).toBe(401);
@@ -183,20 +199,22 @@ describe('Auth API Routes', () => {
     it('should enforce rate limits for sign in attempts', async () => {
       const mockHandler = vi.mocked(POST);
       mockHandler.mockResolvedValue(
-        new Response(
-          JSON.stringify({ error: 'Too many requests' }),
-          { status: 429 }
-        )
+        new Response(JSON.stringify({ error: 'Too many requests' }), {
+          status: 429,
+        }),
       );
 
       // Simulate multiple rapid requests
-      const request = createMockRequest('http://localhost:3000/api/auth/sign-in', {
-        method: 'POST',
-        body: {
-          email: 'test@example.com',
-          password: 'password123',
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/sign-in',
+        {
+          method: 'POST',
+          body: {
+            email: 'test@example.com',
+            password: 'password123',
+          },
         },
-      });
+      );
 
       const response = await POST(request);
       expect(response.status).toBe(429);
@@ -210,18 +228,21 @@ describe('Auth API Routes', () => {
         // Verify password is hashed (mock implementation)
         return new Response(
           JSON.stringify({ message: 'User created successfully' }),
-          { status: 201 }
+          { status: 201 },
         );
       });
 
-      const request = createMockRequest('http://localhost:3000/api/auth/sign-up', {
-        method: 'POST',
-        body: {
-          email: 'test@example.com',
-          password: 'plaintext-password',
-          name: 'Test User',
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/sign-up',
+        {
+          method: 'POST',
+          body: {
+            email: 'test@example.com',
+            password: 'plaintext-password',
+            name: 'Test User',
+          },
         },
-      });
+      );
 
       const response = await POST(request);
       expect(response.status).toBe(201);
@@ -231,21 +252,24 @@ describe('Auth API Routes', () => {
       const mockHandler = vi.mocked(POST);
       mockHandler.mockResolvedValue(
         new Response(
-          JSON.stringify({ 
-            error: 'Password must be at least 8 characters long' 
+          JSON.stringify({
+            error: 'Password must be at least 8 characters long',
           }),
-          { status: 400 }
-        )
+          { status: 400 },
+        ),
       );
 
-      const request = createMockRequest('http://localhost:3000/api/auth/sign-up', {
-        method: 'POST',
-        body: {
-          email: 'test@example.com',
-          password: '123',
-          name: 'Test User',
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/sign-up',
+        {
+          method: 'POST',
+          body: {
+            email: 'test@example.com',
+            password: '123',
+            name: 'Test User',
+          },
         },
-      });
+      );
 
       const response = await POST(request);
       expect(response.status).toBe(400);

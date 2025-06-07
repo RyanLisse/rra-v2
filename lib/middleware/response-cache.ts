@@ -10,13 +10,16 @@ export interface CacheConfig {
 }
 
 // In-memory cache store (in production, use Redis or similar)
-const responseCache = new Map<string, {
-  data: any;
-  headers: Record<string, string>;
-  status: number;
-  timestamp: number;
-  ttl: number;
-}>();
+const responseCache = new Map<
+  string,
+  {
+    data: any;
+    headers: Record<string, string>;
+    status: number;
+    timestamp: number;
+    ttl: number;
+  }
+>();
 
 // Cleanup expired entries
 setInterval(() => {
@@ -31,19 +34,19 @@ setInterval(() => {
 export function createResponseCache(config: CacheConfig) {
   return {
     get: async (request: NextRequest): Promise<NextResponse | null> => {
-      const key = config.keyGenerator 
+      const key = config.keyGenerator
         ? config.keyGenerator(request)
         : getDefaultCacheKey(request);
-      
+
       const cached = responseCache.get(key);
       if (!cached) return null;
-      
+
       const now = Date.now();
       if (now - cached.timestamp > cached.ttl * 1000) {
         responseCache.delete(key);
         return null;
       }
-      
+
       // Return cached response
       const response = new NextResponse(JSON.stringify(cached.data), {
         status: cached.status,
@@ -53,32 +56,35 @@ export function createResponseCache(config: CacheConfig) {
           'Cache-Control': `max-age=${Math.floor((cached.ttl * 1000 - (now - cached.timestamp)) / 1000)}`,
         },
       });
-      
+
       return response;
     },
-    
-    set: async (request: NextRequest, response: NextResponse): Promise<void> => {
+
+    set: async (
+      request: NextRequest,
+      response: NextResponse,
+    ): Promise<void> => {
       if (config.shouldCache && !config.shouldCache(request, response)) {
         return;
       }
-      
+
       // Only cache successful responses
       if (response.status < 200 || response.status >= 300) {
         return;
       }
-      
-      const key = config.keyGenerator 
+
+      const key = config.keyGenerator
         ? config.keyGenerator(request)
         : getDefaultCacheKey(request);
-      
+
       try {
         const data = await response.clone().json();
         const headers: Record<string, string> = {};
-        
+
         response.headers.forEach((value, name) => {
           headers[name] = value;
         });
-        
+
         responseCache.set(key, {
           data,
           headers,
@@ -97,10 +103,10 @@ export function createResponseCache(config: CacheConfig) {
 function getDefaultCacheKey(request: NextRequest): string {
   const url = new URL(request.url);
   const method = request.method;
-  
+
   // Include query parameters in cache key
   const searchParams = url.searchParams.toString();
-  
+
   return `${method}:${url.pathname}${searchParams ? `?${searchParams}` : ''}`;
 }
 
@@ -110,7 +116,7 @@ export function generateETag(data: any): string {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash; // Convert to 32bit integer
   }
   return `"${Math.abs(hash).toString(36)}"`;
@@ -118,20 +124,20 @@ export function generateETag(data: any): string {
 
 export function handleConditionalRequest(
   request: NextRequest,
-  etag: string
+  etag: string,
 ): NextResponse | null {
   const ifNoneMatch = request.headers.get('if-none-match');
-  
+
   if (ifNoneMatch === etag) {
     return new NextResponse(null, {
       status: 304,
       headers: {
-        'ETag': etag,
+        ETag: etag,
         'Cache-Control': 'max-age=300', // 5 minutes
       },
     });
   }
-  
+
   return null;
 }
 

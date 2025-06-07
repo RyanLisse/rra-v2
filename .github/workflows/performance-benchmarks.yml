@@ -1,0 +1,285 @@
+name: Performance Benchmarks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'lib/**'
+      - 'components/**'
+      - 'package.json'
+      - 'bun.lockb'
+  pull_request:
+    types: [opened, synchronize]
+  workflow_dispatch:
+    inputs:
+      baseline_ref:
+        description: 'Git ref to use as baseline (default: main)'
+        required: false
+        default: 'main'
+        type: string
+
+env:
+  BUN_VERSION: 'latest'
+  NODE_VERSION: '20'
+
+jobs:
+  performance-benchmarks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Need full history for baseline comparison
+      
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+      
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      
+      - name: Setup Neon test branch
+        id: setup_branch
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+        run: |
+          BRANCH_NAME="perf-test-${{ github.sha }}"
+          OUTPUT=$(bun run scripts/create-test-branch.ts \
+            --name "$BRANCH_NAME" \
+            --parent-branch main \
+            --copy-data \
+            --output json)
+          
+          echo "database_url=$(echo "$OUTPUT" | jq -r '.databaseUrl')" >> $GITHUB_OUTPUT
+          echo "branch_id=$(echo "$OUTPUT" | jq -r '.branchId')" >> $GITHUB_OUTPUT
+      
+      - name: Run migrations and seed data
+        env:
+          DATABASE_URL: ${{ steps.setup_branch.outputs.database_url }}
+        run: |
+          bun run db:migrate
+          bun run scripts/seed-test-data.ts --preset performance
+      
+      - name: Build application
+        env:
+          DATABASE_URL: ${{ steps.setup_branch.outputs.database_url }}
+          NEXT_TELEMETRY_DISABLED: 1
+        run: |
+          # Measure build time
+          BUILD_START=$(date +%s)
+          bun run build
+          BUILD_END=$(date +%s)
+          BUILD_TIME=$((BUILD_END - BUILD_START))
+          echo "build_time=$BUILD_TIME" >> build-metrics.txt
+      
+      - name: Start application
+        env:
+          DATABASE_URL: ${{ steps.setup_branch.outputs.database_url }}
+          PORT: 3000
+        run: |
+          bun run start &
+          SERVER_PID=$!
+          echo $SERVER_PID > server.pid
+          
+          # Wait for server to be ready
+          timeout 60s bash -c 'until curl -s http://localhost:3000/api/health > /dev/null; do sleep 1; done'
+      
+      - name: Run performance benchmarks
+        run: |
+          # API Performance Tests
+          echo "### API Performance Benchmarks" > performance-results.md
+          echo "" >> performance-results.md
+          
+          # Document Upload Performance
+          echo "#### Document Upload Performance" >> performance-results.md
+          for size in 1MB 5MB 10MB; do
+            # Create test file
+            dd if=/dev/urandom of=test-${size}.pdf bs=1M count=${size%MB}
+            
+            # Measure upload time
+            UPLOAD_TIME=$(curl -w "%{time_total}" -o /dev/null -s -X POST \
+              -H "Content-Type: multipart/form-data" \
+              -F "file=@test-${size}.pdf" \
+              http://localhost:3000/api/documents/upload)
+            
+            echo "- ${size} file: ${UPLOAD_TIME}s" >> performance-results.md
+            rm test-${size}.pdf
+          done
+          
+          # Vector Search Performance
+          echo "" >> performance-results.md
+          echo "#### Vector Search Performance" >> performance-results.md
+          
+          SEARCH_QUERIES=(
+            "How to calibrate RoboRail"
+            "PMAC communication issues"
+            "Chuck alignment procedure"
+          )
+          
+          for query in "${SEARCH_QUERIES[@]}"; do
+            SEARCH_TIME=$(curl -w "%{time_total}" -o /dev/null -s -X POST \
+              -H "Content-Type: application/json" \
+              -d "{\"query\": \"$query\", \"limit\": 10}" \
+              http://localhost:3000/api/search)
+            
+            echo "- Query \"${query:0:30}...\": ${SEARCH_TIME}s" >> performance-results.md
+          done
+          
+          # Chat Streaming Performance
+          echo "" >> performance-results.md
+          echo "#### Chat Streaming Performance" >> performance-results.md
+          
+          # Measure time to first token
+          TTFT=$(curl -w "%{time_starttransfer}" -o /dev/null -s -X POST \
+            -H "Content-Type: application/json" \
+            -d '{"messages": [{"role": "user", "content": "Hello"}]}' \
+            http://localhost:3000/api/chat)
+          
+          echo "- Time to First Token: ${TTFT}s" >> performance-results.md
+      
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v11
+        with:
+          urls: |
+            http://localhost:3000
+            http://localhost:3000/login
+            http://localhost:3000/documents
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+      
+      - name: Analyze bundle size
+        run: |
+          # Get bundle sizes
+          echo "" >> performance-results.md
+          echo "### Bundle Size Analysis" >> performance-results.md
+          echo "" >> performance-results.md
+          
+          # Analyze .next directory
+          find .next -name "*.js" -type f | while read -r file; do
+            SIZE=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file")
+            SIZE_KB=$((SIZE / 1024))
+            if [ $SIZE_KB -gt 50 ]; then
+              echo "- $(basename "$file"): ${SIZE_KB}KB" >> performance-results.md
+            fi
+          done | sort -rn -k2 | head -10
+      
+      - name: Memory usage analysis
+        run: |
+          # Get server PID
+          SERVER_PID=$(cat server.pid)
+          
+          echo "" >> performance-results.md
+          echo "### Memory Usage" >> performance-results.md
+          echo "" >> performance-results.md
+          
+          # Initial memory
+          INITIAL_MEM=$(ps -o rss= -p $SERVER_PID | awk '{print $1/1024 " MB"}')
+          echo "- Initial: $INITIAL_MEM" >> performance-results.md
+          
+          # After load test
+          ab -n 1000 -c 10 http://localhost:3000/ > /dev/null 2>&1
+          LOADED_MEM=$(ps -o rss= -p $SERVER_PID | awk '{print $1/1024 " MB"}')
+          echo "- After 1000 requests: $LOADED_MEM" >> performance-results.md
+      
+      - name: Compare with baseline
+        if: github.event_name == 'pull_request'
+        run: |
+          # Checkout baseline
+          BASELINE_REF=${{ github.event.inputs.baseline_ref || 'main' }}
+          git checkout $BASELINE_REF
+          
+          # Build baseline
+          bun install --frozen-lockfile
+          BASELINE_BUILD_START=$(date +%s)
+          bun run build
+          BASELINE_BUILD_END=$(date +%s)
+          BASELINE_BUILD_TIME=$((BASELINE_BUILD_END - BASELINE_BUILD_START))
+          
+          # Compare build times
+          CURRENT_BUILD_TIME=$(grep "build_time=" build-metrics.txt | cut -d= -f2)
+          BUILD_DIFF=$((CURRENT_BUILD_TIME - BASELINE_BUILD_TIME))
+          
+          echo "" >> performance-results.md
+          echo "### Performance Comparison" >> performance-results.md
+          echo "" >> performance-results.md
+          echo "- Build time difference: ${BUILD_DIFF}s" >> performance-results.md
+          
+          # Check for regression
+          if [ $BUILD_DIFF -gt 10 ]; then
+            echo "⚠️ Build time regression detected!" >> performance-results.md
+          fi
+      
+      - name: Stop application
+        if: always()
+        run: |
+          if [ -f server.pid ]; then
+            kill $(cat server.pid) || true
+          fi
+      
+      - name: Cleanup test branch
+        if: always()
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+        run: |
+          if [ -n "${{ steps.setup_branch.outputs.branch_id }}" ]; then
+            bun run scripts/delete-test-branch.ts \
+              --branch-id "${{ steps.setup_branch.outputs.branch_id }}" \
+              --force
+          fi
+      
+      - name: Upload performance results
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-results
+          path: |
+            performance-results.md
+            .lighthouseci/
+      
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const results = fs.readFileSync('performance-results.md', 'utf8');
+            
+            // Find existing comment
+            const comments = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            
+            const botComment = comments.data.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('## Performance Benchmark Results')
+            );
+            
+            const body = `## Performance Benchmark Results\n\n${results}`;
+            
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body
+              });
+            }

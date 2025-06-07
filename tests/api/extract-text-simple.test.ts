@@ -26,11 +26,11 @@ describe('Extract Text API - Basic Validation', () => {
     expect(path.join).toBeDefined();
     expect(path.resolve).toBeDefined();
     expect(typeof path.join).toBe('function');
-    
+
     // Test basic path operations
     const testPath = path.join('/uploads', 'test.pdf');
     expect(testPath).toBe('/uploads/test.pdf');
-    
+
     const textPath = testPath.replace(/\.pdf$/i, '.txt');
     expect(textPath).toBe('/uploads/test.txt');
   });
@@ -38,9 +38,13 @@ describe('Extract Text API - Basic Validation', () => {
   it('should validate DocumentProcessor and DocumentStatusManager are available', async () => {
     // These should be available for import (testing module structure)
     try {
-      const { DocumentProcessor } = await import('@/lib/document-processing/document-processor');
-      const { DocumentStatusManager } = await import('@/lib/document-processing/status-manager');
-      
+      const { DocumentProcessor } = await import(
+        '@/lib/document-processing/document-processor'
+      );
+      const { DocumentStatusManager } = await import(
+        '@/lib/document-processing/status-manager'
+      );
+
       expect(DocumentProcessor).toBeDefined();
       expect(DocumentStatusManager).toBeDefined();
     } catch (error) {
@@ -66,7 +70,9 @@ describe('Extract Text API - Basic Validation', () => {
   it('should validate that document uploader component exists and is functional', async () => {
     // Test basic component structure
     try {
-      const { DocumentUploader } = await import('@/components/document-uploader');
+      const { DocumentUploader } = await import(
+        '@/components/document-uploader'
+      );
       expect(DocumentUploader).toBeDefined();
       expect(typeof DocumentUploader).toBe('function');
     } catch (error) {
@@ -81,7 +87,7 @@ describe('Extract Text Functionality - Logic Tests', () => {
     const originalPath = '/uploads/document.pdf';
     const textPath = originalPath.replace(/\.pdf$/i, '.txt');
     expect(textPath).toBe('/uploads/document.txt');
-    
+
     // Test case insensitive
     const upperCasePath = '/uploads/DOCUMENT.PDF';
     const upperTextPath = upperCasePath.replace(/\.pdf$/i, '.txt');
@@ -93,7 +99,7 @@ describe('Extract Text Functionality - Logic Tests', () => {
     const validRequest = {
       documentId: 'doc-123-456',
     };
-    
+
     expect(validRequest.documentId).toBeDefined();
     expect(typeof validRequest.documentId).toBe('string');
     expect(validRequest.documentId.length).toBeGreaterThan(0);
@@ -113,7 +119,7 @@ describe('Extract Text Functionality - Logic Tests', () => {
         warnings: [],
       },
     };
-    
+
     expect(mockResponse.message).toBe('Text extracted successfully');
     expect(mockResponse.documentId).toBeDefined();
     expect(mockResponse.stats).toBeDefined();
@@ -127,7 +133,7 @@ describe('Extract Text Functionality - Logic Tests', () => {
       error: 'Failed to extract text from document',
       details: 'PDF processing timeout',
     };
-    
+
     expect(errorResponse.error).toBeDefined();
     expect(errorResponse.details).toBeDefined();
     expect(typeof errorResponse.error).toBe('string');

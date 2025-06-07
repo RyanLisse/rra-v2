@@ -1,6 +1,12 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  useMemo,
+} from 'react';
 import { cn } from '@/lib/utils';
 
 interface VirtualScrollProps<T> {
@@ -33,18 +39,24 @@ export function VirtualScroll<T>({
   const [scrollTop, setScrollTop] = useState(0);
   const scrollElementRef = useRef<HTMLDivElement>(null);
 
-  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    const scrollTop = e.currentTarget.scrollTop;
-    setScrollTop(scrollTop);
-    onScroll?.(scrollTop);
-  }, [onScroll]);
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      const scrollTop = e.currentTarget.scrollTop;
+      setScrollTop(scrollTop);
+      onScroll?.(scrollTop);
+    },
+    [onScroll],
+  );
 
   // Calculate visible range
   const visibleRange = useMemo(() => {
-    const startIndex = Math.max(0, Math.floor(scrollTop / itemHeight) - overscan);
+    const startIndex = Math.max(
+      0,
+      Math.floor(scrollTop / itemHeight) - overscan,
+    );
     const endIndex = Math.min(
       items.length - 1,
-      Math.ceil((scrollTop + containerHeight) / itemHeight) + overscan
+      Math.ceil((scrollTop + containerHeight) / itemHeight) + overscan,
     );
     return { startIndex, endIndex };
   }, [scrollTop, itemHeight, containerHeight, overscan, items.length]);
@@ -59,22 +71,26 @@ export function VirtualScroll<T>({
   // Auto-scroll to bottom when new items are added (useful for chat)
   const scrollToBottom = useCallback(() => {
     if (scrollElementRef.current) {
-      scrollElementRef.current.scrollTop = scrollElementRef.current.scrollHeight;
+      scrollElementRef.current.scrollTop =
+        scrollElementRef.current.scrollHeight;
     }
   }, []);
 
   // Scroll to specific item
-  const scrollToItem = useCallback((index: number) => {
-    if (scrollElementRef.current) {
-      const targetScrollTop = index * itemHeight;
-      scrollElementRef.current.scrollTop = targetScrollTop;
-    }
-  }, [itemHeight]);
+  const scrollToItem = useCallback(
+    (index: number) => {
+      if (scrollElementRef.current) {
+        const targetScrollTop = index * itemHeight;
+        scrollElementRef.current.scrollTop = targetScrollTop;
+      }
+    },
+    [itemHeight],
+  );
 
   // Show loading state
   if (loading) {
     return (
-      <div 
+      <div
         className={cn('flex items-center justify-center', className)}
         style={{ height: containerHeight }}
       >
@@ -86,7 +102,7 @@ export function VirtualScroll<T>({
   // Show empty state
   if (items.length === 0) {
     return (
-      <div 
+      <div
         className={cn('flex items-center justify-center', className)}
         style={{ height: containerHeight }}
       >
@@ -125,22 +141,28 @@ export function VirtualScroll<T>({
 // Hook for virtual scroll utilities
 export function useVirtualScroll<T>(items: T[]) {
   const [scrollTop, setScrollTop] = useState(0);
-  
-  const scrollToBottom = useCallback((containerRef: React.RefObject<HTMLElement>) => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = containerRef.current.scrollHeight;
-    }
-  }, []);
 
-  const scrollToItem = useCallback((
-    index: number, 
-    itemHeight: number,
-    containerRef: React.RefObject<HTMLElement>
-  ) => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = index * itemHeight;
-    }
-  }, []);
+  const scrollToBottom = useCallback(
+    (containerRef: React.RefObject<HTMLElement>) => {
+      if (containerRef.current) {
+        containerRef.current.scrollTop = containerRef.current.scrollHeight;
+      }
+    },
+    [],
+  );
+
+  const scrollToItem = useCallback(
+    (
+      index: number,
+      itemHeight: number,
+      containerRef: React.RefObject<HTMLElement>,
+    ) => {
+      if (containerRef.current) {
+        containerRef.current.scrollTop = index * itemHeight;
+      }
+    },
+    [],
+  );
 
   return {
     scrollTop,
@@ -222,16 +244,28 @@ export function VariableVirtualScroll<T>({
     }
 
     return { startIndex, endIndex };
-  }, [scrollTop, containerHeight, itemHeights, estimatedItemHeight, overscan, items.length]);
+  }, [
+    scrollTop,
+    containerHeight,
+    itemHeights,
+    estimatedItemHeight,
+    overscan,
+    items.length,
+  ]);
 
-  const visibleItems = items.slice(visibleRange.startIndex, visibleRange.endIndex + 1);
-  
-  // Calculate total height and offset
-  const totalHeight = itemHeights.reduce((sum, height) => sum + (height || estimatedItemHeight), 0);
-  const offsetY = itemHeights.slice(0, visibleRange.startIndex).reduce(
-    (sum, height) => sum + (height || estimatedItemHeight), 
-    0
+  const visibleItems = items.slice(
+    visibleRange.startIndex,
+    visibleRange.endIndex + 1,
   );
+
+  // Calculate total height and offset
+  const totalHeight = itemHeights.reduce(
+    (sum, height) => sum + (height || estimatedItemHeight),
+    0,
+  );
+  const offsetY = itemHeights
+    .slice(0, visibleRange.startIndex)
+    .reduce((sum, height) => sum + (height || estimatedItemHeight), 0);
 
   return (
     <div

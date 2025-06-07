@@ -19,7 +19,7 @@ import { MessageEditor } from './message-editor';
 import { DocumentPreview } from './document-preview';
 import { MessageReasoning } from './message-reasoning';
 import type { UseChatHelpers } from '@ai-sdk/react';
-import { StreamingMessage, StreamingIndicator, } from './enhanced-streaming';
+import { StreamingMessage, StreamingIndicator } from './enhanced-streaming';
 
 const PurePreviewMessage = ({
   chatId,
@@ -132,7 +132,7 @@ const PurePreviewMessage = ({
                         })}
                       >
                         {isLoading && message.role === 'assistant' ? (
-                          <StreamingMessage 
+                          <StreamingMessage
                             content={sanitizeText(part.text)}
                             isComplete={false}
                           />

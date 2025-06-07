@@ -72,7 +72,11 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
         throw new Error('No text content available');
       }
 
-      await statusManager.updateStepProgress('chunking', 25, 'Analyzing document structure...');
+      await statusManager.updateStepProgress(
+        'chunking',
+        25,
+        'Analyzing document structure...',
+      );
 
       // Determine document type for optimal chunking
       const documentType = determineDocumentType(
@@ -81,7 +85,11 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
       );
       const splitter = SemanticTextSplitter.createForDocumentType(documentType);
 
-      await statusManager.updateStepProgress('chunking', 50, 'Creating semantic chunks...');
+      await statusManager.updateStepProgress(
+        'chunking',
+        50,
+        'Creating semantic chunks...',
+      );
 
       // Create chunks with enhanced metadata
       const chunks = splitter.splitText(textContent, documentType);
@@ -90,7 +98,11 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
         throw new Error('No chunks created from document text');
       }
 
-      await statusManager.updateStepProgress('chunking', 75, 'Storing chunks in database...');
+      await statusManager.updateStepProgress(
+        'chunking',
+        75,
+        'Storing chunks in database...',
+      );
 
       // Store chunks in database with enhanced metadata
       const chunkInserts = chunks.map((chunk) => ({
@@ -134,10 +146,11 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
           return {
             avgCoherence: stats.avgCoherence + quality.coherence,
             avgCompleteness: stats.avgCompleteness + quality.completeness,
-            semanticBoundaries: stats.semanticBoundaries + (quality.semanticBoundary ? 1 : 0),
+            semanticBoundaries:
+              stats.semanticBoundaries + (quality.semanticBoundary ? 1 : 0),
           };
         },
-        { avgCoherence: 0, avgCompleteness: 0, semanticBoundaries: 0 }
+        { avgCoherence: 0, avgCompleteness: 0, semanticBoundaries: 0 },
       );
 
       qualityStats.avgCoherence /= chunks.length;
@@ -146,7 +159,8 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
       await statusManager.completeStep('chunking', {
         totalChunks: chunks.length,
         averageChunkSize: Math.round(
-          chunks.reduce((sum, chunk) => sum + chunk.content.length, 0) / chunks.length
+          chunks.reduce((sum, chunk) => sum + chunk.content.length, 0) /
+            chunks.length,
         ),
         documentType,
         qualityStats,
@@ -168,17 +182,22 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
           documentType,
           quality: {
             averageCoherence: Math.round(qualityStats.avgCoherence * 100) / 100,
-            averageCompleteness: Math.round(qualityStats.avgCompleteness * 100) / 100,
-            semanticBoundaryRatio: Math.round((qualityStats.semanticBoundaries / chunks.length) * 100) / 100,
+            averageCompleteness:
+              Math.round(qualityStats.avgCompleteness * 100) / 100,
+            semanticBoundaryRatio:
+              Math.round(
+                (qualityStats.semanticBoundaries / chunks.length) * 100,
+              ) / 100,
           },
         },
       });
     } catch (chunkingError) {
       console.error('Chunking error:', chunkingError);
 
-      const errorMessage = chunkingError instanceof Error 
-        ? chunkingError.message 
-        : 'Unknown error';
+      const errorMessage =
+        chunkingError instanceof Error
+          ? chunkingError.message
+          : 'Unknown error';
 
       await statusManager.failStep('chunking', errorMessage);
 
@@ -228,10 +247,15 @@ function determineDocumentType(
     'instruction',
     'tutorial',
   ];
-  const hasManualStructure = /\b(step \d+|chapter \d+|section \d+|procedure|instructions)\b/i.test(content);
+  const hasManualStructure =
+    /\b(step \d+|chapter \d+|section \d+|procedure|instructions)\b/i.test(
+      content,
+    );
 
   if (
-    manualKeywords.some((keyword) => filename_lower.includes(keyword.replace(' ', ''))) ||
+    manualKeywords.some((keyword) =>
+      filename_lower.includes(keyword.replace(' ', '')),
+    ) ||
     hasManualStructure
   ) {
     return 'manual';
@@ -252,7 +276,10 @@ function determineDocumentType(
     /```|```\n|\bfunction\b|\bclass\b|\bdef\b|\bpublic\b|\bprivate\b|\bimport\b|\bfrom\b/.test(
       content,
     );
-  const hasTechnicalTerms = /\b(API|HTTP|JSON|XML|SQL|database|server|client|endpoint)\b/gi.test(content);
+  const hasTechnicalTerms =
+    /\b(API|HTTP|JSON|XML|SQL|database|server|client|endpoint)\b/gi.test(
+      content,
+    );
 
   if (
     technicalKeywords.some((keyword) => filename_lower.includes(keyword)) ||
@@ -277,8 +304,13 @@ function determineDocumentType(
     'dissertation',
   ];
   const hasAcademicStructure =
-    /\b(abstract|methodology|literature review|conclusion|references|bibliography|citation)\b/i.test(content);
-  const hasAcademicLanguage = /\b(hypothesis|experiment|dataset|correlation|significant|p-value)\b/i.test(content);
+    /\b(abstract|methodology|literature review|conclusion|references|bibliography|citation)\b/i.test(
+      content,
+    );
+  const hasAcademicLanguage =
+    /\b(hypothesis|experiment|dataset|correlation|significant|p-value)\b/i.test(
+      content,
+    );
 
   if (
     academicKeywords.some((keyword) => filename_lower.includes(keyword)) ||

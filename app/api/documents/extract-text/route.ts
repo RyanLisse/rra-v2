@@ -59,15 +59,26 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
         extractTables: true,
       });
 
-      await statusManager.updateStepProgress('text_extraction', 25, 'Processing document...');
+      await statusManager.updateStepProgress(
+        'text_extraction',
+        25,
+        'Processing document...',
+      );
 
-      const result = await processor.processDocument(document.filePath, document.mimeType);
+      const result = await processor.processDocument(
+        document.filePath,
+        document.mimeType,
+      );
 
       if (!result.success || !result.text) {
         throw new Error(result.error || 'Failed to extract text from document');
       }
 
-      await statusManager.updateStepProgress('text_extraction', 75, 'Saving extracted text...');
+      await statusManager.updateStepProgress(
+        'text_extraction',
+        75,
+        'Saving extracted text...',
+      );
 
       // Save extracted text to file
       const textFilename = `${document.fileName.replace(/\.[^.]+$/, '')}.txt`;
@@ -80,7 +91,8 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
         await tx.insert(documentContent).values({
           documentId: documentId,
           textFilePath: textFilePath,
-          extractedText: result.text && result.text.length > 10000 ? undefined : result.text, // Store short texts directly
+          extractedText:
+            result.text && result.text.length > 10000 ? undefined : result.text, // Store short texts directly
           pageCount: result.metadata?.pageCount?.toString(),
           charCount: result.metadata?.charCount?.toString(),
           metadata: {
@@ -123,9 +135,10 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
     } catch (extractionError) {
       console.error('Text extraction error:', extractionError);
 
-      const errorMessage = extractionError instanceof Error 
-        ? extractionError.message 
-        : 'Unknown error';
+      const errorMessage =
+        extractionError instanceof Error
+          ? extractionError.message
+          : 'Unknown error';
 
       await statusManager.failStep('text_extraction', errorMessage);
 

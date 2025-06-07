@@ -83,11 +83,13 @@ describe('/api/documents/extract-text', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Setup default mocks
-    mockDocumentStatusManager.create.mockResolvedValue(mockStatusManager as any);
+    mockDocumentStatusManager.create.mockResolvedValue(
+      mockStatusManager as any,
+    );
     mockDocumentProcessor.mockImplementation(() => mockProcessor as any);
-    
+
     // Mock database transaction
     mockDb.transaction = vi.fn().mockImplementation(async (callback) => {
       const mockTx = {
@@ -121,20 +123,20 @@ describe('/api/documents/extract-text', () => {
   describe('Request Validation', () => {
     it('should return 400 when documentId is missing', async () => {
       const request = createRequest({});
-      
+
       const response = await POST(request, mockSession);
       const data = await response.json();
-      
+
       expect(response.status).toBe(400);
       expect(data.error).toBe('Document ID is required');
     });
 
     it('should return 400 when documentId is not a string', async () => {
       const request = createRequest({ documentId: 123 });
-      
+
       const response = await POST(request, mockSession);
       const data = await response.json();
-      
+
       expect(response.status).toBe(400);
       expect(data.error).toBe('Document ID is required');
     });
@@ -149,10 +151,10 @@ describe('/api/documents/extract-text', () => {
       } as any;
 
       const request = createRequest({ documentId: 'doc-123' });
-      
+
       const response = await POST(request, mockSession);
       const data = await response.json();
-      
+
       expect(response.status).toBe(404);
       expect(data.error).toBe('Document not found');
     });
@@ -170,10 +172,10 @@ describe('/api/documents/extract-text', () => {
       } as any;
 
       const request = createRequest({ documentId: 'doc-123' });
-      
+
       const response = await POST(request, mockSession);
       const data = await response.json();
-      
+
       expect(response.status).toBe(403);
       expect(data.error).toBe('Access denied');
     });
@@ -191,12 +193,14 @@ describe('/api/documents/extract-text', () => {
       } as any;
 
       const request = createRequest({ documentId: 'doc-123' });
-      
+
       const response = await POST(request, mockSession);
       const data = await response.json();
-      
+
       expect(response.status).toBe(400);
-      expect(data.error).toBe("Document is in text_extracted status, expected 'uploaded'");
+      expect(data.error).toBe(
+        "Document is in text_extracted status, expected 'uploaded'",
+      );
     });
   });
 
@@ -228,10 +232,10 @@ describe('/api/documents/extract-text', () => {
       mockFs.writeFile.mockResolvedValue();
 
       const request = createRequest({ documentId: 'doc-123' });
-      
+
       const response = await POST(request, mockSession);
       const data = await response.json();
-      
+
       expect(response.status).toBe(200);
       expect(data.message).toBe('Text extracted successfully');
       expect(data.documentId).toBe('doc-123');
@@ -240,16 +244,18 @@ describe('/api/documents/extract-text', () => {
       expect(data.stats.confidence).toBe(0.95);
 
       // Verify status manager calls
-      expect(mockStatusManager.startStep).toHaveBeenCalledWith('text_extraction');
+      expect(mockStatusManager.startStep).toHaveBeenCalledWith(
+        'text_extraction',
+      );
       expect(mockStatusManager.updateStepProgress).toHaveBeenCalledWith(
         'text_extraction',
         25,
-        'Processing document...'
+        'Processing document...',
       );
       expect(mockStatusManager.updateStepProgress).toHaveBeenCalledWith(
         'text_extraction',
         75,
-        'Saving extracted text...'
+        'Saving extracted text...',
       );
       expect(mockStatusManager.completeStep).toHaveBeenCalledWith(
         'text_extraction',
@@ -257,13 +263,13 @@ describe('/api/documents/extract-text', () => {
           textLength: extractionResult.text.length,
           confidence: 0.95,
           processingTime: 2500,
-        })
+        }),
       );
 
       // Verify file write
       expect(mockFs.writeFile).toHaveBeenCalledWith(
         expect.stringContaining('test-document.txt'),
-        extractionResult.text
+        extractionResult.text,
       );
 
       // Verify database transaction was called
@@ -280,10 +286,10 @@ describe('/api/documents/extract-text', () => {
       mockProcessor.processDocument.mockResolvedValue(extractionResult);
 
       const request = createRequest({ documentId: 'doc-123' });
-      
+
       const response = await POST(request, mockSession);
       const data = await response.json();
-      
+
       expect(response.status).toBe(500);
       expect(data.error).toBe('Failed to extract text from document');
       expect(data.details).toBe('Failed to parse PDF - corrupted file');
@@ -291,7 +297,7 @@ describe('/api/documents/extract-text', () => {
       // Verify status manager was notified of failure
       expect(mockStatusManager.failStep).toHaveBeenCalledWith(
         'text_extraction',
-        'Failed to parse PDF - corrupted file'
+        'Failed to parse PDF - corrupted file',
       );
     });
 
@@ -300,10 +306,10 @@ describe('/api/documents/extract-text', () => {
       mockProcessor.processDocument.mockRejectedValue(processingError);
 
       const request = createRequest({ documentId: 'doc-123' });
-      
+
       const response = await POST(request, mockSession);
       const data = await response.json();
-      
+
       expect(response.status).toBe(500);
       expect(data.error).toBe('Failed to extract text from document');
       expect(data.details).toBe('PDF processing timeout');
@@ -311,7 +317,7 @@ describe('/api/documents/extract-text', () => {
       // Verify status manager was notified of failure
       expect(mockStatusManager.failStep).toHaveBeenCalledWith(
         'text_extraction',
-        'PDF processing timeout'
+        'PDF processing timeout',
       );
     });
 
@@ -326,10 +332,10 @@ describe('/api/documents/extract-text', () => {
       mockFs.writeFile.mockRejectedValue(new Error('Disk full'));
 
       const request = createRequest({ documentId: 'doc-123' });
-      
+
       const response = await POST(request, mockSession);
       const data = await response.json();
-      
+
       expect(response.status).toBe(500);
       expect(data.error).toBe('Failed to extract text from document');
       expect(data.details).toBe('Disk full');
@@ -356,26 +362,28 @@ describe('/api/documents/extract-text', () => {
       mockFs.writeFile.mockResolvedValue();
 
       const request = createRequest({ documentId: 'doc-123' });
-      
+
       await POST(request, mockSession);
-      
+
       // Verify progress tracking sequence
-      expect(mockStatusManager.startStep).toHaveBeenCalledWith('text_extraction');
+      expect(mockStatusManager.startStep).toHaveBeenCalledWith(
+        'text_extraction',
+      );
       expect(mockStatusManager.updateStepProgress).toHaveBeenNthCalledWith(
         1,
         'text_extraction',
         25,
-        'Processing document...'
+        'Processing document...',
       );
       expect(mockStatusManager.updateStepProgress).toHaveBeenNthCalledWith(
         2,
         'text_extraction',
         75,
-        'Saving extracted text...'
+        'Saving extracted text...',
       );
       expect(mockStatusManager.completeStep).toHaveBeenCalledWith(
         'text_extraction',
-        expect.any(Object)
+        expect.any(Object),
       );
     });
   });
@@ -392,7 +400,9 @@ describe('/api/documents/extract-text', () => {
     it('should store document content in database with metadata', async () => {
       const extractionResult = {
         success: true,
-        text: 'Long extracted text content that is longer than 10000 characters '.repeat(200),
+        text: 'Long extracted text content that is longer than 10000 characters '.repeat(
+          200,
+        ),
         metadata: {
           pageCount: 3,
           charCount: 13800,
@@ -408,9 +418,9 @@ describe('/api/documents/extract-text', () => {
       mockFs.writeFile.mockResolvedValue();
 
       const request = createRequest({ documentId: 'doc-123' });
-      
+
       await POST(request, mockSession);
-      
+
       // Verify database transaction was executed
       expect(mockDb.transaction).toHaveBeenCalled();
     });
@@ -424,15 +434,17 @@ describe('/api/documents/extract-text', () => {
 
       mockProcessor.processDocument.mockResolvedValue(extractionResult);
       mockFs.writeFile.mockResolvedValue();
-      
+
       // Mock database transaction failure
-      mockDb.transaction.mockRejectedValue(new Error('Database connection lost'));
+      mockDb.transaction.mockRejectedValue(
+        new Error('Database connection lost'),
+      );
 
       const request = createRequest({ documentId: 'doc-123' });
-      
+
       const response = await POST(request, mockSession);
       const data = await response.json();
-      
+
       expect(response.status).toBe(500);
       expect(data.error).toBe('Failed to extract text from document');
       expect(data.details).toBe('Database connection lost');
@@ -451,14 +463,14 @@ describe('/api/documents/extract-text', () => {
     it('should handle unexpected errors gracefully', async () => {
       // Simulate an unexpected error in the outer try-catch
       mockDocumentStatusManager.create.mockRejectedValue(
-        new Error('Status manager initialization failed')
+        new Error('Status manager initialization failed'),
       );
 
       const request = createRequest({ documentId: 'doc-123' });
-      
+
       const response = await POST(request, mockSession);
       const data = await response.json();
-      
+
       expect(response.status).toBe(500);
       expect(data.error).toBe('Internal server error');
     });
@@ -492,10 +504,10 @@ describe('/api/documents/extract-text', () => {
       mockFs.writeFile.mockResolvedValue();
 
       const request = createRequest({ documentId: 'doc-123' });
-      
+
       const response = await POST(request, mockSession);
       const data = await response.json();
-      
+
       expect(response.status).toBe(200);
       expect(data.stats.pages).toBe(100);
       expect(data.stats.characters).toBe(1350000);
@@ -521,13 +533,16 @@ describe('/api/documents/extract-text', () => {
       mockFs.writeFile.mockResolvedValue();
 
       const request = createRequest({ documentId: 'doc-123' });
-      
+
       const response = await POST(request, mockSession);
       const data = await response.json();
-      
+
       expect(response.status).toBe(200);
       expect(data.stats.confidence).toBe(0.45);
-      expect(data.stats.warnings).toEqual(['Low OCR confidence', 'Some text may be inaccurate']);
+      expect(data.stats.warnings).toEqual([
+        'Low OCR confidence',
+        'Some text may be inaccurate',
+      ]);
     });
   });
 });

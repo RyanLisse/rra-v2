@@ -15,7 +15,7 @@ export async function getServerSession() {
     const { auth: authInstance } = await import('./config');
     const session = await authInstance.api.getSession({
       headers: new Headers({
-        'cookie': (await import('next/headers')).cookies().toString(),
+        cookie: (await import('next/headers')).cookies().toString(),
       }),
     });
 

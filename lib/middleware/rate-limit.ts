@@ -23,14 +23,16 @@ setInterval(() => {
 }, 60000); // Cleanup every minute
 
 export function createRateLimit(config: RateLimitConfig) {
-  return async function rateLimit(request: NextRequest): Promise<NextResponse | null> {
+  return async function rateLimit(
+    request: NextRequest,
+  ): Promise<NextResponse | null> {
     const now = Date.now();
-    const key = config.keyGenerator 
+    const key = config.keyGenerator
       ? config.keyGenerator(request)
       : getDefaultKey(request);
 
     const entry = rateLimitStore.get(key);
-    
+
     if (!entry || now > entry.resetTime) {
       // First request or window expired
       rateLimitStore.set(key, {
@@ -45,7 +47,7 @@ export function createRateLimit(config: RateLimitConfig) {
       if (config.onLimitReached) {
         return config.onLimitReached(request);
       }
-      
+
       return new NextResponse(
         JSON.stringify({
           error: 'Rate limit exceeded',
@@ -60,13 +62,13 @@ export function createRateLimit(config: RateLimitConfig) {
             'X-RateLimit-Remaining': '0',
             'X-RateLimit-Reset': String(entry.resetTime),
           },
-        }
+        },
       );
     }
 
     // Increment counter
     entry.count++;
-    
+
     return null; // Allow request
   };
 }
@@ -76,12 +78,12 @@ function getDefaultKey(request: NextRequest): string {
   const forwarded = request.headers.get('x-forwarded-for');
   const realIp = request.headers.get('x-real-ip');
   const cfConnectingIp = request.headers.get('cf-connecting-ip');
-  
+
   const ip = forwarded?.split(',')[0] || realIp || cfConnectingIp || 'unknown';
-  
+
   // Include user agent for additional uniqueness
   const userAgent = request.headers.get('user-agent') || 'unknown';
-  
+
   return `${ip}:${userAgent.slice(0, 100)}`;
 }
 

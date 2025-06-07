@@ -2,6 +2,64 @@
 
 This directory contains comprehensive tests for the RAG Chat Application. The testing strategy follows a multi-layered approach covering unit tests, integration tests, performance tests, and end-to-end tests.
 
+## 🚀 Enhanced Testing Infrastructure
+
+We now support **Enhanced Neon Branching Strategy** for superior test isolation and debugging capabilities. See [Enhanced Testing Summary](./ENHANCED_TESTING_SUMMARY.md) for a complete overview.
+
+### Quick Start with Enhanced Testing
+
+```typescript
+import { getNeonApiClient } from '@/lib/testing/neon-api-client';
+import { TestDataFactory } from './utils/enhanced-test-factories';
+import { NeonTestUtils } from './utils/neon-test-utils';
+
+describe('My Feature (Enhanced)', () => {
+  let testBranch: TestBranchInfo | null = null;
+  let neonClient, testUtils, factory;
+
+  beforeEach(async () => {
+    neonClient = getNeonApiClient();
+    testUtils = new NeonTestUtils(neonClient);
+    factory = new TestDataFactory();
+
+    const branchResult = await neonClient.createTestBranch({
+      testSuite: 'my-feature',
+      purpose: 'testing',
+      tags: ['enhanced']
+    });
+
+    if (branchResult.success) {
+      testBranch = branchResult.data;
+      await testUtils.setupTestSchema(testBranch.branchId);
+    }
+  });
+
+  afterEach(async () => {
+    if (testBranch) {
+      await neonClient.deleteTestBranch(testBranch.branchName);
+    }
+  });
+
+  it('should test with real database isolation', async () => {
+    const user = factory.createUser();
+    await testUtils.insertUser(user, testBranch!.branchId);
+    // Your test code here
+  });
+});
+```
+
+### Enhanced Testing Documentation
+
+- 📋 [**Enhanced Testing Summary**](./ENHANCED_TESTING_SUMMARY.md) - Complete overview of new capabilities
+- 📖 [**Migration Guide**](./migration-guide.md) - Step-by-step upgrade instructions  
+- 📄 [**Test Template**](./templates/enhanced-test-template.ts) - Copy-paste template for new tests
+
+### Enhanced Test Examples
+
+- 🔐 [**Auth API Enhanced**](./api/auth-enhanced.test.ts) - Authentication with real database validation
+- 🔄 [**RAG Pipeline Enhanced**](./integration/rag-pipeline-enhanced.test.ts) - End-to-end workflow testing
+- ⚡ [**Vector Search Enhanced**](./performance/vector-search-enhanced.test.ts) - Performance testing with scaling analysis
+
 ## Test Structure
 
 ```
@@ -88,15 +146,72 @@ Unit tests for utility functions and core libraries:
 - **Auth helpers**: Session validation and user management
 - **AI helpers**: Model configuration and prompt management
 
+## Test Database Setup
+
+### PostgreSQL with pgvector
+
+The test suite requires a PostgreSQL database with the pgvector extension for vector similarity search functionality. A dedicated test database configuration is provided via Docker Compose.
+
+#### Starting the Test Database
+
+```bash
+# Start the test database (PostgreSQL with pgvector)
+bun test:db:up
+
+# Wait for the database to be ready
+bun test:db:wait
+
+# Or use the combined setup command
+bun test:setup
+```
+
+#### Test Database Configuration
+
+- **Host**: localhost
+- **Port**: 5433 (different from main DB to avoid conflicts)
+- **Database**: test_db
+- **User**: test
+- **Password**: test
+- **Connection URL**: `postgresql://test:test@localhost:5433/test_db`
+
+#### Managing the Test Database
+
+```bash
+# Stop the test database (preserves data)
+bun test:db:stop
+
+# Remove the test database (deletes all data)
+bun test:db:down
+
+# Clean up everything including volumes
+bun test:db:clean
+
+# View database logs
+bun test:db:logs
+
+# Run tests with automatic database setup/teardown
+bun test:with-db
+```
+
+#### Docker Compose Configuration
+
+The test database is configured in `docker-compose.test.yml`:
+- Uses PostgreSQL 16 with pgvector extension pre-installed
+- Configured with optimal settings for testing
+- Includes health checks for reliable startup
+- Separate volumes to isolate test data
+- Redis instance for testing caching functionality
+
 ## Test Utilities
 
-### Test Database (`tests/utils/test-db.ts`)
+### Test Database Helper (`tests/utils/test-db.ts`)
 
 Provides database setup and teardown for tests:
 - Creates isolated test database connection
 - Runs migrations before each test
 - Cleans up data after each test
 - Supports transaction-based testing
+- Uses `TEST_DATABASE_URL` environment variable or defaults to test database
 
 ### Test Helpers (`tests/utils/test-helpers.ts`)
 

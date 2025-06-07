@@ -7,7 +7,11 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
     const body = await request.json();
     const { documentIds, options = {} } = body;
 
-    if (!documentIds || !Array.isArray(documentIds) || documentIds.length === 0) {
+    if (
+      !documentIds ||
+      !Array.isArray(documentIds) ||
+      documentIds.length === 0
+    ) {
       return NextResponse.json(
         { error: 'Document IDs array is required' },
         { status: 400 },
@@ -15,7 +19,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
     }
 
     // Validate document IDs
-    if (documentIds.some(id => typeof id !== 'string' || !id.trim())) {
+    if (documentIds.some((id) => typeof id !== 'string' || !id.trim())) {
       return NextResponse.json(
         { error: 'All document IDs must be valid strings' },
         { status: 400 },
@@ -28,8 +32,11 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
     // Process documents
     if (documentIds.length === 1) {
       // Single document processing
-      const result = await pipeline.processDocument(documentIds[0], session.user.id);
-      
+      const result = await pipeline.processDocument(
+        documentIds[0],
+        session.user.id,
+      );
+
       return NextResponse.json({
         success: result.success,
         result,
@@ -37,8 +44,8 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
     } else {
       // Batch processing
       const results = await pipeline.processBatch(documentIds, session.user.id);
-      const successCount = results.filter(r => r.success).length;
-      
+      const successCount = results.filter((r) => r.success).length;
+
       return NextResponse.json({
         success: successCount === results.length,
         batchResults: {
@@ -49,7 +56,6 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
         },
       });
     }
-
   } catch (error) {
     console.error('Document processing pipeline error:', error);
     return NextResponse.json(

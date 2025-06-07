@@ -43,7 +43,9 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
         // Validate file type
         if (!ALLOWED_TYPES.includes(file.type)) {
           const allowedExtensions = ['PDF', 'TXT', 'MD', 'DOCX', 'DOC'];
-          errors.push(`${file.name}: Only ${allowedExtensions.join(', ')} files are allowed`);
+          errors.push(
+            `${file.name}: Only ${allowedExtensions.join(', ')} files are allowed`,
+          );
           continue;
         }
 

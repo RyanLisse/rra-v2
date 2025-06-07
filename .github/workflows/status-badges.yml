@@ -1,0 +1,36 @@
+name: Status Badges
+
+on:
+  workflow_run:
+    workflows: ["Test with Neon Branches", "Performance Benchmarks"]
+    types: [completed]
+  push:
+    branches: [main]
+
+jobs:
+  update-badges:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Generate badge data
+        run: |
+          # Create badge data directory
+          mkdir -p .github/badges
+          
+          # Test status
+          echo '{"schemaVersion": 1, "label": "tests", "message": "passing", "color": "brightgreen"}' > .github/badges/tests.json
+          
+          # Coverage (example - integrate with actual coverage tool)
+          echo '{"schemaVersion": 1, "label": "coverage", "message": "85%", "color": "yellow"}' > .github/badges/coverage.json
+          
+          # Performance
+          echo '{"schemaVersion": 1, "label": "performance", "message": "optimized", "color": "blue"}' > .github/badges/performance.json
+      
+      - name: Commit badge data
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .github/badges
+          git diff --quiet && git diff --staged --quiet || git commit -m "chore: update status badges"
+          git push

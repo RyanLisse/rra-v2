@@ -36,7 +36,10 @@ class ServiceWorkerManagerImpl implements ServiceWorkerManager {
         const newWorker = this.registration?.installing;
         if (newWorker) {
           newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            if (
+              newWorker.state === 'installed' &&
+              navigator.serviceWorker.controller
+            ) {
               // New content is available, notify user
               this.notifyUpdate();
             }
@@ -94,7 +97,7 @@ class ServiceWorkerManagerImpl implements ServiceWorkerManager {
 
   private handleMessage = (event: MessageEvent) => {
     const { type, payload } = event.data;
-    
+
     switch (type) {
       case 'CACHE_UPDATED':
         console.log('Cache updated:', payload);
@@ -159,10 +162,10 @@ export function useServiceWorker() {
     // Listen for online/offline status
     const handleOnline = () => setIsOffline(false);
     const handleOffline = () => setIsOffline(true);
-    
+
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-    
+
     setIsOffline(!navigator.onLine);
 
     return () => {
@@ -217,15 +220,17 @@ export function trackServiceWorkerPerformance() {
   window.fetch = async (...args) => {
     totalRequests++;
     const response = await originalFetch(...args);
-    
+
     if (response.headers.get('X-Cache') === 'HIT') {
       cacheHits++;
     }
 
     // Log cache performance periodically
     if (totalRequests % 10 === 0) {
-      const hitRate = (cacheHits / totalRequests * 100).toFixed(1);
-      console.log(`Cache hit rate: ${hitRate}% (${cacheHits}/${totalRequests})`);
+      const hitRate = ((cacheHits / totalRequests) * 100).toFixed(1);
+      console.log(
+        `Cache hit rate: ${hitRate}% (${cacheHits}/${totalRequests})`,
+      );
     }
 
     return response;

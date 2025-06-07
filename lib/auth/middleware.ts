@@ -35,7 +35,7 @@ export async function validateSession(
   try {
     const session = await auth.api.getSession({
       headers: new Headers({
-        'authorization': `Bearer ${sessionToken}`,
+        authorization: `Bearer ${sessionToken}`,
       }),
     });
 
@@ -44,7 +44,10 @@ export async function validateSession(
     }
 
     // Check if session is expired
-    if (session.session.expiresAt && new Date() > new Date(session.session.expiresAt)) {
+    if (
+      session.session.expiresAt &&
+      new Date() > new Date(session.session.expiresAt)
+    ) {
       return null;
     }
 

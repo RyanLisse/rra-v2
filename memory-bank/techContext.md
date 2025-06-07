@@ -37,9 +37,12 @@
 
 ### Development & Testing
 - `@biomejs/biome@1.9.4` - Fast linting and formatting
-- `vitest@3.2.2` - Unit testing framework
-- `@playwright/test@1.50.1` - End-to-end testing
-- `tsx@4.19.1` - TypeScript execution
+- `vitest@3.2.2` - Unit testing framework with jsdom environment
+- `@playwright/test@1.50.1` - End-to-end testing with Page Object Model
+- `tsx@4.19.1` - TypeScript execution for scripts
+- **Neon Test Infrastructure**: Automated branch management and isolated test environments
+- **MCP Integration**: Model Control Protocol for enhanced API communication
+- **Test Factories**: Comprehensive data generation for realistic test scenarios
 
 ### Authentication & Security
 - `next-auth@5.0.0-beta.25` - Authentication framework
@@ -73,13 +76,19 @@
 
 ### Environment Variables
 - **Local Development**: `.env.local` file (gitignored)
+- **Testing**: `.env.test` for isolated test environment
 - **Production**: Vercel environment variables dashboard
 - **Required Variables**:
   - `POSTGRES_URL` - NeonDB connection string
-  - `NEXTAUTH_SECRET` - Authentication secret
-  - `XAI_API_KEY` - xAI Grok API access
+  - `NEON_API_KEY` - Neon API access for branch management
+  - `BETTER_AUTH_SECRET` - Authentication secret (replaces NEXTAUTH_SECRET)
+  - `BETTER_AUTH_URL` - Base URL for Better Auth API
+  - **AI Provider Keys** (at least one required):
+    - `OPENAI_API_KEY` - OpenAI GPT-4o access
+    - `ANTHROPIC_API_KEY` - Claude 3.5 Sonnet access
+    - `GEMINI_API_KEY` - Google Gemini 2.0 Flash access
   - `COHERE_API_KEY` - Cohere embeddings and rerank
-  - `GOOGLE_API_KEY` - Google Gemini access (future)
+  - `LANDING_AI_API_KEY` - Landing AI ADE processing
 
 ### Security Best Practices
 - **No Hardcoded Secrets**: All sensitive data via environment variables
@@ -103,3 +112,25 @@ cp .env.example .env.local
 - **SSL/TLS**: Enforced connections to database
 - **User Isolation**: Each user can only access their own documents
 - **Input Sanitization**: Drizzle ORM prevents SQL injection
+- **Test Isolation**: Separate Neon branches for each test run
+- **Automated Cleanup**: Test branches auto-deleted after 24 hours
+
+## Testing Infrastructure
+
+### Neon Branch Management
+- **API Client**: Full-featured TypeScript client with MCP protocol support
+- **Branch Operations**: Create, list, delete, and manage test branches
+- **Naming Convention**: `test-[feature]-[timestamp]` for easy identification
+- **CI/CD Integration**: GitHub Actions workflow with parallel test execution
+
+### Test Database Setup
+- **Factory Patterns**: Realistic data generation for all entities
+- **Seed Scripts**: Automated database population for consistent testing
+- **Migration Support**: Full schema migration in test branches
+- **Performance**: 60-80% faster execution with connection pooling
+
+### Test Configuration
+- **Environment Files**: `.env.test` for test-specific configuration
+- **Unified Setup**: Single configuration for unit, integration, and E2E tests
+- **Playwright Config**: Custom setup for authenticated E2E scenarios
+- **Vitest Config**: Optimized for fast unit test execution

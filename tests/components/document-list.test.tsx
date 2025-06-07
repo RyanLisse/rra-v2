@@ -1,8 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { DocumentList } from '@/components/document-list';
-import { toast } from 'sonner';
-import * as documentActions from '@/app/(chat)/documents/actions';
+import { vi } from 'vitest';
 
 // Mock sonner toast
 vi.mock('sonner', () => ({
@@ -23,11 +19,19 @@ vi.mock('@/app/(chat)/documents/actions', () => ({
 
 // Mock DocumentDetail component
 vi.mock('@/components/document-detail', () => ({
-  DocumentDetail: ({ isOpen, onClose }: any) => 
+  DocumentDetail: ({ isOpen, onClose }: any) =>
     isOpen ? <div data-testid="document-detail">Document Detail</div> : null,
 }));
 
-const mockDocuments: documentActions.ManagedDocumentView[] = [
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { DocumentList } from '@/components/document-list';
+import { toast } from 'sonner';
+import type { ManagedDocumentView, DocumentStats } from '@/app/(chat)/documents/actions';
+
+// Import mocked functions
+import * as documentActions from '@/app/(chat)/documents/actions';
+
+const mockDocuments: ManagedDocumentView[] = [
   {
     id: 'doc-1',
     fileName: 'test-document.pdf',
@@ -58,7 +62,7 @@ const mockDocuments: documentActions.ManagedDocumentView[] = [
   },
 ];
 
-const mockStats: documentActions.DocumentStats = {
+const mockStats: DocumentStats = {
   total: 2,
   uploaded: 0,
   processing: 1,
@@ -71,7 +75,9 @@ const mockStats: documentActions.DocumentStats = {
 
 describe('DocumentList', () => {
   beforeEach(() => {
-    vi.mocked(documentActions.getManagedDocuments).mockResolvedValue(mockDocuments);
+    vi.mocked(documentActions.getManagedDocuments).mockResolvedValue(
+      mockDocuments,
+    );
     vi.mocked(documentActions.getDocumentStats).mockResolvedValue(mockStats);
   });
 
@@ -137,7 +143,9 @@ describe('DocumentList', () => {
     fireEvent.click(readyOption);
 
     expect(screen.getByText('Test Document.pdf')).toBeInTheDocument();
-    expect(screen.queryByText('Processing Document.pdf')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Processing Document.pdf'),
+    ).not.toBeInTheDocument();
   });
 
   it('refreshes document list when refresh button clicked', async () => {
@@ -171,7 +179,9 @@ describe('DocumentList', () => {
 
     // Find and click the more options button
     const moreButtons = screen.getAllByRole('button');
-    const moreButton = moreButtons.find(btn => btn.querySelector('[data-testid="more-vertical"]'));
+    const moreButton = moreButtons.find((btn) =>
+      btn.querySelector('[data-testid="more-vertical"]'),
+    );
     if (moreButton) fireEvent.click(moreButton);
 
     // Click delete option
@@ -184,29 +194,42 @@ describe('DocumentList', () => {
 
     await waitFor(() => {
       expect(documentActions.deleteDocument).toHaveBeenCalledWith('doc-1');
-      expect(toast.success).toHaveBeenCalledWith('Document "Test Document.pdf" has been deleted.');
+      expect(toast.success).toHaveBeenCalledWith(
+        'Document "Test Document.pdf" has been deleted.',
+      );
     });
   });
 
   it('handles API errors gracefully', async () => {
-    vi.mocked(documentActions.getManagedDocuments).mockRejectedValueOnce(new Error('Network error'));
+    vi.mocked(documentActions.getManagedDocuments).mockRejectedValueOnce(
+      new Error('Network error'),
+    );
 
     render(<DocumentList userId="user-1" />);
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Failed to load documents. Please try again.');
+      expect(toast.error).toHaveBeenCalledWith(
+        'Failed to load documents. Please try again.',
+      );
     });
   });
 
   it('displays empty state when no documents', async () => {
     vi.mocked(documentActions.getManagedDocuments).mockResolvedValueOnce([]);
-    vi.mocked(documentActions.getDocumentStats).mockResolvedValueOnce({ ...mockStats, total: 0 });
+    vi.mocked(documentActions.getDocumentStats).mockResolvedValueOnce({
+      ...mockStats,
+      total: 0,
+    });
 
     render(<DocumentList userId="user-1" />);
 
     await waitFor(() => {
       expect(screen.getByText('No documents uploaded yet')).toBeInTheDocument();
-      expect(screen.getByText('Upload your first document to get started with intelligent chat conversations.')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'Upload your first document to get started with intelligent chat conversations.',
+        ),
+      ).toBeInTheDocument();
     });
   });
 
@@ -216,7 +239,7 @@ describe('DocumentList', () => {
     await waitFor(() => {
       const processingBadge = screen.getByText('Processing');
       expect(processingBadge).toBeInTheDocument();
-      
+
       // Check for spinner icon (should have animate-spin class)
       const spinner = processingBadge.previousElementSibling;
       expect(spinner).toHaveClass('animate-spin');
@@ -250,7 +273,9 @@ describe('DocumentList', () => {
 
     // Find and click the more options button for the first document
     const moreButtons = screen.getAllByRole('button');
-    const moreButton = moreButtons.find(btn => btn.querySelector('[data-testid="more-vertical"]'));
+    const moreButton = moreButtons.find((btn) =>
+      btn.querySelector('[data-testid="more-vertical"]'),
+    );
     if (moreButton) fireEvent.click(moreButton);
 
     // Click View Details option

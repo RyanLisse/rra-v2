@@ -1,0 +1,404 @@
+name: Test with Neon Branches
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Type of tests to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - unit
+          - integration
+          - e2e
+          - performance
+
+env:
+  NODE_VERSION: '20'
+  BUN_VERSION: 'latest'
+  PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/playwright-browsers
+  BRANCH_PREFIX: ci-test
+  MAX_BRANCH_AGE_HOURS: 24
+
+jobs:
+  setup-test-branch:
+    runs-on: ubuntu-latest
+    outputs:
+      branch_id: ${{ steps.create_branch.outputs.branch_id }}
+      branch_name: ${{ steps.create_branch.outputs.branch_name }}
+      database_url: ${{ steps.create_branch.outputs.database_url }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+      
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      
+      - name: Generate branch name
+        id: branch_name
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            BRANCH_NAME="${{ env.BRANCH_PREFIX }}-pr-${{ github.event.pull_request.number }}-${{ github.sha }}"
+          else
+            BRANCH_NAME="${{ env.BRANCH_PREFIX }}-${{ github.ref_name }}-${{ github.sha }}"
+          fi
+          echo "name=${BRANCH_NAME:0:63}" >> $GITHUB_OUTPUT
+      
+      - name: Create Neon test branch
+        id: create_branch
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+        run: |
+          OUTPUT=$(bun run scripts/create-test-branch.ts \
+            --name "${{ steps.branch_name.outputs.name }}" \
+            --parent-branch main \
+            --copy-data \
+            --output json)
+          
+          BRANCH_ID=$(echo "$OUTPUT" | jq -r '.branchId')
+          BRANCH_NAME=$(echo "$OUTPUT" | jq -r '.branchName')
+          DATABASE_URL=$(echo "$OUTPUT" | jq -r '.databaseUrl')
+          
+          echo "branch_id=$BRANCH_ID" >> $GITHUB_OUTPUT
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          echo "database_url=$DATABASE_URL" >> $GITHUB_OUTPUT
+          
+          # Store branch info for cleanup
+          echo "$BRANCH_ID" >> /tmp/test-branches.txt
+      
+      - name: Run database migrations
+        env:
+          DATABASE_URL: ${{ steps.create_branch.outputs.database_url }}
+        run: bun run db:migrate
+      
+      - name: Seed test data
+        env:
+          DATABASE_URL: ${{ steps.create_branch.outputs.database_url }}
+          NODE_ENV: test
+        run: bun run scripts/seed-test-data.ts --preset ci
+
+  unit-tests:
+    needs: setup-test-branch
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.test_type == 'all' || github.event.inputs.test_type == 'unit' }}
+    strategy:
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      
+      - name: Restore dependencies cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+      
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      
+      - name: Run unit tests
+        env:
+          DATABASE_URL: ${{ needs.setup-test-branch.outputs.database_url }}
+          NEON_BRANCH_ID: ${{ needs.setup-test-branch.outputs.branch_id }}
+          NODE_ENV: test
+          VITEST_POOL_ID: ${{ matrix.shard }}
+        run: |
+          bun test --shard=${{ matrix.shard }}/4 \
+            --reporter=json \
+            --reporter=default \
+            --outputFile=test-results-${{ matrix.shard }}.json
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results-${{ matrix.shard }}
+          path: test-results-${{ matrix.shard }}.json
+
+  integration-tests:
+    needs: setup-test-branch
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.test_type == 'all' || github.event.inputs.test_type == 'integration' }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      
+      - name: Restore dependencies cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+      
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      
+      - name: Run integration tests
+        env:
+          DATABASE_URL: ${{ needs.setup-test-branch.outputs.database_url }}
+          NEON_BRANCH_ID: ${{ needs.setup-test-branch.outputs.branch_id }}
+          NODE_ENV: test
+          INTEGRATION_TEST: true
+        run: |
+          bun test tests/integration \
+            --reporter=json \
+            --reporter=default \
+            --outputFile=integration-test-results.json
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: integration-test-results.json
+
+  e2e-tests:
+    needs: setup-test-branch
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.test_type == 'all' || github.event.inputs.test_type == 'e2e' }}
+    strategy:
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      
+      - name: Restore dependencies cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+      
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PLAYWRIGHT_BROWSERS_PATH }}
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/playwright.config.ts') }}
+      
+      - name: Install Playwright browsers
+        run: bunx playwright install --with-deps ${{ matrix.browser }}
+      
+      - name: Build application
+        env:
+          DATABASE_URL: ${{ needs.setup-test-branch.outputs.database_url }}
+          NEXT_TELEMETRY_DISABLED: 1
+        run: bun run build
+      
+      - name: Run E2E tests
+        env:
+          DATABASE_URL: ${{ needs.setup-test-branch.outputs.database_url }}
+          NEON_BRANCH_ID: ${{ needs.setup-test-branch.outputs.branch_id }}
+          NODE_ENV: test
+          E2E_TEST: true
+          BROWSER: ${{ matrix.browser }}
+        run: |
+          bunx playwright test \
+            --project=${{ matrix.browser }} \
+            --reporter=json \
+            --reporter=html \
+            --outputFile=e2e-results-${{ matrix.browser }}.json
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-results-${{ matrix.browser }}
+          path: |
+            e2e-results-${{ matrix.browser }}.json
+            playwright-report/
+
+  performance-tests:
+    needs: setup-test-branch
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.test_type == 'all' || github.event.inputs.test_type == 'performance' }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      
+      - name: Restore dependencies cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+      
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      
+      - name: Build application
+        env:
+          DATABASE_URL: ${{ needs.setup-test-branch.outputs.database_url }}
+          NEXT_TELEMETRY_DISABLED: 1
+        run: bun run build
+      
+      - name: Run performance tests
+        env:
+          DATABASE_URL: ${{ needs.setup-test-branch.outputs.database_url }}
+          NEON_BRANCH_ID: ${{ needs.setup-test-branch.outputs.branch_id }}
+          NODE_ENV: test
+          PERFORMANCE_TEST: true
+        run: |
+          bun test tests/performance \
+            --reporter=json \
+            --reporter=default \
+            --outputFile=performance-test-results.json
+      
+      - name: Analyze performance results
+        id: perf_analysis
+        run: |
+          # Compare with baseline if available
+          if [ -f .performance-baseline.json ]; then
+            bun run scripts/analyze-performance.ts \
+              --current performance-test-results.json \
+              --baseline .performance-baseline.json \
+              --output performance-analysis.json
+          else
+            cp performance-test-results.json performance-analysis.json
+          fi
+      
+      - name: Upload performance results
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-test-results
+          path: |
+            performance-test-results.json
+            performance-analysis.json
+      
+      - name: Comment PR with performance results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const analysis = JSON.parse(fs.readFileSync('performance-analysis.json', 'utf8'));
+            
+            const comment = `## Performance Test Results
+            
+            ${analysis.summary || 'Performance tests completed successfully.'}
+            
+            <details>
+            <summary>Detailed Results</summary>
+            
+            \`\`\`json
+            ${JSON.stringify(analysis.details, null, 2)}
+            \`\`\`
+            
+            </details>`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  test-summary:
+    needs: [unit-tests, integration-tests, e2e-tests, performance-tests]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download all test results
+        uses: actions/download-artifact@v4
+        with:
+          path: test-results
+      
+      - name: Generate test summary
+        run: |
+          echo "## Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Process test results
+          for result in test-results/*/*.json; do
+            if [ -f "$result" ]; then
+              TEST_TYPE=$(basename $(dirname $result))
+              echo "### $TEST_TYPE" >> $GITHUB_STEP_SUMMARY
+              # Extract summary from JSON (simplified example)
+              echo "✅ Tests completed" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+      
+      - name: Check test status
+        run: |
+          # Check if any tests failed
+          FAILED=false
+          for result in test-results/*/*.json; do
+            if [ -f "$result" ] && grep -q '"failed":[1-9]' "$result"; then
+              FAILED=true
+              break
+            fi
+          done
+          
+          if [ "$FAILED" = true ]; then
+            echo "❌ Some tests failed" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "✅ All tests passed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  cleanup:
+    needs: [setup-test-branch, test-summary]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      
+      - name: Delete test branch
+        if: ${{ needs.setup-test-branch.outputs.branch_id }}
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+        run: |
+          bun run scripts/delete-test-branch.ts \
+            --branch-id "${{ needs.setup-test-branch.outputs.branch_id }}" \
+            --force
+      
+      - name: Report branch usage
+        if: always()
+        run: |
+          echo "### Branch Usage Report" >> $GITHUB_STEP_SUMMARY
+          echo "Branch ID: ${{ needs.setup-test-branch.outputs.branch_id }}" >> $GITHUB_STEP_SUMMARY
+          echo "Branch Name: ${{ needs.setup-test-branch.outputs.branch_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "Duration: ${{ github.run_number }} minutes (approx)" >> $GITHUB_STEP_SUMMARY

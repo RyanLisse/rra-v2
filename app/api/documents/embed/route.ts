@@ -8,19 +8,21 @@ import { z } from 'zod';
 
 const embedRequestSchema = z.object({
   documentId: z.string().uuid('Invalid document ID'),
-  options: z.object({
-    model: z.enum(['v3.0', 'v4.0']).optional(),
-    batchSize: z.number().min(1).max(200).optional(),
-    useCache: z.boolean().optional(),
-    maxConcurrency: z.number().min(1).max(5).optional(),
-    overwrite: z.boolean().optional(),
-  }).optional(),
+  options: z
+    .object({
+      model: z.enum(['v3.0', 'v4.0']).optional(),
+      batchSize: z.number().min(1).max(200).optional(),
+      useCache: z.boolean().optional(),
+      maxConcurrency: z.number().min(1).max(5).optional(),
+      overwrite: z.boolean().optional(),
+    })
+    .optional(),
 });
 
 export const POST = withAuth(async (request: NextRequest, session: any) => {
   try {
     const body = await request.json();
-    
+
     // Validate input
     const validation = embedRequestSchema.safeParse(body);
     if (!validation.success) {
@@ -32,7 +34,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
         { status: 400 },
       );
     }
-    
+
     const { documentId, options = {} } = validation.data;
     const {
       model = 'v4.0',
@@ -47,15 +49,18 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
       const existingEmbeddings = await db.query.documentEmbedding.findFirst({
         where: (embeddings, { eq, and }) => {
           return and(
-            eq(embeddings.chunkId, sql`(
+            eq(
+              embeddings.chunkId,
+              sql`(
               SELECT id FROM ${documentChunk} 
               WHERE document_id = ${documentId} 
               LIMIT 1
-            )`),
+            )`,
+            ),
           );
         },
       });
-      
+
       if (existingEmbeddings) {
         return NextResponse.json(
           {
@@ -119,9 +124,11 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
     try {
       // Extract chunk texts for embedding
       const chunkTexts = chunks.map((chunk) => chunk.content);
-      
+
       // Log processing start
-      console.log(`Starting embedding generation for ${chunks.length} chunks using model ${model}`);
+      console.log(
+        `Starting embedding generation for ${chunks.length} chunks using model ${model}`,
+      );
       const embeddingStartTime = Date.now();
 
       // Generate embeddings in optimized batches
@@ -135,7 +142,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
           inputType: 'search_document',
         },
       );
-      
+
       const embeddingTime = Date.now() - embeddingStartTime;
       console.log(`Embedding generation completed in ${embeddingTime}ms`);
 
@@ -160,7 +167,9 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
           if (existingChunkIds.length > 0) {
             await tx
               .delete(documentEmbedding)
-              .where(sql`${documentEmbedding.chunkId} = ANY(${existingChunkIds})`);
+              .where(
+                sql`${documentEmbedding.chunkId} = ANY(${existingChunkIds})`,
+              );
           }
         }
 
@@ -192,7 +201,9 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
             embeddingBatch.embeddings[0]?.embedding.length || 0,
           model: embeddingBatch.model,
           processingTimeMs: embeddingBatch.processingTimeMs,
-          avgTokensPerChunk: Math.round(embeddingBatch.totalTokens / chunks.length),
+          avgTokensPerChunk: Math.round(
+            embeddingBatch.totalTokens / chunks.length,
+          ),
           batchConfig: {
             batchSize,
             maxConcurrency,
@@ -202,7 +213,8 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
         performance: {
           embeddingTimeMs: embeddingTime,
           throughputChunksPerSecond: chunks.length / (embeddingTime / 1000),
-          throughputTokensPerSecond: embeddingBatch.totalTokens / (embeddingTime / 1000),
+          throughputTokensPerSecond:
+            embeddingBatch.totalTokens / (embeddingTime / 1000),
         },
       });
     } catch (embeddingError) {

@@ -2,13 +2,13 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@/lib/auth';
 import { vectorSearchService } from '@/lib/search/vector-search';
 import { db } from '@/lib/db';
-import { ragDocument } from '@/lib/db/schema';
+import { ragDocument, documentChunk } from '@/lib/db/schema';
 import { sql, eq, and, desc } from 'drizzle-orm';
 import { z } from 'zod';
-import { createClient, } from 'redis';
+import { createClient } from 'redis';
 
 // Initialize Redis for analytics if available
-const redis: any = process.env.REDIS_URL 
+const redis: any = process.env.REDIS_URL
   ? (() => {
       const client = createClient({ url: process.env.REDIS_URL });
       client.connect().catch(console.error);
@@ -18,7 +18,9 @@ const redis: any = process.env.REDIS_URL
 
 const searchSchema = z.object({
   query: z.string().min(1, 'Query is required').max(500, 'Query too long'),
-  searchType: z.enum(['vector', 'hybrid', 'context-aware', 'multi-step']).default('hybrid'),
+  searchType: z
+    .enum(['vector', 'hybrid', 'context-aware', 'multi-step'])
+    .default('hybrid'),
   limit: z.number().min(1).max(50).default(10),
   threshold: z.number().min(0).max(1).default(0.3),
   documentIds: z.array(z.string().uuid()).optional(),
@@ -26,16 +28,29 @@ const searchSchema = z.object({
   vectorWeight: z.number().min(0).max(1).default(0.7),
   textWeight: z.number().min(0).max(1).default(0.3),
   // Faceted search options
-  facets: z.object({
-    documentTypes: z.array(z.string()).optional(),
-    dateRange: z.object({
-      start: z.string().datetime().optional(),
-      end: z.string().datetime().optional(),
-    }).optional(),
-    sources: z.array(z.string()).optional(),
-    minChunkLength: z.number().min(0).optional(),
-    maxChunkLength: z.number().min(1).optional(),
-  }).optional(),
+  facets: z
+    .object({
+      documentTypes: z.array(z.string()).optional(),
+      dateRange: z
+        .object({
+          start: z.string().datetime().optional(),
+          end: z.string().datetime().optional(),
+        })
+        .optional(),
+      sources: z.array(z.string()).optional(),
+      minChunkLength: z.number().min(0).optional(),
+      maxChunkLength: z.number().min(1).optional(),
+      // Enhanced ADE structural metadata filters
+      elementTypes: z.array(z.string()).optional(), // e.g., ['paragraph', 'title', 'table_text']
+      pageNumbers: z.array(z.number()).optional(), // filter by specific page numbers
+      spatialSearch: z
+        .object({
+          pageNumber: z.number(),
+          bbox: z.array(z.number()).length(4).optional(), // [x1, y1, x2, y2] bounding box
+        })
+        .optional(),
+    })
+    .optional(),
   // Analytics options
   trackSearch: z.boolean().default(true),
   includeAnalytics: z.boolean().default(false),
@@ -46,12 +61,14 @@ const searchSchema = z.object({
 
 const analyticsSchema = z.object({
   timeRange: z.enum(['hour', 'day', 'week', 'month']).default('day'),
-  metrics: z.array(z.enum(['queries', 'performance', 'popular', 'success_rate'])).optional(),
+  metrics: z
+    .array(z.enum(['queries', 'performance', 'popular', 'success_rate']))
+    .optional(),
 });
 
 export const POST = withAuth(async (request: NextRequest, session: any) => {
   const startTime = Date.now();
-  
+
   try {
     const body = await request.json();
 
@@ -82,11 +99,15 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
       embeddingModel,
       scoringAlgorithm,
     } = validation.data;
-    
+
     // Apply document filters based on facets
     let filteredDocumentIds = documentIds;
     if (facets) {
-      filteredDocumentIds = await applyDocumentFacets(session.user.id, facets, documentIds);
+      filteredDocumentIds = await applyDocumentFacets(
+        session.user.id,
+        facets,
+        documentIds,
+      );
     }
 
     // Validate weight sum for hybrid search
@@ -125,10 +146,12 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
             threshold,
             documentIds: filteredDocumentIds,
             expandQuery: true,
+            elementTypes: facets?.elementTypes,
+            pageNumbers: facets?.pageNumbers,
           },
         );
         break;
-      
+
       case 'context-aware':
         searchResponse = await vectorSearchService.contextAwareSearch(
           query,
@@ -138,10 +161,12 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
             limit,
             threshold,
             documentIds: filteredDocumentIds,
+            elementTypes: facets?.elementTypes,
+            pageNumbers: facets?.pageNumbers,
           },
         );
         break;
-      
+
       case 'multi-step':
         searchResponse = await vectorSearchService.multiStepSearch(
           query,
@@ -150,28 +175,37 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
             maxSteps: 3,
             minResultsPerStep: Math.ceil(limit / 3),
             documentIds: filteredDocumentIds,
+            elementTypes: facets?.elementTypes,
+            pageNumbers: facets?.pageNumbers,
           },
         );
         break;
-      
+
       case 'hybrid':
       default:
         searchResponse = await vectorSearchService.hybridSearch(
           query,
           session.user.id,
-          searchOptions,
+          {
+            ...searchOptions,
+            elementTypes: facets?.elementTypes,
+            pageNumbers: facets?.pageNumbers,
+          },
         );
         break;
     }
-    
+
     // Apply result-level faceted filtering
     if (facets) {
-      searchResponse.results = await applyResultFacets(searchResponse.results, facets);
+      searchResponse.results = await applyResultFacets(
+        searchResponse.results,
+        facets,
+      );
       searchResponse.totalResults = searchResponse.results.length;
     }
 
     const responseTime = Date.now() - startTime;
-    
+
     // Track search analytics
     if (trackSearch && redis) {
       await trackSearchAnalytics({
@@ -184,16 +218,20 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
         cacheHit: searchResponse.cacheHit || false,
       });
     }
-    
+
     // Include analytics if requested
     let analytics: any;
     if (includeAnalytics) {
       analytics = await getSearchAnalytics(session.user.id, 'day');
     }
-    
+
     // Generate facet counts for the UI
-    const facetCounts = await generateFacetCounts(session.user.id, query, filteredDocumentIds);
-    
+    const facetCounts = await generateFacetCounts(
+      session.user.id,
+      query,
+      filteredDocumentIds,
+    );
+
     return NextResponse.json({
       query,
       searchType,
@@ -251,15 +289,21 @@ export const GET = withAuth(async (request: NextRequest, session: any) => {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q');
     const analytics = searchParams.get('analytics');
-    
+
     // Handle analytics requests
     if (analytics === 'true') {
       const timeRange = (searchParams.get('timeRange') as any) || 'day';
-      const metrics = searchParams.get('metrics')?.split(',') || ['queries', 'performance'];
-      
-      const analyticsData = await getSearchAnalytics(session.user.id, timeRange);
+      const metrics = searchParams.get('metrics')?.split(',') || [
+        'queries',
+        'performance',
+      ];
+
+      const analyticsData = await getSearchAnalytics(
+        session.user.id,
+        timeRange,
+      );
       const facetSummary = await getFacetSummary(session.user.id);
-      
+
       return NextResponse.json({
         analytics: analyticsData,
         facets: facetSummary,
@@ -271,7 +315,7 @@ export const GET = withAuth(async (request: NextRequest, session: any) => {
       // Return search suggestions and popular queries
       const popularQueries = await getPopularQueries(session.user.id);
       const suggestions = await getSearchSuggestions(session.user.id);
-      
+
       return NextResponse.json({
         popularQueries,
         suggestions,
@@ -288,11 +332,12 @@ export const GET = withAuth(async (request: NextRequest, session: any) => {
         limit: 5,
         threshold: 0.3,
         expandQuery: true,
+        // No filtering for simple GET search
       },
     );
-    
+
     const responseTime = Date.now() - startTime;
-    
+
     // Track simple search
     if (redis) {
       await trackSearchAnalytics({
@@ -333,41 +378,49 @@ async function applyDocumentFacets(
 ): Promise<string[] | undefined> {
   try {
     const whereConditions: any[] = [eq(ragDocument.uploadedBy, userId)];
-    
+
     // Apply date range filter
     if (facets.dateRange?.start || facets.dateRange?.end) {
       if (facets.dateRange.start) {
-        whereConditions.push(sql`${ragDocument.createdAt} >= ${new Date(facets.dateRange.start)}`);
+        whereConditions.push(
+          sql`${ragDocument.createdAt} >= ${new Date(facets.dateRange.start)}`,
+        );
       }
       if (facets.dateRange.end) {
-        whereConditions.push(sql`${ragDocument.createdAt} <= ${new Date(facets.dateRange.end)}`);
+        whereConditions.push(
+          sql`${ragDocument.createdAt} <= ${new Date(facets.dateRange.end)}`,
+        );
       }
     }
-    
+
     // Apply document type filter (based on file extension or metadata)
     if (facets.documentTypes?.length > 0) {
-      const typeConditions = facets.documentTypes.map((type: string) => 
-        sql`${ragDocument.originalName} ILIKE ${`%.${type}`}`
+      const typeConditions = facets.documentTypes.map(
+        (type: string) => sql`${ragDocument.originalName} ILIKE ${`%.${type}`}`,
       );
-      whereConditions.push(sql`(${sql.join(typeConditions, sql` OR `)})`)
+      whereConditions.push(sql`(${sql.join(typeConditions, sql` OR `)})`);
     }
-    
+
     // Apply source filter (document names)
     if (facets.sources?.length > 0) {
-      whereConditions.push(sql`${ragDocument.originalName} = ANY(${facets.sources})`);
+      whereConditions.push(
+        sql`${ragDocument.originalName} = ANY(${facets.sources})`,
+      );
     }
-    
+
     // Combine with existing document IDs if provided
     if (existingDocumentIds?.length) {
-      whereConditions.push(sql`${ragDocument.id} = ANY(${existingDocumentIds})`);
+      whereConditions.push(
+        sql`${ragDocument.id} = ANY(${existingDocumentIds})`,
+      );
     }
-    
+
     const filteredDocs = await db
       .select({ id: ragDocument.id })
       .from(ragDocument)
       .where(and(...whereConditions));
-    
-    return filteredDocs.map(doc => doc.id);
+
+    return filteredDocs.map((doc) => doc.id);
   } catch (error) {
     console.error('Error applying document facets:', error);
     return existingDocumentIds;
@@ -377,22 +430,61 @@ async function applyDocumentFacets(
 /**
  * Apply result-level faceted filtering
  */
-async function applyResultFacets(
-  results: any[],
-  facets: any,
-): Promise<any[]> {
+async function applyResultFacets(results: any[], facets: any): Promise<any[]> {
   let filteredResults = results;
-  
+
   // Filter by chunk length
   if (facets.minChunkLength || facets.maxChunkLength) {
-    filteredResults = filteredResults.filter(result => {
+    filteredResults = filteredResults.filter((result) => {
       const length = result.content.length;
       if (facets.minChunkLength && length < facets.minChunkLength) return false;
       if (facets.maxChunkLength && length > facets.maxChunkLength) return false;
       return true;
     });
   }
-  
+
+  // Filter by element types (e.g., only paragraphs, titles, tables)
+  if (facets.elementTypes && facets.elementTypes.length > 0) {
+    filteredResults = filteredResults.filter((result) => {
+      return result.elementType && facets.elementTypes.includes(result.elementType);
+    });
+  }
+
+  // Filter by page numbers
+  if (facets.pageNumbers && facets.pageNumbers.length > 0) {
+    filteredResults = filteredResults.filter((result) => {
+      return result.pageNumber && facets.pageNumbers.includes(result.pageNumber);
+    });
+  }
+
+  // Spatial search filtering (within specific page and optional bounding box)
+  if (facets.spatialSearch) {
+    filteredResults = filteredResults.filter((result) => {
+      // Must be on the specified page
+      if (result.pageNumber !== facets.spatialSearch.pageNumber) {
+        return false;
+      }
+
+      // If bounding box specified, check if result bbox intersects
+      if (facets.spatialSearch.bbox && result.bbox) {
+        const [searchX1, searchY1, searchX2, searchY2] = facets.spatialSearch.bbox;
+        const [resultX1, resultY1, resultX2, resultY2] = result.bbox;
+
+        // Check if bounding boxes intersect
+        const intersects = !(
+          searchX2 < resultX1 ||
+          searchX1 > resultX2 ||
+          searchY2 < resultY1 ||
+          searchY1 > resultY2
+        );
+
+        return intersects;
+      }
+
+      return true; // If no bbox specified, just match by page
+    });
+  }
+
   return filteredResults;
 }
 
@@ -406,14 +498,14 @@ async function generateFacetCounts(
 ): Promise<any> {
   try {
     let whereCondition = eq(ragDocument.uploadedBy, userId);
-    
+
     if (documentIds?.length) {
       whereCondition = and(
         whereCondition,
-        sql`${ragDocument.id} = ANY(${documentIds})`
+        sql`${ragDocument.id} = ANY(${documentIds})`,
       )!;
     }
-    
+
     // Get document type counts
     const typeCountsQuery = await db
       .select({
@@ -424,13 +516,16 @@ async function generateFacetCounts(
       .where(whereCondition)
       .groupBy(sql`LOWER(RIGHT(${ragDocument.originalName}, 4))`)
       .orderBy(desc(sql`COUNT(*)`));
-    
-    const typeCounts = typeCountsQuery.reduce((acc, row) => {
-      const ext = row.extension.replace('.', '');
-      acc[ext] = row.count;
-      return acc;
-    }, {} as Record<string, number>);
-    
+
+    const typeCounts = typeCountsQuery.reduce(
+      (acc, row) => {
+        const ext = row.extension.replace('.', '');
+        acc[ext] = row.count;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+
     // Get source counts
     const sourceCountsQuery = await db
       .select({
@@ -441,12 +536,15 @@ async function generateFacetCounts(
       .where(whereCondition)
       .groupBy(ragDocument.originalName)
       .orderBy(desc(sql`COUNT(*)`));
-    
-    const sourceCounts = sourceCountsQuery.reduce((acc, row) => {
-      acc[row.source] = row.count;
-      return acc;
-    }, {} as Record<string, number>);
-    
+
+    const sourceCounts = sourceCountsQuery.reduce(
+      (acc, row) => {
+        acc[row.source] = row.count;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+
     // Get date range info
     const dateRangeQuery = await db
       .select({
@@ -455,11 +553,57 @@ async function generateFacetCounts(
       })
       .from(ragDocument)
       .where(whereCondition);
-    
+
+    // Get element type counts from chunks
+    const elementTypeCountsQuery = await db
+      .select({
+        elementType: documentChunk.elementType,
+        count: sql<number>`COUNT(*)`,
+      })
+      .from(documentChunk)
+      .innerJoin(ragDocument, eq(documentChunk.documentId, ragDocument.id))
+      .where(whereCondition)
+      .groupBy(documentChunk.elementType)
+      .orderBy(desc(sql`COUNT(*)`));
+
+    const elementTypeCounts = elementTypeCountsQuery.reduce(
+      (acc, row) => {
+        if (row.elementType) {
+          acc[row.elementType] = row.count;
+        }
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+
+    // Get page number distribution from chunks
+    const pageNumberCountsQuery = await db
+      .select({
+        pageNumber: documentChunk.pageNumber,
+        count: sql<number>`COUNT(*)`,
+      })
+      .from(documentChunk)
+      .innerJoin(ragDocument, eq(documentChunk.documentId, ragDocument.id))
+      .where(whereCondition)
+      .groupBy(documentChunk.pageNumber)
+      .orderBy(documentChunk.pageNumber);
+
+    const pageNumberCounts = pageNumberCountsQuery.reduce(
+      (acc, row) => {
+        if (row.pageNumber !== null) {
+          acc[row.pageNumber] = row.count;
+        }
+        return acc;
+      },
+      {} as Record<number, number>,
+    );
+
     return {
       documentTypes: typeCounts,
       sources: sourceCounts,
       dateRange: dateRangeQuery[0] || { minDate: null, maxDate: null },
+      elementTypes: elementTypeCounts,
+      pageNumbers: pageNumberCounts,
     };
   } catch (error) {
     console.error('Error generating facet counts:', error);
@@ -467,6 +611,8 @@ async function generateFacetCounts(
       documentTypes: {},
       sources: {},
       dateRange: { minDate: null, maxDate: null },
+      elementTypes: {},
+      pageNumbers: {},
     };
   }
 }
@@ -484,11 +630,11 @@ async function trackSearchAnalytics(data: {
   cacheHit: boolean;
 }): Promise<void> {
   if (!redis) return;
-  
+
   try {
     const today = new Date().toISOString().split('T')[0];
     const hour = new Date().getHours();
-    
+
     // Track daily metrics
     const dailyKey = `search_analytics:${data.userId}:${today}`;
     await redis.hIncrBy(dailyKey, 'total_searches', 1);
@@ -500,16 +646,24 @@ async function trackSearchAnalytics(data: {
     if (data.facetsUsed) {
       await redis.hIncrBy(dailyKey, 'faceted_searches', 1);
     }
-    
+
     // Track search types
     await redis.hIncrBy(dailyKey, `type_${data.searchType}`, 1);
-    
+
     // Track hourly distribution
-    await redis.hIncrBy(`search_hours:${data.userId}:${today}`, hour.toString(), 1);
-    
+    await redis.hIncrBy(
+      `search_hours:${data.userId}:${today}`,
+      hour.toString(),
+      1,
+    );
+
     // Track popular queries
-    await redis.zIncrBy(`popular_queries:${data.userId}:${today}`, 1, data.query);
-    
+    await redis.zIncrBy(
+      `popular_queries:${data.userId}:${today}`,
+      1,
+      data.query,
+    );
+
     // Set expiration
     await redis.expire(dailyKey, 86400 * 30); // 30 days
     await redis.expire(`search_hours:${data.userId}:${today}`, 86400 * 30);
@@ -536,54 +690,71 @@ async function getSearchAnalytics(
       hourlyDistribution: {},
     };
   }
-  
+
   try {
     const today = new Date().toISOString().split('T')[0];
     const dailyKey = `search_analytics:${userId}:${today}`;
-    
+
     const dailyStats = await redis.hGetAll(dailyKey);
     const totalSearches = Number.parseInt(dailyStats.total_searches || '0');
-    const totalResponseTime = Number.parseInt(dailyStats.total_response_time || '0');
+    const totalResponseTime = Number.parseInt(
+      dailyStats.total_response_time || '0',
+    );
     const cacheHits = Number.parseInt(dailyStats.cache_hits || '0');
-    
+
     // Get popular queries
     const popularQueriesRaw = await redis.zRevRangeWithScores(
       `popular_queries:${userId}:${today}`,
       0,
-      9
+      9,
     );
-    
+
     const popularQueries = popularQueriesRaw.map((item: any) => ({
       query: item.value,
       count: item.score,
     }));
-    
+
     // Get hourly distribution
     const hourlyStats = await redis.hGetAll(`search_hours:${userId}:${today}`);
-    const hourlyDistribution = Object.keys(hourlyStats).reduce((acc, hour) => {
-      acc[hour] = Number.parseInt(hourlyStats[hour]);
-      return acc;
-    }, {} as Record<string, number>);
-    
+    const hourlyDistribution = Object.keys(hourlyStats).reduce(
+      (acc, hour) => {
+        acc[hour] = Number.parseInt(hourlyStats[hour]);
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+
     // Extract search type stats
     const searchTypes = Object.keys(dailyStats)
-      .filter(key => key.startsWith('type_'))
-      .reduce((acc, key) => {
-        const type = key.replace('type_', '');
-        acc[type] = Number.parseInt(dailyStats[key]);
-        return acc;
-      }, {} as Record<string, number>);
-    
+      .filter((key) => key.startsWith('type_'))
+      .reduce(
+        (acc, key) => {
+          const type = key.replace('type_', '');
+          acc[type] = Number.parseInt(dailyStats[key]);
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
+
     return {
       totalSearches,
-      avgResponseTime: totalSearches > 0 ? Math.round(totalResponseTime / totalSearches) : 0,
-      cacheHitRate: totalSearches > 0 ? Math.round((cacheHits / totalSearches) * 100) / 100 : 0,
+      avgResponseTime:
+        totalSearches > 0 ? Math.round(totalResponseTime / totalSearches) : 0,
+      cacheHitRate:
+        totalSearches > 0
+          ? Math.round((cacheHits / totalSearches) * 100) / 100
+          : 0,
       popularQueries,
       searchTypes,
       hourlyDistribution,
-      facetedSearchRate: totalSearches > 0 
-        ? Math.round((Number.parseInt(dailyStats.faceted_searches || '0') / totalSearches) * 100) / 100 
-        : 0,
+      facetedSearchRate:
+        totalSearches > 0
+          ? Math.round(
+              (Number.parseInt(dailyStats.faceted_searches || '0') /
+                totalSearches) *
+                100,
+            ) / 100
+          : 0,
     };
   } catch (error) {
     console.error('Error getting search analytics:', error);
@@ -604,14 +775,22 @@ async function getSearchAnalytics(
 async function getFacetSummary(userId: string): Promise<any> {
   try {
     const facetCounts = await generateFacetCounts(userId, '');
-    
+
     return {
-      totalDocuments: Object.values(facetCounts.sources).reduce((sum: number, count: any) => sum + (count as number), 0),
+      totalDocuments: Object.values(facetCounts.sources).reduce(
+        (sum: number, count: any) => sum + (count as number),
+        0,
+      ),
       documentTypes: Object.keys(facetCounts.documentTypes).length,
       sources: Object.keys(facetCounts.sources).length,
-      dateSpan: facetCounts.dateRange.minDate && facetCounts.dateRange.maxDate
-        ? Math.ceil((new Date(facetCounts.dateRange.maxDate).getTime() - new Date(facetCounts.dateRange.minDate).getTime()) / (1000 * 60 * 60 * 24))
-        : 0,
+      dateSpan:
+        facetCounts.dateRange.minDate && facetCounts.dateRange.maxDate
+          ? Math.ceil(
+              (new Date(facetCounts.dateRange.maxDate).getTime() -
+                new Date(facetCounts.dateRange.minDate).getTime()) /
+                (1000 * 60 * 60 * 24),
+            )
+          : 0,
     };
   } catch (error) {
     console.error('Error getting facet summary:', error);
@@ -627,22 +806,24 @@ async function getFacetSummary(userId: string): Promise<any> {
 /**
  * Get popular queries for the user
  */
-async function getPopularQueries(userId: string): Promise<Array<{ query: string; count: number }>> {
+async function getPopularQueries(
+  userId: string,
+): Promise<Array<{ query: string; count: number }>> {
   if (!redis) return [];
-  
+
   try {
     const today = new Date().toISOString().split('T')[0];
     const queriesRaw = await redis.zRevRangeWithScores(
       `popular_queries:${userId}:${today}`,
       0,
-      4
+      4,
     );
-    
+
     const queries = queriesRaw.map((item: any) => ({
       query: item.value,
       count: item.score,
     }));
-    
+
     return queries;
   } catch (error) {
     console.error('Error getting popular queries:', error);
@@ -661,20 +842,20 @@ async function getSearchSuggestions(userId: string): Promise<string[]> {
       .from(ragDocument)
       .where(eq(ragDocument.uploadedBy, userId))
       .limit(10);
-    
+
     const suggestions = [];
-    
+
     // Extract key terms from document names
     for (const doc of documents) {
       const terms = doc.name
         .replace(/\.[^.]+$/, '') // Remove extension
         .split(/[\s_-]+/)
-        .filter(term => term.length > 3)
+        .filter((term) => term.length > 3)
         .slice(0, 2);
-      
+
       suggestions.push(...terms);
     }
-    
+
     // Add common search patterns
     suggestions.push(
       'how to',
@@ -682,9 +863,9 @@ async function getSearchSuggestions(userId: string): Promise<string[]> {
       'configuration',
       'installation',
       'error',
-      'setup'
+      'setup',
     );
-    
+
     return [...new Set(suggestions)].slice(0, 8);
   } catch (error) {
     console.error('Error getting search suggestions:', error);

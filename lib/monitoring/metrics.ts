@@ -27,7 +27,7 @@ class InMemoryMetricsCollector implements MetricsCollector {
     const key = this.getKey(name, tags);
     const current = this.counters.get(key) || 0;
     this.counters.set(key, current + value);
-    
+
     this.addMetric({
       name,
       value: current + value,
@@ -44,7 +44,7 @@ class InMemoryMetricsCollector implements MetricsCollector {
   gauge(name: string, value: number, tags?: Record<string, string>): void {
     const key = this.getKey(name, tags);
     this.gauges.set(key, value);
-    
+
     this.addMetric({
       name,
       value,
@@ -59,7 +59,7 @@ class InMemoryMetricsCollector implements MetricsCollector {
     const values = this.histograms.get(key) || [];
     values.push(value);
     this.histograms.set(key, values);
-    
+
     this.addMetric({
       name,
       value,
@@ -106,7 +106,7 @@ class InMemoryMetricsCollector implements MetricsCollector {
 
   private addMetric(metric: Metric): void {
     this.metrics.push(metric);
-    
+
     // Auto-flush when metrics buffer gets large
     if (this.metrics.length >= 100) {
       this.flush();
@@ -136,7 +136,7 @@ class InMemoryMetricsCollector implements MetricsCollector {
             min: Math.min(...values),
             max: Math.max(...values),
           },
-        ])
+        ]),
       ),
       totalMetrics: this.metrics.length,
     };
@@ -179,21 +179,43 @@ export const appMetrics = {
     metrics.histogram('document.size', sizeBytes, { fileType });
   },
 
-  documentProcessed: (documentId: string, processingTime: number, status: string) => {
+  documentProcessed: (
+    documentId: string,
+    processingTime: number,
+    status: string,
+  ) => {
     metrics.timing('document.processing.time', processingTime, { status });
     metrics.increment('document.processed', 1, { status });
   },
 
   // API metrics
-  apiRequest: (method: string, path: string, statusCode: number, duration: number) => {
-    metrics.increment('api.requests', 1, { method, path, status: statusCode.toString() });
+  apiRequest: (
+    method: string,
+    path: string,
+    statusCode: number,
+    duration: number,
+  ) => {
+    metrics.increment('api.requests', 1, {
+      method,
+      path,
+      status: statusCode.toString(),
+    });
     metrics.timing('api.response.time', duration, { method, path });
   },
 
   // Database metrics
-  dbQuery: (operation: string, table: string, duration: number, success: boolean) => {
+  dbQuery: (
+    operation: string,
+    table: string,
+    duration: number,
+    success: boolean,
+  ) => {
     metrics.timing('db.query.time', duration, { operation, table });
-    metrics.increment('db.queries', 1, { operation, table, success: success.toString() });
+    metrics.increment('db.queries', 1, {
+      operation,
+      table,
+      success: success.toString(),
+    });
   },
 
   // Cache metrics
@@ -221,7 +243,10 @@ export const appMetrics = {
 
   // Rate limiting metrics
   rateLimitHit: (endpoint: string, userId?: string) => {
-    metrics.increment('rate_limit.hit', 1, { endpoint, userId: userId || 'anonymous' });
+    metrics.increment('rate_limit.hit', 1, {
+      endpoint,
+      userId: userId || 'anonymous',
+    });
   },
 
   // Search metrics
@@ -236,14 +261,14 @@ export const appMetrics = {
 export function withMetrics<T extends (...args: any[]) => any>(
   metricName: string,
   fn: T,
-  tags?: Record<string, string>
+  tags?: Record<string, string>,
 ): T {
   return ((...args: any[]) => {
     const startTime = Date.now();
-    
+
     try {
       const result = fn(...args);
-      
+
       // Handle async functions
       if (result instanceof Promise) {
         return result
@@ -258,7 +283,7 @@ export function withMetrics<T extends (...args: any[]) => any>(
             throw error;
           });
       }
-      
+
       // Handle sync functions
       const duration = Date.now() - startTime;
       metrics.timing(metricName, duration, { ...tags, success: 'true' });

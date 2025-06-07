@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Test PostgreSQL database with PGVector
+  test-postgres:
+    image: pgvector/pgvector:pg16
+    container_name: rra_v2_test_db
+    environment:
+      - POSTGRES_DB=test_db
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    ports:
+      - "5433:5432"  # Different port to avoid conflicts with main DB
+    volumes:
+      - test_postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test -d test_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - test-network
+    command: >
+      postgres
+      -c shared_preload_libraries='vector'
+      -c log_statement='all'
+      -c log_duration=on
+      -c max_connections=100
+      -c shared_buffers=256MB
+      -c effective_cache_size=1GB
+      -c maintenance_work_mem=64MB
+      -c work_mem=4MB
+
+  # Test Redis for caching and resumable streams
+  test-redis:
+    image: redis:7-alpine
+    container_name: rra_v2_test_redis
+    ports:
+      - "6380:6379"  # Different port to avoid conflicts
+    volumes:
+      - test_redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - test-network
+
+volumes:
+  test_postgres_data:
+    driver: local
+  test_redis_data:
+    driver: local
+
+networks:
+  test-network:
+    driver: bridge

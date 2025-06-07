@@ -1,24 +1,24 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { 
-  MoreHorizontal, 
-  Edit2, 
-  RotateCcw, 
-  Copy, 
-  Trash2, 
+import {
+  MoreHorizontal,
+  Edit2,
+  RotateCcw,
+  Copy,
+  Trash2,
   GitBranch,
   Check,
-  X
+  X,
 } from 'lucide-react';
 import type { UIMessage } from 'ai';
 import { toast } from './toast';
@@ -38,11 +38,12 @@ export function MessageActionsMenu({
   onRegenerate,
   onBranch,
   onDelete,
-  isLoading
+  isLoading,
 }: MessageActionsMenuProps) {
   const handleCopy = async () => {
     try {
-      const text = message.parts?.find(part => part.type === 'text')?.text || '';
+      const text =
+        message.parts?.find((part) => part.type === 'text')?.text || '';
       await navigator.clipboard.writeText(text);
       toast({
         type: 'success',
@@ -109,10 +110,10 @@ export function EditMessageForm({
   message,
   onSave,
   onCancel,
-  isLoading
+  isLoading,
 }: EditMessageFormProps) {
   const [content, setContent] = useState(
-    message.parts?.find(part => part.type === 'text')?.text || ''
+    message.parts?.find((part) => part.type === 'text')?.text || '',
   );
 
   const handleSave = () => {
@@ -167,7 +168,7 @@ interface ConversationBranchProps {
 export function ConversationBranch({
   fromMessageId,
   onCreateBranch,
-  onCancel
+  onCancel,
 }: ConversationBranchProps) {
   const [message, setMessage] = useState('');
 
@@ -222,7 +223,7 @@ interface MessageVersionSelectorProps {
 
 export function MessageVersionSelector({
   versions,
-  onSelectVersion
+  onSelectVersion,
 }: MessageVersionSelectorProps) {
   if (versions.length <= 1) return null;
 
@@ -237,7 +238,7 @@ export function MessageVersionSelector({
         {versions.map((version, index) => (
           <Button
             key={version.id}
-            variant={version.isActive ? "default" : "outline"}
+            variant={version.isActive ? 'default' : 'outline'}
             size="sm"
             className="h-6 px-2 text-xs"
             onClick={() => onSelectVersion(version.id)}
@@ -263,7 +264,7 @@ interface RegenerateOptions {
 
 export function RegenerateOptions({
   onRegenerate,
-  onCancel
+  onCancel,
 }: RegenerateOptionsProps) {
   const [temperature, setTemperature] = useState(0.7);
   const [customPrompt, setCustomPrompt] = useState('');
@@ -286,10 +287,12 @@ export function RegenerateOptions({
         <RotateCcw className="h-4 w-4" />
         Regenerate options
       </div>
-      
+
       <div className="space-y-3">
         <div>
-          <label className="text-sm font-medium">Temperature: {temperature}</label>
+          <label className="text-sm font-medium">
+            Temperature: {temperature}
+          </label>
           <input
             type="range"
             min="0"
@@ -306,7 +309,9 @@ export function RegenerateOptions({
         </div>
 
         <div>
-          <label className="text-sm font-medium">Custom prompt (optional)</label>
+          <label className="text-sm font-medium">
+            Custom prompt (optional)
+          </label>
           <Textarea
             value={customPrompt}
             onChange={(e) => setCustomPrompt(e.target.value)}

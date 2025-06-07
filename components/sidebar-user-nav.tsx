@@ -25,11 +25,17 @@ import { guestRegex } from '@/lib/constants';
 export function SidebarUserNav({ user }: { user: any }) {
   const router = useRouter();
   const session = useSession();
-  const status = session.isPending ? 'loading' : session.data ? 'authenticated' : 'unauthenticated';
+  const status = session.isPending
+    ? 'loading'
+    : session.data
+      ? 'authenticated'
+      : 'unauthenticated';
   const data = { user: session.data?.user };
   const { setTheme, resolvedTheme } = useTheme();
 
-  const isGuest = (session.data?.user as any)?.isAnonymous || guestRegex.test(session.data?.user?.email ?? '');
+  const isGuest =
+    (session.data?.user as any)?.isAnonymous ||
+    guestRegex.test(session.data?.user?.email ?? '');
 
   return (
     <SidebarMenu>

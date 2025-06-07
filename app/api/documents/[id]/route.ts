@@ -7,17 +7,14 @@ import path from 'node:path';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   try {
     const session = await getServerSession();
-    
+
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const document = await getRagDocumentById({
@@ -28,42 +25,35 @@ export async function GET(
     if (!document) {
       return NextResponse.json(
         { error: 'Document not found' },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     return NextResponse.json({ document });
-
   } catch (error) {
     console.error('Document fetch error:', error);
-    
+
     if (error instanceof ChatSDKError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
     return NextResponse.json(
       { error: 'Failed to fetch document' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   try {
     const session = await getServerSession();
-    
+
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // First get the document to access file path
@@ -75,7 +65,7 @@ export async function DELETE(
     if (!document) {
       return NextResponse.json(
         { error: 'Document not found' },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -88,14 +78,18 @@ export async function DELETE(
     if (!deletedDocument) {
       return NextResponse.json(
         { error: 'Failed to delete document' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Try to delete the file from disk (non-blocking)
     try {
       if (document.filePath?.startsWith('/uploads/')) {
-        const fullPath = path.join(process.cwd(), 'uploads', path.basename(document.filePath));
+        const fullPath = path.join(
+          process.cwd(),
+          'uploads',
+          path.basename(document.filePath),
+        );
         await fs.unlink(fullPath);
         console.log(`Deleted file: ${fullPath}`);
       }
@@ -104,25 +98,21 @@ export async function DELETE(
       console.warn(`Failed to delete file ${document.filePath}:`, fileError);
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       message: 'Document deleted successfully',
-      document: deletedDocument 
+      document: deletedDocument,
     });
-
   } catch (error) {
     console.error('Document deletion error:', error);
-    
+
     if (error instanceof ChatSDKError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
     return NextResponse.json(
       { error: 'Failed to delete document' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

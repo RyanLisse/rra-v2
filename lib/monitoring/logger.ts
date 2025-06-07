@@ -26,7 +26,11 @@ export interface Logger {
   info(message: string, metadata?: Record<string, any>): void;
   warn(message: string, metadata?: Record<string, any>): void;
   error(message: string, error?: Error, metadata?: Record<string, any>): void;
-  performance(operation: string, duration: number, metadata?: Record<string, any>): void;
+  performance(
+    operation: string,
+    duration: number,
+    metadata?: Record<string, any>,
+  ): void;
   setContext(context: Partial<LogEntry>): Logger;
 }
 
@@ -60,7 +64,11 @@ class AppLogger implements Logger {
     this.log(LogLevel.ERROR, message, error, metadata);
   }
 
-  performance(operation: string, duration: number, metadata?: Record<string, any>): void {
+  performance(
+    operation: string,
+    duration: number,
+    metadata?: Record<string, any>,
+  ): void {
     this.log(LogLevel.INFO, `Performance: ${operation}`, undefined, {
       operation,
       duration,
@@ -72,7 +80,7 @@ class AppLogger implements Logger {
     level: LogLevel,
     message: string,
     error?: Error,
-    metadata?: Record<string, any>
+    metadata?: Record<string, any>,
   ): void {
     if (level < this.minLevel) {
       return;
@@ -107,8 +115,8 @@ class AppLogger implements Logger {
   private logToConsole(entry: LogEntry): void {
     const levelColors = {
       [LogLevel.DEBUG]: '\x1b[36m', // Cyan
-      [LogLevel.INFO]: '\x1b[32m',  // Green
-      [LogLevel.WARN]: '\x1b[33m',  // Yellow
+      [LogLevel.INFO]: '\x1b[32m', // Green
+      [LogLevel.WARN]: '\x1b[33m', // Yellow
       [LogLevel.ERROR]: '\x1b[31m', // Red
     };
 
@@ -119,13 +127,13 @@ class AppLogger implements Logger {
     const prefix = `${color}[${entry.timestamp}] ${levelName}${reset}`;
     const context = entry.userId ? ` [User: ${entry.userId}]` : '';
     const request = entry.requestId ? ` [Request: ${entry.requestId}]` : '';
-    
+
     console.log(`${prefix}${context}${request} ${entry.message}`);
-    
+
     if (entry.metadata) {
       console.log('  Metadata:', entry.metadata);
     }
-    
+
     if (entry.error) {
       console.error('  Error:', entry.error);
     }
@@ -156,38 +164,38 @@ class AppLogger implements Logger {
 
 // Singleton logger instance
 export const logger = new AppLogger(
-  process.env.NODE_ENV === 'development' ? LogLevel.DEBUG : LogLevel.INFO
+  process.env.NODE_ENV === 'development' ? LogLevel.DEBUG : LogLevel.INFO,
 );
 
 // Performance measurement utility
 export function withPerformanceLogging<T>(
   operation: string,
   fn: () => Promise<T>,
-  metadata?: Record<string, any>
+  metadata?: Record<string, any>,
 ): Promise<T> {
   return (async (): Promise<T> => {
     const startTime = Date.now();
     const operationLogger = logger.setContext({ message: operation } as any);
-    
+
     try {
       operationLogger.debug(`Starting ${operation}`);
       const result = await fn();
       const duration = Date.now() - startTime;
-      
+
       operationLogger.performance(operation, duration, {
         success: true,
         ...metadata,
       });
-      
+
       return result;
     } catch (error) {
       const duration = Date.now() - startTime;
-      
+
       operationLogger.performance(operation, duration, {
         success: false,
         ...metadata,
       });
-      
+
       operationLogger.error(`Failed ${operation}`, error as Error);
       throw error;
     }
@@ -207,7 +215,7 @@ export function logDatabaseQuery(
   query: string,
   duration: number,
   rowCount?: number,
-  error?: Error
+  error?: Error,
 ) {
   const metadata = {
     query: query.substring(0, 200), // Truncate long queries
@@ -229,10 +237,10 @@ export function logAPIRequest(
   statusCode: number,
   duration: number,
   userId?: string,
-  metadata?: Record<string, any>
+  metadata?: Record<string, any>,
 ) {
   const requestLogger = userId ? logger.setContext({ userId }) : logger;
-  
+
   requestLogger.info(`${method} ${path} ${statusCode}`, {
     method,
     path,
@@ -246,7 +254,7 @@ export function logAPIRequest(
 export function logComponentError(
   componentName: string,
   error: Error,
-  errorInfo?: any
+  errorInfo?: any,
 ) {
   logger.error(`Component error in ${componentName}`, error, {
     componentName,

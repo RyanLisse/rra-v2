@@ -1,4 +1,4 @@
-import { 
+import {
   type AdeProcessRequest,
   AdeProcessRequestSchema,
   type AdeOutput,
@@ -7,60 +7,64 @@ import {
   type LandingAiApiResponse,
   AdeError,
   type AdeElementType,
-  ADE_ELEMENT_TYPES
+  ADE_ELEMENT_TYPES,
 } from './types';
 import { getAdeClient } from './client';
 import { writeFile, mkdir } from 'node:fs/promises';
-import { join, } from 'node:path';
+import { join } from 'node:path';
 
 /**
  * Process a document through Landing AI ADE and return structured elements
  */
 export async function processDocumentWithAde(
-  request: AdeProcessRequest
+  request: AdeProcessRequest,
 ): Promise<AdeOutput> {
   try {
     // Validate request
     const validatedRequest = AdeProcessRequestSchema.parse(request);
-    
+
     // Get ADE client (will use simulation if API key not available)
     const client = getAdeClient();
-    
+
     // Determine processing method
-    const useSimulation = !process.env.LANDING_AI_API_KEY || process.env.NODE_ENV === 'test';
-    
+    const useSimulation =
+      !process.env.LANDING_AI_API_KEY || process.env.NODE_ENV === 'test';
+
     let apiResponse: LandingAiApiResponse;
-    
+
     if (useSimulation) {
-      console.log(`[ADE] Simulating processing for document ${validatedRequest.documentId}`);
+      console.log(
+        `[ADE] Simulating processing for document ${validatedRequest.documentId}`,
+      );
       apiResponse = await client.simulateProcessing(
-        validatedRequest.filePath, 
-        validatedRequest.documentId
+        validatedRequest.filePath,
+        validatedRequest.documentId,
       );
     } else {
-      console.log(`[ADE] Processing document ${validatedRequest.documentId} with Landing AI`);
+      console.log(
+        `[ADE] Processing document ${validatedRequest.documentId} with Landing AI`,
+      );
       apiResponse = await client.processDocument(
-        validatedRequest.filePath, 
-        validatedRequest.documentId
+        validatedRequest.filePath,
+        validatedRequest.documentId,
       );
     }
-    
+
     // Transform API response to our format
     const adeOutput = await transformApiResponse(apiResponse, validatedRequest);
-    
+
     // Validate output
     return AdeOutputSchema.parse(adeOutput);
-    
   } catch (error) {
     if (error instanceof AdeError) {
       throw error;
     }
-    
+
     throw new AdeError(
       `Failed to process document with ADE: ${error instanceof Error ? error.message : 'Unknown error'}`,
       'ADE_PROCESSING_ERROR',
       500,
-      error
+      error,
     );
   }
 }
@@ -70,14 +74,14 @@ export async function processDocumentWithAde(
  */
 async function transformApiResponse(
   apiResponse: LandingAiApiResponse,
-  request: AdeProcessRequest
+  request: AdeProcessRequest,
 ): Promise<AdeOutput> {
   if (apiResponse.status !== 'success' || !apiResponse.data) {
     throw new AdeError(
       `ADE API returned error: ${apiResponse.error?.message || 'Unknown error'}`,
       apiResponse.error?.code || 'ADE_API_ERROR',
       500,
-      apiResponse.error
+      apiResponse.error,
     );
   }
 
@@ -90,7 +94,10 @@ async function transformApiResponse(
       const element = await transformElement(apiElement, request);
       elements.push(element);
     } catch (error) {
-      console.warn(`[ADE] Failed to transform element ${apiElement.element_id}:`, error);
+      console.warn(
+        `[ADE] Failed to transform element ${apiElement.element_id}:`,
+        error,
+      );
       // Continue processing other elements
     }
   }
@@ -110,11 +117,11 @@ async function transformApiResponse(
  */
 async function transformElement(
   apiElement: any,
-  request: AdeProcessRequest
+  request: AdeProcessRequest,
 ): Promise<AdeElement> {
   // Map API element types to our types
   const elementType = mapApiElementType(apiElement.element_type);
-  
+
   // Handle image data if present
   let imagePath: string | undefined;
   if (apiElement.image_data) {
@@ -122,7 +129,7 @@ async function transformElement(
       apiElement.image_data,
       request.documentId,
       apiElement.element_id,
-      apiElement.page_number
+      apiElement.page_number,
     );
   }
 
@@ -132,12 +139,14 @@ async function transformElement(
     content: apiElement.text_content,
     imagePath,
     pageNumber: apiElement.page_number,
-    bbox: apiElement.bounding_box ? [
-      apiElement.bounding_box.x1,
-      apiElement.bounding_box.y1,
-      apiElement.bounding_box.x2,
-      apiElement.bounding_box.y2
-    ] : undefined,
+    bbox: apiElement.bounding_box
+      ? [
+          apiElement.bounding_box.x1,
+          apiElement.bounding_box.y1,
+          apiElement.bounding_box.x2,
+          apiElement.bounding_box.y2,
+        ]
+      : undefined,
     confidence: apiElement.confidence_score,
     metadata: apiElement.metadata,
   };
@@ -148,27 +157,29 @@ async function transformElement(
  */
 function mapApiElementType(apiType: string): AdeElementType {
   const typeMapping: Record<string, AdeElementType> = {
-    'text_paragraph': 'paragraph',
-    'paragraph': 'paragraph',
-    'table_text': 'table_text',
-    'table': 'table_text',
-    'figure': 'figure',
-    'image': 'figure',
-    'list_item': 'list_item',
-    'bullet_point': 'list_item',
-    'title': 'title',
-    'heading': 'title',
-    'header': 'header',
-    'page_header': 'header',
-    'footer': 'footer',
-    'page_footer': 'footer',
-    'caption': 'caption',
+    text_paragraph: 'paragraph',
+    paragraph: 'paragraph',
+    table_text: 'table_text',
+    table: 'table_text',
+    figure: 'figure',
+    image: 'figure',
+    list_item: 'list_item',
+    bullet_point: 'list_item',
+    title: 'title',
+    heading: 'title',
+    header: 'header',
+    page_header: 'header',
+    footer: 'footer',
+    page_footer: 'footer',
+    caption: 'caption',
   };
 
   const mapped = typeMapping[apiType.toLowerCase()];
-  
+
   if (!mapped || !ADE_ELEMENT_TYPES.includes(mapped)) {
-    console.warn(`[ADE] Unknown element type '${apiType}', defaulting to 'paragraph'`);
+    console.warn(
+      `[ADE] Unknown element type '${apiType}', defaulting to 'paragraph'`,
+    );
     return 'paragraph';
   }
 
@@ -182,11 +193,16 @@ async function saveElementImage(
   imageData: string,
   documentId: string,
   elementId: string,
-  pageNumber: number
+  pageNumber: number,
 ): Promise<string> {
   try {
     // Create directory for document images
-    const imagesDir = join(process.cwd(), 'uploads', documentId, 'ade-elements');
+    const imagesDir = join(
+      process.cwd(),
+      'uploads',
+      documentId,
+      'ade-elements',
+    );
     await mkdir(imagesDir, { recursive: true });
 
     // Generate filename
@@ -195,7 +211,7 @@ async function saveElementImage(
 
     // Handle different image data formats
     let buffer: Buffer;
-    
+
     if (imageData.startsWith('data:')) {
       // Data URL format: data:image/png;base64,<data>
       const base64Data = imageData.split(',')[1];
@@ -207,16 +223,18 @@ async function saveElementImage(
 
     // Save image
     await writeFile(filePath, buffer);
-    
+
     return filePath;
-    
   } catch (error) {
-    console.error(`[ADE] Failed to save element image for ${elementId}:`, error);
+    console.error(
+      `[ADE] Failed to save element image for ${elementId}:`,
+      error,
+    );
     throw new AdeError(
       `Failed to save element image: ${error instanceof Error ? error.message : 'Unknown error'}`,
       'ADE_IMAGE_SAVE_ERROR',
       500,
-      error
+      error,
     );
   }
 }
@@ -226,7 +244,7 @@ async function saveElementImage(
  */
 export function extractTextFromAdeElements(elements: AdeElement[]): string[] {
   const textChunks: string[] = [];
-  
+
   for (const element of elements) {
     if (element.content?.trim()) {
       // Add context about element type and page
@@ -234,7 +252,7 @@ export function extractTextFromAdeElements(elements: AdeElement[]): string[] {
       textChunks.push(contextPrefix + element.content.trim());
     }
   }
-  
+
   return textChunks;
 }
 
@@ -249,8 +267,8 @@ export function extractImageElements(elements: AdeElement[]): Array<{
   description?: string;
 }> {
   return elements
-    .filter(element => element.imagePath && element.type === 'figure')
-    .map(element => ({
+    .filter((element) => element.imagePath && element.type === 'figure')
+    .map((element) => ({
       elementId: element.id,
       imagePath: element.imagePath!,
       pageNumber: element.pageNumber,
@@ -262,9 +280,11 @@ export function extractImageElements(elements: AdeElement[]): Array<{
 /**
  * Group elements by page for structured analysis
  */
-export function groupElementsByPage(elements: AdeElement[]): Map<number, AdeElement[]> {
+export function groupElementsByPage(
+  elements: AdeElement[],
+): Map<number, AdeElement[]> {
   const pageGroups = new Map<number, AdeElement[]>();
-  
+
   for (const element of elements) {
     const page = element.pageNumber;
     if (!pageGroups.has(page)) {
@@ -272,23 +292,24 @@ export function groupElementsByPage(elements: AdeElement[]): Map<number, AdeElem
     }
     pageGroups.get(page)?.push(element);
   }
-  
+
   // Sort elements within each page by bounding box position (top to bottom, left to right)
   for (const [page, pageElements] of pageGroups) {
     pageElements.sort((a, b) => {
       if (!a.bbox || !b.bbox) return 0;
-      
+
       // Sort by y-position first (top to bottom)
       const yDiff = a.bbox[1] - b.bbox[1];
-      if (Math.abs(yDiff) > 10) { // Allow some tolerance for same line
+      if (Math.abs(yDiff) > 10) {
+        // Allow some tolerance for same line
         return yDiff;
       }
-      
+
       // Then by x-position (left to right)
       return a.bbox[0] - b.bbox[0];
     });
   }
-  
+
   return pageGroups;
 }
 
@@ -308,28 +329,29 @@ export function calculateAdeStatistics(output: AdeOutput): {
   const pagesWithElements = new Set<number>();
   let textElements = 0;
   let imageElements = 0;
-  
+
   for (const element of output.elements) {
     // Count by type
     elementsByType[element.type] = (elementsByType[element.type] || 0) + 1;
-    
+
     // Track confidence
     if (element.confidence !== undefined) {
       totalConfidence += element.confidence;
       confidenceCount++;
     }
-    
+
     // Track pages
     pagesWithElements.add(element.pageNumber);
-    
+
     // Count text vs image elements
     if (element.content) textElements++;
     if (element.imagePath) imageElements++;
   }
-  
+
   return {
     elementsByType,
-    averageConfidence: confidenceCount > 0 ? totalConfidence / confidenceCount : 0,
+    averageConfidence:
+      confidenceCount > 0 ? totalConfidence / confidenceCount : 0,
     pagesWithElements: pagesWithElements.size,
     textElements,
     imageElements,

@@ -46,7 +46,10 @@ class CohereService {
   private readonly MODEL_EMBED_V4 = 'embed-english-v4.0';
   private readonly MODEL_RERANK = 'rerank-english-v3.0';
   private readonly DEFAULT_MODEL: string;
-  private embeddingCache = new Map<string, { embedding: number[]; timestamp: number }>();
+  private embeddingCache = new Map<
+    string,
+    { embedding: number[]; timestamp: number }
+  >();
   private readonly CACHE_TTL = 1000 * 60 * 60; // 1 hour
 
   constructor() {
@@ -59,9 +62,10 @@ class CohereService {
     });
 
     // Use v4.0 by default, fallback to v3.0 if specified
-    this.DEFAULT_MODEL = process.env.COHERE_EMBED_MODEL === 'v3.0' 
-      ? this.MODEL_EMBED_V3 
-      : this.MODEL_EMBED_V4;
+    this.DEFAULT_MODEL =
+      process.env.COHERE_EMBED_MODEL === 'v3.0'
+        ? this.MODEL_EMBED_V3
+        : this.MODEL_EMBED_V4;
   }
 
   /**
@@ -70,11 +74,11 @@ class CohereService {
   private getCachedEmbedding(text: string): number[] | null {
     const cacheKey = this.getCacheKey(text);
     const cached = this.embeddingCache.get(cacheKey);
-    
+
     if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
       return cached.embedding;
     }
-    
+
     return null;
   }
 
@@ -87,7 +91,7 @@ class CohereService {
       embedding,
       timestamp: Date.now(),
     });
-    
+
     // Clean old cache entries periodically
     if (this.embeddingCache.size > 1000) {
       this.cleanCache();
@@ -102,7 +106,7 @@ class CohereService {
     let hash = 0;
     for (let i = 0; i < text.length; i++) {
       const char = text.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32bit integer
     }
     return hash.toString(16);
@@ -124,21 +128,25 @@ class CohereService {
    * Generate embeddings for a single text with enhanced features
    */
   async generateEmbedding(
-    text: string, 
+    text: string,
     options: {
       model?: 'v3.0' | 'v4.0';
       useCache?: boolean;
-      inputType?: 'search_document' | 'search_query' | 'classification' | 'clustering';
-    } = {}
+      inputType?:
+        | 'search_document'
+        | 'search_query'
+        | 'classification'
+        | 'clustering';
+    } = {},
   ): Promise<EmbeddingResult> {
-    const { 
-      model = 'v4.0', 
-      useCache = true, 
-      inputType = 'search_document' 
+    const {
+      model = 'v4.0',
+      useCache = true,
+      inputType = 'search_document',
     } = options;
-    
+
     const startTime = Date.now();
-    
+
     // Check cache first
     if (useCache) {
       const cached = this.getCachedEmbedding(text);
@@ -151,8 +159,9 @@ class CohereService {
     }
 
     try {
-      const modelName = model === 'v3.0' ? this.MODEL_EMBED_V3 : this.MODEL_EMBED_V4;
-      
+      const modelName =
+        model === 'v3.0' ? this.MODEL_EMBED_V3 : this.MODEL_EMBED_V4;
+
       const response = await this.client.embed({
         texts: [text],
         model: modelName,
@@ -178,12 +187,12 @@ class CohereService {
         tokens:
           response.meta?.billedUnits?.inputTokens || this.estimateTokens(text),
       };
-      
+
       // Cache the result
       if (useCache) {
         this.setCachedEmbedding(text, embedding);
       }
-      
+
       return result;
     } catch (error) {
       if (error instanceof CohereError) {
@@ -202,7 +211,11 @@ class CohereService {
       batchSize?: number;
       model?: 'v3.0' | 'v4.0';
       useCache?: boolean;
-      inputType?: 'search_document' | 'search_query' | 'classification' | 'clustering';
+      inputType?:
+        | 'search_document'
+        | 'search_query'
+        | 'classification'
+        | 'clustering';
       maxConcurrency?: number;
     } = {},
   ): Promise<EmbeddingBatch> {
@@ -213,15 +226,17 @@ class CohereService {
       inputType = 'search_document',
       maxConcurrency = 3,
     } = options;
-    
+
     const startTime = Date.now();
     const allEmbeddings: EmbeddingResult[] = [];
     let totalTokens = 0;
-    const modelName = model === 'v3.0' ? this.MODEL_EMBED_V3 : this.MODEL_EMBED_V4;
-    
+    const modelName =
+      model === 'v3.0' ? this.MODEL_EMBED_V3 : this.MODEL_EMBED_V4;
+
     // Check cache for existing embeddings
-    const { cachedResults, uncachedTexts, uncachedIndices } = this.checkBatchCache(texts, useCache);
-    
+    const { cachedResults, uncachedTexts, uncachedIndices } =
+      this.checkBatchCache(texts, useCache);
+
     // Fill cached results
     cachedResults.forEach((result, originalIndex) => {
       if (result) {
@@ -229,7 +244,7 @@ class CohereService {
         totalTokens += result.tokens;
       }
     });
-    
+
     if (uncachedTexts.length === 0) {
       return {
         embeddings: allEmbeddings,
@@ -247,13 +262,12 @@ class CohereService {
 
     // Process batches with controlled concurrency
     const batchPromises = batches.map(async (batch, batchIndex) => {
-
       try {
         // Add delay between concurrent batches to respect rate limits
         if (batchIndex > 0) {
           await this.delay(Math.floor(batchIndex / maxConcurrency) * 200);
         }
-        
+
         const response = await this.client.embed({
           texts: batch,
           model: modelName,
@@ -273,24 +287,30 @@ class CohereService {
 
         const batchEmbeddings = (response.embeddings as any).map(
           (emb: any, index: number) => {
-            const embedding = Array.isArray(emb) ? emb : (emb as any)?.float || [];
+            const embedding = Array.isArray(emb)
+              ? emb
+              : (emb as any)?.float || [];
             const result = {
               embedding,
               tokens: this.estimateTokens(batch[index]),
             };
-            
+
             // Cache individual embeddings
             if (useCache) {
               this.setCachedEmbedding(batch[index], embedding);
             }
-            
+
             return result;
           },
         );
 
-        const batchTokens = response.meta?.billedUnits?.inputTokens ||
-          batchEmbeddings.reduce((sum: number, emb: any) => sum + emb.tokens, 0);
-        
+        const batchTokens =
+          response.meta?.billedUnits?.inputTokens ||
+          batchEmbeddings.reduce(
+            (sum: number, emb: any) => sum + emb.tokens,
+            0,
+          );
+
         return { embeddings: batchEmbeddings, tokens: batchTokens };
       } catch (error) {
         if (error instanceof CohereError) {
@@ -299,10 +319,13 @@ class CohereService {
         throw error;
       }
     });
-    
+
     // Wait for all batches with controlled concurrency
-    const batchResults = await this.processConcurrently(batchPromises, maxConcurrency);
-    
+    const batchResults = await this.processConcurrently(
+      batchPromises,
+      maxConcurrency,
+    );
+
     // Merge results back into correct positions
     let uncachedIndex = 0;
     batchResults.forEach((batchResult: any) => {
@@ -333,10 +356,12 @@ class CohereService {
     uncachedTexts: string[];
     uncachedIndices: number[];
   } {
-    const cachedResults: (EmbeddingResult | null)[] = new Array(texts.length).fill(null);
+    const cachedResults: (EmbeddingResult | null)[] = new Array(
+      texts.length,
+    ).fill(null);
     const uncachedTexts: string[] = [];
     const uncachedIndices: number[] = [];
-    
+
     if (!useCache) {
       return {
         cachedResults,
@@ -344,7 +369,7 @@ class CohereService {
         uncachedIndices: texts.map((_, i) => i),
       };
     }
-    
+
     texts.forEach((text, index) => {
       const cached = this.getCachedEmbedding(text);
       if (cached) {
@@ -357,7 +382,7 @@ class CohereService {
         uncachedIndices.push(index);
       }
     });
-    
+
     return { cachedResults, uncachedTexts, uncachedIndices };
   }
 
@@ -369,44 +394,45 @@ class CohereService {
     maxConcurrency: number,
   ): Promise<T[]> {
     const results: T[] = [];
-    
+
     for (let i = 0; i < promises.length; i += maxConcurrency) {
       const batch = promises.slice(i, i + maxConcurrency);
       const batchResults = await Promise.all(batch);
       results.push(...batchResults);
-      
+
       // Small delay between concurrent batches
       if (i + maxConcurrency < promises.length) {
         await this.delay(100);
       }
     }
-    
+
     return results;
   }
 
   /**
    * Compare embeddings from different models
    */
-  async compareEmbeddingModels(
-    text: string,
-  ): Promise<EmbeddingComparison> {
+  async compareEmbeddingModels(text: string): Promise<EmbeddingComparison> {
     const startTime1 = Date.now();
-    const embedding1 = await this.generateEmbedding(text, { 
-      model: 'v3.0', 
-      useCache: false 
+    const embedding1 = await this.generateEmbedding(text, {
+      model: 'v3.0',
+      useCache: false,
     });
     const processingTime1 = Date.now() - startTime1;
-    
+
     const startTime2 = Date.now();
-    const embedding2 = await this.generateEmbedding(text, { 
-      model: 'v4.0', 
-      useCache: false 
+    const embedding2 = await this.generateEmbedding(text, {
+      model: 'v4.0',
+      useCache: false,
     });
     const processingTime2 = Date.now() - startTime2;
-    
+
     // Calculate cosine similarity between embeddings
-    const similarity = this.cosineSimilarity(embedding1.embedding, embedding2.embedding);
-    
+    const similarity = this.cosineSimilarity(
+      embedding1.embedding,
+      embedding2.embedding,
+    );
+
     return {
       model1: this.MODEL_EMBED_V3,
       model2: this.MODEL_EMBED_V4,
@@ -425,21 +451,21 @@ class CohereService {
     if (a.length !== b.length) {
       throw new Error('Vectors must have the same length');
     }
-    
+
     let dotProduct = 0;
     let normA = 0;
     let normB = 0;
-    
+
     for (let i = 0; i < a.length; i++) {
       dotProduct += a[i] * b[i];
       normA += a[i] * a[i];
       normB += b[i] * b[i];
     }
-    
+
     if (normA === 0 || normB === 0) {
       return 0;
     }
-    
+
     return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
   }
 
@@ -469,7 +495,7 @@ class CohereService {
     } = {},
   ): Promise<EmbeddingResult> {
     const { model = 'v4.0', useCache = true } = options;
-    
+
     // Check cache first
     if (useCache) {
       const cached = this.getCachedEmbedding(query);
@@ -482,8 +508,9 @@ class CohereService {
     }
 
     try {
-      const modelName = model === 'v3.0' ? this.MODEL_EMBED_V3 : this.MODEL_EMBED_V4;
-      
+      const modelName =
+        model === 'v3.0' ? this.MODEL_EMBED_V3 : this.MODEL_EMBED_V4;
+
       const response = await this.client.embed({
         texts: [query],
         model: modelName,
@@ -509,12 +536,12 @@ class CohereService {
         tokens:
           response.meta?.billedUnits?.inputTokens || this.estimateTokens(query),
       };
-      
+
       // Cache the result
       if (useCache) {
         this.setCachedEmbedding(query, embedding);
       }
-      
+
       return result;
     } catch (error) {
       if (error instanceof CohereError) {
@@ -569,3 +596,6 @@ class CohereService {
 
 // Singleton instance
 export const cohereService = new CohereService();
+
+// Export CohereService as CohereClient for compatibility
+export { CohereService as CohereClient };

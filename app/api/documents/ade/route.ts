@@ -11,12 +11,14 @@ import { AdeProcessRequestSchema, AdeError } from '@/lib/ade/types';
 // Request body schema
 const RequestSchema = z.object({
   documentId: z.string().min(1),
-  options: z.object({
-    extractTables: z.boolean().default(true),
-    extractFigures: z.boolean().default(true),
-    preserveFormatting: z.boolean().default(true),
-    confidence: z.number().min(0).max(1).default(0.5),
-  }).optional(),
+  options: z
+    .object({
+      extractTables: z.boolean().default(true),
+      extractFigures: z.boolean().default(true),
+      preserveFormatting: z.boolean().default(true),
+      confidence: z.number().min(0).max(1).default(0.5),
+    })
+    .optional(),
 });
 
 export const POST = withAuth(async (request: NextRequest, session: any) => {
@@ -32,16 +34,13 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
     if (!document) {
       return NextResponse.json(
         { error: 'Document not found' },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     // Verify document belongs to user
     if (document.uploadedBy !== session.user.id) {
-      return NextResponse.json(
-        { error: 'Access denied' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
     // Check if document is in correct status for ADE processing
@@ -51,7 +50,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
         {
           error: `Document is in ${document.status} status, expected one of: ${validStatuses.join(', ')}`,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -89,7 +88,6 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
           elementsByType: countElementsByType(adeOutput.elements),
         },
       });
-
     } catch (adeError) {
       console.error('ADE processing error:', adeError);
 
@@ -109,19 +107,19 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
             details: adeError.message,
             code: adeError.code,
           },
-          { status: adeError.statusCode || 500 }
+          { status: adeError.statusCode || 500 },
         );
       }
 
       return NextResponse.json(
         {
           error: 'ADE processing failed',
-          details: adeError instanceof Error ? adeError.message : 'Unknown error',
+          details:
+            adeError instanceof Error ? adeError.message : 'Unknown error',
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
-
   } catch (error) {
     console.error('ADE API endpoint error:', error);
 
@@ -131,7 +129,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
           error: 'Invalid request data',
           details: error.errors,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -140,7 +138,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
         error: 'Internal server error',
         details: error instanceof Error ? error.message : 'Unknown error',
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 });
@@ -148,10 +146,10 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
 // Helper function to count elements by type
 function countElementsByType(elements: any[]): Record<string, number> {
   const counts: Record<string, number> = {};
-  
+
   for (const element of elements) {
     counts[element.type] = (counts[element.type] || 0) + 1;
   }
-  
+
   return counts;
 }

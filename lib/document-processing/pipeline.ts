@@ -52,7 +52,10 @@ export class DocumentProcessingPipeline {
   /**
    * Process a document through the complete pipeline
    */
-  async processDocument(documentId: string, userId: string): Promise<PipelineResult> {
+  async processDocument(
+    documentId: string,
+    userId: string,
+  ): Promise<PipelineResult> {
     const startTime = Date.now();
     const result: PipelineResult = {
       success: false,
@@ -87,9 +90,12 @@ export class DocumentProcessingPipeline {
 
       // Step 1: Text Extraction
       if (!this.options.skipTextExtraction && document.status === 'uploaded') {
-        const textResult = await this.performTextExtraction(document, statusManager);
+        const textResult = await this.performTextExtraction(
+          document,
+          statusManager,
+        );
         result.stats!.textExtraction = textResult;
-        
+
         if (!textResult.success) {
           result.errors?.push(`Text extraction failed: ${textResult.error}`);
           result.status = 'error';
@@ -102,10 +108,16 @@ export class DocumentProcessingPipeline {
       }
 
       // Step 2: ADE Processing (optional)
-      if (!this.options.skipAdeProcessing && document.status === 'text_extracted') {
-        const adeResult = await this.performAdeProcessing(document, statusManager);
+      if (
+        !this.options.skipAdeProcessing &&
+        document.status === 'text_extracted'
+      ) {
+        const adeResult = await this.performAdeProcessing(
+          document,
+          statusManager,
+        );
         result.stats!.adeProcessing = adeResult;
-        
+
         if (!adeResult.success) {
           result.warnings?.push(`ADE processing failed: ${adeResult.error}`);
           // Don't fail the pipeline - continue with traditional processing
@@ -117,14 +129,21 @@ export class DocumentProcessingPipeline {
       }
 
       // Step 3: Chunking
-      const chunkingStatus = this.options.useAdeForEmbedding && !this.options.skipAdeProcessing 
-        ? 'ade_processed' 
-        : 'text_extracted';
-      
-      if (!this.options.skipChunking && [chunkingStatus, 'processing'].includes(document.status)) {
-        const chunkResult = await this.performChunking(documentId, statusManager);
+      const chunkingStatus =
+        this.options.useAdeForEmbedding && !this.options.skipAdeProcessing
+          ? 'ade_processed'
+          : 'text_extracted';
+
+      if (
+        !this.options.skipChunking &&
+        [chunkingStatus, 'processing'].includes(document.status)
+      ) {
+        const chunkResult = await this.performChunking(
+          documentId,
+          statusManager,
+        );
         result.stats!.chunking = chunkResult;
-        
+
         if (!chunkResult.success) {
           result.errors?.push(`Chunking failed: ${chunkResult.error}`);
           result.status = 'error';
@@ -134,9 +153,12 @@ export class DocumentProcessingPipeline {
 
       // Step 4: Embedding (placeholder for future implementation)
       if (!this.options.skipEmbedding && document.status === 'chunked') {
-        const embeddingResult = await this.performEmbedding(documentId, statusManager);
+        const embeddingResult = await this.performEmbedding(
+          documentId,
+          statusManager,
+        );
         result.stats!.embedding = embeddingResult;
-        
+
         if (!embeddingResult.success) {
           result.errors?.push(`Embedding failed: ${embeddingResult.error}`);
           result.status = 'error';
@@ -156,12 +178,14 @@ export class DocumentProcessingPipeline {
       result.success = true;
       result.status = 'processed';
 
-      console.log(`Document ${documentId} processed successfully in ${Date.now() - startTime}ms`);
-
+      console.log(
+        `Document ${documentId} processed successfully in ${Date.now() - startTime}ms`,
+      );
     } catch (error) {
       console.error(`Pipeline error for document ${documentId}:`, error);
-      
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       result.errors?.push(errorMessage);
       result.status = 'error';
 
@@ -182,7 +206,10 @@ export class DocumentProcessingPipeline {
             .where(eq(ragDocument.id, documentId));
         }
       } catch (statusUpdateError) {
-        console.error('Failed to update document status to error:', statusUpdateError);
+        console.error(
+          'Failed to update document status to error:',
+          statusUpdateError,
+        );
       }
     }
 
@@ -194,8 +221,13 @@ export class DocumentProcessingPipeline {
    */
   private async performTextExtraction(
     document: any,
-    statusManager: DocumentStatusManager
-  ): Promise<{ success: boolean; error?: string; warnings?: string[]; stats?: any }> {
+    statusManager: DocumentStatusManager,
+  ): Promise<{
+    success: boolean;
+    error?: string;
+    warnings?: string[];
+    stats?: any;
+  }> {
     try {
       await statusManager.startStep('text_extraction');
 
@@ -205,15 +237,26 @@ export class DocumentProcessingPipeline {
         extractTables: true,
       });
 
-      await statusManager.updateStepProgress('text_extraction', 25, 'Processing document...');
+      await statusManager.updateStepProgress(
+        'text_extraction',
+        25,
+        'Processing document...',
+      );
 
-      const result = await processor.processDocument(document.filePath, document.mimeType);
+      const result = await processor.processDocument(
+        document.filePath,
+        document.mimeType,
+      );
 
       if (!result.success || !result.text) {
         throw new Error(result.error || 'Failed to extract text from document');
       }
 
-      await statusManager.updateStepProgress('text_extraction', 75, 'Saving extracted text...');
+      await statusManager.updateStepProgress(
+        'text_extraction',
+        75,
+        'Saving extracted text...',
+      );
 
       // Save extracted text to file
       const textFilename = `${document.fileName.replace(/\.[^.]+$/, '')}.txt`;
@@ -255,9 +298,9 @@ export class DocumentProcessingPipeline {
           processingTime: result.metadata?.processingTime,
         },
       };
-
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       await statusManager.failStep('text_extraction', errorMessage);
       return { success: false, error: errorMessage };
     }
@@ -268,12 +311,21 @@ export class DocumentProcessingPipeline {
    */
   private async performAdeProcessing(
     document: any,
-    statusManager: DocumentStatusManager
-  ): Promise<{ success: boolean; error?: string; warnings?: string[]; stats?: any }> {
+    statusManager: DocumentStatusManager,
+  ): Promise<{
+    success: boolean;
+    error?: string;
+    warnings?: string[];
+    stats?: any;
+  }> {
     try {
       await statusManager.startStep('ade_processing');
 
-      await statusManager.updateStepProgress('ade_processing', 25, 'Preparing document for ADE...');
+      await statusManager.updateStepProgress(
+        'ade_processing',
+        25,
+        'Preparing document for ADE...',
+      );
 
       // Process document with ADE
       const adeOutput = await processDocumentWithAde({
@@ -288,7 +340,11 @@ export class DocumentProcessingPipeline {
         },
       });
 
-      await statusManager.updateStepProgress('ade_processing', 75, 'Saving ADE elements...');
+      await statusManager.updateStepProgress(
+        'ade_processing',
+        75,
+        'Saving ADE elements...',
+      );
 
       // Save ADE elements to database
       await saveAdeElements(adeOutput);
@@ -307,18 +363,23 @@ export class DocumentProcessingPipeline {
         success: true,
         stats,
       };
-
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       await statusManager.failStep('ade_processing', errorMessage);
-      
+
       // Log error but don't fail the pipeline
-      console.warn(`ADE processing failed for document ${document.id}:`, errorMessage);
-      
-      return { 
-        success: false, 
+      console.warn(
+        `ADE processing failed for document ${document.id}:`,
+        errorMessage,
+      );
+
+      return {
+        success: false,
         error: errorMessage,
-        warnings: ['ADE processing failed, continuing with traditional text processing']
+        warnings: [
+          'ADE processing failed, continuing with traditional text processing',
+        ],
       };
     }
   }
@@ -328,7 +389,7 @@ export class DocumentProcessingPipeline {
    */
   private async performChunking(
     documentId: string,
-    statusManager: DocumentStatusManager
+    statusManager: DocumentStatusManager,
   ): Promise<{ success: boolean; error?: string; stats?: any }> {
     try {
       await statusManager.startStep('chunking');
@@ -354,13 +415,24 @@ export class DocumentProcessingPipeline {
         throw new Error('No text content available');
       }
 
-      await statusManager.updateStepProgress('chunking', 25, 'Analyzing document structure...');
+      await statusManager.updateStepProgress(
+        'chunking',
+        25,
+        'Analyzing document structure...',
+      );
 
       // Determine document type and create splitter
-      const documentType = this.determineDocumentType(document.originalName, textContent);
+      const documentType = this.determineDocumentType(
+        document.originalName,
+        textContent,
+      );
       const splitter = SemanticTextSplitter.createForDocumentType(documentType);
 
-      await statusManager.updateStepProgress('chunking', 50, 'Creating semantic chunks...');
+      await statusManager.updateStepProgress(
+        'chunking',
+        50,
+        'Creating semantic chunks...',
+      );
 
       // Create chunks
       const chunks = splitter.splitText(textContent, documentType);
@@ -369,7 +441,11 @@ export class DocumentProcessingPipeline {
         throw new Error('No chunks created from document text');
       }
 
-      await statusManager.updateStepProgress('chunking', 75, 'Storing chunks in database...');
+      await statusManager.updateStepProgress(
+        'chunking',
+        75,
+        'Storing chunks in database...',
+      );
 
       // Store chunks in database
       const chunkInserts = chunks.map((chunk) => ({
@@ -389,7 +465,9 @@ export class DocumentProcessingPipeline {
 
       await db.transaction(async (tx) => {
         // Remove existing chunks if any
-        await tx.delete(documentChunk).where(eq(documentChunk.documentId, documentId));
+        await tx
+          .delete(documentChunk)
+          .where(eq(documentChunk.documentId, documentId));
 
         // Insert new chunks
         await tx.insert(documentChunk).values(chunkInserts);
@@ -407,7 +485,8 @@ export class DocumentProcessingPipeline {
       const stats = {
         totalChunks: chunks.length,
         averageChunkSize: Math.round(
-          chunks.reduce((sum, chunk) => sum + chunk.content.length, 0) / chunks.length
+          chunks.reduce((sum, chunk) => sum + chunk.content.length, 0) /
+            chunks.length,
         ),
         documentType,
       };
@@ -415,9 +494,9 @@ export class DocumentProcessingPipeline {
       await statusManager.completeStep('chunking', stats);
 
       return { success: true, stats };
-
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       await statusManager.failStep('chunking', errorMessage);
       return { success: false, error: errorMessage };
     }
@@ -428,21 +507,29 @@ export class DocumentProcessingPipeline {
    */
   private async performEmbedding(
     documentId: string,
-    statusManager: DocumentStatusManager
+    statusManager: DocumentStatusManager,
   ): Promise<{ success: boolean; error?: string; stats?: any }> {
     try {
       await statusManager.startStep('embedding');
-      
+
       // Placeholder for embedding implementation
       // This would integrate with Cohere or other embedding services
-      
-      await statusManager.updateStepProgress('embedding', 50, 'Generating embeddings...');
-      
+
+      await statusManager.updateStepProgress(
+        'embedding',
+        50,
+        'Generating embeddings...',
+      );
+
       // Simulate processing time
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      await statusManager.updateStepProgress('embedding', 100, 'Storing embeddings...');
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      await statusManager.updateStepProgress(
+        'embedding',
+        100,
+        'Storing embeddings...',
+      );
+
       // Update document status
       await db
         .update(ragDocument)
@@ -455,9 +542,9 @@ export class DocumentProcessingPipeline {
       await statusManager.completeStep('embedding');
 
       return { success: true, stats: { placeholder: true } };
-
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       await statusManager.failStep('embedding', errorMessage);
       return { success: false, error: errorMessage };
     }
@@ -466,8 +553,10 @@ export class DocumentProcessingPipeline {
   /**
    * Determine document type for chunking strategy
    */
-  private determineDocumentType(filename: string, content: string): 
-    'academic' | 'technical' | 'general' | 'manual' | 'code' | 'markdown' {
+  private determineDocumentType(
+    filename: string,
+    content: string,
+  ): 'academic' | 'technical' | 'general' | 'manual' | 'code' | 'markdown' {
     const filename_lower = filename.toLowerCase();
 
     // Check for code files
@@ -481,8 +570,18 @@ export class DocumentProcessingPipeline {
     }
 
     // Check for manual/guide indicators
-    const manualKeywords = ['manual', 'guide', 'handbook', 'documentation', 'instruction', 'tutorial'];
-    const hasManualStructure = /\b(step \d+|chapter \d+|section \d+|procedure|instructions)\b/i.test(content);
+    const manualKeywords = [
+      'manual',
+      'guide',
+      'handbook',
+      'documentation',
+      'instruction',
+      'tutorial',
+    ];
+    const hasManualStructure =
+      /\b(step \d+|chapter \d+|section \d+|procedure|instructions)\b/i.test(
+        content,
+      );
 
     if (
       manualKeywords.some((keyword) => filename_lower.includes(keyword)) ||
@@ -492,9 +591,18 @@ export class DocumentProcessingPipeline {
     }
 
     // Check for technical indicators
-    const technicalKeywords = ['api', 'technical', 'specification', 'protocol', 'implementation'];
-    const hasCodeBlocks = /```|```\n|\bfunction\b|\bclass\b|\bdef\b/.test(content);
-    const hasTechnicalTerms = /\b(API|HTTP|JSON|XML|SQL|database|server|client)\b/gi.test(content);
+    const technicalKeywords = [
+      'api',
+      'technical',
+      'specification',
+      'protocol',
+      'implementation',
+    ];
+    const hasCodeBlocks = /```|```\n|\bfunction\b|\bclass\b|\bdef\b/.test(
+      content,
+    );
+    const hasTechnicalTerms =
+      /\b(API|HTTP|JSON|XML|SQL|database|server|client)\b/gi.test(content);
 
     if (
       technicalKeywords.some((keyword) => filename_lower.includes(keyword)) ||
@@ -505,8 +613,18 @@ export class DocumentProcessingPipeline {
     }
 
     // Check for academic indicators
-    const academicKeywords = ['research', 'paper', 'study', 'analysis', 'abstract', 'methodology'];
-    const hasAcademicStructure = /\b(abstract|methodology|conclusion|references|bibliography)\b/i.test(content);
+    const academicKeywords = [
+      'research',
+      'paper',
+      'study',
+      'analysis',
+      'abstract',
+      'methodology',
+    ];
+    const hasAcademicStructure =
+      /\b(abstract|methodology|conclusion|references|bibliography)\b/i.test(
+        content,
+      );
 
     if (
       academicKeywords.some((keyword) => filename_lower.includes(keyword)) ||
@@ -521,9 +639,12 @@ export class DocumentProcessingPipeline {
   /**
    * Process multiple documents in batch
    */
-  async processBatch(documentIds: string[], userId: string): Promise<PipelineResult[]> {
+  async processBatch(
+    documentIds: string[],
+    userId: string,
+  ): Promise<PipelineResult[]> {
     const results: PipelineResult[] = [];
-    
+
     for (const documentId of documentIds) {
       try {
         const result = await this.processDocument(documentId, userId);
@@ -572,11 +693,11 @@ export class DocumentProcessingPipeline {
    */
   private countElementsByType(elements: any[]): Record<string, number> {
     const counts: Record<string, number> = {};
-    
+
     for (const element of elements) {
       counts[element.type] = (counts[element.type] || 0) + 1;
     }
-    
+
     return counts;
   }
 }

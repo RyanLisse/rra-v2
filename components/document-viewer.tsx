@@ -2,10 +2,10 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FileText, 
-  Search, 
-  BookOpen, 
+import {
+  FileText,
+  Search,
+  BookOpen,
   Bookmark,
   MessageSquare,
   Download,
@@ -14,17 +14,17 @@ import {
   ChevronLeft,
   ChevronRight,
   Maximize2,
-  Minimize2
+  Minimize2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Tooltip, 
-  TooltipContent, 
-  TooltipTrigger 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
@@ -86,47 +86,52 @@ export function DocumentViewer({
   onAnnotate,
   onSearchTermFound,
   readOnly = false,
-  showTOC = true
+  showTOC = true,
 }: DocumentViewerProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [zoomLevel, setZoomLevel] = useState(100);
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState<Array<{ index: number; length: number }>>([]);
+  const [searchResults, setSearchResults] = useState<
+    Array<{ index: number; length: number }>
+  >([]);
   const [currentSearchIndex, setCurrentSearchIndex] = useState(0);
   const [showHighlightTools, setShowHighlightTools] = useState(false);
   const [selectedText, setSelectedText] = useState('');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
-  
+
   const contentRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<HTMLDivElement>(null);
 
   // Search functionality
-  const performSearch = useCallback((term: string) => {
-    if (!term.trim()) {
-      setSearchResults([]);
-      return;
-    }
+  const performSearch = useCallback(
+    (term: string) => {
+      if (!term.trim()) {
+        setSearchResults([]);
+        return;
+      }
 
-    const content = document.content.toLowerCase();
-    const searchTerm = term.toLowerCase();
-    const results: Array<{ index: number; length: number }> = [];
-    
-    let index = content.indexOf(searchTerm);
-    while (index !== -1) {
-      results.push({ index, length: term.length });
-      index = content.indexOf(searchTerm, index + 1);
-    }
-    
-    setSearchResults(results);
-    setCurrentSearchIndex(0);
-    onSearchTermFound?.(term, results.length);
-  }, [document.content, onSearchTermFound]);
+      const content = document.content.toLowerCase();
+      const searchTerm = term.toLowerCase();
+      const results: Array<{ index: number; length: number }> = [];
+
+      let index = content.indexOf(searchTerm);
+      while (index !== -1) {
+        results.push({ index, length: term.length });
+        index = content.indexOf(searchTerm, index + 1);
+      }
+
+      setSearchResults(results);
+      setCurrentSearchIndex(0);
+      onSearchTermFound?.(term, results.length);
+    },
+    [document.content, onSearchTermFound],
+  );
 
   // Handle text selection for highlighting
   const handleTextSelection = () => {
     if (readOnly) return;
-    
+
     const selection = window.getSelection();
     if (selection?.toString().trim()) {
       setSelectedText(selection.toString().trim());
@@ -151,7 +156,7 @@ export function DocumentViewer({
       endIndex,
       text: selectedText,
       color,
-      author: 'Current User' // This should come from auth context
+      author: 'Current User', // This should come from auth context
     });
 
     setShowHighlightTools(false);
@@ -162,19 +167,23 @@ export function DocumentViewer({
   // Render content with highlights and search results
   const renderContentWithHighlights = (content: string) => {
     let renderedContent = content;
-    const allMarkers: Array<{ index: number; type: 'highlight' | 'search'; data: any }> = [];
+    const allMarkers: Array<{
+      index: number;
+      type: 'highlight' | 'search';
+      data: any;
+    }> = [];
 
     // Add highlights
-    highlights.forEach(highlight => {
+    highlights.forEach((highlight) => {
       allMarkers.push({
         index: highlight.startIndex,
         type: 'highlight',
-        data: { ...highlight, isStart: true }
+        data: { ...highlight, isStart: true },
       });
       allMarkers.push({
         index: highlight.endIndex,
         type: 'highlight',
-        data: { ...highlight, isStart: false }
+        data: { ...highlight, isStart: false },
       });
     });
 
@@ -183,12 +192,20 @@ export function DocumentViewer({
       allMarkers.push({
         index: result.index,
         type: 'search',
-        data: { ...result, isStart: true, isCurrent: index === currentSearchIndex }
+        data: {
+          ...result,
+          isStart: true,
+          isCurrent: index === currentSearchIndex,
+        },
       });
       allMarkers.push({
         index: result.index + result.length,
         type: 'search',
-        data: { ...result, isStart: false, isCurrent: index === currentSearchIndex }
+        data: {
+          ...result,
+          isStart: false,
+          isCurrent: index === currentSearchIndex,
+        },
       });
     });
 
@@ -197,21 +214,29 @@ export function DocumentViewer({
 
     // Apply markers
     let offset = 0;
-    allMarkers.forEach(marker => {
+    allMarkers.forEach((marker) => {
       const position = marker.index + offset;
-      
+
       if (marker.type === 'highlight') {
-        const tag = marker.data.isStart 
+        const tag = marker.data.isStart
           ? `<mark class="highlight" style="background-color: ${marker.data.color}; cursor: pointer;" data-highlight-id="${marker.data.id}">`
           : '</mark>';
-        renderedContent = renderedContent.slice(0, position) + tag + renderedContent.slice(position);
+        renderedContent =
+          renderedContent.slice(0, position) +
+          tag +
+          renderedContent.slice(position);
         offset += tag.length;
       } else if (marker.type === 'search') {
-        const className = marker.data.isCurrent ? 'search-current' : 'search-result';
-        const tag = marker.data.isStart 
+        const className = marker.data.isCurrent
+          ? 'search-current'
+          : 'search-result';
+        const tag = marker.data.isStart
           ? `<span class="${className}">`
           : '</span>';
-        renderedContent = renderedContent.slice(0, position) + tag + renderedContent.slice(position);
+        renderedContent =
+          renderedContent.slice(0, position) +
+          tag +
+          renderedContent.slice(position);
         offset += tag.length;
       }
     });
@@ -228,11 +253,11 @@ export function DocumentViewer({
   }, [searchTerm, performSearch]);
 
   return (
-    <div 
+    <div
       ref={viewerRef}
       className={cn(
-        "flex h-full bg-background border rounded-lg overflow-hidden",
-        isFullscreen && "fixed inset-0 z-50 rounded-none"
+        'flex h-full bg-background border rounded-lg overflow-hidden',
+        isFullscreen && 'fixed inset-0 z-50 rounded-none',
       )}
     >
       {/* Table of Contents */}
@@ -249,9 +274,10 @@ export function DocumentViewer({
               <button
                 key={section.id}
                 className={cn(
-                  "w-full text-left p-2 rounded text-sm hover:bg-muted transition-colors",
+                  'w-full text-left p-2 rounded text-sm hover:bg-muted transition-colors',
                   `ml-${section.level * 4}`,
-                  activeSection === section.id && "bg-primary text-primary-foreground"
+                  activeSection === section.id &&
+                    'bg-primary text-primary-foreground',
                 )}
                 onClick={() => setActiveSection(section.id)}
               >
@@ -290,7 +316,9 @@ export function DocumentViewer({
                     variant="ghost"
                     size="sm"
                     className="h-6 w-6 p-0"
-                    onClick={() => setCurrentSearchIndex(Math.max(0, currentSearchIndex - 1))}
+                    onClick={() =>
+                      setCurrentSearchIndex(Math.max(0, currentSearchIndex - 1))
+                    }
                     disabled={currentSearchIndex === 0}
                   >
                     <ChevronLeft className="h-3 w-3" />
@@ -299,7 +327,14 @@ export function DocumentViewer({
                     variant="ghost"
                     size="sm"
                     className="h-6 w-6 p-0"
-                    onClick={() => setCurrentSearchIndex(Math.min(searchResults.length - 1, currentSearchIndex + 1))}
+                    onClick={() =>
+                      setCurrentSearchIndex(
+                        Math.min(
+                          searchResults.length - 1,
+                          currentSearchIndex + 1,
+                        ),
+                      )
+                    }
                     disabled={currentSearchIndex === searchResults.length - 1}
                   >
                     <ChevronRight className="h-3 w-3" />
@@ -319,7 +354,9 @@ export function DocumentViewer({
               >
                 <ZoomOut className="h-4 w-4" />
               </Button>
-              <span className="text-sm font-mono w-12 text-center">{zoomLevel}%</span>
+              <span className="text-sm font-mono w-12 text-center">
+                {zoomLevel}%
+              </span>
               <Button
                 variant="ghost"
                 size="sm"
@@ -361,15 +398,21 @@ export function DocumentViewer({
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="sm"
                   onClick={() => setIsFullscreen(!isFullscreen)}
                 >
-                  {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                  {isFullscreen ? (
+                    <Minimize2 className="h-4 w-4" />
+                  ) : (
+                    <Maximize2 className="h-4 w-4" />
+                  )}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>{isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}</TooltipContent>
+              <TooltipContent>
+                {isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+              </TooltipContent>
             </Tooltip>
           </div>
         </div>
@@ -379,13 +422,13 @@ export function DocumentViewer({
           <div
             ref={contentRef}
             className="max-w-4xl mx-auto prose prose-sm dark:prose-invert"
-            style={{ 
+            style={{
               fontSize: `${zoomLevel}%`,
-              lineHeight: 1.6
+              lineHeight: 1.6,
             }}
             onMouseUp={handleTextSelection}
             dangerouslySetInnerHTML={{
-              __html: renderContentWithHighlights(document.content)
+              __html: renderContentWithHighlights(document.content),
             }}
           />
 
@@ -398,20 +441,30 @@ export function DocumentViewer({
                 exit={{ opacity: 0, scale: 0.9 }}
                 className="absolute z-10 bg-background border shadow-lg rounded-lg p-3"
                 style={{
-                  top: window.getSelection()?.getRangeAt(0)?.getBoundingClientRect().bottom || 0,
-                  left: window.getSelection()?.getRangeAt(0)?.getBoundingClientRect().left || 0,
+                  top:
+                    window
+                      .getSelection()
+                      ?.getRangeAt(0)
+                      ?.getBoundingClientRect().bottom || 0,
+                  left:
+                    window
+                      .getSelection()
+                      ?.getRangeAt(0)
+                      ?.getBoundingClientRect().left || 0,
                 }}
               >
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium">Highlight:</span>
-                  {['#fef3c7', '#dcfce7', '#dbeafe', '#fce7f3', '#f3e8ff'].map((color) => (
-                    <button
-                      key={color}
-                      className="w-6 h-6 rounded border-2 border-border hover:border-foreground"
-                      style={{ backgroundColor: color }}
-                      onClick={() => createHighlight(color)}
-                    />
-                  ))}
+                  {['#fef3c7', '#dcfce7', '#dbeafe', '#fce7f3', '#f3e8ff'].map(
+                    (color) => (
+                      <button
+                        key={color}
+                        className="w-6 h-6 rounded border-2 border-border hover:border-foreground"
+                        style={{ backgroundColor: color }}
+                        onClick={() => createHighlight(color)}
+                      />
+                    ),
+                  )}
                 </div>
               </motion.div>
             )}
@@ -426,7 +479,7 @@ export function DocumentViewer({
                 left: annotation.x,
                 top: annotation.y,
                 width: annotation.width,
-                height: annotation.height
+                height: annotation.height,
               }}
             >
               <div className="text-xs font-medium mb-1 capitalize">
@@ -454,13 +507,23 @@ export function DocumentViewer({
               <ChevronLeft className="h-4 w-4 mr-1" />
               Previous
             </Button>
-            
+
             <div className="flex items-center gap-2">
               <span className="text-sm">Page</span>
               <Input
                 type="number"
                 value={currentPage}
-                onChange={(e) => setCurrentPage(Math.max(1, Math.min(document.pageCount!, Number.parseInt(e.target.value) || 1)))}
+                onChange={(e) =>
+                  setCurrentPage(
+                    Math.max(
+                      1,
+                      Math.min(
+                        document.pageCount!,
+                        Number.parseInt(e.target.value) || 1,
+                      ),
+                    ),
+                  )
+                }
                 className="w-16 text-center"
                 min={1}
                 max={document.pageCount}
@@ -471,7 +534,9 @@ export function DocumentViewer({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage(Math.min(document.pageCount!, currentPage + 1))}
+              onClick={() =>
+                setCurrentPage(Math.min(document.pageCount!, currentPage + 1))
+              }
               disabled={currentPage === document.pageCount}
             >
               Next
@@ -488,15 +553,18 @@ export function DocumentViewer({
 export function DocumentThumbnail({
   document,
   onClick,
-  className
+  className,
 }: {
   document: { id: string; title: string; type: string; preview?: string };
   onClick: () => void;
   className?: string;
 }) {
   return (
-    <Card 
-      className={cn("p-3 cursor-pointer hover:shadow-md transition-shadow", className)}
+    <Card
+      className={cn(
+        'p-3 cursor-pointer hover:shadow-md transition-shadow',
+        className,
+      )}
       onClick={onClick}
     >
       <div className="flex items-start gap-3">

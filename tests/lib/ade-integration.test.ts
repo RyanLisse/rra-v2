@@ -5,7 +5,14 @@ import { z } from 'zod';
 describe('Landing AI ADE Integration - Types and Schemas', () => {
   it('should define proper ADE element types', () => {
     // Test that we have the correct element types defined
-    const elementTypes = ['paragraph', 'table_text', 'figure', 'list_item', 'title', 'header'] as const;
+    const elementTypes = [
+      'paragraph',
+      'table_text',
+      'figure',
+      'list_item',
+      'title',
+      'header',
+    ] as const;
     expect(elementTypes).toContain('paragraph');
     expect(elementTypes).toContain('table_text');
     expect(elementTypes).toContain('figure');
@@ -18,11 +25,20 @@ describe('Landing AI ADE Integration - Types and Schemas', () => {
     // Define expected schema structure for testing
     const AdeElementSchema = z.object({
       id: z.string().min(1),
-      type: z.enum(['paragraph', 'table_text', 'figure', 'list_item', 'title', 'header']),
+      type: z.enum([
+        'paragraph',
+        'table_text',
+        'figure',
+        'list_item',
+        'title',
+        'header',
+      ]),
       content: z.string().optional(),
       imagePath: z.string().optional(),
       pageNumber: z.number().int().positive(),
-      bbox: z.tuple([z.number(), z.number(), z.number(), z.number()]).optional(),
+      bbox: z
+        .tuple([z.number(), z.number(), z.number(), z.number()])
+        .optional(),
       confidence: z.number().min(0).max(1).optional(),
       metadata: z.record(z.any()).optional(),
     });
@@ -43,14 +59,18 @@ describe('Landing AI ADE Integration - Types and Schemas', () => {
   it('should validate ADE output schema', () => {
     const AdeOutputSchema = z.object({
       documentId: z.string().min(1),
-      elements: z.array(z.object({
-        id: z.string(),
-        type: z.string(),
-        content: z.string().optional(),
-        imagePath: z.string().optional(),
-        pageNumber: z.number(),
-        bbox: z.tuple([z.number(), z.number(), z.number(), z.number()]).optional(),
-      })),
+      elements: z.array(
+        z.object({
+          id: z.string(),
+          type: z.string(),
+          content: z.string().optional(),
+          imagePath: z.string().optional(),
+          pageNumber: z.number(),
+          bbox: z
+            .tuple([z.number(), z.number(), z.number(), z.number()])
+            .optional(),
+        }),
+      ),
       processingTimeMs: z.number().optional(),
       totalElements: z.number().optional(),
       pageCount: z.number().optional(),
@@ -133,9 +153,15 @@ describe('Landing AI ADE Integration - Client Functions', () => {
 
     mockAdeClient.processDocument.mockResolvedValue(expectedOutput);
 
-    const result = await mockAdeClient.processDocument(documentPath, documentId);
+    const result = await mockAdeClient.processDocument(
+      documentPath,
+      documentId,
+    );
 
-    expect(mockAdeClient.processDocument).toHaveBeenCalledWith(documentPath, documentId);
+    expect(mockAdeClient.processDocument).toHaveBeenCalledWith(
+      documentPath,
+      documentId,
+    );
     expect(result.documentId).toBe(documentId);
     expect(result.elements).toHaveLength(2);
     expect(result.elements[0].type).toBe('paragraph');
@@ -151,7 +177,7 @@ describe('Landing AI ADE Integration - Client Functions', () => {
     mockAdeClient.processDocument.mockRejectedValue(error);
 
     await expect(
-      mockAdeClient.processDocument('/uploads/invalid.pdf', 'doc-123')
+      mockAdeClient.processDocument('/uploads/invalid.pdf', 'doc-123'),
     ).rejects.toThrow('ADE API timeout');
   });
 
@@ -186,7 +212,12 @@ describe('Landing AI ADE Integration - Client Functions', () => {
           type: elem.element_type.replace('text_', ''),
           content: elem.text_content,
           pageNumber: elem.page_number,
-          bbox: [elem.bounding_box.x1, elem.bounding_box.y1, elem.bounding_box.x2, elem.bounding_box.y2],
+          bbox: [
+            elem.bounding_box.x1,
+            elem.bounding_box.y1,
+            elem.bounding_box.x2,
+            elem.bounding_box.y2,
+          ],
           confidence: elem.confidence_score,
         })),
         processingTimeMs: response.data.document_metadata.processing_time_ms,
@@ -263,10 +294,13 @@ describe('Landing AI ADE Integration - Database Operations', () => {
 
     // Mock function to update status
     const updateDocumentStatus = async (docId: string, status: string) => {
-      await mockDb.update(/* ragDocument */).set({
-        status,
-        updatedAt: new Date(),
-      }).where(/* eq(ragDocument.id, docId) */);
+      await mockDb
+        .update(/* ragDocument */)
+        .set({
+          status,
+          updatedAt: new Date(),
+        })
+        .where(/* eq(ragDocument.id, docId) */);
     };
 
     await updateDocumentStatus(documentId, newStatus);
@@ -278,7 +312,7 @@ describe('Landing AI ADE Integration - Database Operations', () => {
 describe('Landing AI ADE Integration - Error Handling', () => {
   it('should handle invalid document formats', async () => {
     const invalidFormats = ['invalid.txt', 'not-a-pdf.doc', 'image.jpg'];
-    
+
     for (const format of invalidFormats) {
       expect(() => {
         // Validate file format
@@ -303,7 +337,7 @@ describe('Landing AI ADE Integration - Error Handling', () => {
     mockAdeClient.processDocument.mockRejectedValue(rateLimitError);
 
     await expect(
-      mockAdeClient.processDocument('/uploads/doc.pdf', 'doc-123')
+      mockAdeClient.processDocument('/uploads/doc.pdf', 'doc-123'),
     ).rejects.toMatchObject({
       status: 429,
       message: 'Rate limit exceeded',
@@ -312,7 +346,7 @@ describe('Landing AI ADE Integration - Error Handling', () => {
 
   it('should validate environment configuration', () => {
     const requiredEnvVars = ['LANDING_AI_API_KEY', 'LANDING_AI_ENDPOINT'];
-    
+
     // Test that required environment variables are checked
     const config = {
       apiKey: process.env.LANDING_AI_API_KEY || 'missing',

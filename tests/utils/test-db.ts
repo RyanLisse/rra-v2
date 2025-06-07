@@ -11,7 +11,9 @@ let connection: postgres.Sql;
 export function setupTestDb() {
   beforeEach(async () => {
     // Create test database connection
-    const databaseUrl = process.env.TEST_DATABASE_URL || 'postgresql://test:test@localhost:5432/test_db';
+    const databaseUrl =
+      process.env.TEST_DATABASE_URL ||
+      'postgresql://test:test@localhost:5432/test_db';
     connection = postgres(databaseUrl, { max: 1 });
     testDb = drizzle(connection, { schema });
 
@@ -45,7 +47,7 @@ export function setupTestDb() {
 // Transaction helper for isolated tests
 export async function withTransaction<T>(
   db: ReturnType<typeof drizzle>,
-  callback: (tx: any) => Promise<T>
+  callback: (tx: any) => Promise<T>,
 ): Promise<T> {
   return await db.transaction(callback);
 }

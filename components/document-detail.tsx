@@ -1,18 +1,23 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { 
-  Download,
-  Copy,
-} from 'lucide-react';
+import { Download, Copy } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
-import { getDocumentDetails, type DocumentDetailView } from '@/app/(chat)/documents/actions';
+import {
+  getDocumentDetails,
+  type DocumentDetailView,
+} from '@/app/(chat)/documents/actions';
 
 interface DocumentDetailProps {
   documentId: string;
@@ -21,19 +26,49 @@ interface DocumentDetailProps {
 }
 
 const statusConfig = {
-  uploaded: { label: 'Uploaded', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' },
-  processing: { label: 'Processing', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' },
-  text_extracted: { label: 'Text Extracted', color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300' },
-  chunked: { label: 'Chunked', color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300' },
-  embedded: { label: 'Embedded', color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' },
-  processed: { label: 'Ready', color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' },
-  error: { label: 'Error', color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' },
+  uploaded: {
+    label: 'Uploaded',
+    color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+  },
+  processing: {
+    label: 'Processing',
+    color:
+      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+  },
+  text_extracted: {
+    label: 'Text Extracted',
+    color:
+      'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
+  },
+  chunked: {
+    label: 'Chunked',
+    color:
+      'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300',
+  },
+  embedded: {
+    label: 'Embedded',
+    color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+  },
+  processed: {
+    label: 'Ready',
+    color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+  },
+  error: {
+    label: 'Error',
+    color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+  },
 };
 
-export function DocumentDetail({ documentId, isOpen, onClose }: DocumentDetailProps) {
+export function DocumentDetail({
+  documentId,
+  isOpen,
+  onClose,
+}: DocumentDetailProps) {
   const [document, setDocument] = useState<DocumentDetailView | null>(null);
   const [loading, setLoading] = useState(false);
-  const [activeSection, setActiveSection] = useState<'overview' | 'content' | 'chunks'>('overview');
+  const [activeSection, setActiveSection] = useState<
+    'overview' | 'content' | 'chunks'
+  >('overview');
   const [copiedChunkId, setCopiedChunkId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -102,11 +137,19 @@ export function DocumentDetail({ documentId, isOpen, onClose }: DocumentDetailPr
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span>{formatFileSize(document.fileSize)}</span>
               <span>•</span>
-              <span>Uploaded {formatDistanceToNow(new Date(document.createdAt))} ago</span>
+              <span>
+                Uploaded {formatDistanceToNow(new Date(document.createdAt))} ago
+              </span>
             </div>
           </div>
-          <Badge className={statusConfig[document.status as keyof typeof statusConfig]?.color || ''}>
-            {statusConfig[document.status as keyof typeof statusConfig]?.label || document.status}
+          <Badge
+            className={
+              statusConfig[document.status as keyof typeof statusConfig]
+                ?.color || ''
+            }
+          >
+            {statusConfig[document.status as keyof typeof statusConfig]
+              ?.label || document.status}
           </Badge>
         </div>
 
@@ -244,7 +287,9 @@ export function DocumentDetail({ documentId, isOpen, onClose }: DocumentDetailPr
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => copyToClipboard(chunk.content, chunk.id)}
+                          onClick={() =>
+                            copyToClipboard(chunk.content, chunk.id)
+                          }
                         >
                           {copiedChunkId === chunk.id ? (
                             <>
@@ -279,16 +324,13 @@ export function DocumentDetail({ documentId, isOpen, onClose }: DocumentDetailPr
     </div>
   ) : null;
 
-
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Document Details</SheetTitle>
         </SheetHeader>
-        <div className="mt-6">
-          {content}
-        </div>
+        <div className="mt-6">{content}</div>
       </SheetContent>
     </Sheet>
   );
