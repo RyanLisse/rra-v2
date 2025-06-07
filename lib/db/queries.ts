@@ -12,8 +12,6 @@ import {
   lt,
   type SQL,
 } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
 
 import {
   user,
@@ -27,24 +25,51 @@ import {
   type DBMessage,
   type Chat,
   stream,
+  ragDocument,
+  documentContent,
+  documentChunk,
+  type RAGDocument,
 } from './schema';
 import type { ArtifactKind } from '@/components/artifact';
 import { generateUUID } from '../utils';
 import { generateHashedPassword } from './utils';
 import type { VisibilityType } from '@/components/visibility-selector';
 import { ChatSDKError } from '../errors';
+import { db } from './index';
 
-// Optionally, if not using email/pass login, you can
-// use the Drizzle adapter for Auth.js / NextAuth
-// https://authjs.dev/reference/adapter/drizzle
+// Simple in-memory cache for frequently accessed data
+const queryCache = new Map<string, { data: any; timestamp: number; ttl: number }>();
 
-// biome-ignore lint: Forbidden non-null assertion.
-const client = postgres(process.env.POSTGRES_URL!);
-const db = drizzle(client);
+function getCachedResult<T>(key: string): T | null {
+  const cached = queryCache.get(key);
+  if (cached && Date.now() - cached.timestamp < cached.ttl) {
+    return cached.data as T;
+  }
+  queryCache.delete(key);
+  return null;
+}
+
+function setCachedResult<T>(key: string, data: T, ttlMs = 60000): void {
+  queryCache.set(key, { data, timestamp: Date.now(), ttl: ttlMs });
+}
+
+function invalidateCache(pattern: string): void {
+  for (const key of queryCache.keys()) {
+    if (key.includes(pattern)) {
+      queryCache.delete(key);
+    }
+  }
+}
 
 export async function getUser(email: string): Promise<Array<User>> {
+  const cacheKey = `user:email:${email}`;
+  const cached = getCachedResult<Array<User>>(cacheKey);
+  if (cached) return cached;
+
   try {
-    return await db.select().from(user).where(eq(user.email, email));
+    const result = await db.select().from(user).where(eq(user.email, email));
+    setCachedResult(cacheKey, result, 300000); // Cache for 5 minutes
+    return result;
   } catch (error) {
     throw new ChatSDKError(
       'bad_request:database',
@@ -57,7 +82,9 @@ export async function createUser(email: string, password: string) {
   const hashedPassword = generateHashedPassword(password);
 
   try {
-    return await db.insert(user).values({ email, password: hashedPassword });
+    const result = await db.insert(user).values({ email, password: hashedPassword });
+    invalidateCache(`user:email:${email}`);
+    return result;
   } catch (error) {
     throw new ChatSDKError('bad_request:database', 'Failed to create user');
   }
@@ -200,8 +227,15 @@ export async function getChatsByUserId({
 }
 
 export async function getChatById({ id }: { id: string }) {
+  const cacheKey = `chat:id:${id}`;
+  const cached = getCachedResult<Chat>(cacheKey);
+  if (cached) return cached;
+
   try {
     const [selectedChat] = await db.select().from(chat).where(eq(chat.id, id));
+    if (selectedChat) {
+      setCachedResult(cacheKey, selectedChat, 180000); // Cache for 3 minutes
+    }
     return selectedChat;
   } catch (error) {
     throw new ChatSDKError('bad_request:database', 'Failed to get chat by id');
@@ -214,19 +248,31 @@ export async function saveMessages({
   messages: Array<DBMessage>;
 }) {
   try {
-    return await db.insert(message).values(messages);
+    const result = await db.insert(message).values(messages);
+    // Invalidate message cache for affected chats
+    for (const msg of messages) {
+      invalidateCache(`messages:chat:${msg.chatId}`);
+    }
+    return result;
   } catch (error) {
     throw new ChatSDKError('bad_request:database', 'Failed to save messages');
   }
 }
 
 export async function getMessagesByChatId({ id }: { id: string }) {
+  const cacheKey = `messages:chat:${id}`;
+  const cached = getCachedResult<Array<DBMessage>>(cacheKey);
+  if (cached) return cached;
+
   try {
-    return await db
+    const result = await db
       .select()
       .from(message)
       .where(eq(message.chatId, id))
       .orderBy(asc(message.createdAt));
+    
+    setCachedResult(cacheKey, result, 120000); // Cache for 2 minutes
+    return result;
   } catch (error) {
     throw new ChatSDKError(
       'bad_request:database',
@@ -533,6 +579,185 @@ export async function getStreamIdsByChatId({ chatId }: { chatId: string }) {
     throw new ChatSDKError(
       'bad_request:database',
       'Failed to get stream ids by chat id',
+    );
+  }
+}
+
+// RAG Document Management Queries
+
+export async function getRagDocumentsByUserId({
+  userId,
+  limit = 50,
+}: {
+  userId: string;
+  limit?: number;
+}): Promise<Array<RAGDocument & { chunkCount?: number; hasContent?: boolean }>> {
+  const cacheKey = `rag_documents:user:${userId}:limit:${limit}`;
+  const cached = getCachedResult<Array<RAGDocument & { chunkCount?: number; hasContent?: boolean }>>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const documents = await db
+      .select({
+        id: ragDocument.id,
+        fileName: ragDocument.fileName,
+        originalName: ragDocument.originalName,
+        filePath: ragDocument.filePath,
+        mimeType: ragDocument.mimeType,
+        fileSize: ragDocument.fileSize,
+        status: ragDocument.status,
+        uploadedBy: ragDocument.uploadedBy,
+        createdAt: ragDocument.createdAt,
+        updatedAt: ragDocument.updatedAt,
+        chunkCount: count(documentChunk.id),
+        hasContent: count(documentContent.id),
+      })
+      .from(ragDocument)
+      .leftJoin(documentChunk, eq(ragDocument.id, documentChunk.documentId))
+      .leftJoin(documentContent, eq(ragDocument.id, documentContent.documentId))
+      .where(eq(ragDocument.uploadedBy, userId))
+      .groupBy(ragDocument.id)
+      .orderBy(desc(ragDocument.createdAt))
+      .limit(limit);
+
+    const result = documents.map(doc => ({
+      ...doc,
+      chunkCount: Number(doc.chunkCount),
+      hasContent: Number(doc.hasContent) > 0,
+    }));
+
+    setCachedResult(cacheKey, result, 60000); // Cache for 1 minute
+    return result;
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to get RAG documents by user id',
+    );
+  }
+}
+
+export async function getRagDocumentById({
+  id,
+  userId,
+}: {
+  id: string;
+  userId: string;
+}): Promise<RAGDocument | null> {
+  const cacheKey = `rag_document:${id}:${userId}`;
+  const cached = getCachedResult<RAGDocument>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const [selectedDocument] = await db
+      .select()
+      .from(ragDocument)
+      .where(and(eq(ragDocument.id, id), eq(ragDocument.uploadedBy, userId)));
+
+    if (selectedDocument) {
+      setCachedResult(cacheKey, selectedDocument, 300000); // Cache for 5 minutes
+    }
+    return selectedDocument || null;
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to get RAG document by id',
+    );
+  }
+}
+
+export async function updateRagDocumentStatus({
+  id,
+  status,
+  userId,
+}: {
+  id: string;
+  status: RAGDocument['status'];
+  userId: string;
+}) {
+  try {
+    const result = await db
+      .update(ragDocument)
+      .set({ 
+        status, 
+        updatedAt: new Date() 
+      })
+      .where(and(eq(ragDocument.id, id), eq(ragDocument.uploadedBy, userId)))
+      .returning();
+
+    // Invalidate cache for this document and user's document list
+    invalidateCache(`rag_document:${id}:${userId}`);
+    invalidateCache(`rag_documents:user:${userId}`);
+
+    return result[0] || null;
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to update RAG document status',
+    );
+  }
+}
+
+export async function deleteRagDocumentById({
+  id,
+  userId,
+}: {
+  id: string;
+  userId: string;
+}) {
+  try {
+    // Delete in correct order due to foreign key constraints
+    // Embeddings will cascade delete with chunks
+    // Chunks will cascade delete with document
+    // Content will cascade delete with document
+    
+    const [deletedDocument] = await db
+      .delete(ragDocument)
+      .where(and(eq(ragDocument.id, id), eq(ragDocument.uploadedBy, userId)))
+      .returning();
+
+    // Invalidate cache
+    invalidateCache(`rag_document:${id}:${userId}`);
+    invalidateCache(`rag_documents:user:${userId}`);
+
+    return deletedDocument;
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to delete RAG document by id',
+    );
+  }
+}
+
+export async function getDocumentProcessingStats({
+  userId,
+}: {
+  userId: string;
+}) {
+  const cacheKey = `document_stats:user:${userId}`;
+  const cached = getCachedResult<any>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const [stats] = await db
+      .select({
+        total: count(),
+        uploaded: count().where(eq(ragDocument.status, 'uploaded')),
+        processing: count().where(eq(ragDocument.status, 'processing')),
+        textExtracted: count().where(eq(ragDocument.status, 'text_extracted')),
+        chunked: count().where(eq(ragDocument.status, 'chunked')),
+        embedded: count().where(eq(ragDocument.status, 'embedded')),
+        processed: count().where(eq(ragDocument.status, 'processed')),
+        error: count().where(eq(ragDocument.status, 'error')),
+      })
+      .from(ragDocument)
+      .where(eq(ragDocument.uploadedBy, userId));
+
+    setCachedResult(cacheKey, stats, 30000); // Cache for 30 seconds
+    return stats;
+  } catch (error) {
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to get document processing stats',
     );
   }
 }

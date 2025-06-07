@@ -11,7 +11,9 @@
       "public",
       ".vercel",
       "test-results",
-      "playwright-report"
+      "playwright-report",
+      "data/**",
+      "uploads/**"
     ]
   },
   "vcs": {

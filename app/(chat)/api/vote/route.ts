@@ -1,8 +1,8 @@
-import { auth } from '@/app/(auth)/auth';
+import { withAuth } from '@/lib/auth';
 import { getChatById, getVotesByChatId, voteMessage } from '@/lib/db/queries';
 import { ChatSDKError } from '@/lib/errors';
 
-export async function GET(request: Request) {
+export const GET = withAuth(async (request: Request, session: any) => {
   const { searchParams } = new URL(request.url);
   const chatId = searchParams.get('chatId');
 
@@ -11,12 +11,6 @@ export async function GET(request: Request) {
       'bad_request:api',
       'Parameter chatId is required.',
     ).toResponse();
-  }
-
-  const session = await auth();
-
-  if (!session?.user) {
-    return new ChatSDKError('unauthorized:vote').toResponse();
   }
 
   const chat = await getChatById({ id: chatId });
@@ -32,9 +26,9 @@ export async function GET(request: Request) {
   const votes = await getVotesByChatId({ id: chatId });
 
   return Response.json(votes, { status: 200 });
-}
+});
 
-export async function PATCH(request: Request) {
+export const PATCH = withAuth(async (request: Request, session: any) => {
   const {
     chatId,
     messageId,
@@ -47,12 +41,6 @@ export async function PATCH(request: Request) {
       'bad_request:api',
       'Parameters chatId, messageId, and type are required.',
     ).toResponse();
-  }
-
-  const session = await auth();
-
-  if (!session?.user) {
-    return new ChatSDKError('unauthorized:vote').toResponse();
   }
 
   const chat = await getChatById({ id: chatId });
@@ -72,4 +60,4 @@ export async function PATCH(request: Request) {
   });
 
   return new Response('Message voted', { status: 200 });
-}
+});

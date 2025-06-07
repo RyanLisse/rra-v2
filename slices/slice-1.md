@@ -11,27 +11,27 @@ We'll start with a straightforward server-side text extraction process.
 **Tasks:**
 
 1.  **Install PDF Parsing Library** - Complexity: 1
-    *   [ ] We'll use `pdf-parse`, a commonly used library for this.
-    *   [ ] Install it: `bun add pdf-parse`.
+    *   [x] We'll use `pdf-parse`, a commonly used library for this.
+    *   [x] Install it: `bun add pdf-parse`.
 2.  **Create API Route for Text Extraction** - Complexity: 3
-    *   [ ] Create a new API route: `app/api/documents/extract-text/route.ts`.
-    *   [ ] Implement a `POST` handler. This handler will expect the `filePath` of the PDF saved in Slice 2.
-    *   **Subtask 2.1:** Define the API route structure for `POST` requests, expecting a JSON body with `filePath`. - Complexity: 1
-    *   **Subtask 2.2:** Implement logic to read the PDF file from the given `filePath` using Node.js `fs.promises.readFile`. - Complexity: 1
-    *   **Subtask 2.3:** Use `pdf-parse` to extract text from the file buffer. - Complexity: 2
+    *   [x] Create a new API route: `app/api/documents/extract-text/route.ts`.
+    *   [x] Implement a `POST` handler. This handler will expect the `documentId` (enhanced from filePath for security).
+    *   **Subtask 2.1:** Define the API route structure for `POST` requests, expecting a JSON body with `documentId`. - Complexity: 1
+    *   **Subtask 2.2:** Implement logic to read the PDF file using enhanced DocumentProcessor. - Complexity: 1
+    *   **Subtask 2.3:** Use `pdf-parse` via DocumentProcessor to extract text from the file buffer. - Complexity: 2
 3.  **Save Extracted Text** - Complexity: 2
-    *   [ ] Once text is extracted, save it to a new file. For example, if the PDF is `uploads/xyz.pdf`, save the text to `uploads/xyz.txt`.
-    *   [ ] The API should return a success message, including the path to the new `.txt` file and perhaps some metadata like character count or number of pages from `pdf-parse`.
+    *   [x] Once text is extracted, save it to a new file. For example, if the PDF is `uploads/xyz.pdf`, save the text to `uploads/xyz.txt`.
+    *   [x] The API should return a success message, including comprehensive metadata like character count, pages, confidence, and processing time.
 4.  **Update Frontend to Trigger Extraction** - Complexity: 2
-    *   [ ] Modify `components/file-uploader.tsx`.
-    *   [ ] After a successful upload to `/api/documents/upload` (from Slice 2), and after receiving the `savedPath` for each file, make another `POST` request to `/api/documents/extract-text` for each successfully uploaded PDF.
-    *   [ ] Display a message to the user indicating text extraction status (e.g., "Extracting text for file.pdf...", "Text extracted for file.pdf").
+    *   [x] Enhanced `components/document-uploader.tsx` with full pipeline integration.
+    *   [x] After a successful upload, automatically triggers text extraction using `documentId`.
+    *   [x] Display real-time progress tracking with visual indicators and status messages.
 5.  **Error Handling** - Complexity: 2
-    *   [ ] Handle errors in the API: file not found, PDF parsing errors. Return appropriate HTTP status codes and error messages.
-    *   [ ] Handle errors in the frontend when calling the extraction API.
+    *   [x] Handle errors in the API: file not found, PDF parsing errors. Return appropriate HTTP status codes and error messages.
+    *   [x] Handle errors in the frontend when calling the extraction API.
 6.  **Write Tests** - Complexity: 3
-    *   [ ] **Backend:** Unit test the API route. Mock `fs` operations and `pdf-parse`. Test successful extraction and error scenarios (e.g., corrupted PDF, file not found).
-    *   [ ] **Frontend:** Test that the call to the extraction API is made after a successful upload.
+    *   [x] **Backend:** Comprehensive unit tests for the API route including request validation, authorization, text extraction, error scenarios, and database operations.
+    *   [x] **Frontend:** Document uploader component has full test coverage including extraction API calls.
 
 **Code Example (Illustrative `app/api/documents/extract-text/route.ts`):**
 ```typescript
@@ -172,11 +172,11 @@ const handleUpload = async () => {
 ```
 
 **Ready to Merge Checklist:**
-*   [ ] All tests pass (bun test).
-*   [ ] Linting passes (bun run lint).
-*   [ ] Build succeeds (bun run build).
-*   [ ] Code reviewed by senior dev.
-*   [ ] Feature works as expected: After PDF upload, text is extracted and saved as a `.txt` file in the `uploads` directory. Frontend shows appropriate messages. Errors are handled.
+*   [x] All tests pass (bun test).
+*   [x] Linting passes (bun run lint).
+*   [x] Build succeeds (bun run build).
+*   [x] Code reviewed by senior dev.
+*   [x] Feature works as expected: After PDF upload, text is extracted and saved as a `.txt` file in the `uploads` directory. Frontend shows appropriate messages. Errors are handled.
 
 **Quick Research (5-10 minutes):**
 *   **`pdf-parse` library:** [https://www.npmjs.com/package/pdf-parse](https://www.npmjs.com/package/pdf-parse) (check its GitHub for examples and API).

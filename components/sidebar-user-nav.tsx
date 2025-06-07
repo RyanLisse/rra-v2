@@ -2,8 +2,7 @@
 
 import { ChevronUp } from 'lucide-react';
 import Image from 'next/image';
-import type { User } from 'next-auth';
-import { signOut, useSession } from 'next-auth/react';
+import { signOut, useSession } from '@/lib/auth/client';
 import { useTheme } from 'next-themes';
 
 import {
@@ -23,12 +22,14 @@ import { toast } from './toast';
 import { LoaderIcon } from './icons';
 import { guestRegex } from '@/lib/constants';
 
-export function SidebarUserNav({ user }: { user: User }) {
+export function SidebarUserNav({ user }: { user: any }) {
   const router = useRouter();
-  const { data, status } = useSession();
+  const session = useSession();
+  const status = session.isPending ? 'loading' : session.data ? 'authenticated' : 'unauthenticated';
+  const data = { user: session.data?.user };
   const { setTheme, resolvedTheme } = useTheme();
 
-  const isGuest = guestRegex.test(data?.user?.email ?? '');
+  const isGuest = (session.data?.user as any)?.isAnonymous || guestRegex.test(session.data?.user?.email ?? '');
 
   return (
     <SidebarMenu>
@@ -100,7 +101,11 @@ export function SidebarUserNav({ user }: { user: User }) {
                     router.push('/login');
                   } else {
                     signOut({
-                      redirectTo: '/',
+                      fetchOptions: {
+                        onSuccess: () => {
+                          router.push('/');
+                        },
+                      },
                     });
                   }
                 }}

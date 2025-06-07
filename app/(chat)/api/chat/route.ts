@@ -5,7 +5,7 @@ import {
   smoothStream,
   streamText,
 } from 'ai';
-import { auth, type UserType } from '@/app/(auth)/auth';
+import { withAuth, type UserType, type BetterAuthSession } from '@/lib/auth';
 import { type RequestHints, systemPrompt } from '@/lib/ai/prompts';
 import {
   createStreamId,
@@ -61,7 +61,7 @@ function getStreamContext() {
   return globalStreamContext;
 }
 
-export async function POST(request: Request) {
+export const POST = withAuth(async (request: Request, session: BetterAuthSession) => {
   let requestBody: PostRequestBody;
 
   try {
@@ -74,12 +74,6 @@ export async function POST(request: Request) {
   try {
     const { id, message, selectedChatModel, selectedVisibilityType } =
       requestBody;
-
-    const session = await auth();
-
-    if (!session?.user) {
-      return new ChatSDKError('unauthorized:chat').toResponse();
-    }
 
     const userType: UserType = session.user.type;
 
@@ -237,10 +231,11 @@ export async function POST(request: Request) {
     if (error instanceof ChatSDKError) {
       return error.toResponse();
     }
+    return new ChatSDKError('bad_request:api').toResponse();
   }
-}
+});
 
-export async function GET(request: Request) {
+export const GET = withAuth(async (request: Request, session: BetterAuthSession) => {
   const streamContext = getStreamContext();
   const resumeRequestedAt = new Date();
 
@@ -253,12 +248,6 @@ export async function GET(request: Request) {
 
   if (!chatId) {
     return new ChatSDKError('bad_request:api').toResponse();
-  }
-
-  const session = await auth();
-
-  if (!session?.user) {
-    return new ChatSDKError('unauthorized:chat').toResponse();
   }
 
   let chat: Chat;
@@ -333,20 +322,14 @@ export async function GET(request: Request) {
   }
 
   return new Response(stream, { status: 200 });
-}
+});
 
-export async function DELETE(request: Request) {
+export const DELETE = withAuth(async (request: Request, session: BetterAuthSession) => {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
 
   if (!id) {
     return new ChatSDKError('bad_request:api').toResponse();
-  }
-
-  const session = await auth();
-
-  if (!session?.user) {
-    return new ChatSDKError('unauthorized:chat').toResponse();
   }
 
   const chat = await getChatById({ id });
@@ -358,4 +341,4 @@ export async function DELETE(request: Request) {
   const deletedChat = await deleteChatById({ id });
 
   return Response.json(deletedChat, { status: 200 });
-}
+});

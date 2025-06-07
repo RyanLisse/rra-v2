@@ -1,11 +1,17 @@
 import { type DataStreamWriter, tool } from 'ai';
-import type { Session } from 'next-auth';
+// Compatible session type for auth systems
+interface CompatibleSession {
+  user?: {
+    id?: string;
+    email?: string;
+  };
+}
 import { z } from 'zod';
-import { getDocumentById, } from '@/lib/db/queries';
+import { getDocumentById } from '@/lib/db/queries';
 import { documentHandlersByArtifactKind } from '@/lib/artifacts/server';
 
 interface UpdateDocumentProps {
-  session: Session;
+  session: CompatibleSession;
   dataStream: DataStreamWriter;
 }
 

@@ -1,5 +1,11 @@
 import { z } from 'zod';
-import type { Session } from 'next-auth';
+// Compatible session type for auth systems
+interface CompatibleSession {
+  user?: {
+    id?: string;
+    email?: string;
+  };
+}
 import { type DataStreamWriter, streamObject, tool } from 'ai';
 import { getDocumentById, saveSuggestions } from '@/lib/db/queries';
 import type { Suggestion } from '@/lib/db/schema';
@@ -7,7 +13,7 @@ import { generateUUID } from '@/lib/utils';
 import { myProvider } from '../providers';
 
 interface RequestSuggestionsProps {
-  session: Session;
+  session: CompatibleSession;
   dataStream: DataStreamWriter;
 }
 

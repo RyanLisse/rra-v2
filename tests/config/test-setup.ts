@@ -1,11 +1,8 @@
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
-// Mock environment variables for testing
-Object.defineProperty(process.env, 'NODE_ENV', {
-  value: 'test',
-  writable: true,
-});
+// Set environment for testing
+process.env.NODE_ENV = 'test';
 
 // Mock Next.js router
 vi.mock('next/navigation', () => ({

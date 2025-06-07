@@ -3,6 +3,14 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   experimental: {
     ppr: true,
+    optimizeCss: true,
+    optimizePackageImports: [
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-select',
+      '@radix-ui/react-dialog',
+      'lucide-react',
+      'framer-motion',
+    ],
   },
   images: {
     remotePatterns: [
@@ -10,6 +18,102 @@ const nextConfig: NextConfig = {
         hostname: 'avatar.vercel.sh',
       },
     ],
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 60 * 60 * 24 * 7, // 1 week
+  },
+  compress: true,
+  poweredByHeader: false,
+  
+  // Bundle analyzer configuration
+  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    if (!dev && !isServer) {
+      // Code splitting optimizations
+      config.optimization.splitChunks = {
+        ...config.optimization.splitChunks,
+        cacheGroups: {
+          ...config.optimization.splitChunks?.cacheGroups,
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+            priority: 10,
+          },
+          common: {
+            name: 'common',
+            minChunks: 2,
+            chunks: 'all',
+            priority: 5,
+            reuseExistingChunk: true,
+          },
+          ui: {
+            test: /[\\/]components[\\/]ui[\\/]/,
+            name: 'ui',
+            chunks: 'all',
+            priority: 15,
+          },
+        },
+      };
+    }
+    
+    // Performance optimizations
+    if (!dev) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        // Tree-shake lodash
+        'lodash': 'lodash-es',
+      };
+    }
+    
+    return config;
+  },
+  
+  // Headers for security and performance
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY'
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin'
+          },
+        ],
+      },
+      {
+        source: '/api/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, max-age=0'
+          },
+        ],
+      },
+      {
+        source: '/_next/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
+          },
+        ],
+      },
+    ];
   },
 };
 

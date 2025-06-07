@@ -1,0 +1,109 @@
+# System Patterns & Architecture
+
+## Architectural Overview
+
+**Multi-Agent Microservice Architecture** built on Next.js 15 with specialized agents handling distinct system concerns. The architecture follows a **Document-Centric RAG Pipeline** where documents flow through processing stages: Upload → Text Extraction → Chunking → Embedding → Vector Storage → Retrieval.
+
+### Core Architecture Layers
+1. **Presentation Layer**: React components with Shadcn UI and real-time streaming
+2. **API Layer**: Next.js API routes with authentication and validation
+3. **Business Logic Layer**: Document processing, AI integration, and RAG orchestration
+4. **Data Layer**: PostgreSQL with PGVector for hybrid vector/relational storage
+5. **AI Services Layer**: Google Gemini, Cohere embeddings, and reranking
+
+## Key Design Patterns
+
+### Multi-Agent Pattern
+- **Frontend Agent**: React/Next.js UI components and user interactions
+- **Backend Agent**: API routes, authentication, and business logic
+- **Document Processing Agent**: PDF extraction, text processing, and chunking
+- **AI/Embeddings Agent**: Vector operations, search, and embedding generation
+- **Testing Agent**: Quality assurance, evaluation, and performance monitoring
+
+### Repository Pattern with Drizzle ORM
+- **Database Abstraction**: Schema-first approach with type-safe queries
+- **Migration Management**: Version-controlled schema evolution
+- **Relationship Modeling**: Proper foreign key constraints and cascading deletes
+
+### Pipeline Pattern for Document Processing
+```
+Document Upload → Status: 'uploaded'
+     ↓
+Text Extraction → Status: 'text_extracted'
+     ↓
+Semantic Chunking → Status: 'chunked'
+     ↓
+Embedding Generation → Status: 'embedded'
+     ↓
+Vector Storage → Status: 'processed'
+```
+
+### Streaming Response Pattern
+- **Resumable Streams**: Redis-backed stream state for reliability
+- **Real-time Updates**: AI SDK React hooks for live response streaming
+- **Error Recovery**: Graceful handling of connection interruptions
+
+## Modularity Strategy
+
+### Separation of Concerns
+```
+/app/(auth)/          # Authentication logic isolated
+/app/(chat)/api/      # API routes with clear responsibilities
+/components/ui/       # Reusable UI components
+/lib/db/             # Database layer abstraction
+/lib/ai/             # AI service integrations
+/artifacts/          # Document processing modules
+```
+
+### Agent Boundaries
+- **Clear Interfaces**: Each agent has defined API contracts
+- **Independent Deployment**: Agents can be developed and tested separately
+- **Shared Resources**: Common database and authentication layer
+- **Event-Driven Communication**: Status updates and pipeline coordination
+
+### Component Modularity
+- **Atomic Components**: Single responsibility UI components
+- **Composition Patterns**: Higher-order components for complex interactions
+- **Hook Abstractions**: Custom hooks for state management and API calls
+
+## Data Flow
+
+### Document Processing Flow
+```
+User Upload → FormData → API Route → File System → Database Record
+     ↓
+PDF Parse → Text Extraction → Document Content Table
+     ↓
+Semantic Chunking → Chunk Generation → Document Chunk Table
+     ↓
+Cohere API → Embedding Generation → Document Embedding Table
+     ↓
+PGVector → Vector Storage → Search Index
+```
+
+### Chat Interaction Flow
+```
+User Query → Vector Search → Chunk Retrieval → Context Assembly
+     ↓
+Google Gemini → RAG Response → Citation Parsing → Streaming UI
+```
+
+### Database Relationships
+```
+User (1:N) → RAGDocument (1:1) → DocumentContent
+RAGDocument (1:N) → DocumentChunk (1:1) → DocumentEmbedding
+User (1:N) → Chat (1:N) → Message
+```
+
+### Authentication Flow
+```
+User Request → NextAuth Middleware → Session Validation → Route Handler
+     ↓
+Database Query → User Scope → Resource Access Control
+```
+
+### Error Handling Pattern
+- **Structured Errors**: Custom error classes with context
+- **Graceful Degradation**: Fallback strategies for AI service failures
+- **Status Tracking**: Document processing state management
+- **User Feedback**: Clear error messages and recovery instructions

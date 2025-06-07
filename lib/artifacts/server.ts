@@ -6,7 +6,13 @@ import type { ArtifactKind } from '@/components/artifact';
 import type { DataStreamWriter } from 'ai';
 import type { Document } from '../db/schema';
 import { saveDocument } from '../db/queries';
-import type { Session } from 'next-auth';
+// Compatible session type for auth systems
+interface CompatibleSession {
+  user?: {
+    id?: string;
+    email?: string;
+  };
+}
 
 export interface SaveDocumentProps {
   id: string;
@@ -20,14 +26,14 @@ export interface CreateDocumentCallbackProps {
   id: string;
   title: string;
   dataStream: DataStreamWriter;
-  session: Session;
+  session: CompatibleSession;
 }
 
 export interface UpdateDocumentCallbackProps {
   document: Document;
   description: string;
   dataStream: DataStreamWriter;
-  session: Session;
+  session: CompatibleSession;
 }
 
 export interface DocumentHandler<T = ArtifactKind> {

@@ -7,6 +7,7 @@ import equal from 'fast-deep-equal';
 import type { UseChatHelpers } from '@ai-sdk/react';
 import { motion } from 'framer-motion';
 import { useMessages } from '@/hooks/use-messages';
+import { TypingIndicator } from './enhanced-streaming';
 
 interface MessagesProps {
   chatId: string;
@@ -69,6 +70,12 @@ function PureMessages({
       {status === 'submitted' &&
         messages.length > 0 &&
         messages[messages.length - 1].role === 'user' && <ThinkingMessage />}
+      
+      {status === 'streaming' && messages.length > 0 && (
+        <div className="w-full mx-auto max-w-3xl px-4">
+          <TypingIndicator isVisible={true} />
+        </div>
+      )}
 
       <motion.div
         ref={messagesEndRef}

@@ -19,6 +19,7 @@ import { MessageEditor } from './message-editor';
 import { DocumentPreview } from './document-preview';
 import { MessageReasoning } from './message-reasoning';
 import type { UseChatHelpers } from '@ai-sdk/react';
+import { StreamingMessage, StreamingIndicator, } from './enhanced-streaming';
 
 const PurePreviewMessage = ({
   chatId,
@@ -130,7 +131,14 @@ const PurePreviewMessage = ({
                             message.role === 'user',
                         })}
                       >
-                        <Markdown>{sanitizeText(part.text)}</Markdown>
+                        {isLoading && message.role === 'assistant' ? (
+                          <StreamingMessage 
+                            content={sanitizeText(part.text)}
+                            isComplete={false}
+                          />
+                        ) : (
+                          <Markdown>{sanitizeText(part.text)}</Markdown>
+                        )}
                       </div>
                     </div>
                   );
@@ -275,9 +283,7 @@ export const ThinkingMessage = () => {
         </div>
 
         <div className="flex flex-col gap-2 w-full">
-          <div className="flex flex-col gap-4 text-muted-foreground">
-            Hmm...
-          </div>
+          <StreamingIndicator isStreaming={true} />
         </div>
       </div>
     </motion.div>
