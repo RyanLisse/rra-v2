@@ -1,18 +1,17 @@
 import { 
-  AdeProcessRequest,
+  type AdeProcessRequest,
   AdeProcessRequestSchema,
-  AdeOutput,
+  type AdeOutput,
   AdeOutputSchema,
-  AdeElement,
-  LandingAiApiResponse,
+  type AdeElement,
+  type LandingAiApiResponse,
   AdeError,
-  AdeValidationError,
-  AdeElementType,
+  type AdeElementType,
   ADE_ELEMENT_TYPES
 } from './types';
 import { getAdeClient } from './client';
 import { writeFile, mkdir } from 'node:fs/promises';
-import { join, dirname, basename } from 'node:path';
+import { join, } from 'node:path';
 
 /**
  * Process a document through Landing AI ADE and return structured elements
@@ -229,7 +228,7 @@ export function extractTextFromAdeElements(elements: AdeElement[]): string[] {
   const textChunks: string[] = [];
   
   for (const element of elements) {
-    if (element.content && element.content.trim()) {
+    if (element.content?.trim()) {
       // Add context about element type and page
       const contextPrefix = `[${element.type.toUpperCase()}${element.pageNumber ? ` - Page ${element.pageNumber}` : ''}] `;
       textChunks.push(contextPrefix + element.content.trim());
@@ -271,7 +270,7 @@ export function groupElementsByPage(elements: AdeElement[]): Map<number, AdeElem
     if (!pageGroups.has(page)) {
       pageGroups.set(page, []);
     }
-    pageGroups.get(page)!.push(element);
+    pageGroups.get(page)?.push(element);
   }
   
   // Sort elements within each page by bounding box position (top to bottom, left to right)

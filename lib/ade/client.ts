@@ -1,7 +1,7 @@
 import { 
-  AdeConfig, 
+  type AdeConfig, 
   AdeConfigSchema, 
-  LandingAiApiResponse, 
+  type LandingAiApiResponse, 
   AdeError, 
   AdeTimeoutError, 
   AdeRateLimitError,
@@ -199,7 +199,7 @@ export class AdeClient {
 
   private async handleResponse(response: Response): Promise<LandingAiApiResponse> {
     if (response.status === 429) {
-      const retryAfter = parseInt(response.headers.get('Retry-After') || '60');
+      const retryAfter = Number.parseInt(response.headers.get('Retry-After') || '60');
       throw new AdeRateLimitError(retryAfter);
     }
 

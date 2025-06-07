@@ -3,6 +3,9 @@ import { vi } from 'vitest';
 
 // Set environment for testing
 process.env.NODE_ENV = 'test';
+process.env.POSTGRES_URL = 'postgresql://test:test@localhost:5432/test';
+process.env.BETTER_AUTH_SECRET = 'test-secret';
+process.env.BETTER_AUTH_URL = 'http://localhost:3000';
 
 // Mock Next.js router
 vi.mock('next/navigation', () => ({
@@ -26,6 +29,22 @@ vi.mock('next-auth/react', () => ({
   }),
   signIn: vi.fn(),
   signOut: vi.fn(),
+}));
+
+// Mock @/lib/auth
+vi.mock('@/lib/auth', () => ({
+  getServerSession: vi.fn(),
+}));
+
+// Mock database
+vi.mock('@/lib/db', () => ({
+  db: {
+    select: vi.fn(),
+    insert: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    query: vi.fn(),
+  },
 }));
 
 // Mock AI SDK hooks for testing

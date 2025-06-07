@@ -153,7 +153,7 @@ async function checkExternalServices(): Promise<HealthCheck> {
   
   try {
     const checks = await Promise.allSettled([
-      checkXAIService(),
+      checkAIService(),
       checkCohereService(),
     ]);
 
@@ -194,9 +194,14 @@ async function checkExternalServices(): Promise<HealthCheck> {
   }
 }
 
-async function checkXAIService(): Promise<boolean> {
-  if (!process.env.XAI_API_KEY) {
-    throw new Error('XAI API key not configured');
+async function checkAIService(): Promise<boolean> {
+  // Check if at least one AI provider is configured
+  const hasOpenAI = !!process.env.OPENAI_API_KEY;
+  const hasAnthropic = !!process.env.ANTHROPIC_API_KEY;
+  const hasGemini = !!process.env.GEMINI_API_KEY || !!process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  
+  if (!hasOpenAI && !hasAnthropic && !hasGemini) {
+    throw new Error('No AI provider API key configured');
   }
   
   // Simple check - in a real app, you might make a lightweight API call

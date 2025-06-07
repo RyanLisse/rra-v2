@@ -61,7 +61,10 @@ This is a production-grade Retrieval Augmented Generation (RAG) chat application
 5. **Vector Storage**: PGVector with hybrid search + reranking
 
 ### Chat System Architecture
-- **Models**: xAI Grok models (Grok-2-vision-1212, Grok-3-mini-beta)
+- **Models**: Configurable AI providers:
+  - OpenAI (GPT-4o for chat/artifacts, GPT-4o-mini for reasoning/titles)
+  - Anthropic (Claude 3.5 Sonnet for chat/artifacts, Claude 3.5 Haiku for reasoning/titles)
+  - Google Gemini (Gemini 2.0 Flash for chat/artifacts, Gemini 1.5 Flash for reasoning/titles)
 - **Tools**: Weather API, document creation, AI suggestions
 - **Streaming**: Resumable streams with Redis backing for reliability
 - **Artifacts**: Side-panel document editing with multiple editors (code, text, sheet, image)
@@ -99,7 +102,10 @@ This is a production-grade Retrieval Augmented Generation (RAG) chat application
 - `POSTGRES_URL` - NeonDB connection string (with PGVector support)
 - `BETTER_AUTH_SECRET` - Better-auth authentication secret (random string for session encryption)
 - `BETTER_AUTH_URL` - Base URL for Better-auth API (defaults to http://localhost:3000 in development)
-- `XAI_API_KEY` - xAI Grok API access
+- **AI Provider API Keys** (at least one required):
+  - `OPENAI_API_KEY` - OpenAI API access (GPT-4o, GPT-4o-mini)
+  - `ANTHROPIC_API_KEY` - Anthropic API access (Claude 3.5 Sonnet, Claude 3.5 Haiku)
+  - `GEMINI_API_KEY` or `GOOGLE_GENERATIVE_AI_API_KEY` - Google Gemini API access (Gemini 2.0 Flash, Gemini 1.5 Flash)
 
 ### Authentication System (Better-auth)
 - **Configuration**: `lib/auth/config.ts` - Main Better-auth configuration

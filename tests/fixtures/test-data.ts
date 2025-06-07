@@ -139,7 +139,7 @@ export const createChatMessage = (overrides?: any) => ({
 export const createChatRequest = (chatId: string, overrides?: any) => ({
   id: chatId,
   message: createChatMessage(),
-  selectedChatModel: 'grok-beta',
+  selectedChatModel: 'chat-model',
   selectedVisibilityType: 'private' as const,
   ...overrides,
 });

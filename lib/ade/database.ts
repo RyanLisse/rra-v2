@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
 import { ragDocument } from '@/lib/db/schema';
-import { AdeOutput, AdeElement, DbAdeElement, AdeError } from './types';
+import { type AdeOutput, type AdeElement, type DbAdeElement, AdeError } from './types';
 import { eq } from 'drizzle-orm';
 
 // We'll add this to the schema later - for now, define the operations interface
@@ -17,7 +17,7 @@ export async function saveAdeElements(
       await tx
         .update(ragDocument)
         .set({
-          status: 'ade_processed',
+          status: 'processed',
           updatedAt: new Date(),
         })
         .where(eq(ragDocument.id, adeOutput.documentId));

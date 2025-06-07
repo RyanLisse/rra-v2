@@ -80,7 +80,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
         await tx.insert(documentContent).values({
           documentId: documentId,
           textFilePath: textFilePath,
-          extractedText: result.text?.length > 10000 ? undefined : result.text, // Store short texts directly
+          extractedText: result.text && result.text.length > 10000 ? undefined : result.text, // Store short texts directly
           pageCount: result.metadata?.pageCount?.toString(),
           charCount: result.metadata?.charCount?.toString(),
           metadata: {

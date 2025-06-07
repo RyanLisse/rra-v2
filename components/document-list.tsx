@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import {
   FileText,
@@ -51,41 +51,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { getManagedDocuments, deleteDocument, getDocumentStats, type ManagedDocumentView, type DocumentStats } from '@/app/(chat)/documents/actions';
+import { DocumentDetail } from '@/components/document-detail';
 
-type DocumentStatus = 
-  | 'uploaded'
-  | 'processing'
-  | 'text_extracted'
-  | 'chunked'
-  | 'embedded'
-  | 'processed'
-  | 'error';
-
-interface DocumentListItem {
-  id: string;
-  fileName: string;
-  originalName: string;
-  filePath: string;
-  mimeType: string;
-  fileSize: string;
-  status: DocumentStatus;
-  uploadedBy: string;
-  createdAt: Date;
-  updatedAt: Date;
-  chunkCount?: number;
-  hasContent?: boolean;
-}
-
-interface DocumentStats {
-  total: number;
-  uploaded: number;
-  processing: number;
-  textExtracted: number;
-  chunked: number;
-  embedded: number;
-  processed: number;
-  error: number;
-}
 
 const statusConfig = {
   uploaded: {
@@ -137,36 +105,34 @@ interface DocumentListProps {
 }
 
 export function DocumentList({ userId }: DocumentListProps) {
-  const [documents, setDocuments] = useState<DocumentListItem[]>([]);
+  const [documents, setDocuments] = useState<ManagedDocumentView[]>([]);
   const [stats, setStats] = useState<DocumentStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const loadDocuments = async () => {
-    try {
-      const [documentsResponse, statsResponse] = await Promise.all([
-        fetch('/api/documents/list'),
-        fetch('/api/documents/stats'),
-      ]);
+    startTransition(async () => {
+      try {
+        const [documentsData, statsData] = await Promise.all([
+          getManagedDocuments(),
+          getDocumentStats(),
+        ]);
 
-      if (documentsResponse.ok) {
-        const documentsData = await documentsResponse.json();
-        setDocuments(documentsData.documents || []);
+        setDocuments(documentsData);
+        setStats(statsData);
+      } catch (error) {
+        console.error('Failed to load documents:', error);
+        toast.error('Failed to load documents. Please try again.');
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
       }
-
-      if (statsResponse.ok) {
-        const statsData = await statsResponse.json();
-        setStats(statsData.stats);
-      }
-    } catch (error) {
-      console.error('Failed to load documents:', error);
-      toast.error('Failed to load documents. Please try again.');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
+    });
   };
 
   useEffect(() => {
@@ -179,22 +145,27 @@ export function DocumentList({ userId }: DocumentListProps) {
   };
 
   const handleDelete = async (documentId: string, fileName: string) => {
-    try {
-      const response = await fetch(`/api/documents/${documentId}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        setDocuments(docs => docs.filter(doc => doc.id !== documentId));
-        toast.success(`Document "${fileName}" has been deleted.`);
-        // Refresh stats
-        await loadDocuments();
-      } else {
-        throw new Error('Failed to delete document');
+    startTransition(async () => {
+      try {
+        const result = await deleteDocument(documentId);
+        
+        if (result.success) {
+          setDocuments(docs => docs.filter(doc => doc.id !== documentId));
+          toast.success(`Document "${fileName}" has been deleted.`);
+          // Refresh stats
+          await loadDocuments();
+        } else {
+          throw new Error(result.message || 'Failed to delete document');
+        }
+      } catch (error) {
+        toast.error('Failed to delete document. Please try again.');
       }
-    } catch (error) {
-      toast.error('Failed to delete document. Please try again.');
-    }
+    });
+  };
+
+  const handleViewDetails = (documentId: string) => {
+    setSelectedDocumentId(documentId);
+    setIsDetailOpen(true);
   };
 
   const filteredDocuments = documents.filter(doc => {
@@ -323,7 +294,8 @@ export function DocumentList({ userId }: DocumentListProps) {
       ) : (
         <div className="space-y-4">
           {filteredDocuments.map((doc) => {
-            const StatusIcon = statusConfig[doc.status].icon;
+            const statusInfo = statusConfig[doc.status as keyof typeof statusConfig] || statusConfig.processing;
+            const StatusIcon = statusInfo.icon;
             return (
               <Card key={doc.id}>
                 <CardContent className="p-6">
@@ -335,13 +307,13 @@ export function DocumentList({ userId }: DocumentListProps) {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-2 mb-2">
                           <h3 className="font-semibold truncate">{doc.originalName}</h3>
-                          <Badge className={statusConfig[doc.status].color}>
+                          <Badge className={statusInfo.color}>
                             <StatusIcon className={`h-3 w-3 mr-1 ${doc.status === 'processing' ? 'animate-spin' : ''}`} />
-                            {statusConfig[doc.status].label}
+                            {statusInfo.label}
                           </Badge>
                         </div>
                         <div className="text-sm text-muted-foreground space-y-1">
-                          <div>{statusConfig[doc.status].description}</div>
+                          <div>{statusInfo.description}</div>
                           <div className="flex items-center space-x-4">
                             <span>{formatFileSize(doc.fileSize)}</span>
                             <span>Uploaded {formatDistanceToNow(new Date(doc.createdAt))} ago</span>
@@ -359,8 +331,14 @@ export function DocumentList({ userId }: DocumentListProps) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem disabled={doc.status !== 'processed'}>
+                        <DropdownMenuItem
+                          onClick={() => handleViewDetails(doc.id)}
+                        >
                           <Eye className="h-4 w-4 mr-2" />
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem disabled={doc.status !== 'processed'}>
+                          <FileText className="h-4 w-4 mr-2" />
                           Start Chat
                         </DropdownMenuItem>
                         <DropdownMenuItem disabled>
@@ -405,6 +383,18 @@ export function DocumentList({ userId }: DocumentListProps) {
             );
           })}
         </div>
+      )}
+
+      {/* Document Detail View */}
+      {selectedDocumentId && (
+        <DocumentDetail
+          documentId={selectedDocumentId}
+          isOpen={isDetailOpen}
+          onClose={() => {
+            setIsDetailOpen(false);
+            setSelectedDocumentId(null);
+          }}
+        />
       )}
     </div>
   );

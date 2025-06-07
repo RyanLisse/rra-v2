@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, } from 'vitest';
 
 // TDD: These imports will fail until we implement the actual modules
 describe('Landing AI ADE Client - Implementation Tests', () => {

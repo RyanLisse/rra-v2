@@ -59,7 +59,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
     await db
       .update(ragDocument)
       .set({
-        status: 'processing_ade',
+        status: 'processing',
         updatedAt: new Date(),
       })
       .where(eq(ragDocument.id, documentId));

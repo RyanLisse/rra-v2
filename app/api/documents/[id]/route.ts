@@ -7,8 +7,9 @@ import path from 'node:path';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const session = await getServerSession();
     
@@ -20,7 +21,7 @@ export async function GET(
     }
 
     const document = await getRagDocumentById({
-      id: params.id,
+      id: id,
       userId: session.user.id,
     });
 
@@ -52,8 +53,9 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const session = await getServerSession();
     
@@ -66,7 +68,7 @@ export async function DELETE(
 
     // First get the document to access file path
     const document = await getRagDocumentById({
-      id: params.id,
+      id: id,
       userId: session.user.id,
     });
 
@@ -79,7 +81,7 @@ export async function DELETE(
 
     // Delete the database record (this will cascade delete related records)
     const deletedDocument = await deleteRagDocumentById({
-      id: params.id,
+      id: id,
       userId: session.user.id,
     });
 
