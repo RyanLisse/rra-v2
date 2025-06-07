@@ -2,6 +2,9 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from './schema';
 
+// Export ADE helpers for working with enriched document chunks
+export * from './ade-helpers';
+
 if (!process.env.POSTGRES_URL) {
   throw new Error('POSTGRES_URL environment variable is required');
 }
@@ -19,9 +22,9 @@ const connectionConfig = {
 
 const client = postgres(process.env.POSTGRES_URL, connectionConfig);
 
-export const db = drizzle(client, { 
+export const db = drizzle(client, {
   schema,
-  logger: process.env.NODE_ENV  === 'development',
+  logger: process.env.NODE_ENV === 'development',
 });
 
 // Health check function for database connectivity

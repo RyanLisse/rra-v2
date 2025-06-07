@@ -71,6 +71,34 @@
       "when": 1749253183896,
       "tag": "0009_sturdy_scarlet_spider",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1749290209877,
+      "tag": "0010_gifted_famine",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1749290236912,
+      "tag": "0011_free_rocket_racer",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1749299446419,
+      "tag": "0012_fast_microbe",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1749304460738,
+      "tag": "0013_chunky_colonel_america",
+      "breakpoints": true
     }
   ]
 }
