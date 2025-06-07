@@ -70,4 +70,10 @@ dev-debug.log
 # OS specific
 # Task files
 tasks.json
-tasks/ 
+tasks/
+
+# Inngest
+.inngest/
+inngest-cli
+inngest-cli.exe
+.inngest-* 

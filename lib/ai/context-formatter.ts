@@ -1,4 +1,6 @@
 import type { HybridSearchResult } from '@/lib/search/vector-search';
+import type { EnhancedChatSource, ContextAssemblyResult } from '@/lib/types';
+import { enhancedRagSystemPrompt } from './prompts';
 
 /**
  * Enhanced context source with structural metadata
@@ -203,9 +205,9 @@ UNDERSTANDING DOCUMENT STRUCTURE:
 }
 
 /**
- * Retrieve and format context for a query with enhanced metadata
+ * Enhanced context assembly with complete metadata tracking
  */
-export async function retrieveContextAndSources(
+export async function assembleEnhancedContext(
   query: string,
   userId: string,
   options: {
@@ -216,13 +218,9 @@ export async function retrieveContextAndSources(
     pageNumbers?: number[];
     prioritizeElementTypes?: string[];
     maxContextTokens?: number;
+    includeSystemPrompt?: boolean;
   } = {},
-): Promise<{
-  formattedContext: string;
-  sources: ChatSource[];
-  totalTokens: number;
-  searchStats: any;
-}> {
+): Promise<ContextAssemblyResult> {
   // Import the vector search service
   const { vectorSearchService } = await import('@/lib/search/vector-search');
 
@@ -251,21 +249,102 @@ export async function retrieveContextAndSources(
       },
     );
 
+    // Convert to enhanced sources with additional metadata
+    const enhancedSources: EnhancedChatSource[] = sources.map((source, index) => {
+      const originalResult = searchResponse.results.find(r => r.chunkId === source.id);
+      return {
+        ...source,
+        documentId: originalResult?.documentId || '',
+        contextIndex: index,
+        tokenCount: Math.ceil(source.content.length / 4), // Rough token estimate
+        wasReranked: !!originalResult?.rerankScore,
+        rerankScore: originalResult?.rerankScore,
+        confidence: originalResult?.metadata?.confidence,
+        metadata: originalResult?.metadata,
+      };
+    });
+
+    // Calculate element type distribution
+    const elementTypeDistribution: Record<string, number> = {};
+    enhancedSources.forEach(source => {
+      if (source.elementType) {
+        elementTypeDistribution[source.elementType] = (elementTypeDistribution[source.elementType] || 0) + 1;
+      }
+    });
+
+    // Check if context was truncated
+    const truncated = searchResponse.results.length > sources.length;
+
     return {
       formattedContext,
-      sources,
+      sources: enhancedSources,
       totalTokens,
       searchStats: {
         totalResults: searchResponse.totalResults,
         searchTimeMs: searchResponse.searchTimeMs,
         rerankTimeMs: searchResponse.rerankTimeMs,
-        algorithm: searchResponse.algorithmUsed,
+        algorithm: searchResponse.algorithmUsed || 'hybrid',
       },
+      truncated,
+      elementTypeDistribution,
     };
   } catch (error) {
-    console.error('Context retrieval error:', error);
+    console.error('Enhanced context assembly error:', error);
     throw error;
   }
+}
+
+/**
+ * Retrieve and format context for a query with enhanced metadata
+ * @deprecated Use assembleEnhancedContext for better type safety and metadata
+ */
+export async function retrieveContextAndSources(
+  query: string,
+  userId: string,
+  options: {
+    limit?: number;
+    threshold?: number;
+    documentIds?: string[];
+    elementTypes?: string[];
+    pageNumbers?: number[];
+    prioritizeElementTypes?: string[];
+    maxContextTokens?: number;
+  } = {},
+): Promise<{
+  formattedContext: string;
+  sources: ChatSource[];
+  totalTokens: number;
+  searchStats: any;
+}> {
+  const result = await assembleEnhancedContext(query, userId, options);
+  
+  return {
+    formattedContext: result.formattedContext,
+    sources: result.sources.map(source => ({
+      id: source.id,
+      title: source.title,
+      content: source.content,
+      chunkIndex: source.chunkIndex,
+      similarity: source.similarity,
+      elementType: source.elementType,
+      pageNumber: source.pageNumber,
+      bbox: source.bbox,
+    })), // Convert to basic ChatSource interface
+    totalTokens: result.totalTokens,
+    searchStats: result.searchStats,
+  };
+}
+
+/**
+ * Create a complete system prompt with context and structural awareness
+ */
+export function createContextAwareSystemPrompt(
+  contextResult: ContextAssemblyResult,
+): string {
+  const hasStructuralData = Object.keys(contextResult.elementTypeDistribution).length > 0;
+  const elementTypes = Object.keys(contextResult.elementTypeDistribution);
+  
+  return enhancedRagSystemPrompt(hasStructuralData, elementTypes);
 }
 
 /**

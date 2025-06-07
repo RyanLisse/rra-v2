@@ -7,7 +7,8 @@
 - **Database:** NeonDB (PostgreSQL) with PGVector extension for vector storage
 - **ORM:** Drizzle ORM with migration management and type safety
 - **Runtime:** Bun for package management and development server
-- **AI Services:** Google Gemini 2.5 Flash, Cohere embed-v4.0, Cohere Rerank v3.0
+- **AI Services:** Configurable providers (OpenAI GPT-4o, Anthropic Claude 3.5 Sonnet, Google Gemini 2.0 Flash), Cohere embed-v4.0, Cohere Rerank v3.0
+- **Document Processing:** Landing AI ADE for structural element extraction with bounding boxes
 - **Deployment:** Vercel-ready with environment configuration
 
 ## Key Libraries & Frameworks
@@ -25,9 +26,12 @@
 
 ### AI & Processing
 - `ai@4.3.13` - Vercel AI SDK for streaming and tool calling
-- `@ai-sdk/xai@1.2.15` - xAI Grok model integration
+- `@ai-sdk/openai@1.2.15` - OpenAI GPT-4o integration
+- `@ai-sdk/anthropic@1.2.15` - Claude 3.5 Sonnet integration
+- `@ai-sdk/google@1.2.15` - Google Gemini 2.0 Flash integration
 - `pdf-parse@1.1.1` - PDF text extraction
 - `react-dropzone@14.3.8` - File upload interface
+- **Landing AI ADE**: Advanced Document Extraction for structural element parsing
 
 ### UI & Styling
 - `@radix-ui/*` - Headless UI components
@@ -114,6 +118,7 @@ cp .env.example .env.local
 - **Input Sanitization**: Drizzle ORM prevents SQL injection
 - **Test Isolation**: Separate Neon branches for each test run
 - **Automated Cleanup**: Test branches auto-deleted after 24 hours
+- **Schema Evolution**: Backward-compatible migrations with structural metadata enhancements
 
 ## Testing Infrastructure
 

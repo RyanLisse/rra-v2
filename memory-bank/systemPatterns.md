@@ -31,11 +31,24 @@ Document Upload → Status: 'uploaded'
      ↓
 Text Extraction → Status: 'text_extracted'
      ↓
-Semantic Chunking → Status: 'chunked'
+ADE Structural Analysis → Extract elements with bbox coordinates
+     ↓
+Semantic Chunking → Status: 'chunked' (with elementType, pageNumber)
      ↓
 Embedding Generation → Status: 'embedded'
      ↓
 Vector Storage → Status: 'processed'
+```
+
+### Enhanced RAG Pattern with Structural Metadata
+```
+User Query → Vector Search (with element filtering)
+     ↓
+Retrieve Chunks → Include elementType, pageNumber, bbox
+     ↓
+Context Assembly → Structure-aware prompt with element hierarchy
+     ↓
+LLM Response → Enhanced citations with precise source attribution
 ```
 
 ### Streaming Response Pattern
@@ -83,15 +96,17 @@ PGVector → Vector Storage → Search Index
 
 ### Chat Interaction Flow
 ```
-User Query → Vector Search → Chunk Retrieval → Context Assembly
+User Query → Vector Search (with element filtering) → Structured Chunk Retrieval
      ↓
-Google Gemini → RAG Response → Citation Parsing → Streaming UI
+Context Assembly (structure-aware) → Enhanced Prompts → AI Provider (OpenAI/Anthropic/Gemini)
+     ↓
+RAG Response → Enhanced Citation Parsing (elementType + pageNumber) → Streaming UI
 ```
 
 ### Database Relationships
 ```
 User (1:N) → RAGDocument (1:1) → DocumentContent
-RAGDocument (1:N) → DocumentChunk (1:1) → DocumentEmbedding
+RAGDocument (1:N) → DocumentChunk (enhanced with elementType, pageNumber, bbox) (1:1) → DocumentEmbedding
 User (1:N) → Chat (1:N) → Message
 ```
 
@@ -151,8 +166,40 @@ Code Coverage → Performance Metrics → Test Results
 Merge Decision → Automatic Cleanup → Deploy to Production
 ```
 
+### Structural Metadata Patterns (Slice 17)
+
+#### Element-Aware Document Processing
+```
+ADE Extraction → Element Classification (paragraph, table, figure, list, heading)
+     ↓
+Chunk Creation → Include elementType, pageNumber, bbox coordinates
+     ↓
+Vector Embedding → Preserve structural context in vector space
+     ↓
+Search & Retrieval → Filter by element types for targeted results
+```
+
+#### Enhanced Citation System
+```
+Document Chunk → Extract sourceId, elementType, pageNumber, bbox
+     ↓
+Context Assembly → Structure-aware prompt generation
+     ↓
+LLM Response → Precise citations with element-specific attribution
+     ↓
+User Interface → Display source type and page for verification
+```
+
+#### Backward Compatibility Strategy
+- **Database Migrations**: Non-breaking schema additions with default values
+- **API Versioning**: Maintain existing endpoints while adding enhanced features
+- **Progressive Enhancement**: New features work alongside existing functionality
+- **Graceful Degradation**: System functions without structural metadata when unavailable
+
 ### Best Practices
-- **Naming Conventions**: Clear, consistent naming for test branches
-- **Resource Management**: Automatic cleanup of test resources
-- **Error Recovery**: Graceful handling of test infrastructure failures
-- **Documentation**: Comprehensive guides for test setup and troubleshooting
+- **Naming Conventions**: Clear, consistent naming for test branches and structural elements
+- **Resource Management**: Automatic cleanup of test resources and metadata
+- **Error Recovery**: Graceful handling of test infrastructure and ADE processing failures
+- **Documentation**: Comprehensive guides for test setup, structural metadata, and troubleshooting
+- **Schema Evolution**: Backward-compatible database changes with migration validation
+- **Element Type Consistency**: Standardized element classification across ADE and chunking systems

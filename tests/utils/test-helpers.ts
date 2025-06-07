@@ -136,15 +136,8 @@ export const setupTestEnvironment = () => {
   process.env.TEST_DATABASE_URL =
     'postgresql://test:test@localhost:5432/test_db';
 
-  // Mock external services
-  vi.mock('@vercel/functions', () => ({
-    geolocation: vi.fn().mockReturnValue({
-      longitude: -122.4194,
-      latitude: 37.7749,
-      city: 'San Francisco',
-      country: 'US',
-    }),
-  }));
+  // Note: External service mocking is handled in test setup files
+  // vi.mock calls should be in individual test files or global setup
 };
 
 // Response assertion helpers
