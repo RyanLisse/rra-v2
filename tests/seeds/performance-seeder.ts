@@ -1,6 +1,5 @@
 import { BaseSeeder } from './base-seeder';
 import { performanceFactory } from '../factories/performance-factory';
-import { BatchCreator } from '../factories/base-factory';
 import * as schema from '@/lib/db/schema';
 import type { SeederResult, PerformanceDataOptions } from '../factories/types';
 
@@ -455,7 +454,7 @@ export class StressTestSeeder extends BaseSeeder {
     this.batchInsert = async <T>(
       table: any,
       data: T[],
-      batchSize: number = 500,
+      batchSize = 500,
     ) => {
       return originalBatchInsert.call(
         this,

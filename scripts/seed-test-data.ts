@@ -9,7 +9,7 @@ import {
   documentEmbedding,
 } from '@/lib/db/schema';
 import { faker } from '@faker-js/faker';
-import { parseArgs } from 'util';
+import { parseArgs } from 'node:util';
 import { createId } from '@paralleldrive/cuid2';
 import { sql } from 'drizzle-orm';
 
@@ -71,7 +71,7 @@ const SAMPLE_CONTENT = {
   ],
 };
 
-function generateEmbedding(dimension: number = 1024): number[] {
+function generateEmbedding(dimension = 1024): number[] {
   // Generate a random embedding vector
   const embedding = new Array(dimension);
   for (let i = 0; i < dimension; i++) {
@@ -121,7 +121,7 @@ async function seedDocuments(userIds: string[], preset: SeedPreset) {
     documents.push({
       id: docId,
       userId,
-      filename: faker.system.fileName({ extensionCount: 0 }) + '.pdf',
+      filename: `${faker.system.fileName({ extensionCount: 0 })}.pdf`,
       fileType: 'application/pdf',
       fileSize: faker.number.int({ min: 100000, max: 10000000 }),
       status: 'processed' as const,

@@ -4,7 +4,7 @@ import { ADEChunkHelpers } from '@/lib/db/ade-helpers';
 import { db } from '@/lib/db';
 import { ragDocument, documentContent, documentChunk } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 
 describe('ADE Simple Integration', () => {
   let processor: DocumentProcessor;

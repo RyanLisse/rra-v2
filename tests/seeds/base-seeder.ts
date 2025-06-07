@@ -321,7 +321,7 @@ export abstract class BaseSeeder {
   protected async batchInsert<T>(
     table: any,
     data: T[],
-    batchSize: number = 1000,
+    batchSize = 1000,
   ): Promise<void> {
     const tableName = table._.name || 'unknown';
     const totalRows = data.length;

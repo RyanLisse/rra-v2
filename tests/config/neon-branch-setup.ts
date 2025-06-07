@@ -1,9 +1,8 @@
 import { beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
 import { config } from 'dotenv';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 import {
   getTestBranchManager,
-  type TestBranchInfo,
 } from '@/lib/testing/neon-test-branches';
 import {
   getNeonApiClient,
@@ -111,7 +110,7 @@ export function setupNeonTestBranching(
               ...(process.env.NEON_DEFAULT_BRANCH_TAGS?.split(',') || []),
             ],
             waitForReady: true,
-            timeoutMs: parseInt(process.env.NEON_BRANCH_TIMEOUT || '120000'),
+            timeoutMs: Number.parseInt(process.env.NEON_BRANCH_TIMEOUT || '120000'),
             ...branchOptions,
           };
 
@@ -190,7 +189,7 @@ export function setupNeonTestBranching(
         throw error;
       }
     },
-    parseInt(process.env.VITEST_HOOK_TIMEOUT || '120000'),
+    Number.parseInt(process.env.VITEST_HOOK_TIMEOUT || '120000'),
   );
 
   afterAll(
@@ -235,7 +234,7 @@ export function setupNeonTestBranching(
         console.error('Failed to delete test branch:', error);
       }
     },
-    parseInt(process.env.VITEST_TEARDOWN_TIMEOUT || '60000'),
+    Number.parseInt(process.env.VITEST_TEARDOWN_TIMEOUT || '60000'),
   );
 }
 
@@ -325,7 +324,7 @@ export async function runMigrationsOnTestBranch() {
  * Enhanced cleanup utility for removing old test branches
  */
 export async function cleanupOldTestBranches(
-  maxAgeHours: number = 24,
+  maxAgeHours = 24,
   options?: {
     useEnhancedClient?: boolean;
     preserveTaggedBranches?: boolean;

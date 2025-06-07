@@ -9,9 +9,7 @@ import {
 import * as schema from '@/lib/db/schema';
 import { nanoid } from 'nanoid';
 import { auth, withAuth } from '@/lib/auth';
-import { hash, verify } from '@node-rs/argon2';
 import { and, eq, gte } from 'drizzle-orm';
-import type { Session } from 'better-auth/types';
 
 describe('Auth Middleware Integration Tests', () => {
   let testContext: Awaited<ReturnType<typeof setupNeonBranch>>;
@@ -918,7 +916,7 @@ describe('Auth Middleware Integration Tests', () => {
       expect(googleAccount?.scope).toBe('openid profile email');
 
       // Test token refresh simulation
-      if (googleAccount && googleAccount.accessTokenExpiresAt) {
+      if (googleAccount?.accessTokenExpiresAt) {
         const isExpired =
           googleAccount.accessTokenExpiresAt.getTime() < Date.now();
         if (

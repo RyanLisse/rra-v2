@@ -4,7 +4,6 @@
  */
 
 import { EnhancedNeonApiClient } from './neon-api-client';
-import { getNeonLogger } from './neon-logger';
 
 async function runDemo() {
   console.log('🚀 Enhanced Neon API Client Demo');
@@ -32,9 +31,9 @@ async function runDemo() {
   });
 
   console.log('✅ Enhanced Neon API Client initialized');
-  console.log(`📋 Project ID: ${client['config'].defaultProjectId}`);
-  console.log(`🗄️ Database: ${client['config'].defaultDatabase}`);
-  console.log(`👤 Role: ${client['config'].defaultRole}\n`);
+  console.log(`📋 Project ID: ${client.config.defaultProjectId}`);
+  console.log(`🗄️ Database: ${client.config.defaultDatabase}`);
+  console.log(`👤 Role: ${client.config.defaultRole}\n`);
 
   try {
     // Demo 1: List Projects
@@ -57,9 +56,9 @@ async function runDemo() {
 
     if (projectResult.success) {
       console.log(`✅ Project: ${projectResult.data?.name}`);
-      console.log(`📍 Region: ${projectResult.data?.['region_id'] || 'N/A'}`);
+      console.log(`📍 Region: ${projectResult.data?.region_id || 'N/A'}`);
       console.log(
-        `🐘 PostgreSQL: ${projectResult.data?.['pg_version'] || 'N/A'}`,
+        `🐘 PostgreSQL: ${projectResult.data?.pg_version || 'N/A'}`,
       );
       console.log(`⏱️ Operation took ${projectResult.metadata.duration_ms}ms`);
     } else {

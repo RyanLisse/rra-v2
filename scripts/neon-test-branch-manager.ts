@@ -19,8 +19,8 @@ import {
   type CleanupFilters,
 } from '../lib/testing/neon-api-client';
 import { config } from 'dotenv';
-import { resolve } from 'path';
-import { writeFile } from 'fs/promises';
+import { resolve } from 'node:path';
+import { writeFile } from 'node:fs/promises';
 
 // Load environment variables
 config({ path: resolve(process.cwd(), '.env.test') });
@@ -80,9 +80,9 @@ function parseArgs(): CliArgs {
     } else if (arg.startsWith('--env=')) {
       result.environment = arg.split('=')[1] as any;
     } else if (arg.startsWith('--max-age=')) {
-      result.maxAgeHours = parseInt(arg.split('=')[1], 10);
+      result.maxAgeHours = Number.parseInt(arg.split('=')[1], 10);
     } else if (arg.startsWith('--count=')) {
-      result.count = parseInt(arg.split('=')[1], 10);
+      result.count = Number.parseInt(arg.split('=')[1], 10);
     } else if (arg.startsWith('--format=')) {
       result.format = arg.split('=')[1] as any;
     } else if (arg.startsWith('--output=')) {
@@ -341,12 +341,12 @@ async function showStatus(
         : 'Unknown';
       const name =
         branch.name.length > 40
-          ? branch.name.slice(0, 37) + '...'
+          ? `${branch.name.slice(0, 37)}...`
           : branch.name;
       console.log(
-        `   ${name.padEnd(40)}| ${branch.current_state.padEnd(9)}| ${age}h`.padEnd(
+        `${`   ${name.padEnd(40)}| ${branch.current_state.padEnd(9)}| ${age}h`.padEnd(
           9,
-        ) + `| ${size}`,
+        )}| ${size}`,
       );
     });
   }

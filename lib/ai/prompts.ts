@@ -60,7 +60,7 @@ RESPONSE GUIDELINES:
 - Keep responses focused and well-organized`;
 
 export const enhancedRagSystemPrompt = (
-  hasStructuralData: boolean = true,
+  hasStructuralData = true,
   elementTypes?: string[],
 ) => {
   const basePrompt = ragSystemPrompt;
@@ -76,20 +76,77 @@ NOTE: This query used basic text search without advanced document structure anal
       ? `\n\nDOCUMENT ELEMENTS IN CONTEXT: ${elementTypes.join(', ')}`
       : '';
 
+  // Generate element-specific guidance
+  const elementGuidance = generateElementTypeGuidance(elementTypes);
+
   return `${basePrompt}
 
 ENHANCED CONTEXT AVAILABLE:
-- Document structure has been analyzed using advanced document processing
+- Document structure has been analyzed using Advanced Document Engineering (ADE)
 - Context includes element types (titles, tables, figures, etc.) and page locations
 - Bounding box information available for precise document referencing
-- Confidence scores available for each element extraction${elementTypeInfo}
+- Confidence scores available for each element extraction
+- Reranking scores indicate relevance quality for hybrid search results${elementTypeInfo}
 
-ADVANCED FEATURES:
+ADVANCED STRUCTURAL FEATURES:
 - Reference specific document regions using page numbers and element types
 - Distinguish between different types of content (procedural vs. reference vs. conceptual)
 - Use structural hierarchy to provide more contextual answers
-- Leverage element positioning for spatial understanding of document layout`;
+- Leverage element positioning for spatial understanding of document layout
+- Context is prioritized based on query type and element importance
+
+${elementGuidance}
+
+CONTEXT ASSEMBLY METADATA:
+- Each source includes token count estimates for length awareness
+- Sources are ordered by hybrid search relevance (vector + text + rerank)
+- Element type distribution shows content variety in search results
+- Truncation indicators show if additional relevant content was excluded
+
+RESPONSE STRATEGIES BY ELEMENT TYPE:
+- TABLES: Reference specific data points with row/column context
+- FIGURES: Describe visual elements using caption information
+- LISTS: Maintain sequential order and mention list structure
+- HEADINGS: Use hierarchical context for topic organization
+- PARAGRAPHS: Extract key concepts while preserving detail`;
 };
+
+/**
+ * Generate element-specific guidance based on available element types
+ */
+function generateElementTypeGuidance(elementTypes?: string[]): string {
+  if (!elementTypes || elementTypes.length === 0) {
+    return 'ELEMENT TYPE GUIDANCE: General mixed content available.';
+  }
+
+  const guidance: string[] = ['ELEMENT TYPE GUIDANCE:'];
+
+  if (elementTypes.includes('table_text')) {
+    guidance.push('- TABLES PRESENT: Focus on structured data, specific values, and relationships between data points');
+  }
+
+  if (elementTypes.includes('figure_caption')) {
+    guidance.push('- FIGURES PRESENT: Leverage visual descriptions and diagram explanations for comprehensive understanding');
+  }
+
+  if (elementTypes.includes('list_item')) {
+    guidance.push('- LISTS PRESENT: Ideal for step-by-step procedures, sequential instructions, and categorized information');
+  }
+
+  if (elementTypes.includes('heading')) {
+    guidance.push('- HEADINGS PRESENT: Use for topic organization, section navigation, and hierarchical context');
+  }
+
+  if (elementTypes.includes('title')) {
+    guidance.push('- TITLES PRESENT: Leverage for document overview, main topics, and conceptual framing');
+  }
+
+  if (elementTypes.includes('paragraph')) {
+    guidance.push('- PARAGRAPHS PRESENT: Rich detail available for comprehensive explanations and context');
+  }
+
+  return guidance.join('\n');
+}
 
 export interface RequestHints {
   latitude: Geo['latitude'];

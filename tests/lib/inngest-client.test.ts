@@ -7,10 +7,10 @@ describe('Inngest Client Configuration Tests', () => {
     setupTestEnvironment();
     vi.clearAllMocks();
     // Clear any existing environment variables
-    delete process.env.INNGEST_EVENT_KEY;
-    delete process.env.INNGEST_SIGNING_KEY;
-    delete process.env.INNGEST_SERVE_HOST;
-    delete process.env.INNGEST_SERVE_PORT;
+    process.env.INNGEST_EVENT_KEY = undefined;
+    process.env.INNGEST_SIGNING_KEY = undefined;
+    process.env.INNGEST_SERVE_HOST = undefined;
+    process.env.INNGEST_SERVE_PORT = undefined;
   });
 
   afterEach(() => {

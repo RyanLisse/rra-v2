@@ -219,7 +219,7 @@ describe('EnhancedNeonApiClient', () => {
       });
 
       expect(createResult.success).toBe(true);
-      const branchName = createResult.data!.branchName;
+      const branchName = createResult.data?.branchName;
 
       // Then delete it
       const deleteResult = await client.deleteTestBranch(branchName);

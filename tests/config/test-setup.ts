@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import { vi, beforeAll, afterAll } from 'vitest';
 import { config } from 'dotenv';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 import {
   isNeonBranchingEnabled,
   getTestDatabaseUrl,
@@ -50,18 +50,18 @@ if (isNeonBranchingEnabled()) {
       defaultDatabase: process.env.NEON_DATABASE_NAME || 'neondb',
       defaultRole: process.env.NEON_ROLE_NAME || 'neondb_owner',
       rateLimitConfig: {
-        maxRequestsPerMinute: parseInt(
+        maxRequestsPerMinute: Number.parseInt(
           process.env.NEON_API_RATE_LIMIT_PER_MINUTE || '60',
         ),
-        burstLimit: parseInt(process.env.NEON_API_BURST_LIMIT || '10'),
+        burstLimit: Number.parseInt(process.env.NEON_API_BURST_LIMIT || '10'),
       },
       retryConfig: {
-        maxRetries: parseInt(process.env.NEON_API_MAX_RETRIES || '3'),
-        baseDelayMs: parseInt(process.env.NEON_API_BASE_DELAY_MS || '1000'),
-        maxDelayMs: parseInt(process.env.NEON_API_MAX_DELAY_MS || '10000'),
+        maxRetries: Number.parseInt(process.env.NEON_API_MAX_RETRIES || '3'),
+        baseDelayMs: Number.parseInt(process.env.NEON_API_BASE_DELAY_MS || '1000'),
+        maxDelayMs: Number.parseInt(process.env.NEON_API_MAX_DELAY_MS || '10000'),
       },
       cleanupConfig: {
-        maxBranchAgeHours: parseInt(
+        maxBranchAgeHours: Number.parseInt(
           process.env.NEON_MAX_BRANCH_AGE_HOURS || '24',
         ),
         autoCleanupEnabled: process.env.NEON_AUTO_CLEANUP_ENABLED === 'true',
@@ -107,7 +107,7 @@ const setupEnvironmentVariables = () => {
   if (!process.env.BETTER_AUTH_SECRET) {
     process.env.BETTER_AUTH_SECRET =
       process.env.BETTER_AUTH_SECRET ||
-      'test-secret-' + Math.random().toString(36);
+      `test-secret-${Math.random().toString(36)}`;
   }
   if (!process.env.BETTER_AUTH_URL) {
     process.env.BETTER_AUTH_URL = 'http://localhost:3000';
@@ -221,7 +221,7 @@ beforeAll(
     // Enhanced console handling with metrics capture
     const originalWarn = console.warn;
     const originalError = console.error;
-    let capturedLogs: any[] = [];
+    const capturedLogs: any[] = [];
 
     if (process.env.ENABLE_CONSOLE_CAPTURE === 'true') {
       console.warn = (...args: any[]) => {
@@ -297,7 +297,7 @@ beforeAll(
       metricsEnabled: process.env.ENABLE_TEST_METRICS === 'true',
     });
   },
-  parseInt(process.env.VITEST_HOOK_TIMEOUT || '120000'),
+  Number.parseInt(process.env.VITEST_HOOK_TIMEOUT || '120000'),
 );
 
 afterAll(
@@ -389,7 +389,7 @@ afterAll(
       });
     }
   },
-  parseInt(process.env.VITEST_TEARDOWN_TIMEOUT || '60000'),
+  Number.parseInt(process.env.VITEST_TEARDOWN_TIMEOUT || '60000'),
 );
 
 // Process exit handler for emergency cleanup

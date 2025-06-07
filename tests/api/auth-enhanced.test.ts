@@ -370,7 +370,7 @@ describe('Auth API Routes (Enhanced with Neon)', () => {
       );
 
       expect(rateLimitResult.success).toBe(true);
-      const attemptCount = parseInt(
+      const attemptCount = Number.parseInt(
         rateLimitResult.data?.results?.[0]?.attempt_count || '0',
       );
       expect(attemptCount).toBeGreaterThan(5);

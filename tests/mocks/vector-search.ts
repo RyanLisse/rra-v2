@@ -1,5 +1,5 @@
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import * as schema from '@/lib/db/schema';
+import type * as schema from '@/lib/db/schema';
 
 export class VectorSearch {
   constructor(private cohereClient: any) {}
@@ -80,7 +80,7 @@ export class VectorSearch {
           content: chunk.content,
           score,
           document: chunk.document,
-          chunkIndex: parseInt(chunk.chunkIndex),
+          chunkIndex: Number.parseInt(chunk.chunkIndex),
           metadata: includeMetadata ? chunk.metadata : undefined,
         };
       })

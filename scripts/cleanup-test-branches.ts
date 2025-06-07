@@ -6,7 +6,7 @@
 
 import { getTestBranchManager } from '../lib/testing/neon-test-branches';
 import { config } from 'dotenv';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 
 // Load environment variables
 config({ path: resolve(process.cwd(), '.env.test') });
@@ -32,7 +32,7 @@ function parseArgs(): CliArgs {
     } else if (arg === '--dry-run') {
       result.dryRun = true;
     } else if (arg.startsWith('--max-age-hours=')) {
-      result.maxAgeHours = parseInt(arg.split('=')[1], 10);
+      result.maxAgeHours = Number.parseInt(arg.split('=')[1], 10);
     }
   }
 

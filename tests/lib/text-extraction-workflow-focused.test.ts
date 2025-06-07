@@ -2,7 +2,7 @@
  * @vitest-environment node
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, } from 'vitest';
 import { textExtractionWorkflow } from '../../lib/workflows/text-extraction';
 import type { EventSchemas } from '../../lib/inngest/events';
 

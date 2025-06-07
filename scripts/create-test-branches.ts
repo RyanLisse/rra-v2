@@ -11,8 +11,8 @@ import {
   type BranchCreationOptions,
 } from '../lib/testing/neon-api-client';
 import { config } from 'dotenv';
-import { resolve } from 'path';
-import { writeFile } from 'fs/promises';
+import { resolve } from 'node:path';
+import { writeFile } from 'node:fs/promises';
 
 // Load environment variables
 config({ path: resolve(process.cwd(), '.env.test') });
@@ -84,13 +84,13 @@ function parseArgs(): Partial<BatchCreateConfig> & { help?: boolean } {
         ['unit', 'integration', 'e2e'].includes(env),
       );
     } else if (arg.startsWith('--count=')) {
-      result.branchesPerEnv = parseInt(arg.split('=')[1], 10);
+      result.branchesPerEnv = Number.parseInt(arg.split('=')[1], 10);
     } else if (arg.startsWith('--prefix=')) {
       result.testSuitePrefix = arg.split('=')[1];
     } else if (arg.startsWith('--concurrency=')) {
-      result.maxConcurrency = parseInt(arg.split('=')[1], 10);
+      result.maxConcurrency = Number.parseInt(arg.split('=')[1], 10);
     } else if (arg.startsWith('--timeout=')) {
-      result.timeoutMs = parseInt(arg.split('=')[1], 10) * 1000; // Convert seconds to ms
+      result.timeoutMs = Number.parseInt(arg.split('=')[1], 10) * 1000; // Convert seconds to ms
     } else if (arg.startsWith('--output=')) {
       result.outputFile = arg.split('=')[1];
     }

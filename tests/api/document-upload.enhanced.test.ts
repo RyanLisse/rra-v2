@@ -15,9 +15,8 @@ import {
 import { db } from '@/lib/db';
 import { user, ragDocument } from '@/lib/db/schema';
 import { nanoid } from 'nanoid';
-import {
-  getNeonApiClient,
-  type PerformanceMetrics,
+import type {
+  PerformanceMetrics,
 } from '@/lib/testing/neon-api-client';
 import { getNeonLogger } from '@/lib/testing/neon-logger';
 import * as fs from 'node:fs/promises';
@@ -415,7 +414,7 @@ describe('Enhanced Document Upload API', () => {
         userId: testUser.id,
         fileCount: documentsInDb.length,
         totalSize: documentsInDb.reduce(
-          (sum, doc) => sum + parseInt(doc.fileSize),
+          (sum, doc) => sum + Number.parseInt(doc.fileSize),
           0,
         ),
         duration: Date.now() - startTime,

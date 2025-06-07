@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 import { faker } from '@faker-js/faker';
 import type { FactoryOptions, BatchFactoryOptions } from './types';
 
@@ -56,7 +56,7 @@ export abstract class BaseFactory<T> {
    */
   protected generateTimestamp(
     baseTime: Date = new Date(),
-    offsetMinutes: number = 0,
+    offsetMinutes = 0,
   ): Date {
     return new Date(baseTime.getTime() + offsetMinutes * 60 * 1000);
   }
@@ -81,7 +81,7 @@ export abstract class BaseFactory<T> {
   /**
    * Generate realistic embeddings
    */
-  protected generateEmbedding(dimensions: number = 1536): number[] {
+  protected generateEmbedding(dimensions = 1536): number[] {
     return Array.from({ length: dimensions }, () =>
       faker.number.float({ min: -1, max: 1 }),
     );
@@ -185,8 +185,8 @@ export abstract class BaseFactory<T> {
     return [
       hex.slice(0, 8),
       hex.slice(8, 12),
-      '4' + hex.slice(12, 15), // Version 4 UUID
-      ((parseInt(hex.slice(15, 16), 16) & 0x3) | 0x8).toString(16) +
+      `4${hex.slice(12, 15)}`, // Version 4 UUID
+      ((Number.parseInt(hex.slice(15, 16), 16) & 0x3) | 0x8).toString(16) +
         hex.slice(16, 19),
       hex.slice(19, 31),
     ].join('-');
@@ -213,25 +213,25 @@ export class FactoryRegistry {
   private static factories: Map<string, BaseFactory<any>> = new Map();
 
   static register<T>(name: string, factory: BaseFactory<T>): void {
-    this.factories.set(name, factory);
+    FactoryRegistry.factories.set(name, factory);
   }
 
   static get<T>(name: string): BaseFactory<T> {
-    const factory = this.factories.get(name);
+    const factory = FactoryRegistry.factories.get(name);
     if (!factory) {
       throw new Error(
-        `Factory '${name}' not found. Available factories: ${Array.from(this.factories.keys()).join(', ')}`,
+        `Factory '${name}' not found. Available factories: ${Array.from(FactoryRegistry.factories.keys()).join(', ')}`,
       );
     }
     return factory;
   }
 
   static list(): string[] {
-    return Array.from(this.factories.keys());
+    return Array.from(FactoryRegistry.factories.keys());
   }
 
   static clear(): void {
-    this.factories.clear();
+    FactoryRegistry.factories.clear();
   }
 }
 
@@ -245,7 +245,7 @@ export class BatchCreator {
   static async createLargeBatch<T>(
     factory: BaseFactory<T>,
     totalCount: number,
-    batchSize: number = 1000,
+    batchSize = 1000,
     onBatch?: (batch: T[], progress: number) => Promise<void>,
   ): Promise<T[]> {
     const allItems: T[] = [];
@@ -285,7 +285,7 @@ export class BatchCreator {
   static async createParallel<T>(
     factory: BaseFactory<T>,
     counts: number[],
-    concurrency: number = 3,
+    concurrency = 3,
   ): Promise<T[][]> {
     const results: T[][] = [];
 

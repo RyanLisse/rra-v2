@@ -33,8 +33,8 @@ export default defineConfig(({ mode }) => {
       ],
       setupFiles: ['./tests/config/test-setup.ts'],
       globals: true,
-      testTimeout: parseInt(env.VITEST_TIMEOUT) || baseTimeout,
-      hookTimeout: parseInt(env.VITEST_HOOK_TIMEOUT) || hookTimeout,
+      testTimeout: Number.parseInt(env.VITEST_TIMEOUT) || baseTimeout,
+      hookTimeout: Number.parseInt(env.VITEST_HOOK_TIMEOUT) || hookTimeout,
       teardownTimeout: teardownTimeout,
 
       // Conservative configuration for integration tests

@@ -4,7 +4,7 @@ import { getTestDatabaseUrl } from './neon-branch-setup';
 import * as schema from '@/lib/db/schema';
 import { createAdeTestDataFactory } from '../fixtures/ade-test-data';
 import {
-  MockAdeProcessor,
+  type MockAdeProcessor,
   createMockAdeProcessor,
 } from '../mocks/ade-processor';
 import type { AdeElementType } from '@/lib/ade/types';
@@ -156,7 +156,7 @@ export async function setupSlice17TestContext(
 
     createDocumentWithAde: async (
       userId: string,
-      scenario: string = 'mixed',
+      scenario = 'mixed',
     ) => {
       return trackPerformance('createDocumentWithAde', async () => {
         // Create document
@@ -354,7 +354,7 @@ export async function setupSlice17TestContext(
       filters: EnhancedSearchFilters = {},
     ) => {
       return trackPerformance('runEnhancedSearch', async () => {
-        let whereConditions: any[] = [];
+        const whereConditions: any[] = [];
 
         // Apply element type filters
         if (filters.elementTypes?.length) {
@@ -406,9 +406,9 @@ export async function setupSlice17TestContext(
           filteredResults = filteredResults.filter((chunk) => {
             const confidence = chunk.metadata?.confidence || 0;
             return (
-              confidence >= filters.confidence!.min &&
-              (!filters.confidence!.max ||
-                confidence <= filters.confidence!.max)
+              confidence >= filters.confidence?.min &&
+              (!filters.confidence?.max ||
+                confidence <= filters.confidence?.max)
             );
           });
         }
@@ -481,7 +481,7 @@ ${chunk.content}`;
           : '';
         const pageInfo = chunk.pageNumber
           ? `, page ${chunk.pageNumber}`
-          : `, chunk ${parseInt(chunk.chunkIndex) + 1}`;
+          : `, chunk ${Number.parseInt(chunk.chunkIndex) + 1}`;
 
         return {
           id: `citation-${index + 1}`,
@@ -625,11 +625,11 @@ export const slice17Assertions = {
       results.forEach((result) => {
         if (result.pageNumber) {
           expect(result.pageNumber).toBeGreaterThanOrEqual(
-            filters.pageRange!.start,
+            filters.pageRange?.start,
           );
-          if (filters.pageRange!.end) {
+          if (filters.pageRange?.end) {
             expect(result.pageNumber).toBeLessThanOrEqual(
-              filters.pageRange!.end,
+              filters.pageRange?.end,
             );
           }
         }

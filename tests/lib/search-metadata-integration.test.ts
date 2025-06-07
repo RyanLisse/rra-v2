@@ -151,7 +151,7 @@ describe('Search Metadata Integration', () => {
     expect(Object.keys(mockElementTypeCounts)).toContain('paragraph');
     expect(Object.keys(mockElementTypeCounts)).toContain('title');
     expect(
-      Object.keys(mockPageNumberCounts).every((key) => !isNaN(Number(key))),
+      Object.keys(mockPageNumberCounts).every((key) => !Number.isNaN(Number(key))),
     ).toBe(true);
   });
 

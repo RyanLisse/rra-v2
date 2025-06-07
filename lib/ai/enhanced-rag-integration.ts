@@ -280,7 +280,7 @@ export function formatEnhancedCitations(sources: EnhancedChatSource[]): Array<{
       title: source.title,
       excerpt:
         source.content.length > 150
-          ? source.content.substring(0, 150) + '...'
+          ? `${source.content.substring(0, 150)}...`
           : source.content,
       metadata: {
         elementType: source.elementType || undefined,

@@ -12,9 +12,9 @@
  *   bun run scripts/test-data/export-test-data.ts --tables=users,chats --output=./exports/
  */
 
-import { parseArgs } from 'util';
-import { writeFile, mkdir } from 'fs/promises';
-import { join, dirname } from 'path';
+import { parseArgs } from 'node:util';
+import { writeFile, mkdir } from 'node:fs/promises';
+import { join, } from 'node:path';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from '@/lib/db/schema';
@@ -79,7 +79,7 @@ function parseArguments(): ExportOptions {
     compress: values.compress ?? false,
     includeSchema: values['include-schema'] ?? false,
     anonymize: values.anonymize ?? false,
-    limit: values.limit ? parseInt(values.limit) : undefined,
+    limit: values.limit ? Number.parseInt(values.limit) : undefined,
     verbose: values.verbose ?? false,
   };
 }

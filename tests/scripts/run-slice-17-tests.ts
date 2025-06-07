@@ -6,9 +6,9 @@
  * and generates detailed performance and compatibility reports.
  */
 
-import { execSync } from 'child_process';
-import { writeFileSync, existsSync, mkdirSync } from 'fs';
-import { join } from 'path';
+import { execSync } from 'node:child_process';
+import { writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { join } from 'node:path';
 
 interface TestResult {
   name: string;
@@ -472,11 +472,11 @@ class Slice17TestRunner {
     // Simple metric extraction from test details
     for (const suite of this.results) {
       for (const test of suite.tests) {
-        if (test.details && test.details.toLowerCase().includes(keyword)) {
+        if (test.details?.toLowerCase().includes(keyword)) {
           if (type === 'duration') return test.duration;
           // For usage, try to extract from details
           const match = test.details.match(/(\d+(?:\.\d+)?)(?:MB|ms|bytes)/);
-          if (match) return parseFloat(match[1]);
+          if (match) return Number.parseFloat(match[1]);
         }
       }
     }

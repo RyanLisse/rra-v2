@@ -19,17 +19,17 @@ const baseURL = `http://localhost:${PORT}`;
 
 /* Enhanced timeout configuration based on Neon usage */
 const baseTimeout = isNeonEnabled
-  ? parseInt(process.env.PLAYWRIGHT_TIMEOUT || '180000')
+  ? Number.parseInt(process.env.PLAYWRIGHT_TIMEOUT || '180000')
   : 120000;
 
 const expectTimeout = isNeonEnabled
-  ? parseInt(process.env.PLAYWRIGHT_EXPECT_TIMEOUT || '120000')
+  ? Number.parseInt(process.env.PLAYWRIGHT_EXPECT_TIMEOUT || '120000')
   : 60000;
 
 /* Worker configuration with Neon API rate limiting considerations */
 const getWorkerCount = () => {
   if (isNeonEnabled) {
-    return parseInt(process.env.PLAYWRIGHT_WORKERS || '2'); // Conservative for Neon
+    return Number.parseInt(process.env.PLAYWRIGHT_WORKERS || '2'); // Conservative for Neon
   }
   return isCI ? 2 : 4; // Standard configuration
 };
@@ -88,7 +88,7 @@ export default defineConfig({
   forbidOnly: isCI,
 
   /* Enhanced retry configuration */
-  retries: parseInt(process.env.PLAYWRIGHT_RETRIES || '0'),
+  retries: Number.parseInt(process.env.PLAYWRIGHT_RETRIES || '0'),
 
   /* Dynamic worker configuration based on environment */
   workers: getWorkerCount(),

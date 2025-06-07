@@ -1314,7 +1314,7 @@ export class VectorSearch {
         title: row.document.originalName,
         fileName: row.document.fileName,
       },
-      chunkIndex: parseInt(row.chunk.chunkIndex),
+      chunkIndex: Number.parseInt(row.chunk.chunkIndex),
       // Include enhanced ADE structural metadata
       elementType: row.chunk.elementType,
       pageNumber: row.chunk.pageNumber,

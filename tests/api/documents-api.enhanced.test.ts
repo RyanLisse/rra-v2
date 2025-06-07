@@ -21,9 +21,8 @@ import {
   documentChunk,
 } from '@/lib/db/schema';
 import { nanoid } from 'nanoid';
-import {
-  getNeonApiClient,
-  type PerformanceMetrics,
+import type {
+  PerformanceMetrics,
 } from '@/lib/testing/neon-api-client';
 import { getNeonLogger } from '@/lib/testing/neon-logger';
 
@@ -50,7 +49,7 @@ export class DocumentTestDataFactory {
     memoryUsage: process.memoryUsage(),
   };
 
-  async createUserWithDocuments(documentCount: number = 1) {
+  async createUserWithDocuments(documentCount = 1) {
     const startTime = Date.now();
 
     const userData = createTestUser();
@@ -502,8 +501,8 @@ describe('Enhanced Documents API', () => {
       const mockHandler = vi.fn().mockImplementation(async (request) => {
         const url = new URL(request.url);
         const status = url.searchParams.get('status');
-        const limit = parseInt(url.searchParams.get('limit') || '10');
-        const offset = parseInt(url.searchParams.get('offset') || '0');
+        const limit = Number.parseInt(url.searchParams.get('limit') || '10');
+        const offset = Number.parseInt(url.searchParams.get('offset') || '0');
 
         // Real database query with filtering
         const queryStartTime = Date.now();

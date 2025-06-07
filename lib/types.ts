@@ -195,7 +195,7 @@ export class SearchError extends RagError {
 }
 
 export class DocumentProcessingError extends RagError {
-  constructor(message: string, statusCode: number = 500, details?: any) {
+  constructor(message: string, statusCode = 500, details?: any) {
     super(message, 'DOCUMENT_PROCESSING_ERROR', statusCode, details);
   }
 }

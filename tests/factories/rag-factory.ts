@@ -585,7 +585,7 @@ export class DocumentEmbeddingFactory extends BaseFactory<DocumentEmbeddingInser
   createSimilarEmbeddings(
     baseEmbedding: number[],
     count: number,
-    similarity: number = 0.8,
+    similarity = 0.8,
   ): DocumentEmbeddingInsert[] {
     return Array.from({ length: count }, () => {
       const similarEmbedding = this.generateSimilarEmbedding(

@@ -6,7 +6,7 @@
 
 import { getTestBranchManager } from '../lib/testing/neon-test-branches';
 import { config } from 'dotenv';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 
 // Load environment variables
 config({ path: resolve(process.cwd(), '.env.test') });

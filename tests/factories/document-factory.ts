@@ -124,7 +124,7 @@ export class DocumentFactory extends BaseFactory<DocumentInsert> {
           'Implementation Plan',
         ]);
 
-      case 'code':
+      case 'code': {
         const codePrefix = language
           ? `${language.charAt(0).toUpperCase() + language.slice(1)} `
           : '';
@@ -136,6 +136,7 @@ export class DocumentFactory extends BaseFactory<DocumentInsert> {
           `${codePrefix}Configuration`,
           `${codePrefix}Integration Script`,
         ]);
+      }
 
       case 'image':
         return faker.helpers.arrayElement([
@@ -182,15 +183,14 @@ export class DocumentFactory extends BaseFactory<DocumentInsert> {
     const content: string[] = [];
 
     content.push(`# ${faker.company.catchPhrase()}\n`);
-    content.push(faker.lorem.paragraph(3) + '\n');
+    content.push(`${faker.lorem.paragraph(3)}\n`);
 
     for (let i = 0; i < sections; i++) {
       content.push(
         `## ${faker.helpers.arrayElement(['Overview', 'Requirements', 'Implementation', 'Testing', 'Deployment', 'Maintenance'])}\n`,
       );
       content.push(
-        faker.lorem.paragraphs(faker.number.int({ min: 1, max: 3 }), '\n\n') +
-          '\n',
+        `${faker.lorem.paragraphs(faker.number.int({ min: 1, max: 3 }), '\n\n')}\n`,
       );
 
       // Sometimes add lists

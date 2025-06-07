@@ -108,7 +108,7 @@ export const createAdeTestDataFactory = () => {
      */
     createAdeElement: (
       elementType?: AdeElementType,
-      pageNumber: number = 1,
+      pageNumber = 1,
       overrides?: Partial<AdeElement>,
     ): AdeElement => {
       const type = elementType || selectWeightedElementType();
@@ -136,8 +136,8 @@ export const createAdeTestDataFactory = () => {
      */
     createAdeOutput: (
       documentId: string,
-      pageCount: number = 10,
-      elementsPerPage: number = 8,
+      pageCount = 10,
+      elementsPerPage = 8,
       overrides?: Partial<AdeOutput>,
     ): AdeOutput => {
       const elements: AdeElement[] = [];
@@ -207,7 +207,7 @@ export const createAdeTestDataFactory = () => {
         const elementsByPage = groupElements(adeOutput.elements);
 
         Object.entries(elementsByPage).forEach(([pageStr, pageElements]) => {
-          const pageNumber = parseInt(pageStr);
+          const pageNumber = Number.parseInt(pageStr);
           const semanticGroups = createSemanticGroups(pageElements);
 
           semanticGroups.forEach((group, groupIndex) => {
@@ -451,7 +451,7 @@ export const createAdeTestDataFactory = () => {
      */
     createContextAssemblyData: (
       documentId: string,
-      contextSize: number = 20,
+      contextSize = 20,
     ) => {
       const contextTypes: AdeElementType[] = [
         'title',
@@ -633,7 +633,7 @@ export const createAdeTestDataFactory = () => {
  */
 export const createMockAdeApiResponse = (
   documentId: string,
-  success: boolean = true,
+  success = true,
   elements?: AdeElement[],
 ) => {
   if (!success) {

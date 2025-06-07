@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, } from 'vitest';
 
 // Simple test to verify the workflow stubs fail as expected
 describe('Text Extraction Workflow (Simple)', () => {

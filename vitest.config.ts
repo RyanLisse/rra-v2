@@ -11,14 +11,14 @@ export default defineConfig(({ mode }) => {
   const baseTimeout = isNeonEnabled ? 120000 : 60000;
   const hookTimeout = isNeonEnabled ? 120000 : 60000;
   const teardownTimeout = isNeonEnabled
-    ? parseInt(env.VITEST_TEARDOWN_TIMEOUT || '60000')
+    ? Number.parseInt(env.VITEST_TEARDOWN_TIMEOUT || '60000')
     : 30000;
 
   // Configure thread pool based on environment
-  const minThreads = parseInt(env.VITEST_POOL_THREADS_MIN || '1');
+  const minThreads = Number.parseInt(env.VITEST_POOL_THREADS_MIN || '1');
   const maxThreads = isNeonEnabled
-    ? Math.min(parseInt(env.VITEST_POOL_THREADS_MAX || '2'), 4)
-    : parseInt(env.VITEST_POOL_THREADS_MAX || '4');
+    ? Math.min(Number.parseInt(env.VITEST_POOL_THREADS_MAX || '2'), 4)
+    : Number.parseInt(env.VITEST_POOL_THREADS_MAX || '4');
 
   return {
     plugins: [react()],
@@ -38,8 +38,8 @@ export default defineConfig(({ mode }) => {
       ],
       setupFiles: ['./tests/config/test-setup.ts'],
       globals: true,
-      testTimeout: parseInt(env.VITEST_TIMEOUT) || baseTimeout,
-      hookTimeout: parseInt(env.VITEST_HOOK_TIMEOUT) || hookTimeout,
+      testTimeout: Number.parseInt(env.VITEST_TIMEOUT) || baseTimeout,
+      hookTimeout: Number.parseInt(env.VITEST_HOOK_TIMEOUT) || hookTimeout,
       teardownTimeout: teardownTimeout,
 
       // Enhanced configuration for Neon branching

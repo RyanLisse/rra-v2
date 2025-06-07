@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
 import { documentChunk } from '@/lib/db/schema';
-import { eq, and, desc, asc, isNull } from 'drizzle-orm';
+import { eq, and, asc, isNull } from 'drizzle-orm';
 import type { DocumentChunk } from '@/lib/db/schema';
 
 /**
@@ -190,7 +190,7 @@ export class ADEChunkHelpers {
       maxY?: number;
     },
   ): Promise<DocumentChunk[]> {
-    let chunks = await this.getChunksByPage(documentId, pageNumber);
+    let chunks = await ADEChunkHelpers.getChunksByPage(documentId, pageNumber);
 
     if (region && chunks.length > 0) {
       chunks = chunks.filter((chunk) => {
@@ -229,13 +229,13 @@ export class ADEChunkHelpers {
       maxChunks = 50,
     } = options || {};
 
-    const chunks = await this.getChunksOrdered(documentId);
+    const chunks = await ADEChunkHelpers.getChunksOrdered(documentId);
     const relevantChunks = chunks.slice(0, maxChunks);
 
     let context = '';
 
     if (includeStructuralContext) {
-      const { titles } = await this.getDocumentStructure(documentId);
+      const { titles } = await ADEChunkHelpers.getDocumentStructure(documentId);
       if (titles.length > 0) {
         context += 'Document Structure:\n';
         titles.forEach((title, index) => {

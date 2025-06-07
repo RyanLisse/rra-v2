@@ -1,6 +1,5 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, } from 'vitest';
 import {
-  assembleEnhancedContext,
   createContextAwareSystemPrompt,
 } from '@/lib/ai/context-formatter';
 import { ragSystemPrompt, enhancedRagSystemPrompt } from '@/lib/ai/prompts';

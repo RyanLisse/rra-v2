@@ -14,9 +14,8 @@ import {
 import { db } from '@/lib/db';
 import { user, chat, message, ragDocument } from '@/lib/db/schema';
 import { nanoid } from 'nanoid';
-import {
-  getNeonApiClient,
-  type PerformanceMetrics,
+import type {
+  PerformanceMetrics,
 } from '@/lib/testing/neon-api-client';
 import { getNeonLogger } from '@/lib/testing/neon-logger';
 
@@ -43,7 +42,7 @@ export class ChatTestDataFactory {
     memoryUsage: process.memoryUsage(),
   };
 
-  async createUserWithChats(chatCount: number = 1) {
+  async createUserWithChats(chatCount = 1) {
     const startTime = Date.now();
 
     const userData = createTestUser();
@@ -116,7 +115,7 @@ export class ChatTestDataFactory {
     };
   }
 
-  async createChatWithDocuments(userId: string, documentCount: number = 2) {
+  async createChatWithDocuments(userId: string, documentCount = 2) {
     const startTime = Date.now();
 
     // Create chat
@@ -396,7 +395,7 @@ describe('Enhanced Chat API Routes', () => {
               const pushChunk = () => {
                 if (index < chunks.length) {
                   controller.enqueue(
-                    `data: ${JSON.stringify({ content: chunks[index] + ' ' })}\n\n`,
+                    `data: ${JSON.stringify({ content: `${chunks[index]} ` })}\n\n`,
                   );
                   index++;
                   setTimeout(pushChunk, 50);

@@ -1,10 +1,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { NextRequest } from 'next/server';
 import {
   createMockRequest,
   setupTestEnvironment,
-  assertSuccessResponse,
-  assertErrorResponse,
 } from '../utils/test-helpers';
 
 // Inngest API Route Tests - Implementation Complete
@@ -19,8 +16,8 @@ describe('Inngest API Route Tests', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
-    delete process.env.INNGEST_EVENT_KEY;
-    delete process.env.INNGEST_SIGNING_KEY;
+    process.env.INNGEST_EVENT_KEY = undefined;
+    process.env.INNGEST_SIGNING_KEY = undefined;
   });
 
   describe('Route Import Tests', () => {
@@ -153,8 +150,8 @@ describe('Inngest API Route Tests', () => {
     });
 
     it('should handle missing environment variables gracefully', async () => {
-      delete process.env.INNGEST_EVENT_KEY;
-      delete process.env.INNGEST_SIGNING_KEY;
+      process.env.INNGEST_EVENT_KEY = undefined;
+      process.env.INNGEST_SIGNING_KEY = undefined;
 
       const { getInngestConfig } = await import('@/lib/inngest/client');
 

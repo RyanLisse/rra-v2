@@ -189,7 +189,7 @@ describe('Enhanced Testing Demo', () => {
       class PerformanceTestFactory {
         async simulateAsyncOperation(
           operationId: number,
-          delayMs: number = 10,
+          delayMs = 10,
         ) {
           // Simulate real async work (like database operations)
           await new Promise((resolve) => setTimeout(resolve, delayMs));

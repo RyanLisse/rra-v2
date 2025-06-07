@@ -8,7 +8,7 @@ import {
   withTestBranch,
   type TestBranchInfo,
 } from '@/lib/testing/neon-test-branches';
-import { BaseSeeder, DatabaseStateManager } from '../seeds/base-seeder';
+import { type BaseSeeder, DatabaseStateManager } from '../seeds/base-seeder';
 import { UnitSeeder } from '../seeds/unit-seeder';
 import { E2ESeeder } from '../seeds/e2e-seeder';
 import type {
@@ -61,8 +61,8 @@ export class EnhancedTestDatabase {
     testName: string,
     config: TestDatabaseConfig,
   ): Promise<TestDatabaseInstance> {
-    const instance = await this.createInstance(testName, config);
-    this.instances.set(testName, instance);
+    const instance = await EnhancedTestDatabase.createInstance(testName, config);
+    EnhancedTestDatabase.instances.set(testName, instance);
 
     // Auto-seed if requested
     if (config.autoSeed && instance.seeder) {
@@ -77,7 +77,7 @@ export class EnhancedTestDatabase {
    * Get existing test database instance
    */
   static getInstance(testName: string): TestDatabaseInstance | undefined {
-    return this.instances.get(testName);
+    return EnhancedTestDatabase.instances.get(testName);
   }
 
   /**
@@ -87,7 +87,7 @@ export class EnhancedTestDatabase {
     testName: string,
     snapshotName: string,
   ): Promise<DatabaseState> {
-    const instance = this.instances.get(testName);
+    const instance = EnhancedTestDatabase.instances.get(testName);
     if (!instance?.stateManager) {
       throw new Error(`No state manager found for test ${testName}`);
     }
@@ -102,7 +102,7 @@ export class EnhancedTestDatabase {
     testName: string,
     snapshotName: string,
   ): Promise<void> {
-    const instance = this.instances.get(testName);
+    const instance = EnhancedTestDatabase.instances.get(testName);
     if (!instance?.stateManager) {
       throw new Error(`No state manager found for test ${testName}`);
     }
@@ -117,7 +117,7 @@ export class EnhancedTestDatabase {
     testName: string,
     callback: (db: ReturnType<typeof drizzle>) => Promise<T>,
   ): Promise<T> {
-    const instance = this.instances.get(testName);
+    const instance = EnhancedTestDatabase.instances.get(testName);
     if (!instance) {
       throw new Error(`No database instance found for test ${testName}`);
     }
@@ -156,7 +156,7 @@ export class EnhancedTestDatabase {
         autoSeed: true,
       };
 
-      const instance = await this.createInstance(
+      const instance = await EnhancedTestDatabase.createInstance(
         `${testName}-isolated`,
         config,
       );
@@ -173,7 +173,7 @@ export class EnhancedTestDatabase {
    * Clean up test database instance
    */
   static async cleanup(testName: string): Promise<void> {
-    const instance = this.instances.get(testName);
+    const instance = EnhancedTestDatabase.instances.get(testName);
     if (!instance) return;
 
     try {
@@ -193,7 +193,7 @@ export class EnhancedTestDatabase {
     } catch (error) {
       console.warn(`Warning: Cleanup failed for ${testName}:`, error);
     } finally {
-      this.instances.delete(testName);
+      EnhancedTestDatabase.instances.delete(testName);
     }
   }
 
@@ -201,14 +201,14 @@ export class EnhancedTestDatabase {
    * Clean up all test databases
    */
   static async cleanupAll(): Promise<void> {
-    const cleanupPromises = Array.from(this.instances.keys()).map((testName) =>
-      this.cleanup(testName),
+    const cleanupPromises = Array.from(EnhancedTestDatabase.instances.keys()).map((testName) =>
+      EnhancedTestDatabase.cleanup(testName),
     );
 
     await Promise.allSettled(cleanupPromises);
 
     // Run global cleanup functions
-    for (const cleanup of this.globalCleanup) {
+    for (const cleanup of EnhancedTestDatabase.globalCleanup) {
       try {
         await cleanup();
       } catch (error) {
@@ -216,21 +216,21 @@ export class EnhancedTestDatabase {
       }
     }
 
-    this.globalCleanup = [];
+    EnhancedTestDatabase.globalCleanup = [];
   }
 
   /**
    * Register global cleanup function
    */
   static registerGlobalCleanup(cleanup: () => Promise<void>): void {
-    this.globalCleanup.push(cleanup);
+    EnhancedTestDatabase.globalCleanup.push(cleanup);
   }
 
   /**
    * Get performance metrics for a test
    */
   static getMetrics(testName: string): PerformanceMetrics[] {
-    const instance = this.instances.get(testName);
+    const instance = EnhancedTestDatabase.instances.get(testName);
     return instance?.metrics || [];
   }
 
@@ -238,7 +238,7 @@ export class EnhancedTestDatabase {
    * Generate performance report
    */
   static generatePerformanceReport(testName: string): any {
-    const metrics = this.getMetrics(testName);
+    const metrics = EnhancedTestDatabase.getMetrics(testName);
 
     if (metrics.length === 0) {
       return { testName, message: 'No metrics available' };
@@ -321,7 +321,7 @@ export class EnhancedTestDatabase {
         ...config.seederConfig,
       };
 
-      seeder = this.createSeeder(config.environment, seederConfig);
+      seeder = EnhancedTestDatabase.createSeeder(config.environment, seederConfig);
       stateManager = new DatabaseStateManager(seeder);
     }
 
@@ -450,8 +450,6 @@ export function withPerformanceMonitoring<
   return (async (...args: any[]) => {
     const startTime = Date.now();
     const startMemory = process.memoryUsage().heapUsed;
-
-    try {
       const result = await fn(...args);
 
       const executionTime = Date.now() - startTime;
@@ -471,9 +469,5 @@ export function withPerformanceMonitoring<
       }
 
       return result;
-    } catch (error) {
-      // Record error metrics if needed
-      throw error;
-    }
   }) as T;
 }

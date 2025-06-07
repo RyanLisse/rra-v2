@@ -6,7 +6,7 @@
 
 import { getTestBranchManager } from '../lib/testing/neon-test-branches';
 import { config } from 'dotenv';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 
 // Load environment variables
 config({ path: resolve(process.cwd(), '.env.test') });
@@ -60,7 +60,7 @@ Examples:
 }
 
 async function confirm(message: string): Promise<boolean> {
-  const readline = require('readline');
+  const readline = require('node:readline');
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,

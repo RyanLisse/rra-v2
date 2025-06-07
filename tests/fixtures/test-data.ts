@@ -1,5 +1,4 @@
 import { nanoid } from 'nanoid';
-import { randomUUID } from 'crypto';
 import type {
   User,
   Chat,
@@ -224,7 +223,7 @@ export const createPerformanceDataFactory = () => {
       }));
     },
 
-    createRealisticEmbedding: (dimension: number = 1536) => {
+    createRealisticEmbedding: (dimension = 1536) => {
       // Create embeddings with realistic patterns (not purely random)
       const embedding = new Array(dimension);
       const clusterCount = 10;
@@ -249,8 +248,8 @@ export const createPerformanceDataFactory = () => {
     },
 
     createSearchableEmbedding: (
-      dimension: number = 1536,
-      patternId: number = 0,
+      dimension = 1536,
+      patternId = 0,
     ) => {
       // Create embeddings with specific patterns for search testing
       const embedding = new Array(dimension);

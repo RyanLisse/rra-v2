@@ -33,7 +33,6 @@ import {
 import { nanoid } from 'nanoid';
 import { migrate } from '@/lib/db/migrate';
 import { getNeonLogger } from '@/lib/testing/neon-logger';
-import * as schema from '@/lib/db/schema';
 
 const logger = getNeonLogger();
 const TEST_SUITE_NAME = 'api-response-times';
@@ -53,7 +52,7 @@ const PERFORMANCE_CONFIG = {
 };
 
 // Enhanced mocking for realistic performance testing with database integration
-let mockDbOperations = {
+const mockDbOperations = {
   insertCount: 0,
   queryCount: 0,
   avgInsertTime: 0,
@@ -136,7 +135,7 @@ vi.mock('@/lib/db', () => ({
 }));
 
 // Enhanced file system mocking with performance simulation
-let mockFsPerformance = {
+const mockFsPerformance = {
   writeOperations: 0,
   totalBytesWritten: 0,
   avgWriteTime: 0,
@@ -171,7 +170,7 @@ vi.mock('node:fs/promises', () => ({
 }));
 
 // Enhanced query mocking with performance simulation
-let mockQueryPerformance = {
+const mockQueryPerformance = {
   getChatCalls: 0,
   getMessageCalls: 0,
   avgChatQueryTime: 0,

@@ -22,8 +22,7 @@ vi.mock('fs', () => ({
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { eq } from 'drizzle-orm';
-import { promises as fs } from 'fs';
-import * as path from 'path';
+import { promises as fs } from 'node:fs';
 import * as schema from '@/lib/db/schema';
 import { textExtractionWorkflow } from '@/lib/workflows/text-extraction';
 import { inngest } from '@/lib/inngest/client';

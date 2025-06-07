@@ -24,8 +24,7 @@ vi.mock('@/lib/inngest/client', () => ({
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { eq } from 'drizzle-orm';
-import { promises as fs } from 'fs';
-import * as path from 'path';
+import { promises as fs } from 'node:fs';
 import * as schema from '@/lib/db/schema';
 import { inngest } from '@/lib/inngest/client';
 import { DocumentUploadHandler } from '@/lib/document-processing/upload-handler';
@@ -461,7 +460,7 @@ describe('Document Workflow Integration', () => {
         .where(eq(schema.documentContent.documentId, document.id));
 
       expect(finalDoc.createdAt.getTime()).toBeGreaterThanOrEqual(startTime);
-      expect(finalDoc.processedAt!.getTime()).toBeLessThanOrEqual(endTime);
+      expect(finalDoc.processedAt?.getTime()).toBeLessThanOrEqual(endTime);
       expect(content.extractedAt.getTime()).toBeLessThanOrEqual(endTime);
       expect(finalDoc.metadata.extractionDuration).toBeGreaterThan(0);
     });

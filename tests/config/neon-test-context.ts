@@ -2,7 +2,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from '@/lib/db/schema';
 import { nanoid } from 'nanoid';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 
 export interface TestMetrics {
@@ -47,7 +47,7 @@ class SimpleMetrics implements TestMetrics {
     if (!this.metrics.has(name)) {
       this.metrics.set(name, []);
     }
-    this.metrics.get(name)!.push(value);
+    this.metrics.get(name)?.push(value);
   }
 
   startTimer(name: string): { stop: () => void } {

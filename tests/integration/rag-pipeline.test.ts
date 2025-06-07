@@ -54,7 +54,7 @@ describe('RAG Pipeline Integration Tests', () => {
       });
 
       expect(document.status).toBe('uploaded');
-      expect(parseInt(document.fileSize)).toBeGreaterThan(0);
+      expect(Number.parseInt(document.fileSize)).toBeGreaterThan(0);
       expect(document.mimeType).toBe('application/pdf');
 
       // 4. Extract text content using real PDF extraction

@@ -2,6 +2,7 @@ import {
   GoogleGenerativeAI,
   type GenerativeModel,
 } from '@google/generative-ai';
+import { enhancedRagSystemPrompt } from './prompts';
 
 export interface RAGContext {
   chunks: {
@@ -70,7 +71,7 @@ class GeminiRAGService {
     }>,
   ): Promise<RAGResponse> {
     try {
-      const systemPrompt = this.buildSystemPrompt();
+      const systemPrompt = this.buildSystemPrompt(context);
       const contextPrompt = this.buildContextPrompt(context);
       const userPrompt = this.buildUserPrompt(query);
 
@@ -130,7 +131,7 @@ class GeminiRAGService {
     sources?: string[];
   }> {
     try {
-      const systemPrompt = this.buildSystemPrompt();
+      const systemPrompt = this.buildSystemPrompt(context);
       const contextPrompt = this.buildContextPrompt(context);
       const userPrompt = this.buildUserPrompt(query);
 
@@ -182,33 +183,39 @@ class GeminiRAGService {
     }
   }
 
-  private buildSystemPrompt(): string {
-    return `You are an intelligent document assistant that provides accurate, helpful answers based on the provided context documents. 
+  private buildSystemPrompt(context: RAGContext): string {
+    // Extract element types from context for enhanced prompt generation
+    const elementTypes = Array.from(
+      new Set(
+        context.chunks
+          .map((chunk) => chunk.elementType)
+          .filter((type): type is string => Boolean(type))
+      )
+    );
 
-IMPORTANT INSTRUCTIONS:
-1. Base your answers ONLY on the provided context documents
-2. If the context doesn't contain sufficient information, clearly state this limitation
-3. Include citations using the format [Source: DocumentName, Chunk X, Page Y] where appropriate
-4. Provide specific, detailed answers when possible
-5. If you're uncertain about information, express that uncertainty
-6. Do not hallucinate or add information not present in the context
-7. Structure your response clearly with proper formatting
-8. Pay attention to document structure: titles, headings, tables, figures, and lists have different informational value
-9. When referencing specific document elements, mention their type (e.g., "According to the table on page 3..." or "The figure caption indicates...")
+    const hasStructuralData = elementTypes.length > 0;
 
-UNDERSTANDING DOCUMENT STRUCTURE:
-- Titles and headings provide organizational context
-- Table content contains structured data
-- Figure captions explain visual elements  
-- Lists present sequential or categorical information
-- Paragraphs contain detailed explanations
-- Use this structural information to provide more precise and contextual answers
+    // Use the enhanced RAG system prompt with ADE information
+    const basePrompt = enhancedRagSystemPrompt(hasStructuralData, elementTypes);
+
+    // Add specific citation format instructions for Gemini
+    const citationInstructions = `
 
 CITATION FORMAT:
 - Use [Source: DocumentName, Chunk X, Page Y] after relevant statements
 - Include element type when relevant: [Source: DocumentName, Table on Page Y]
 - Include multiple citations when information spans multiple sources
-- Be specific about which parts of your answer come from which sources and document elements`;
+- Be specific about which parts of your answer come from which sources and document elements
+
+RESPONSE REQUIREMENTS:
+- Base your answers ONLY on the provided context documents
+- If the context doesn't contain sufficient information, clearly state this limitation
+- Provide specific, detailed answers when possible
+- If you're uncertain about information, express that uncertainty
+- Do not hallucinate or add information not present in the context
+- Structure your response clearly with proper formatting`;
+
+    return `${basePrompt}${citationInstructions}`;
   }
 
   private buildContextPrompt(context: RAGContext): string {
@@ -310,17 +317,21 @@ Please provide a comprehensive answer based on the context documents above. Incl
 
         if (formatIndex === 0) {
           // Format: [Source: DocumentName, Chunk X, Page Y]
-          [, documentName, chunkIndex, pageNumber] = match;
-          chunkIndex = Number.parseInt(chunkIndex as any);
-          pageNumber = Number.parseInt(pageNumber as any);
+          const [, docName, chunkStr, pageStr] = match;
+          documentName = docName;
+          chunkIndex = Number.parseInt(chunkStr);
+          pageNumber = Number.parseInt(pageStr);
         } else if (formatIndex === 1) {
           // Format: [Source: DocumentName, Table on Page Y]
-          [, documentName, elementType, pageNumber] = match;
-          pageNumber = Number.parseInt(pageNumber as any);
+          const [, docName, elemType, pageStr] = match;
+          documentName = docName;
+          elementType = elemType;
+          pageNumber = Number.parseInt(pageStr);
         } else {
           // Format: [Source: DocumentName, Chunk X] (legacy)
-          [, documentName, chunkIndex] = match;
-          chunkIndex = Number.parseInt(chunkIndex as any);
+          const [, docName, chunkStr] = match;
+          documentName = docName;
+          chunkIndex = Number.parseInt(chunkStr);
         }
 
         // Find the corresponding chunk in context

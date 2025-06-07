@@ -137,7 +137,7 @@ describe('TEST_SUITE_NAME (Enhanced)', () => {
         async () => {
           // Create and insert test data
           const users = factory.createUsers(10);
-          return testUtils.insertUsers(users, testBranch!.branchId);
+          return testUtils.insertUsers(users, testBranch?.branchId);
         },
       );
 
@@ -168,7 +168,7 @@ describe('TEST_SUITE_NAME (Enhanced)', () => {
           neonClient.executeSql(
             `INSERT INTO rag_documents (id, user_id, name, original_name, mime_type, size, checksum, created_at, updated_at)
              VALUES ('${factory.createDocument(user.id).id}', '${user.id}', 'Doc ${i}', 'doc${i}.pdf', 'application/pdf', 1000, 'hash${i}', NOW(), NOW())`,
-            testBranch!.branchId,
+            testBranch?.branchId,
           ),
         );
 
@@ -184,7 +184,7 @@ describe('TEST_SUITE_NAME (Enhanced)', () => {
         testBranch.branchId,
       );
 
-      expect(parseInt(countResult.data?.results?.[0]?.count || '0')).toBe(5);
+      expect(Number.parseInt(countResult.data?.results?.[0]?.count || '0')).toBe(5);
     });
   });
 
@@ -214,7 +214,7 @@ describe('TEST_SUITE_NAME (Enhanced)', () => {
       const checks = integrityResult.data?.results || [];
       checks.forEach((check: any) => {
         expect(check.status).toBe('PASS');
-        expect(parseInt(check.count)).toBe(0);
+        expect(Number.parseInt(check.count)).toBe(0);
       });
 
       // Test cascading deletes
@@ -231,7 +231,7 @@ describe('TEST_SUITE_NAME (Enhanced)', () => {
       );
 
       expect(
-        parseInt(remainingDocsResult.data?.results?.[0]?.count || '0'),
+        Number.parseInt(remainingDocsResult.data?.results?.[0]?.count || '0'),
       ).toBe(0);
     });
 
@@ -261,7 +261,7 @@ describe('TEST_SUITE_NAME (Enhanced)', () => {
         testBranch.branchId,
       );
 
-      expect(parseInt(countResult.data?.results?.[0]?.count || '0')).toBe(0);
+      expect(Number.parseInt(countResult.data?.results?.[0]?.count || '0')).toBe(0);
     });
   });
 
@@ -272,17 +272,17 @@ describe('TEST_SUITE_NAME (Enhanced)', () => {
       // Test memory usage with large operations
       const { memoryUsage } = await measurePerformance(async () => {
         const user = factory.createUser();
-        await testUtils.insertUser(user, testBranch!.branchId);
+        await testUtils.insertUser(user, testBranch?.branchId);
 
         // Create large dataset
         for (let i = 0; i < 10; i++) {
           const document = factory.createDocument(user.id, {
             name: `Doc ${i}`,
           });
-          await testUtils.insertDocument(document, testBranch!.branchId);
+          await testUtils.insertDocument(document, testBranch?.branchId);
 
           const chunks = factory.createDocumentChunks(document.id, 50);
-          await testUtils.insertDocumentChunks(chunks, testBranch!.branchId);
+          await testUtils.insertDocumentChunks(chunks, testBranch?.branchId);
         }
       });
 
@@ -305,7 +305,7 @@ describe('TEST_SUITE_NAME (Enhanced)', () => {
         'SELECT COUNT(*) as count FROM rag_documents',
         testBranch.branchId,
       );
-      expect(parseInt(initialCount.data?.results?.[0]?.count || '0')).toBe(1);
+      expect(Number.parseInt(initialCount.data?.results?.[0]?.count || '0')).toBe(1);
 
       // Clean up test data
       await testUtils.cleanupTestData(testBranch.branchId);
@@ -315,7 +315,7 @@ describe('TEST_SUITE_NAME (Enhanced)', () => {
         'SELECT COUNT(*) as count FROM rag_documents',
         testBranch.branchId,
       );
-      expect(parseInt(finalCount.data?.results?.[0]?.count || '0')).toBe(0);
+      expect(Number.parseInt(finalCount.data?.results?.[0]?.count || '0')).toBe(0);
     });
   });
 
@@ -344,7 +344,7 @@ describe('TEST_SUITE_NAME (Enhanced)', () => {
           return {
             branchId: branchInfo.branchId,
             userExists:
-              parseInt(userCheck.data?.results?.[0]?.count || '0') === 1,
+              Number.parseInt(userCheck.data?.results?.[0]?.count || '0') === 1,
           };
         },
       );
@@ -366,26 +366,27 @@ describe('TEST_SUITE_NAME (Enhanced)', () => {
       for (const operation of operations) {
         const { duration } = await measurePerformance(async () => {
           switch (operation) {
-            case 'insert':
+            case 'insert': {
               const doc = factory.createDocument(user.id);
-              return testUtils.insertDocument(doc, testBranch!.branchId);
+              return testUtils.insertDocument(doc, testBranch?.branchId);
+            }
 
             case 'select':
               return neonClient.executeSql(
                 `SELECT * FROM rag_documents WHERE user_id = '${user.id}'`,
-                testBranch!.branchId,
+                testBranch?.branchId,
               );
 
             case 'update':
               return neonClient.executeSql(
                 `UPDATE rag_documents SET name = 'Updated' WHERE user_id = '${user.id}'`,
-                testBranch!.branchId,
+                testBranch?.branchId,
               );
 
             case 'delete':
               return neonClient.executeSql(
                 `DELETE FROM rag_documents WHERE user_id = '${user.id}'`,
-                testBranch!.branchId,
+                testBranch?.branchId,
               );
           }
         });

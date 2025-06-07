@@ -72,14 +72,14 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
 
         const { duration: chunkInsertTime, memoryUsage: chunkMemory } =
           await measurePerformance(async () => {
-            return testUtils.insertDocumentChunks(chunks, testBranch!.branchId);
+            return testUtils.insertDocumentChunks(chunks, testBranch?.branchId);
           });
 
         const { duration: embeddingInsertTime, memoryUsage: embeddingMemory } =
           await measurePerformance(async () => {
             return testUtils.insertDocumentEmbeddings(
               embeddings,
-              testBranch!.branchId,
+              testBranch?.branchId,
             );
           });
 
@@ -143,7 +143,7 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
 
       await Promise.all(
         documents.map((doc) =>
-          testUtils.insertDocument(doc, testBranch!.branchId),
+          testUtils.insertDocument(doc, testBranch?.branchId),
         ),
       );
 
@@ -163,10 +163,10 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
           );
 
           // Insert chunks and embeddings for this document
-          await testUtils.insertDocumentChunks(chunks, testBranch!.branchId);
+          await testUtils.insertDocumentChunks(chunks, testBranch?.branchId);
           await testUtils.insertDocumentEmbeddings(
             embeddings,
-            testBranch!.branchId,
+            testBranch?.branchId,
           );
 
           return {
@@ -194,11 +194,11 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
         testBranch.branchId,
       );
 
-      expect(parseInt(totalChunksResult.data?.results?.[0]?.count || '0')).toBe(
+      expect(Number.parseInt(totalChunksResult.data?.results?.[0]?.count || '0')).toBe(
         documentCount * chunksPerDocument,
       );
       expect(
-        parseInt(totalEmbeddingsResult.data?.results?.[0]?.count || '0'),
+        Number.parseInt(totalEmbeddingsResult.data?.results?.[0]?.count || '0'),
       ).toBe(documentCount * chunksPerDocument);
 
       // Measure throughput
@@ -239,7 +239,7 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
             await neonClient.executeSql(
               `INSERT INTO document_embeddings (id, chunk_id, embedding_text, model, created_at) 
                VALUES ('${embedding.id}', '${embedding.chunkId}', '${embedding.embedding.replace(/'/g, "''")}', '${embedding.model}', NOW())`,
-              testBranch!.branchId,
+              testBranch?.branchId,
             );
           }
         });
@@ -305,7 +305,7 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
       // Set up test data
       const { duration: setupDuration } = await measurePerformance(async () => {
         for (const doc of documents) {
-          await testUtils.insertDocument(doc, testBranch!.branchId);
+          await testUtils.insertDocument(doc, testBranch?.branchId);
 
           const chunks = factory.createDocumentChunks(
             doc.id,
@@ -369,7 +369,7 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
       for (const test of searchTests) {
         const { result, duration, memoryUsage } = await measurePerformance(
           async () => {
-            return neonClient.executeSql(test.query, testBranch!.branchId);
+            return neonClient.executeSql(test.query, testBranch?.branchId);
           },
         );
 
@@ -411,7 +411,7 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
           const concurrentSearches = searchTests
             .slice(0, 3)
             .map((test) =>
-              neonClient.executeSql(test.query, testBranch!.branchId),
+              neonClient.executeSql(test.query, testBranch?.branchId),
             );
 
           const results = await Promise.all(concurrentSearches);
@@ -441,14 +441,14 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
         // Setup data for this size
         const { duration: setupTime } = await measurePerformance(async () => {
           const chunks = factory.createDocumentChunks(document.id, size);
-          await testUtils.insertDocumentChunks(chunks, testBranch!.branchId);
+          await testUtils.insertDocumentChunks(chunks, testBranch?.branchId);
 
           const embeddings = chunks.map((chunk) =>
             factory.createDocumentEmbedding(chunk.id),
           );
           await testUtils.insertDocumentEmbeddings(
             embeddings,
-            testBranch!.branchId,
+            testBranch?.branchId,
           );
         });
 
@@ -472,7 +472,7 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
 
         for (const operation of searchOperations) {
           const { duration } = await measurePerformance(async () => {
-            return neonClient.executeSql(operation.query, testBranch!.branchId);
+            return neonClient.executeSql(operation.query, testBranch?.branchId);
           });
 
           operationResults[operation.name] = duration;
@@ -560,7 +560,7 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
                 await neonClient.executeSql(
                   `INSERT INTO document_chunks (id, document_id, content, index, metadata, created_at) 
                  VALUES ('${newChunk.id}', '${newChunk.documentId}', '${newChunk.content.replace(/'/g, "''")}', ${newChunk.index}, '{}', NOW())`,
-                  testBranch!.branchId,
+                  testBranch?.branchId,
                 );
 
                 const newEmbedding = factory.createDocumentEmbedding(
@@ -569,7 +569,7 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
                 await neonClient.executeSql(
                   `INSERT INTO document_embeddings (id, chunk_id, embedding_text, model, created_at) 
                  VALUES ('${newEmbedding.id}', '${newEmbedding.chunkId}', '${newEmbedding.embedding.replace(/'/g, "''")}', '${newEmbedding.model}', NOW())`,
-                  testBranch!.branchId,
+                  testBranch?.branchId,
                 );
               });
             } else if (i % 3 === 1) {
@@ -578,7 +578,7 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
                 const randomIndex = Math.floor(Math.random() * 1000);
                 await neonClient.executeSql(
                   `UPDATE document_chunks SET content = 'Updated content ${i}' WHERE document_id = '${document.id}' AND index = ${randomIndex}`,
-                  testBranch!.branchId,
+                  testBranch?.branchId,
                 );
               });
             } else {
@@ -589,7 +589,7 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
                  JOIN document_embeddings e ON c.id = e.chunk_id 
                  WHERE c.document_id = '${document.id}' 
                  ORDER BY c.index DESC LIMIT 10 OFFSET ${i * 2}`,
-                  testBranch!.branchId,
+                  testBranch?.branchId,
                 );
               });
             }
@@ -638,14 +638,14 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
       const totalChunks = 5000;
       const { duration: setupDuration } = await measurePerformance(async () => {
         const chunks = factory.createDocumentChunks(document.id, totalChunks);
-        await testUtils.insertDocumentChunks(chunks, testBranch!.branchId);
+        await testUtils.insertDocumentChunks(chunks, testBranch?.branchId);
 
         const embeddings = chunks.map((chunk) =>
           factory.createDocumentEmbedding(chunk.id),
         );
         await testUtils.insertDocumentEmbeddings(
           embeddings,
-          testBranch!.branchId,
+          testBranch?.branchId,
         );
       });
 
@@ -669,7 +669,7 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
              WHERE c.document_id = '${document.id}' 
              ORDER BY c.index 
              LIMIT ${pageSize} OFFSET ${page * pageSize}`,
-              testBranch!.branchId,
+              testBranch?.branchId,
             );
 
             const pageEnd = Date.now();
@@ -769,14 +769,14 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
         const { duration, result } = await measurePerformance(async () => {
           // Replace $1 with actual parameter (simplified for this test)
           const query = test.query.replace('$1', `'${test.parameter}'`);
-          return neonClient.executeSql(query, testBranch!.branchId);
+          return neonClient.executeSql(query, testBranch?.branchId);
         });
 
         indexResults.push({
           name: test.name,
           duration,
           success: result.success,
-          resultCount: parseInt(result.data?.results?.[0]?.count || '0'),
+          resultCount: Number.parseInt(result.data?.results?.[0]?.count || '0'),
         });
       }
 
@@ -831,10 +831,10 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
         testBranch.branchId,
       );
       expect(
-        parseInt(initialStats.data?.results?.[0]?.chunk_count || '0'),
+        Number.parseInt(initialStats.data?.results?.[0]?.chunk_count || '0'),
       ).toBe(1000);
       expect(
-        parseInt(initialStats.data?.results?.[0]?.embedding_count || '0'),
+        Number.parseInt(initialStats.data?.results?.[0]?.embedding_count || '0'),
       ).toBe(1000);
 
       // Test cascading deletion performance
@@ -842,18 +842,18 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
         async () => {
           await neonClient.executeSql(
             `DELETE FROM rag_documents WHERE id = '${document.id}'`,
-            testBranch!.branchId,
+            testBranch?.branchId,
           );
         },
       );
 
       // Verify cleanup completed
       const finalStats = await testUtils.getTestDataStats(testBranch.branchId);
-      expect(parseInt(finalStats.data?.results?.[0]?.chunk_count || '0')).toBe(
+      expect(Number.parseInt(finalStats.data?.results?.[0]?.chunk_count || '0')).toBe(
         0,
       );
       expect(
-        parseInt(finalStats.data?.results?.[0]?.embedding_count || '0'),
+        Number.parseInt(finalStats.data?.results?.[0]?.embedding_count || '0'),
       ).toBe(0);
 
       // Performance assertions
@@ -870,12 +870,12 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
             const tempDoc = factory.createDocument(user.id, {
               name: `Temp Doc ${cycle}`,
             });
-            await testUtils.insertDocument(tempDoc, testBranch!.branchId);
+            await testUtils.insertDocument(tempDoc, testBranch?.branchId);
 
             const tempChunks = factory.createDocumentChunks(tempDoc.id, 200);
             await testUtils.insertDocumentChunks(
               tempChunks,
-              testBranch!.branchId,
+              testBranch?.branchId,
             );
 
             const tempEmbeddings = tempChunks.map((chunk) =>
@@ -883,13 +883,13 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
             );
             await testUtils.insertDocumentEmbeddings(
               tempEmbeddings,
-              testBranch!.branchId,
+              testBranch?.branchId,
             );
 
             // Clean up immediately
             await neonClient.executeSql(
               `DELETE FROM rag_documents WHERE id = '${tempDoc.id}'`,
-              testBranch!.branchId,
+              testBranch?.branchId,
             );
           }
         },

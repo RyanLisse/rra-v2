@@ -43,7 +43,7 @@ export class NeonLogger {
   private readonly enableConsoleOutput: boolean;
 
   constructor(
-    maxLogs: number = 1000,
+    maxLogs = 1000,
     enableConsoleOutput: boolean = process.env.NODE_ENV !== 'production',
   ) {
     this.maxLogs = maxLogs;
@@ -371,11 +371,11 @@ export function resetNeonLogger(): void {
  * Utility decorator for timing operations
  */
 export function timed(operation: string) {
-  return function <T extends (...args: any[]) => Promise<any>>(
+  return <T extends (...args: any[]) => Promise<any>>(
     target: any,
     propertyName: string,
     descriptor: TypedPropertyDescriptor<T>,
-  ) {
+  ) => {
     const method = descriptor.value!;
 
     descriptor.value = async function (...args: any[]) {

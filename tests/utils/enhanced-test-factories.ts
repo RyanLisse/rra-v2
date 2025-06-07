@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 import type {
   User,
   Session,
@@ -82,7 +82,7 @@ export class TestDataFactory {
   /**
    * Generate a realistic embedding vector
    */
-  private generateEmbedding(dimensions: number = 1536): number[] {
+  private generateEmbedding(dimensions = 1536): number[] {
     return Array.from(
       { length: dimensions },
       () => (Math.random() - 0.5) * 2, // Values between -1 and 1

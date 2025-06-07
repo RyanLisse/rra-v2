@@ -20,6 +20,13 @@ import { DocumentPreview } from './document-preview';
 import { MessageReasoning } from './message-reasoning';
 import type { UseChatHelpers } from '@ai-sdk/react';
 import { StreamingMessage, StreamingIndicator } from './enhanced-streaming';
+import { SourceMetadataDisplay, InlineSourcesBadge } from './source-metadata-display';
+import type { ChatSource } from '@/lib/ai/context-formatter';
+
+// Extend UIMessage to include sources for RAG responses
+interface ExtendedUIMessage extends UIMessage {
+  sources?: ChatSource[];
+}
 
 const PurePreviewMessage = ({
   chatId,
@@ -32,7 +39,7 @@ const PurePreviewMessage = ({
   requiresScrollPadding,
 }: {
   chatId: string;
-  message: UIMessage;
+  message: ExtendedUIMessage;
   vote: Vote | undefined;
   isLoading: boolean;
   setMessages: UseChatHelpers['setMessages'];
@@ -137,7 +144,18 @@ const PurePreviewMessage = ({
                             isComplete={false}
                           />
                         ) : (
-                          <Markdown>{sanitizeText(part.text)}</Markdown>
+                          <>
+                            <Markdown>{sanitizeText(part.text)}</Markdown>
+                            {/* Show inline sources badge for assistant messages */}
+                            {message.role === 'assistant' && message.sources && message.sources.length > 0 && (
+                              <div className="mt-2 pt-2 border-t border-border/50">
+                                <InlineSourcesBadge 
+                                  sources={message.sources}
+                                  maxSources={3}
+                                />
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>
@@ -238,6 +256,18 @@ const PurePreviewMessage = ({
                 isLoading={isLoading}
               />
             )}
+
+            {/* Display sources for assistant messages with RAG context */}
+            {message.role === 'assistant' && message.sources && message.sources.length > 0 && (
+              <SourceMetadataDisplay
+                sources={message.sources}
+                maxInitialSources={3}
+                showElementTypes={true}
+                showConfidenceScores={true}
+                showPageNumbers={true}
+                compact={false}
+              />
+            )}
           </div>
         </div>
       </motion.div>
@@ -253,6 +283,7 @@ export const PreviewMessage = memo(
     if (prevProps.requiresScrollPadding !== nextProps.requiresScrollPadding)
       return false;
     if (!equal(prevProps.message.parts, nextProps.message.parts)) return false;
+    if (!equal(prevProps.message.sources, nextProps.message.sources)) return false;
     if (!equal(prevProps.vote, nextProps.vote)) return false;
 
     return true;

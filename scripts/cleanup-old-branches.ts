@@ -11,8 +11,8 @@ import {
   type CleanupFilters,
 } from '../lib/testing/neon-api-client';
 import { config } from 'dotenv';
-import { resolve } from 'path';
-import { writeFile } from 'fs/promises';
+import { resolve } from 'node:path';
+import { writeFile } from 'node:fs/promises';
 
 // Load environment variables
 config({ path: resolve(process.cwd(), '.env.test') });
@@ -154,7 +154,7 @@ function parseArgs(): Partial<CleanupConfig> & {
     } else if (arg.startsWith('--policies=')) {
       result.policies = arg.split('=')[1];
     } else if (arg.startsWith('--concurrency=')) {
-      result.maxConcurrency = parseInt(arg.split('=')[1], 10);
+      result.maxConcurrency = Number.parseInt(arg.split('=')[1], 10);
     } else if (arg.startsWith('--output=')) {
       result.outputFile = arg.split('=')[1];
     }

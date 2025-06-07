@@ -8,14 +8,12 @@ import { createMockRequest } from '../utils/test-helpers';
 import {
   createTestUser,
   createTestSession,
-  createAdminSession,
 } from '../fixtures/test-data';
 import { db } from '@/lib/db';
 import { user, session } from '@/lib/db/schema';
 import { nanoid } from 'nanoid';
-import {
-  getNeonApiClient,
-  type PerformanceMetrics,
+import type {
+  PerformanceMetrics,
 } from '@/lib/testing/neon-api-client';
 import { getNeonLogger } from '@/lib/testing/neon-logger';
 

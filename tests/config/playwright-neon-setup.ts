@@ -1,6 +1,6 @@
 import { chromium, type FullConfig } from '@playwright/test';
 import { config } from 'dotenv';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 import {
   isNeonBranchingEnabled,
   cleanupOldTestBranches,
@@ -29,7 +29,7 @@ async function globalSetup(config: FullConfig) {
       console.log('Cleaning up old Neon test branches...');
 
       try {
-        const cleanupAge = parseInt(
+        const cleanupAge = Number.parseInt(
           process.env.PLAYWRIGHT_CLEANUP_AGE_HOURS || '12',
         );
         await cleanupOldTestBranches(cleanupAge, {

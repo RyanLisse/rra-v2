@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 
 /**
  * Neon API types for database branching operations
@@ -260,7 +260,7 @@ export class NeonTestBranchManager {
   /**
    * Cleans up old test branches based on age
    */
-  async cleanupOldTestBranches(maxAgeHours: number = 24): Promise<void> {
+  async cleanupOldTestBranches(maxAgeHours = 24): Promise<void> {
     try {
       const branches = await this.listBranches();
       const now = new Date();
@@ -294,7 +294,7 @@ export class NeonTestBranchManager {
    */
   getConnectionString(
     branchName: string,
-    pooled: boolean = false,
+    pooled = false,
   ): string | undefined {
     const branch = this.branches.get(branchName);
     if (!branch) return undefined;
@@ -306,7 +306,7 @@ export class NeonTestBranchManager {
    */
   private async waitForBranchReady(
     branchId: string,
-    maxWaitMs: number = 60000,
+    maxWaitMs = 60000,
   ): Promise<void> {
     const startTime = Date.now();
     const pollInterval = 1000; // 1 second

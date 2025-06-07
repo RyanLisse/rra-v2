@@ -7,7 +7,6 @@
 
 import { inngest } from './client';
 import {
-  EVENT_NAMES,
   type EventPayload,
   type EventName,
   type BaseEventPayload,
@@ -125,7 +124,7 @@ export function calculateDuration(startTime: number, endTime?: number): number {
 /**
  * Create a retry configuration for Inngest functions
  */
-export function createRetryConfig(maxRetries: number = 3) {
+export function createRetryConfig(maxRetries = 3) {
   return {
     retries: maxRetries,
     backoff: {
@@ -139,7 +138,7 @@ export function createRetryConfig(maxRetries: number = 3) {
 /**
  * Create concurrency configuration for Inngest functions
  */
-export function createConcurrencyConfig(limit: number = 5) {
+export function createConcurrencyConfig(limit = 5) {
   return {
     concurrency: {
       limit,
@@ -175,8 +174,8 @@ export function createErrorEventPayload(
   documentId: string,
   failedStep: 'upload' | 'text-extraction' | 'chunking' | 'embedding',
   error: Error,
-  retryAttempt: number = 0,
-  maxRetries: number = 3,
+  retryAttempt = 0,
+  maxRetries = 3,
   userId?: string,
   sessionId?: string,
 ) {
@@ -224,19 +223,19 @@ export function getInngestConfig() {
     servePath: process.env.INNGEST_SERVE_PATH || '/api/inngest',
     appId: process.env.INNGEST_APP_ID || 'rra-v2-app',
     appName: process.env.INNGEST_APP_NAME || 'RRA V2 Document Processing',
-    maxRetries: parseInt(process.env.INNGEST_MAX_RETRIES || '3'),
+    maxRetries: Number.parseInt(process.env.INNGEST_MAX_RETRIES || '3'),
     loggerLevel: process.env.INNGEST_LOGGER_LEVEL || 'info',
     streamingEnabled: process.env.INNGEST_STREAMING_ENABLED === 'true',
     timeouts: {
-      documentUpload: parseInt(
+      documentUpload: Number.parseInt(
         process.env.INNGEST_DOCUMENT_UPLOAD_TIMEOUT || '60000',
       ),
-      textExtraction: parseInt(
+      textExtraction: Number.parseInt(
         process.env.INNGEST_TEXT_EXTRACTION_TIMEOUT || '300000',
       ),
-      chunking: parseInt(process.env.INNGEST_CHUNKING_TIMEOUT || '120000'),
-      embedding: parseInt(process.env.INNGEST_EMBEDDING_TIMEOUT || '600000'),
-      batchProcessing: parseInt(
+      chunking: Number.parseInt(process.env.INNGEST_CHUNKING_TIMEOUT || '120000'),
+      embedding: Number.parseInt(process.env.INNGEST_EMBEDDING_TIMEOUT || '600000'),
+      batchProcessing: Number.parseInt(
         process.env.INNGEST_BATCH_PROCESSING_TIMEOUT || '1800000',
       ),
     },

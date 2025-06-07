@@ -5,8 +5,8 @@
  * This script demonstrates a complete workflow using the enhanced test branch management system
  */
 
-import { spawn } from 'child_process';
-import { promisify } from 'util';
+import { spawn } from 'node:child_process';
+import { promisify } from 'node:util';
 
 const execAsync = promisify(spawn);
 
@@ -130,7 +130,7 @@ async function runDemo(): Promise<void> {
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
-  console.log('\n' + '═'.repeat(80));
+  console.log(`\n${'═'.repeat(80)}`);
   console.log('🎉 Demo Completed');
   console.log(`   ✅ Successful steps: ${successCount}`);
   console.log(`   ❌ Failed steps: ${failureCount}`);

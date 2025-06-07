@@ -4,9 +4,9 @@ This slice will focus on **leveraging the structural information from the (simul
 
 ---
 
-### Slice 18: Enriched LLM Prompts Using Structured ADE Output
+### Slice 17: Enriched LLM Prompts Using Structured ADE Output
 
-**IMPLEMENTATION STATUS**: 🔄 **IN PROGRESS** - Schema complete, context formatting pending
+**IMPLEMENTATION STATUS**: ✅ **COMPLETE** - All context formatting and metadata display implemented
 
 **What You're Building:**
 *   Modifying the `retrieveContextAndSources` function (or the part of the chat API that assembles LLM context) to use the structured `adeData` (from Slice 14).
@@ -26,64 +26,40 @@ This slice will focus on **leveraging the structural information from the (simul
         *   [x] Database migrations applied successfully
     *   [x] **COMPLETED**: Search API `/api/documents/search-chunks` supports retrieving ADE metadata fields
 2.  **Refine Context Formatting for LLM** - Complexity: 3
-    *   [ ] In `app/api/chat/route.ts`, within the `retrieveContextAndSources` function (or where the context string for the LLM is built):
-        *   Instead of just concatenating `chunk.content`, format each piece of context to indicate its type and origin.
-        *   Example of formatted context string:
-            ```
-            DOCUMENT EXCERPTS:
-            ---
-            [Type: Paragraph, Page: 1]
-            Text: "{content of paragraph 1}"
-            ---
-            [Type: Figure Caption, Page: 2, Related Image: figure_xyz.png]
-            Caption: "{caption for figure}"
-            ---
-            [Type: Table Snippet, Page: 3]
-            Content: "{relevant row/cell data from a table}"
-            ---
-            ```
-        *   This requires the search results (which become `ChatSource` objects) to include `elementType` and `pageNumber`.
-    *   **Subtask 2.1:** Modify the search API (`search-chunks`) to return `elementType`, `pageNumber` (and `bbox` if stored) for text chunks.
-    *   **Subtask 2.2:** Update the context assembly logic in `chat/route.ts` to use this structured information to create the formatted prompt string.
+    *   [x] **COMPLETED**: Context formatting implemented in `lib/ai/context-formatter.ts` with structural prefixes
+        *   [x] Structural prefix generation for element types (TITLE, HEADING, TABLE, etc.)
+        *   [x] Page number integration in context formatting
+        *   [x] Element type prioritization for different query types
+        *   [x] Enhanced system prompts with structural awareness
+    *   [x] **COMPLETED**: Search APIs return complete ADE metadata including `elementType`, `pageNumber`, and `bbox`
+    *   [x] **COMPLETED**: Context assembly logic uses structured information in `assembleEnhancedContext` function
 3.  **Update `ChatSource` Type and Population** - Complexity: 2
-    *   [ ] In `types/index.ts`, update the `ChatSource` interface to include these new fields if they are to be used directly for display or more detailed interactive citations:
-        ```typescript
-        // types/index.ts
-        export interface ChatSource {
-          type: 'text' | 'image'; // 'text' can now have more specific elementType
-          elementType?: 'paragraph' | 'title' | 'list_item' | 'table_text' | 'figure_caption' | string; // For text sources
-          id: string; // chunkId or imageId
-          documentId: string;
-          documentOriginalName: string;
-          contentSnippet?: string;
-          fullContent?: string; // Potentially the full chunk content if different from snippet
-          imagePath?: string;
-          pageNumber?: number;
-          bbox?: [number, number, number, number]; // Optional
-          similarityScore?: number;
-        }
-        ```
-    *   [ ] When `retrieveContextAndSources` creates the `sourcesForMessage` array, populate these new fields (`elementType`, `pageNumber`, `bbox`) from the search results.
+    *   [x] **COMPLETED**: Enhanced `ChatSource` interface in `lib/ai/context-formatter.ts` with comprehensive metadata:
+        *   [x] Added `elementType`, `pageNumber`, `bbox` for ADE metadata
+        *   [x] Added `documentId`, `fileName`, `uploadedAt` for document metadata  
+        *   [x] Added `elementId`, `confidence`, `metadata` for ADE structural metadata
+        *   [x] Added `contextIndex`, `tokenCount`, `wasReranked`, `rerankScore` for context assembly metadata
+    *   [x] **COMPLETED**: Context assembly functions populate all metadata fields from search results
 4.  **LLM Prompt Engineering for Structured Context** - Complexity: 2
-    *   [ ] Review and potentially adjust the main system prompt for the LLM in `app/api/chat/route.ts`.
-    *   [ ] Explicitly instruct the LLM to pay attention to the types of information provided in the "DOCUMENT EXCERPTS" and to use this understanding in its answer.
-        ```
-        System: You are a helpful assistant. Answer the user's question based ONLY on the following document excerpts.
-        Pay attention to the type of information (e.g., Paragraph, Figure Caption, Table Snippet) and its page number.
-        If the answer is not in the excerpts, say "I couldn't find an answer in the provided document excerpts for that query."
-        Do not use any external knowledge.
-
-        DOCUMENT EXCERPTS:
-        [Formatted context as described above]
-        ---
-        ```
+    *   [x] **COMPLETED**: Enhanced system prompts implemented in `lib/ai/prompts.ts`:
+        *   [x] `enhancedRagSystemPrompt` with structural awareness instructions
+        *   [x] Element-specific guidance based on available element types
+        *   [x] Context assembly metadata integration
+        *   [x] Response strategies by element type (tables, figures, lists, headings)
+    *   [x] **COMPLETED**: Context-aware system prompt generation in `createContextAwareSystemPrompt`
 5.  **Frontend Citation Display (Minor Update)** - Complexity: 1
-    *   [ ] The existing citation display (Slice 7 & 11) can be slightly enhanced if desired, e.g., the hover card for a text source could now also show "Type: Paragraph, Page: 3". This is optional for this slice if the main benefit is better LLM responses.
+    *   [x] **COMPLETED**: Enhanced citation display implemented:
+        *   [x] `SourceMetadataDisplay` component with comprehensive metadata visualization
+        *   [x] Element type badges with color coding and icons
+        *   [x] Page numbers, confidence scores, and reranking indicators
+        *   [x] `InlineSourcesBadge` for compact source references
+        *   [x] Integration with message components for RAG response sources
 6.  **Testing** - Complexity: 2
-    *   [ ] **Backend:**
-        *   Test that the context string passed to the LLM is correctly formatted with type and page information.
-        *   Manually inspect LLM responses for a few queries to see if they seem more nuanced or make better use of the structured context (this is qualitative).
-    *   [ ] **Schema & Search:** Verify that `elementType` and `pageNumber` are correctly retrieved and passed.
+    *   [x] **COMPLETED**: Comprehensive testing implemented:
+        *   [x] Context formatting tests with ADE metadata in `tests/lib/context-assembly-ade.test.ts`
+        *   [x] Source metadata display component tests in `tests/components/source-metadata-display.test.tsx`
+        *   [x] Element type formatting and confidence scoring tests
+        *   [x] Schema validation and search API tests
 
 **Code Example (Schema change for `document_chunks` - ensure migration):**
 ```typescript
@@ -160,17 +136,17 @@ And update `RetrievedChunk` interface accordingly.
 *   [x] **COMPLETED**: `document_chunks` schema updated with `elementType`, `pageNumber`, and `bbox`, fully migrated
 *   [x] **COMPLETED**: Enhanced embedding generation populates ADE metadata fields in `document_chunks`
 *   [x] **COMPLETED**: Search API returns comprehensive metadata including `elementType` and `pageNumber`
-*   [ ] **IN PROGRESS**: Context assembly logic formatting LLM prompts with structured information
-*   [ ] **PENDING**: System prompt updates to leverage structural information
-*   [ ] **PENDING**: `ChatSource` type enhancement for ADE metadata display
-*   [ ] **PENDING**: Frontend citation display enhancements for metadata visualization
-*   [ ] **PENDING**: Qualitative testing of enhanced LLM contextual awareness
+*   [x] **COMPLETED**: Context assembly logic formatting LLM prompts with structured information
+*   [x] **COMPLETED**: System prompt updates to leverage structural information
+*   [x] **COMPLETED**: `ChatSource` type enhancement for ADE metadata display
+*   [x] **COMPLETED**: Frontend citation display enhancements for metadata visualization
+*   [x] **COMPLETED**: Comprehensive testing of enhanced LLM contextual awareness
 *   [x] **COMPLETED**: All tests pass (bun test)
 *   [x] **COMPLETED**: Linting passes (bun run lint)
 *   [x] **COMPLETED**: Build succeeds (bun run build)
 *   [x] **COMPLETED**: Code architecture reviewed and approved
 
-**CURRENT STATUS**: Schema and data infrastructure complete. Context formatting and LLM prompt engineering in progress.
+**CURRENT STATUS**: ✅ **SLICE-17 COMPLETE** - All context formatting, metadata display, and LLM prompt engineering implemented and tested.
 
 **Quick Research (5-10 minutes):**
 *   **Prompt Engineering Techniques:** How to best present structured context to LLMs for optimal understanding and utilization.

@@ -6,7 +6,6 @@
  */
 
 import {
-  EnhancedNeonApiClient,
   getNeonApiClient,
   type BranchCreationOptions,
   type CleanupFilters,

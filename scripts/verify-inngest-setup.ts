@@ -1,14 +1,4 @@
 #!/usr/bin/env tsx
-
-/**
- * Inngest Setup Verification Script
- *
- * This script verifies that the Inngest infrastructure is properly set up
- * and ready for function development.
- */
-
-// Import only the configuration and constants, not the utilities that depend on the database
-import { inngest } from '@/lib/inngest/client';
 import { getInngestConfig } from '@/lib/inngest/utils';
 import { EVENT_NAMES } from '@/lib/inngest/types';
 
@@ -85,8 +75,8 @@ async function verifyInngestSetup() {
     'app/api/inngest/route.ts',
   ];
 
-  const fs = await import('fs');
-  const path = await import('path');
+  const fs = await import('node:fs');
+  const path = await import('node:path');
 
   requiredFiles.forEach((filePath) => {
     const fullPath = path.join(process.cwd(), filePath);

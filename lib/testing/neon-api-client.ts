@@ -1,6 +1,6 @@
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 import { NeonMCPInterface, EnvironmentUtils } from './neon-mcp-interface';
-import { NeonLogger, getNeonLogger, PerformanceMetrics } from './neon-logger';
+import { type NeonLogger, getNeonLogger, type PerformanceMetrics } from './neon-logger';
 
 /**
  * Enhanced Neon API Client using MCP tools
@@ -139,7 +139,7 @@ class RateLimiter {
   private readonly windowMs: number;
   private readonly burstLimit: number;
 
-  constructor(maxRequestsPerMinute: number = 100, burstLimit: number = 10) {
+  constructor(maxRequestsPerMinute = 100, burstLimit = 10) {
     this.maxRequests = maxRequestsPerMinute;
     this.windowMs = 60 * 1000; // 1 minute
     this.burstLimit = burstLimit;
@@ -181,9 +181,9 @@ class RateLimiter {
  */
 class RetryManager {
   constructor(
-    private maxRetries: number = 3,
-    private baseDelayMs: number = 1000,
-    private maxDelayMs: number = 10000,
+    private maxRetries = 3,
+    private baseDelayMs = 1000,
+    private maxDelayMs = 10000,
   ) {}
 
   async executeWithRetry<T>(
@@ -813,7 +813,7 @@ export class EnhancedNeonApiClient {
    */
   private async waitForBranchReady(
     branchId: string,
-    timeoutMs: number = 60000,
+    timeoutMs = 60000,
   ): Promise<void> {
     const startTime = Date.now();
     const pollInterval = 2000; // 2 seconds

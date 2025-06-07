@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { setupNeonBranch } from '../config/neon-test-context';
 import * as schema from '@/lib/db/schema';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 import { measurePerformance } from '../utils/test-helpers';
 
 describe('Auth Middleware Integration Tests (Simplified)', () => {

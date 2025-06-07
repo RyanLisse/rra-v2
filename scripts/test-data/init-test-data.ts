@@ -12,7 +12,7 @@
  *   bun run scripts/test-data/init-test-data.ts --env=performance --size=large
  */
 
-import { parseArgs } from 'util';
+import { parseArgs } from 'node:util';
 import { getTestBranchManager } from '@/lib/testing/neon-test-branches';
 import { UnitSeeder } from '@/tests/seeds/unit-seeder';
 import { E2ESeeder, BrowserTestSeeder } from '@/tests/seeds/e2e-seeder';

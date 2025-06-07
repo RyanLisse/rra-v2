@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { DocumentProcessor } from '@/lib/document-processing/document-processor';
-import { ADEChunkHelpers } from '@/lib/db/ade-helpers';
 import type { AdeOutput } from '@/lib/ade/types';
 import { db } from '@/lib/db';
 import { ragDocument, documentContent, documentChunk } from '@/lib/db/schema';
@@ -26,7 +25,7 @@ describe('ADE Chunk Integration', () => {
 
   beforeEach(async () => {
     processor = new DocumentProcessor();
-    mockDocumentId = 'test-doc-' + Date.now();
+    mockDocumentId = `test-doc-${Date.now()}`;
 
     // Create a mock document in the database
     const [doc] = await db

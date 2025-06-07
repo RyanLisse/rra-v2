@@ -11,8 +11,8 @@ import {
   type NeonBranch,
 } from '../lib/testing/neon-api-client';
 import { config } from 'dotenv';
-import { resolve } from 'path';
-import { writeFile } from 'fs/promises';
+import { resolve } from 'node:path';
+import { writeFile } from 'node:fs/promises';
 
 // Load environment variables
 config({ path: resolve(process.cwd(), '.env.test') });
@@ -127,18 +127,18 @@ function parseArgs(): Partial<MonitoringConfig> & { help?: boolean } {
     } else if (arg.startsWith('--format=')) {
       result.format = arg.split('=')[1] as any;
     } else if (arg.startsWith('--interval=')) {
-      result.interval = parseInt(arg.split('=')[1], 10);
+      result.interval = Number.parseInt(arg.split('=')[1], 10);
     } else if (arg.startsWith('--output=')) {
       result.outputFile = arg.split('=')[1];
     } else if (arg.startsWith('--stale-hours=')) {
       if (!result.alertThresholds) result.alertThresholds = {} as any;
-      result.alertThresholds.staleBranchHours = parseInt(arg.split('=')[1], 10);
+      result.alertThresholds.staleBranchHours = Number.parseInt(arg.split('=')[1], 10);
     } else if (arg.startsWith('--large-mb=')) {
       if (!result.alertThresholds) result.alertThresholds = {} as any;
-      result.alertThresholds.largeBranchMB = parseInt(arg.split('=')[1], 10);
+      result.alertThresholds.largeBranchMB = Number.parseInt(arg.split('=')[1], 10);
     } else if (arg.startsWith('--max-branches=')) {
       if (!result.alertThresholds) result.alertThresholds = {} as any;
-      result.alertThresholds.maxTestBranches = parseInt(arg.split('=')[1], 10);
+      result.alertThresholds.maxTestBranches = Number.parseInt(arg.split('=')[1], 10);
     } else if (arg.startsWith('--filter-env=')) {
       if (!result.filters) result.filters = {};
       result.filters.environment = arg.split('=')[1] as any;
@@ -513,7 +513,7 @@ function formatTableOutput(
     filteredBranches.forEach((branch) => {
       const name =
         branch.branchName.length > 40
-          ? branch.branchName.slice(0, 37) + '...'
+          ? `${branch.branchName.slice(0, 37)}...`
           : branch.branchName;
       const status = `${getHealthEmoji(branch.status)} ${branch.status}`;
       const age = `${branch.age}h`;
@@ -627,7 +627,7 @@ async function runCommand(config: MonitoringConfig): Promise<void> {
   switch (config.command) {
     case 'status':
     case 'health':
-    case 'report':
+    case 'report': {
       const report = await generateStatusReport(client, config);
 
       if (config.format === 'table') {
@@ -647,6 +647,7 @@ async function runCommand(config: MonitoringConfig): Promise<void> {
         console.log(`\n📄 Report saved to: ${config.outputFile}`);
       }
       break;
+    }
 
     case 'monitor':
       console.log('🔄 Starting continuous monitoring...');
@@ -679,7 +680,7 @@ async function runCommand(config: MonitoringConfig): Promise<void> {
       }
       break;
 
-    case 'alerts':
+    case 'alerts': {
       const alertReport = await generateStatusReport(client, config);
       const alerts = [
         ...alertReport.systemHealth.issues,
@@ -696,6 +697,7 @@ async function runCommand(config: MonitoringConfig): Promise<void> {
         console.log('✅ No alerts detected');
       }
       break;
+    }
   }
 }
 

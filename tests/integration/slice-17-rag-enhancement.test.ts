@@ -5,7 +5,6 @@ import {
   createTestUser,
   createTestDocument,
   createTestDocumentContent,
-  createTestDocumentChunk,
   createTestEmbedding,
   createPerformanceDataFactory,
 } from '../fixtures/test-data';
@@ -1072,7 +1071,7 @@ Context Information:`;
             : '';
           const pageDisplay = chunk.pageNumber
             ? `, page ${chunk.pageNumber}`
-            : `, chunk ${parseInt(chunk.chunkIndex) + 1}`;
+            : `, chunk ${Number.parseInt(chunk.chunkIndex) + 1}`;
 
           return {
             id: `citation-${index + 1}`,

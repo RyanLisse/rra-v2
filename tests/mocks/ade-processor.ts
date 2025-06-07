@@ -338,7 +338,7 @@ export class MockAdeProcessor {
    */
   createMockApiResponse(
     documentId: string,
-    success: boolean = true,
+    success = true,
     elements?: AdeElement[],
   ) {
     return createMockAdeApiResponse(documentId, success, elements);

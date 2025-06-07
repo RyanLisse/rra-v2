@@ -4,7 +4,7 @@
  */
 
 import { config as loadDotenv } from 'dotenv';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 import type {
   CompleteTestConfig,
   TestEnvironmentConfig,
@@ -229,24 +229,24 @@ export class EnhancedConfigBuilder implements ConfigBuilder {
       // Enhanced API configuration
       apiBaseUrl:
         process.env.NEON_API_BASE_URL || 'https://console.neon.tech/api/v2',
-      rateLimitPerMinute: parseInt(
+      rateLimitPerMinute: Number.parseInt(
         process.env.NEON_API_RATE_LIMIT_PER_MINUTE || '60',
       ),
-      burstLimit: parseInt(process.env.NEON_API_BURST_LIMIT || '10'),
-      maxRetries: parseInt(process.env.NEON_API_MAX_RETRIES || '3'),
-      baseDelayMs: parseInt(process.env.NEON_API_BASE_DELAY_MS || '1000'),
-      maxDelayMs: parseInt(process.env.NEON_API_MAX_DELAY_MS || '10000'),
+      burstLimit: Number.parseInt(process.env.NEON_API_BURST_LIMIT || '10'),
+      maxRetries: Number.parseInt(process.env.NEON_API_MAX_RETRIES || '3'),
+      baseDelayMs: Number.parseInt(process.env.NEON_API_BASE_DELAY_MS || '1000'),
+      maxDelayMs: Number.parseInt(process.env.NEON_API_MAX_DELAY_MS || '10000'),
 
       // Branch management
-      branchTimeout: parseInt(process.env.NEON_BRANCH_TIMEOUT || '120000'),
-      maxConcurrentBranches: parseInt(
+      branchTimeout: Number.parseInt(process.env.NEON_BRANCH_TIMEOUT || '120000'),
+      maxConcurrentBranches: Number.parseInt(
         process.env.NEON_MAX_CONCURRENT_BRANCHES || '5',
       ),
       cleanupOnStartup: this.parseBoolean(
         process.env.NEON_CLEANUP_ON_STARTUP,
         true,
       ),
-      maxBranchAgeHours: parseInt(
+      maxBranchAgeHours: Number.parseInt(
         process.env.NEON_MAX_BRANCH_AGE_HOURS || '24',
       ),
       autoCleanupEnabled: this.parseBoolean(
@@ -277,7 +277,7 @@ export class EnhancedConfigBuilder implements ConfigBuilder {
         true,
       ),
       logLevel: (process.env.NEON_LOG_LEVEL as any) || 'info',
-      metricsRetentionHours: parseInt(
+      metricsRetentionHours: Number.parseInt(
         process.env.NEON_METRICS_RETENTION_HOURS || '168',
       ),
       exportMetricsOnExit: this.parseBoolean(
@@ -295,11 +295,11 @@ export class EnhancedConfigBuilder implements ConfigBuilder {
       name: process.env.TEST_SUITE_NAME || 'default',
       type: (process.env.TEST_SUITE_TYPE as any) || 'unit',
 
-      testTimeout: parseInt(process.env.VITEST_TIMEOUT || '120000'),
-      hookTimeout: parseInt(process.env.VITEST_HOOK_TIMEOUT || '120000'),
-      teardownTimeout: parseInt(process.env.VITEST_TEARDOWN_TIMEOUT || '60000'),
+      testTimeout: Number.parseInt(process.env.VITEST_TIMEOUT || '120000'),
+      hookTimeout: Number.parseInt(process.env.VITEST_HOOK_TIMEOUT || '120000'),
+      teardownTimeout: Number.parseInt(process.env.VITEST_TEARDOWN_TIMEOUT || '60000'),
 
-      maxConcurrency: parseInt(process.env.VITEST_POOL_THREADS_MAX || '4'),
+      maxConcurrency: Number.parseInt(process.env.VITEST_POOL_THREADS_MAX || '4'),
       sequential: !this.parseBoolean(
         process.env.VITEST_SEQUENCE_CONCURRENT,
         true,
@@ -323,7 +323,7 @@ export class EnhancedConfigBuilder implements ConfigBuilder {
                 process.env.NEON_DEFAULT_BRANCH_TAGS || 'test,automated'
               ).split(','),
               waitForReady: true,
-              timeoutMs: parseInt(process.env.NEON_BRANCH_TIMEOUT || '120000'),
+              timeoutMs: Number.parseInt(process.env.NEON_BRANCH_TIMEOUT || '120000'),
             },
           }
         : undefined,
@@ -601,7 +601,7 @@ export class EnhancedConfigBuilder implements ConfigBuilder {
     if (typeof defaultValue === 'boolean') {
       return this.parseBoolean(value, defaultValue);
     } else if (typeof defaultValue === 'number') {
-      return parseInt(value) || defaultValue;
+      return Number.parseInt(value) || defaultValue;
     } else {
       return value || defaultValue;
     }
@@ -609,7 +609,7 @@ export class EnhancedConfigBuilder implements ConfigBuilder {
 
   private parseBoolean(
     value: string | undefined,
-    defaultValue: boolean = false,
+    defaultValue = false,
   ): boolean {
     if (value === undefined) return defaultValue;
     return value.toLowerCase() === 'true' || value === '1';

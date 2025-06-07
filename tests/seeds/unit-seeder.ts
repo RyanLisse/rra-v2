@@ -272,7 +272,7 @@ export class IsolatedUnitSeeder extends BaseSeeder {
  * Factory for creating unit seeders
  */
 export class UnitSeederFactory {
-  static create(isolated: boolean = false): (config: any) => BaseSeeder {
+  static create(isolated = false): (config: any) => BaseSeeder {
     return (config) => {
       if (isolated) {
         return new IsolatedUnitSeeder(config);
@@ -281,7 +281,7 @@ export class UnitSeederFactory {
     };
   }
 
-  static createQuick(environment: string = 'unit'): UnitSeeder {
+  static createQuick(environment = 'unit'): UnitSeeder {
     return new UnitSeeder({
       environment: environment as any,
       clean: true,
@@ -289,7 +289,7 @@ export class UnitSeederFactory {
     });
   }
 
-  static createIsolated(environment: string = 'unit'): IsolatedUnitSeeder {
+  static createIsolated(environment = 'unit'): IsolatedUnitSeeder {
     return new IsolatedUnitSeeder({
       environment: environment as any,
       clean: true,

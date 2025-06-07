@@ -1,8 +1,7 @@
 #!/usr/bin/env bun
 
-import { readFile, writeFile } from 'fs/promises';
-import { join } from 'path';
-import { parseArgs } from 'util';
+import { readFile, writeFile } from 'node:fs/promises';
+import { parseArgs } from 'node:util';
 
 interface PerformanceMetric {
   name: string;

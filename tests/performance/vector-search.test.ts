@@ -11,7 +11,6 @@ import {
   createTestUser,
   createTestDocument,
   createTestDocumentChunk,
-  createTestEmbedding,
   createPerformanceDataFactory,
 } from '../fixtures/test-data';
 import * as schema from '@/lib/db/schema';
@@ -1225,7 +1224,7 @@ describe('Vector Search Performance Tests (Enhanced with Neon Branching)', () =>
               const operationType = i % 4; // Cycle through different operations
 
               switch (operationType) {
-                case 0: // Update chunk content
+                case 0: { // Update chunk content
                   const randomChunk =
                     insertedChunks[
                       Math.floor(Math.random() * insertedChunks.length)
@@ -1239,8 +1238,9 @@ describe('Vector Search Performance Tests (Enhanced with Neon Branching)', () =>
                     .where(schema.documentChunk.id === randomChunk.id);
                   updateMetrics.chunkUpdates++;
                   break;
+                }
 
-                case 1: // Update embedding
+                case 1: { // Update embedding
                   const randomChunkForEmbedding =
                     insertedChunks[
                       Math.floor(Math.random() * insertedChunks.length)
@@ -1258,8 +1258,9 @@ describe('Vector Search Performance Tests (Enhanced with Neon Branching)', () =>
                     );
                   updateMetrics.embeddingUpdates++;
                   break;
+                }
 
-                case 2: // Perform complex search
+                case 2: { // Perform complex search
                   const searchOffset = Math.floor(
                     Math.random() * Math.max(1, insertedChunks.length - 50),
                   );
@@ -1272,8 +1273,9 @@ describe('Vector Search Performance Tests (Enhanced with Neon Branching)', () =>
                   });
                   updateMetrics.searches++;
                   break;
+                }
 
-                case 3: // Insert new chunk and embedding
+                case 3: { // Insert new chunk and embedding
                   const newChunkData = createTestDocumentChunk(
                     document.id,
                     initialChunkCount + i,
@@ -1294,6 +1296,7 @@ describe('Vector Search Performance Tests (Enhanced with Neon Branching)', () =>
                   insertedChunks.push(newChunk); // Keep track for future operations
                   updateMetrics.newInserts++;
                   break;
+                }
               }
 
               // Periodic performance check during intensive operations

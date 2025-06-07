@@ -7,8 +7,6 @@ import type {
   FactoryOptions,
   RelationshipOptions,
   CompleteUser,
-  CompleteChat,
-  CompleteRAGDocument,
   TestScenario,
 } from './types';
 
@@ -67,7 +65,7 @@ export class RelationshipFactory extends BaseFactory<any> {
    * Create multiple users with cross-relationships
    */
   createUserNetwork(
-    userCount: number = 5,
+    userCount = 5,
     options?: FactoryOptions & RelationshipOptions,
   ): CompleteUser[] {
     const users = Array.from({ length: userCount }, () =>

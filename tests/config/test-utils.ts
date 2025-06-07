@@ -119,7 +119,7 @@ export class TestContextManager {
    */
   async executeCleanup(testName: string): Promise<void> {
     const context = this.contexts.get(testName);
-    if (context && context.cleanup) {
+    if (context?.cleanup) {
       const cleanupPromises = context.cleanup.map((fn) =>
         fn().catch((error) =>
           logger.error('test_context', 'Cleanup function failed', {

@@ -4,7 +4,6 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { POST } from '@/app/api/documents/upload/route';
-import { nanoid } from 'nanoid';
 
 // Mock Inngest client
 const mockSendEvent = vi.fn();

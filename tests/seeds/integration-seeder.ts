@@ -1,5 +1,4 @@
 import { BaseSeeder } from './base-seeder';
-import { relationshipFactory } from '../factories/relationship-factory';
 import { completeUserFactory } from '../factories/user-factory';
 import { completeRAGDocumentFactory } from '../factories/rag-factory';
 import { completeChatFactory } from '../factories/chat-factory';

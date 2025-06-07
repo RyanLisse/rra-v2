@@ -65,8 +65,8 @@ async function verifyInngestSetup() {
     'app/api/inngest/route.ts',
   ];
 
-  const fs = await import('fs');
-  const path = await import('path');
+  const fs = await import('node:fs');
+  const path = await import('node:path');
 
   requiredFiles.forEach((filePath) => {
     const fullPath = path.join(process.cwd(), filePath);

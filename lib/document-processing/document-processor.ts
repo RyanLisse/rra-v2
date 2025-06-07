@@ -13,10 +13,9 @@ import {
 } from '@/lib/db/ade-helpers';
 import {
   processDocumentWithAde,
-  extractTextFromAdeElements,
   groupElementsByPage,
 } from '@/lib/ade/processor';
-import type { AdeOutput, AdeElement } from '@/lib/ade/types';
+import type { AdeOutput, } from '@/lib/ade/types';
 
 export interface DocumentProcessingResult {
   success: boolean;

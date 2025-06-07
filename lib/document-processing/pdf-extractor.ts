@@ -5,8 +5,7 @@
  */
 
 import PDFParser from 'pdf-parse';
-import { readFile } from 'fs/promises';
-import path from 'path';
+import { readFile } from 'node:fs/promises';
 
 /**
  * Result type for PDF text extraction
