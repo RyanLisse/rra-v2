@@ -82,9 +82,9 @@ export async function POST(request: Request) {
   });
 
   return Response.json(document, { status: 200 });
-});
+}
 
-export const DELETE = withAuth(async (request: Request, session: any) => {
+export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
   const timestamp = searchParams.get('timestamp');
