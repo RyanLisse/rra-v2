@@ -4,12 +4,20 @@ import { join } from 'node:path';
 import { db } from '@/lib/db';
 import { ragDocument, documentContent } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
-import { withAuth } from '@/lib/auth';
+import { getUser } from '@/lib/auth/kinde';
 import { DocumentProcessor } from '@/lib/document-processing/document-processor';
 import { DocumentStatusManager } from '@/lib/document-processing/status-manager';
 
-export const POST = withAuth(async (request: NextRequest, session: any) => {
+export async function POST(request: NextRequest) {
   try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { documentId } = body;
 
@@ -33,7 +41,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
     }
 
     // Verify document belongs to user
-    if (document.uploadedBy !== session.user.id) {
+    if (document.uploadedBy !== user.id) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
@@ -159,4 +167,4 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
       { status: 500 },
     );
   }
-});
+}

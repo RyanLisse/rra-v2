@@ -1,4 +1,4 @@
-import { withAuth } from '@/lib/auth';
+import { getUser } from '@/lib/auth/kinde';
 import { vectorSearchService } from '@/lib/search/vector-search';
 import { geminiRAGService } from '@/lib/ai/gemini-client';
 import { z } from 'zod';
@@ -40,8 +40,16 @@ const ragChatSchema = z.object({
   streaming: z.boolean().default(false),
 });
 
-export const POST = withAuth(async (request: Request, session: any) => {
+export async function POST(request: Request) {
   try {
+    const user = await getUser();
+    if (!user) {
+      return Response.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
 
     // Validate input
@@ -81,7 +89,7 @@ export const POST = withAuth(async (request: Request, session: any) => {
       const recentContext = conversationHistory.slice(-contextWindow);
       searchResponse = await vectorSearchService.contextAwareSearch(
         message,
-        session.user.id,
+        user.id,
         recentContext,
         {
           limit: searchOptions?.limit || 8,
@@ -94,7 +102,7 @@ export const POST = withAuth(async (request: Request, session: any) => {
       // Use multi-step search for complex queries
       searchResponse = await vectorSearchService.multiStepSearch(
         message,
-        session.user.id,
+        user.id,
         {
           maxSteps: Math.min(maxReasoningSteps, 3),
           minResultsPerStep: 3,
@@ -105,7 +113,7 @@ export const POST = withAuth(async (request: Request, session: any) => {
       // Standard hybrid search
       searchResponse = await vectorSearchService.hybridSearch(
         message,
-        session.user.id,
+        user.id,
         {
           limit: searchOptions?.limit || 8,
           threshold: searchOptions?.threshold || 0.3,
@@ -124,7 +132,7 @@ export const POST = withAuth(async (request: Request, session: any) => {
       // Try fallback search with lower threshold if initial search fails
       const fallbackResponse = await vectorSearchService.hybridSearch(
         message,
-        session.user.id,
+        user.id,
         {
           limit: 5,
           threshold: 0.1, // Much lower threshold
@@ -148,7 +156,7 @@ export const POST = withAuth(async (request: Request, session: any) => {
           },
           suggestions: await generateSearchSuggestions(
             message,
-            session.user.id,
+            user.id,
           ),
         });
       }
@@ -363,7 +371,7 @@ export const POST = withAuth(async (request: Request, session: any) => {
       { status: 500 },
     );
   }
-});
+}
 
 /**
  * Generate search suggestions when no results are found

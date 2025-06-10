@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { nanoid } from 'nanoid';
 import { db } from '@/lib/db';
 import { ragDocument } from '@/lib/db/schema';
-import { withAuth } from '@/lib/auth';
+import { getUser } from '@/lib/auth/kinde';
 import { sendEvent } from '@/lib/inngest/client';
 
 const UPLOAD_DIR = join(process.cwd(), 'uploads');
@@ -25,7 +25,7 @@ async function ensureUploadDirExists() {
   }
 }
 
-export const POST = withAuth(async (request: NextRequest, session: any) => {
+export async function POST(request: NextRequest) {
   try {
     await ensureUploadDirExists();
 
@@ -134,4 +134,4 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
       { status: 500 },
     );
   }
-});
+}

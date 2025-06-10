@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { getChatsByUserId } from '@/lib/db/queries';
 import { ChatSDKError } from '@/lib/errors';
 
-export const GET = withAuth(async (request: Request, session: any) => {
+export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
 
   const limit = Number.parseInt(searchParams.get('limit') || '10');
@@ -31,4 +31,4 @@ export const GET = withAuth(async (request: Request, session: any) => {
   });
 
   return Response.json(chats);
-});
+}

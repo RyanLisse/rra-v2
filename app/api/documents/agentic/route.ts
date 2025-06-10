@@ -4,7 +4,7 @@
  */
 
 import { type NextRequest, NextResponse } from 'next/server';
-import { withAuth } from '@/lib/auth/middleware';
+import { getUser } from '@/lib/auth/kinde';
 import { z } from 'zod';
 import { agenticDocumentService } from '@/lib/document-processing/agentic-integration';
 
@@ -36,8 +36,16 @@ const summaryRequestSchema = z.object({
  * POST /api/documents/agentic
  * Process a document with agentic analysis
  */
-export const POST = withAuth(async (request: NextRequest, session: any) => {
+export async function POST(request: NextRequest) {
   try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { documentId, options } = processDocumentSchema.parse(body);
 
@@ -45,7 +53,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
 
     const result = await agenticDocumentService.processDocumentWithAgentic(
       documentId,
-      session.user.id,
+      user.id,
       options,
     );
 
@@ -85,14 +93,22 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
       { status: 500 },
     );
   }
-});
+}
 
 /**
  * GET /api/documents/agentic?action=query
  * Query a document using agentic analysis
  */
-export const GET = withAuth(async (request: NextRequest, session: any) => {
+export async function GET(request: NextRequest) {
   try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const action = searchParams.get('action');
 
@@ -187,14 +203,22 @@ export const GET = withAuth(async (request: NextRequest, session: any) => {
       { status: 500 },
     );
   }
-});
+}
 
 /**
  * PUT /api/documents/agentic
  * Update agentic analysis settings or re-process document
  */
-export const PUT = withAuth(async (request: NextRequest, session: any) => {
+export async function PUT(request: NextRequest) {
   try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { documentId, action, options } = body;
 
@@ -216,7 +240,7 @@ export const PUT = withAuth(async (request: NextRequest, session: any) => {
 
       const result = await agenticDocumentService.processDocumentWithAgentic(
         documentId,
-        session.user.id,
+        user.id,
         options,
       );
 
@@ -252,7 +276,7 @@ export const PUT = withAuth(async (request: NextRequest, session: any) => {
       { status: 500 },
     );
   }
-});
+}
 
 /**
  * Health check for agentic document service

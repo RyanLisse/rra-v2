@@ -1,9 +1,17 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { withAuth } from '@/lib/auth';
+import { getUser } from '@/lib/auth/kinde';
 import { DocumentProcessingPipeline } from '@/lib/document-processing/pipeline';
 
-export const POST = withAuth(async (request: NextRequest, session: any) => {
+export async function POST(request: NextRequest) {
   try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { documentIds, options = {} } = body;
 
@@ -34,7 +42,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
       // Single document processing
       const result = await pipeline.processDocument(
         documentIds[0],
-        session.user.id,
+        user.id,
       );
 
       return NextResponse.json({
@@ -43,7 +51,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
       });
     } else {
       // Batch processing
-      const results = await pipeline.processBatch(documentIds, session.user.id);
+      const results = await pipeline.processBatch(documentIds, user.id);
       const successCount = results.filter((r) => r.success).length;
 
       return NextResponse.json({
@@ -66,4 +74,4 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
       { status: 500 },
     );
   }
-});
+}
