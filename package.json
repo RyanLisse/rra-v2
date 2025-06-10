@@ -212,7 +212,7 @@
     "eslint-config-next": "14.2.5",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^3.6.3",
-    "eslint-plugin-tailwindcss": "^3.17.5",
+    "eslint-plugin-tailwindcss": "^4.0.0-alpha.0",
     "jsdom": "^26.1.0",
     "postcss": "^8",
     "tailwindcss": "^4.1.8",
