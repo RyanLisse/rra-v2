@@ -19,4 +19,4 @@ export const { GET, POST, PUT } = inngestHandler;
  */
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-export const maxDuration = 300; // 5 minutes max execution time
+export const maxDuration = 60; // 1 minute max execution time (Vercel hobby plan limit)
