@@ -7,7 +7,7 @@ import {
 } from '@/lib/db/queries';
 import { ChatSDKError } from '@/lib/errors';
 
-export const GET = withAuth(async (request: Request, session: any) => {
+export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
 
@@ -37,9 +37,9 @@ export const GET = withAuth(async (request: Request, session: any) => {
   }
 
   return Response.json(documents, { status: 200 });
-});
+}
 
-export const POST = withAuth(async (request: Request, session: any) => {
+export async function POST(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
 
@@ -123,4 +123,4 @@ export const DELETE = withAuth(async (request: Request, session: any) => {
   });
 
   return Response.json(documentsDeleted, { status: 200 });
-});
+}

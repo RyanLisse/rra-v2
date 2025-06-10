@@ -2,7 +2,7 @@ import { getUser, type UserType } from '@/lib/auth/kinde';
 import { getSuggestionsByDocumentId } from '@/lib/db/queries';
 import { ChatSDKError } from '@/lib/errors';
 
-export const GET = withAuth(async (request: Request, session: any) => {
+export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const documentId = searchParams.get('documentId');
 
@@ -34,4 +34,4 @@ export const GET = withAuth(async (request: Request, session: any) => {
   }
 
   return Response.json(suggestions, { status: 200 });
-});
+}

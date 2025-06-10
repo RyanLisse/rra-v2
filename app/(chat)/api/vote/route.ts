@@ -2,7 +2,7 @@ import { getUser, type UserType } from '@/lib/auth/kinde';
 import { getChatById, getVotesByChatId, voteMessage } from '@/lib/db/queries';
 import { ChatSDKError } from '@/lib/errors';
 
-export const GET = withAuth(async (request: Request, session: any) => {
+export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const chatId = searchParams.get('chatId');
 
@@ -32,9 +32,9 @@ export const GET = withAuth(async (request: Request, session: any) => {
   const votes = await getVotesByChatId({ id: chatId });
 
   return Response.json(votes, { status: 200 });
-});
+}
 
-export const PATCH = withAuth(async (request: Request, session: any) => {
+export async function PATCH(request: Request) {
   const {
     chatId,
     messageId,
@@ -72,4 +72,4 @@ export const PATCH = withAuth(async (request: Request, session: any) => {
   });
 
   return new Response('Message voted', { status: 200 });
-});
+}
