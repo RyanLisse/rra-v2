@@ -56,3 +56,4 @@ node_modules
 .vercel
 *.env.local
 .env.test*
+.env.test.local
