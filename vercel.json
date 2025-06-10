@@ -1,5 +1,13 @@
 {
-  "buildCommand": "bun run build",
-  "installCommand": "bun install",
-  "framework": "nextjs"
+  "buildCommand": "npm run build",
+  "installCommand": "npm install --legacy-peer-deps",
+  "framework": "nextjs",
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "functions": {
+    "app/**/*.ts": {
+      "runtime": "nodejs20.x"
+    }
+  }
 }

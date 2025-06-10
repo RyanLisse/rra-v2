@@ -13,7 +13,7 @@ import React, { useEffect, useRef } from 'react';
 import { renderToString } from 'react-dom/server';
 import ReactMarkdown from 'react-markdown';
 
-import { diffEditor, DiffType } from '@/lib/editor/diff';
+import { diffNodes, DiffType, type DiffNode } from '@/lib/editor/diff';
 
 const diffSchema = new Schema({
   nodes: addListNodes(schema.spec.nodes, 'paragraph block*', 'block'),
@@ -43,7 +43,17 @@ const diffSchema = new Schema({
 });
 
 function computeDiff(oldDoc: ProsemirrorNode, newDoc: ProsemirrorNode) {
-  return diffEditor(diffSchema, oldDoc.toJSON(), newDoc.toJSON());
+  const diffs = diffNodes(diffSchema, oldDoc, newDoc);
+  
+  // Convert diff results back to a document
+  const content: ProsemirrorNode[] = [];
+  for (const diff of diffs) {
+    if (diff.type !== DiffType.Deleted) {
+      content.push(diff.node);
+    }
+  }
+  
+  return diffSchema.nodes.doc.create({}, content);
 }
 
 type DiffEditorProps = {
