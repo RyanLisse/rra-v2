@@ -1,70 +1,73 @@
+import { withAuth } from '@kinde-oss/kinde-auth-nextjs/middleware';
 import { NextResponse, type NextRequest } from 'next/server';
-import { auth } from '@/lib/auth/config';
-import { guestRegex } from './lib/constants';
 
-export async function middleware(request: NextRequest) {
+// Optimized static asset patterns
+const STATIC_PATTERNS = [
+  '/_next/',
+  '/api/auth/',
+  '/favicon',
+  '/manifest.json',
+  '/sw.js',
+  '/robots.txt',
+  '/sitemap.xml',
+];
+
+// Optimized file extension check
+const FILE_EXTENSIONS =
+  /\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|map)$/;
+
+function handleMiddleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  /*
-   * Playwright starts the dev server and requires a 200 status to
-   * begin the tests, so this ensures that the tests can start
-   */
-  if (pathname.startsWith('/ping')) {
+  // Health check for testing
+  if (pathname === '/ping') {
     return new Response('pong', { status: 200 });
   }
 
-  // Skip middleware for static assets and Next.js internals
+  // Allow ping endpoint without authentication
+  if (pathname === '/api/ping') {
+    return NextResponse.next();
+  }
+
+  // Optimized static asset check
   if (
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/api/auth') ||
-    pathname.includes('.') // Skip files with extensions (images, etc.)
+    STATIC_PATTERNS.some((pattern) => pathname.startsWith(pattern)) ||
+    FILE_EXTENSIONS.test(pathname)
   ) {
     return NextResponse.next();
   }
 
-  // Allow access to login/register pages without authentication
+  // Allow access to auth pages without authentication
   if (pathname === '/login' || pathname === '/register') {
-    // Check if user is already authenticated
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
-
-    if (session?.user) {
-      const isGuest =
-        (session.user as any)?.type === 'guest' ||
-        guestRegex.test(session.user?.email ?? '');
-
-      // Redirect authenticated non-guest users away from auth pages
-      if (!isGuest) {
-        return NextResponse.redirect(new URL('/', request.url));
-      }
-    }
-
     return NextResponse.next();
   }
 
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
+  // Continue with Kinde auth middleware
+  return NextResponse.next();
+}
 
-  if (!session?.user) {
-    // For API routes (except auth), return 401
-    if (pathname.startsWith('/api/')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // For the homepage, redirect to guest auth endpoint
-    if (pathname === '/') {
-      const guestAuthUrl = new URL('/api/auth/guest', request.url);
-      guestAuthUrl.searchParams.set('redirectUrl', request.url.toString());
-      return NextResponse.redirect(guestAuthUrl);
-    }
-
-    // For other pages, redirect to login
-    return NextResponse.redirect(new URL('/login', request.url));
+// Use Kinde's auth middleware but wrap it with our custom logic
+export function middleware(request: NextRequest) {
+  // Run our custom middleware first
+  const customResponse = handleMiddleware(request);
+  
+  // If custom middleware wants to handle the request, let it
+  if (customResponse.status !== 200 || customResponse.headers.get('location')) {
+    return customResponse;
   }
 
-  return NextResponse.next();
+  // For protected routes, delegate to Kinde
+  return withAuth(request);
+}
+
+function handleUnauthenticated(pathname: string, request: NextRequest) {
+  // For API routes (except auth), return 401
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // For other pages, redirect to login
+  return NextResponse.redirect(new URL('/login', request.url));
 }
 
 export const config = {
@@ -76,8 +79,10 @@ export const config = {
      * - API routes
      * - Auth pages
      * - Documents page
+     * - Ping endpoint for health checks
      */
     '/',
+    '/ping',
     '/chat/:path*',
     '/api/:path*',
     '/login',

@@ -2,7 +2,8 @@
 
 import { ChevronUp } from 'lucide-react';
 import Image from 'next/image';
-import { signOut, useSession } from '@/lib/auth/client';
+import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
+import { LogoutLink, LoginLink } from '@kinde-oss/kinde-auth-nextjs/components';
 import { useTheme } from 'next-themes';
 
 import {
@@ -18,31 +19,23 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { useRouter } from 'next/navigation';
-import { toast } from './toast';
 import { LoaderIcon } from './icons';
-import { guestRegex } from '@/lib/constants';
 
 export function SidebarUserNav({ user }: { user: any }) {
   const router = useRouter();
-  const session = useSession();
-  const status = session.isPending
-    ? 'loading'
-    : session.data
-      ? 'authenticated'
-      : 'unauthenticated';
-  const data = { user: session.data?.user };
+  const { user: kindeUser, isAuthenticated, isLoading } = useKindeBrowserClient();
   const { setTheme, resolvedTheme } = useTheme();
 
-  const isGuest =
-    (session.data?.user as any)?.isAnonymous ||
-    guestRegex.test(session.data?.user?.email ?? '');
+  // Use Kinde user data if available, fallback to passed user prop
+  const currentUser = kindeUser || user;
+  const isUserAuthenticated = isAuthenticated && currentUser;
 
   return (
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            {status === 'loading' ? (
+            {isLoading ? (
               <SidebarMenuButton className="data-[state=open]:bg-sidebar-accent bg-background data-[state=open]:text-sidebar-accent-foreground h-10 justify-between">
                 <div className="flex flex-row gap-2">
                   <div className="size-6 bg-zinc-500/30 rounded-full animate-pulse" />
@@ -60,14 +53,14 @@ export function SidebarUserNav({ user }: { user: any }) {
                 className="data-[state=open]:bg-sidebar-accent bg-background data-[state=open]:text-sidebar-accent-foreground h-10"
               >
                 <Image
-                  src={`https://avatar.vercel.sh/${user.email}`}
-                  alt={user.email ?? 'User Avatar'}
+                  src={currentUser?.picture || `https://avatar.vercel.sh/${currentUser?.email || 'guest'}`}
+                  alt={currentUser?.email ?? 'User Avatar'}
                   width={24}
                   height={24}
                   className="rounded-full"
                 />
                 <span data-testid="user-email" className="truncate">
-                  {isGuest ? 'Guest' : user?.email}
+                  {isUserAuthenticated ? currentUser?.email : 'Guest'}
                 </span>
                 <ChevronUp className="ml-auto" />
               </SidebarMenuButton>
@@ -89,35 +82,15 @@ export function SidebarUserNav({ user }: { user: any }) {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild data-testid="user-nav-item-auth">
-              <button
-                type="button"
-                className="w-full cursor-pointer"
-                onClick={() => {
-                  if (status === 'loading') {
-                    toast({
-                      type: 'error',
-                      description:
-                        'Checking authentication status, please try again!',
-                    });
-
-                    return;
-                  }
-
-                  if (isGuest) {
-                    router.push('/login');
-                  } else {
-                    signOut({
-                      fetchOptions: {
-                        onSuccess: () => {
-                          router.push('/');
-                        },
-                      },
-                    });
-                  }
-                }}
-              >
-                {isGuest ? 'Login to your account' : 'Sign out'}
-              </button>
+              {isUserAuthenticated ? (
+                <LogoutLink className="w-full cursor-pointer">
+                  Sign out
+                </LogoutLink>
+              ) : (
+                <LoginLink className="w-full cursor-pointer">
+                  Login to your account
+                </LoginLink>
+              )}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
