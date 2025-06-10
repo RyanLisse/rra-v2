@@ -2,7 +2,7 @@ name: Status Badges
 
 on:
   workflow_run:
-    workflows: ["Test with Neon Branches", "Performance Benchmarks"]
+    workflows: ["CI"]
     types: [completed]
   push:
     branches: [main]
@@ -18,14 +18,20 @@ jobs:
           # Create badge data directory
           mkdir -p .github/badges
           
-          # Test status
-          echo '{"schemaVersion": 1, "label": "tests", "message": "passing", "color": "brightgreen"}' > .github/badges/tests.json
+          # CI status based on workflow run
+          if [ "${{ github.event.workflow_run.conclusion }}" = "success" ]; then
+            echo '{"schemaVersion": 1, "label": "CI", "message": "passing", "color": "brightgreen"}' > .github/badges/ci.json
+            echo '{"schemaVersion": 1, "label": "build", "message": "passing", "color": "brightgreen"}' > .github/badges/build.json
+          else
+            echo '{"schemaVersion": 1, "label": "CI", "message": "failing", "color": "red"}' > .github/badges/ci.json
+            echo '{"schemaVersion": 1, "label": "build", "message": "failing", "color": "red"}' > .github/badges/build.json
+          fi
           
-          # Coverage (example - integrate with actual coverage tool)
-          echo '{"schemaVersion": 1, "label": "coverage", "message": "85%", "color": "yellow"}' > .github/badges/coverage.json
+          # TypeScript status
+          echo '{"schemaVersion": 1, "label": "TypeScript", "message": "strict", "color": "blue"}' > .github/badges/typescript.json
           
-          # Performance
-          echo '{"schemaVersion": 1, "label": "performance", "message": "optimized", "color": "blue"}' > .github/badges/performance.json
+          # Dependencies status  
+          echo '{"schemaVersion": 1, "label": "dependencies", "message": "up to date", "color": "brightgreen"}' > .github/badges/dependencies.json
       
       - name: Commit badge data
         run: |

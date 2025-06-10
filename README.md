@@ -1,5 +1,10 @@
 # RAG Chat Application (RRA_V2)
 
+[![CI](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/RyanLisse/rra-v2/main/.github/badges/ci.json)](https://github.com/RyanLisse/rra-v2/actions/workflows/ci.yml)
+[![Build](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/RyanLisse/rra-v2/main/.github/badges/build.json)](https://github.com/RyanLisse/rra-v2/actions/workflows/ci.yml)
+[![TypeScript](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/RyanLisse/rra-v2/main/.github/badges/typescript.json)](https://github.com/RyanLisse/rra-v2)
+[![Dependencies](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/RyanLisse/rra-v2/main/.github/badges/dependencies.json)](https://github.com/RyanLisse/rra-v2)
+
 A production-grade Retrieval Augmented Generation (RAG) chat application built with Next.js 15, TypeScript, and Neon PostgreSQL.
 
 ## Features
@@ -10,7 +15,7 @@ A production-grade Retrieval Augmented Generation (RAG) chat application built w
 - 💬 **Streaming Chat**: Real-time responses with artifact generation
 - 🔐 **Authentication**: Better-auth with guest support
 - 🧪 **Comprehensive Testing**: Unit, integration, E2E with isolated test environments
-- 🚀 **CI/CD Pipeline**: Automated testing with Neon branch management
+- 🚀 **CI/CD Pipeline**: Automated testing, linting, and build verification
 
 ## Quick Start
 
