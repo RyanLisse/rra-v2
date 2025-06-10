@@ -82,7 +82,12 @@ export async function POST(request: Request) {
     }
 
     // Create session-like object for backward compatibility
-    const session = { user };
+    const session = { 
+      user: {
+        ...user,
+        email: user.email ?? undefined // Convert null to undefined for compatibility
+      }
+    };
     const userType: UserType = user.type;
 
     const messageCount = await getMessageCountByUserId({
