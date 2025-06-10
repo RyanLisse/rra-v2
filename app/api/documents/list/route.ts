@@ -1,13 +1,13 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from '@/lib/auth';
+import { getUser } from '@/lib/auth/kinde';
 import { getRagDocumentsByUserId } from '@/lib/db/queries';
 import { ChatSDKError } from '@/lib/errors';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const user = await getUser();
 
-    if (!session?.user?.id) {
+    if (!user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const limit = Number.parseInt(searchParams.get('limit') || '50');
 
     const documents = await getRagDocumentsByUserId({
-      userId: session.user.id,
+      userId: user.id,
       limit: Math.min(limit, 100), // Cap at 100 documents
     });
 

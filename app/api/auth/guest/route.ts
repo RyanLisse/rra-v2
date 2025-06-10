@@ -1,42 +1,25 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth/config';
+import { getUser, createGuestUser } from '@/lib/auth/kinde';
 
 export async function GET(request: NextRequest) {
   try {
     // Check if user already has a session
-    const existingSession = await auth.api.getSession({
-      headers: request.headers,
-    });
+    const existingUser = await getUser();
 
-    if (existingSession?.user) {
+    if (existingUser) {
       // If user already has a session (guest or regular), redirect to the requested URL
       const redirectUrl =
         request.nextUrl.searchParams.get('redirectUrl') || '/';
-      return NextResponse.redirect(redirectUrl);
+      return NextResponse.redirect(new URL(redirectUrl, request.url));
     }
 
-    // Create anonymous session using better-auth
-    const response = await auth.api.signInAnonymous({
-      headers: request.headers,
-    });
-
-    if (!response) {
-      throw new Error('Failed to create anonymous session');
-    }
-
-    // Get redirect URL from query params
+    // For guest users, redirect to Kinde login which will handle guest flow
+    // Or create a temporary guest session
     const redirectUrl = request.nextUrl.searchParams.get('redirectUrl') || '/';
-
-    // Create redirect response
-    const redirectResponse = NextResponse.redirect(redirectUrl);
-
-    // Copy over the session cookies from the auth response
-    const authCookies = response.headers.get('set-cookie');
-    if (authCookies) {
-      redirectResponse.headers.set('set-cookie', authCookies);
-    }
-
-    return redirectResponse;
+    
+    // Redirect to login page with guest option
+    return NextResponse.redirect(new URL('/login', request.url));
+    
   } catch (error) {
     console.error('Guest auth error:', error);
     return NextResponse.json(

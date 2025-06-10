@@ -1,6 +1,7 @@
 import path from 'node:path';
 import react from '@vitejs/plugin-react';
-import { defineConfig, loadEnv } from 'vitest/config';
+import { defineConfig } from 'vitest/config';
+import { loadEnv } from 'vite';
 
 export default defineConfig(({ mode }) => {
   // Load environment variables

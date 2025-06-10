@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from '@/lib/auth';
+import { getUser } from '@/lib/auth/kinde';
 import { getRagDocumentById, deleteRagDocumentById } from '@/lib/db/queries';
 import { ChatSDKError } from '@/lib/errors';
 import fs from 'node:fs/promises';
@@ -11,15 +11,15 @@ export async function GET(
 ) {
   const { id } = await params;
   try {
-    const session = await getServerSession();
+    const user = await getUser();
 
-    if (!session?.user?.id) {
+    if (!user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const document = await getRagDocumentById({
       id: id,
-      userId: session.user.id,
+      userId: user.id,
     });
 
     if (!document) {
@@ -50,16 +50,16 @@ export async function DELETE(
 ) {
   const { id } = await params;
   try {
-    const session = await getServerSession();
+    const user = await getUser();
 
-    if (!session?.user?.id) {
+    if (!user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // First get the document to access file path
     const document = await getRagDocumentById({
       id: id,
-      userId: session.user.id,
+      userId: user.id,
     });
 
     if (!document) {
@@ -72,7 +72,7 @@ export async function DELETE(
     // Delete the database record (this will cascade delete related records)
     const deletedDocument = await deleteRagDocumentById({
       id: id,
-      userId: session.user.id,
+      userId: user.id,
     });
 
     if (!deletedDocument) {

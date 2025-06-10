@@ -1,13 +1,13 @@
 import { Suspense } from 'react';
-import { getServerSession } from '@/lib/auth';
+import { getUser } from '@/lib/auth/kinde';
 import { redirect } from 'next/navigation';
 import { DocumentUploader } from '@/components/document-uploader';
 import { DocumentList } from '@/components/document-list';
 
 export default async function DocumentsPage() {
-  const session = await getServerSession();
+  const user = await getUser();
 
-  if (!session) {
+  if (!user) {
     redirect('/login');
   }
 
@@ -30,7 +30,7 @@ export default async function DocumentsPage() {
 
         <div className="space-y-6">
           <Suspense fallback={<div>Loading documents...</div>}>
-            <DocumentList userId={session.user?.id || ''} />
+            <DocumentList userId={user.id || ''} />
           </Suspense>
         </div>
       </div>

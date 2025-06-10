@@ -1,18 +1,18 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from '@/lib/auth';
+import { getUser } from '@/lib/auth/kinde';
 import { getDocumentProcessingStats } from '@/lib/db/queries';
 import { ChatSDKError } from '@/lib/errors';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const user = await getUser();
 
-    if (!session?.user?.id) {
+    if (!user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const stats = await getDocumentProcessingStats({
-      userId: session.user.id,
+      userId: user.id,
     });
 
     return NextResponse.json({
