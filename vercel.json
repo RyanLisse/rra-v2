@@ -1,10 +1,11 @@
 {
-  "buildCommand": "SKIP_MIGRATIONS=true npm run build:vercel",
-  "installCommand": "npm install --legacy-peer-deps --optional",
   "framework": "nextjs",
   "functions": {
     "app/api/**": {
       "maxDuration": 60
     }
+  },
+  "env": {
+    "SKIP_MIGRATIONS": "true"
   }
 }

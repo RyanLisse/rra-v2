@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "bun --bun next dev --turbo",
     "dev:webpack": "bun --bun next dev",
-    "build": "tsx lib/db/migrate && next build",
+    "build": "if [ \"$SKIP_MIGRATIONS\" != \"true\" ]; then tsx lib/db/migrate; fi && next build",
     "build:vercel": "next build",
     "build:turbo": "tsx lib/db/migrate && next build --turbo",
     "start": "next start",
