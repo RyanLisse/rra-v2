@@ -238,7 +238,9 @@ export class EnvironmentUtils {
    */
   static isMCPAvailable(): boolean {
     // In a real implementation, this would check for MCP tool availability
-    return typeof process !== 'undefined' && process.env.NODE_ENV !== 'test';
+    // For now, allow MCP in all Node.js environments including tests
+    const env = EnvironmentUtils.getEnvironmentConfig();
+    return typeof process !== 'undefined' && !env.isBrowser;
   }
 
   /**
@@ -250,8 +252,17 @@ export class EnvironmentUtils {
     isProduction: boolean;
     hasNeonCredentials: boolean;
   } {
-    const isBrowser = typeof window !== 'undefined';
-    const isTest = process.env.NODE_ENV === 'test';
+    // Proper environment detection that accounts for test environments
+    const isTest = process.env.NODE_ENV === 'test' || 
+                   process.env.VITEST === 'true' ||
+                   typeof global !== 'undefined' && global.vi !== undefined;
+    
+    // Only consider it a browser if window exists AND it's not a test environment
+    // Test environments with jsdom can have window but should still allow Neon operations
+    const isBrowser = typeof window !== 'undefined' && 
+                      typeof process === 'undefined' && 
+                      !isTest;
+    
     const isProduction = process.env.NODE_ENV === 'production';
     const hasNeonCredentials = !!(
       process.env.NEON_API_KEY || process.env.NEON_PROJECT_ID

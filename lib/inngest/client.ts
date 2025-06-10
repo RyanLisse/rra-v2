@@ -69,4 +69,31 @@ export const Events = {
   SYSTEM_CLEANUP_REQUESTED: 'system.cleanup-requested' as const,
 } as const;
 
+/**
+ * Get Inngest configuration for testing and debugging
+ */
+export const getInngestConfig = () => ({
+  id: 'rra-v2-app',
+  name: 'RRA V2 RAG Application',
+  eventKey: process.env.INNGEST_EVENT_KEY || 'test-event-key',
+  signingKey: process.env.INNGEST_SIGNING_KEY || 'test-signing-key',
+  isConfigured: !!(process.env.INNGEST_EVENT_KEY && process.env.INNGEST_SIGNING_KEY),
+  environment: process.env.NODE_ENV || 'development',
+  env: process.env.NODE_ENV || 'development', // Alias for test compatibility
+  isDev: process.env.NODE_ENV !== 'production',
+});
+
+/**
+ * Validate Inngest configuration
+ */
+export const validateInngestConfig = () => {
+  const config = getInngestConfig();
+  
+  if (!config.isConfigured && process.env.NODE_ENV === 'production') {
+    throw new Error('Inngest configuration is incomplete for production environment');
+  }
+  
+  return config;
+};
+
 export default inngest;

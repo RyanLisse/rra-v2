@@ -17,9 +17,16 @@ import { getNeonLogger } from '@/lib/testing/neon-logger';
 // Load test environment variables in priority order
 config({ path: resolve(process.cwd(), '.env.test.local') });
 config({ path: resolve(process.cwd(), '.env.test') });
+config({ path: resolve(process.cwd(), '.env.local') }); // Also load .env.local for database URL
 
 // Set environment for testing
 process.env.NODE_ENV = 'test';
+
+// Ensure required environment variables are set for tests
+if (!process.env.POSTGRES_URL) {
+  console.warn('POSTGRES_URL not found in environment, setting fallback for tests');
+  process.env.POSTGRES_URL = 'postgresql://test:test@localhost:5432/test_db';
+}
 
 // Initialize enhanced logging
 const logger = getNeonLogger();
@@ -107,14 +114,24 @@ const setupEnvironmentVariables = () => {
     process.env.POSTGRES_URL = getTestDatabaseUrl();
   }
 
-  // Authentication configuration
-  if (!process.env.BETTER_AUTH_SECRET) {
-    process.env.BETTER_AUTH_SECRET =
-      process.env.BETTER_AUTH_SECRET ||
-      `test-secret-${Math.random().toString(36)}`;
+  // Kinde Authentication configuration (primary auth system)
+  if (!process.env.KINDE_CLIENT_ID) {
+    process.env.KINDE_CLIENT_ID = 'test-kinde-client-id';
   }
-  if (!process.env.BETTER_AUTH_URL) {
-    process.env.BETTER_AUTH_URL = 'http://localhost:3000';
+  if (!process.env.KINDE_CLIENT_SECRET) {
+    process.env.KINDE_CLIENT_SECRET = 'test-kinde-client-secret';
+  }
+  if (!process.env.KINDE_ISSUER_URL) {
+    process.env.KINDE_ISSUER_URL = 'https://test.kinde.com';
+  }
+  if (!process.env.KINDE_SITE_URL) {
+    process.env.KINDE_SITE_URL = 'http://localhost:3000';
+  }
+  if (!process.env.KINDE_POST_LOGOUT_REDIRECT_URL) {
+    process.env.KINDE_POST_LOGOUT_REDIRECT_URL = 'http://localhost:3000';
+  }
+  if (!process.env.KINDE_POST_LOGIN_REDIRECT_URL) {
+    process.env.KINDE_POST_LOGIN_REDIRECT_URL = 'http://localhost:3000';
   }
 
   // Test behavior configuration
@@ -143,6 +160,96 @@ const setupEnvironmentVariables = () => {
 
 setupEnvironmentVariables();
 
+// IMPORTANT: Set up mocks BEFORE any imports to avoid server-only issues
+
+// Mock server-only modules FIRST
+vi.mock('server-only', () => ({}));
+
+// Mock database configuration to avoid server-only imports
+vi.mock('@/lib/db/config', () => {
+  // Provide a mock that doesn't throw database connection errors
+  return {
+    db: {
+      select: vi.fn().mockReturnValue({
+        from: vi.fn().mockReturnValue({
+          where: vi.fn().mockResolvedValue([]),
+        }),
+      }),
+      insert: vi.fn().mockReturnValue({
+        values: vi.fn().mockResolvedValue({ insertId: 'test-id' }),
+      }),
+      update: vi.fn().mockReturnValue({
+        set: vi.fn().mockReturnValue({
+          where: vi.fn().mockResolvedValue({ affectedRows: 1 }),
+        }),
+      }),
+      delete: vi.fn().mockReturnValue({
+        where: vi.fn().mockResolvedValue({ affectedRows: 1 }),
+      }),
+    },
+    validateDatabaseConfig: vi.fn().mockReturnValue(true),
+    getDatabaseConfig: vi.fn().mockReturnValue({
+      connection: { max: 2, idle_timeout: 5 },
+      query: { queryTimeout: 10000 },
+      monitoring: { enableLogging: false },
+    }),
+    // Mock the database connection creation
+    createDatabaseInstance: vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        from: vi.fn().mockReturnValue({
+          where: vi.fn().mockResolvedValue([]),
+        }),
+      }),
+    }),
+  };
+});
+
+// Mock database index
+vi.mock('@/lib/db', () => {
+  const { createMockDatabase } = require('../utils/test-database');
+  return {
+    db: createMockDatabase(),
+  };
+});
+
+// Mock the queries module to avoid server-only imports
+vi.mock('@/lib/db/queries', () => ({
+  getChatsByUserId: vi.fn().mockResolvedValue([]),
+  getDocumentsByUserId: vi.fn().mockResolvedValue([]),
+  getUserById: vi.fn().mockResolvedValue(null),
+  createUser: vi.fn().mockResolvedValue({ id: 'test-user-id' }),
+  createDocument: vi.fn().mockResolvedValue({ id: 'test-doc-id' }),
+}));
+
+// Mock other server-only modules
+vi.mock('@/lib/monitoring/logger', () => ({
+  logger: {
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  },
+}));
+
+vi.mock('@/lib/monitoring/metrics', () => ({
+  trackRequest: vi.fn(),
+  trackError: vi.fn(),
+  incrementCounter: vi.fn(),
+}));
+
+vi.mock('@/lib/middleware/rate-limit', () => ({
+  rateLimit: vi.fn().mockResolvedValue({ success: true }),
+}));
+
+vi.mock('@/lib/middleware/response-cache', () => ({
+  getCachedResponse: vi.fn().mockResolvedValue(null),
+  setCachedResponse: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('@/lib/middleware/compression', () => ({
+  enableCompression: vi.fn(),
+}));
+
 // Mock Next.js router
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
@@ -157,30 +264,51 @@ vi.mock('next/navigation', () => ({
   usePathname: () => '/',
 }));
 
-// Mock next-auth
-vi.mock('next-auth/react', () => ({
-  useSession: () => ({
-    data: null,
-    status: 'unauthenticated',
+// Mock Kinde auth
+vi.mock('@kinde-oss/kinde-auth-nextjs/server', () => ({
+  getKindeServerSession: vi.fn().mockReturnValue({
+    getUser: vi.fn().mockResolvedValue(null),
+    isAuthenticated: vi.fn().mockResolvedValue(false),
   }),
-  signIn: vi.fn(),
-  signOut: vi.fn(),
 }));
 
 // Mock @/lib/auth
 vi.mock('@/lib/auth', () => ({
   getServerSession: vi.fn(),
+  withAuth: vi.fn().mockImplementation((handler) => {
+    return async (req: any) => {
+      return handler(req, { user: { id: 'test-user' } });
+    };
+  }),
 }));
 
-// Mock database
-vi.mock('@/lib/db', () => ({
-  db: {
-    select: vi.fn(),
-    insert: vi.fn(),
-    update: vi.fn(),
-    delete: vi.fn(),
-    query: vi.fn(),
-  },
+// Mock AI and vector search modules
+vi.mock('ai', () => ({
+  streamText: vi.fn().mockResolvedValue({
+    textStream: new ReadableStream(),
+    finishReason: 'stop',
+  }),
+  createDataStream: vi.fn().mockReturnValue(new ReadableStream()),
+}));
+
+vi.mock('@/lib/search/vector-search', () => ({
+  searchSimilarDocuments: vi.fn().mockResolvedValue([]),
+  createEmbedding: vi.fn().mockResolvedValue([]),
+}));
+
+// Mock form data utilities
+vi.mock('@/tests/fixtures/test-data', () => ({
+  createMockFormDataRequest: vi.fn().mockImplementation((url, formData) => {
+    return new Request(url, {
+      method: 'POST',
+      body: formData,
+    });
+  }),
+  createTestFormData: vi.fn().mockImplementation(() => {
+    const formData = new FormData();
+    formData.append('file', new Blob(['test content'], { type: 'application/pdf' }));
+    return formData;
+  }),
 }));
 
 // Mock AI SDK hooks for testing

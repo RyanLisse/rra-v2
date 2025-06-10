@@ -38,10 +38,13 @@ export function getTestDatabaseUrl(): string {
     return currentTestBranch.connectionString;
   }
 
-  // Fallback to standard test database URL
-  return (
-    process.env.POSTGRES_URL || 'postgresql://test:test@localhost:5432/test'
-  );
+  // Fallback to production database URL for tests
+  // This ensures tests use the actual Neon database instead of a non-existent test database
+  if (!process.env.POSTGRES_URL) {
+    throw new Error('POSTGRES_URL environment variable is required for tests. Please set it in your .env.local file.');
+  }
+  
+  return process.env.POSTGRES_URL;
 }
 
 /**

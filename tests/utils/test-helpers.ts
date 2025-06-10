@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { vi } from 'vitest';
-import type { BetterAuthSession } from '@/lib/auth';
+import type { KindeUser } from '@/lib/auth';
 
 // Request mocking utilities
 export const createMockRequest = (
@@ -44,43 +44,41 @@ export const createMockFormDataRequest = (
   });
 };
 
-// Auth mocking utilities
-export const mockAuth = (session?: BetterAuthSession | null) => {
+// Auth mocking utilities for Kinde
+export const mockKindeAuth = (user?: KindeUser | null) => {
   return vi.fn().mockImplementation((handler) => {
     return async (request: NextRequest) => {
-      if (!session) {
-        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      if (!user) {
+        return new Response(JSON.stringify({ error: 'Authentication required' }), {
           status: 401,
           headers: { 'Content-Type': 'application/json' },
         });
       }
-      return handler(request, session);
+      return handler(request, user);
     };
   });
 };
 
-export const mockAuthSuccess = (
+export const mockKindeAuthSuccess = (
   userId: string,
-  userType: 'regular' | 'premium' | 'admin' = 'regular',
+  userType: 'guest' | 'regular' | 'admin' = 'regular',
 ) => {
-  const session: BetterAuthSession = {
-    user: {
-      id: userId,
-      email: 'test@example.com',
-      name: 'Test User',
-      type: userType,
-    },
-    session: {
-      id: 'session-id',
-      userId,
-      token: 'session-token',
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    },
+  const user: KindeUser = {
+    id: userId,
+    email: 'test@example.com',
+    given_name: 'Test',
+    family_name: 'User',
+    picture: null,
+    type: userType,
   };
-  return mockAuth(session);
+  return mockKindeAuth(user);
 };
 
-export const mockAuthFailure = () => mockAuth(null);
+export const mockKindeAuthFailure = () => mockKindeAuth(null);
+
+// Legacy alias for backward compatibility
+export const mockAuthFailure = mockKindeAuthFailure;
+export const mockAuthSuccess = mockKindeAuthSuccess;
 
 // Database operation mocking
 export const mockDatabaseOperation = <T>(result: T) => {
