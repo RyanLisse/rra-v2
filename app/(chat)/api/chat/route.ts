@@ -61,8 +61,7 @@ function getStreamContext() {
   return globalStreamContext;
 }
 
-export const POST = withAuth(
-  async (request: Request, session: BetterAuthSession) => {
+export async function POST(request: Request) {
     let requestBody: PostRequestBody;
 
   try {
@@ -242,11 +241,9 @@ export const POST = withAuth(
       }
       return new ChatSDKError('bad_request:api').toResponse();
     }
-  },
-);
+}
 
-export const GET = withAuth(
-  async (request: Request, session: BetterAuthSession) => {
+export async function GET(request: Request) {
     const streamContext = getStreamContext();
     const resumeRequestedAt = new Date();
 
@@ -339,8 +336,7 @@ export const GET = withAuth(
     }
 
     return new Response(stream, { status: 200 });
-  },
-);
+}
 
 export async function DELETE(request: Request) {
   const url = new URL(request.url);
