@@ -154,10 +154,7 @@ export async function setupSlice17TestContext(
       });
     },
 
-    createDocumentWithAde: async (
-      userId: string,
-      scenario = 'mixed',
-    ) => {
+    createDocumentWithAde: async (userId: string, scenario = 'mixed') => {
       return trackPerformance('createDocumentWithAde', async () => {
         // Create document
         const docData = {

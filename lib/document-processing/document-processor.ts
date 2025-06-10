@@ -15,7 +15,7 @@ import {
   processDocumentWithAde,
   groupElementsByPage,
 } from '@/lib/ade/processor';
-import type { AdeOutput, } from '@/lib/ade/types';
+import type { AdeOutput } from '@/lib/ade/types';
 
 export interface DocumentProcessingResult {
   success: boolean;

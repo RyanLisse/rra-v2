@@ -184,9 +184,9 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
       // Verify all data was inserted
       const statsResult = await testUtils.getTestDataStats(testBranch.branchId);
       expect(statsResult.success).toBe(true);
-      expect(Number.parseInt(statsResult.data?.results?.[0]?.chunk_count || '0')).toBe(
-        chunkCount,
-      );
+      expect(
+        Number.parseInt(statsResult.data?.results?.[0]?.chunk_count || '0'),
+      ).toBe(chunkCount);
       expect(
         Number.parseInt(statsResult.data?.results?.[0]?.embedding_count || '0'),
       ).toBe(chunkCount);
@@ -469,7 +469,9 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
       );
 
       expect(countResult.success).toBe(true);
-      expect(Number.parseInt(countResult.data?.results?.[0]?.count || '0')).toBe(0);
+      expect(
+        Number.parseInt(countResult.data?.results?.[0]?.count || '0'),
+      ).toBe(0);
     });
 
     it('should maintain performance under error conditions', async () => {
@@ -665,12 +667,18 @@ describe('RAG Pipeline Integration Tests (Enhanced)', () => {
       expect(finalStats.success).toBe(true);
 
       const stats = finalStats.data?.results?.[0];
-      expect(Number.parseInt(stats?.user_count || '0')).toBeGreaterThanOrEqual(5);
-      expect(Number.parseInt(stats?.document_count || '0')).toBeGreaterThanOrEqual(15);
-      expect(Number.parseInt(stats?.chunk_count || '0')).toBeGreaterThanOrEqual(750);
-      expect(Number.parseInt(stats?.embedding_count || '0')).toBeGreaterThanOrEqual(
+      expect(Number.parseInt(stats?.user_count || '0')).toBeGreaterThanOrEqual(
+        5,
+      );
+      expect(
+        Number.parseInt(stats?.document_count || '0'),
+      ).toBeGreaterThanOrEqual(15);
+      expect(Number.parseInt(stats?.chunk_count || '0')).toBeGreaterThanOrEqual(
         750,
       );
+      expect(
+        Number.parseInt(stats?.embedding_count || '0'),
+      ).toBeGreaterThanOrEqual(750);
     });
   });
 });

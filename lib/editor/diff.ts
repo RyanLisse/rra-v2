@@ -9,7 +9,7 @@ export const DiffType = {
   Inserted: 1,
 } as const;
 
-type DiffTypeValue = typeof DiffType[keyof typeof DiffType];
+type DiffTypeValue = (typeof DiffType)[keyof typeof DiffType];
 
 interface DiffNode {
   type: DiffTypeValue;
@@ -18,7 +18,11 @@ interface DiffNode {
 
 type NodeOrFragment = Node | Fragment | DiffNode[];
 
-export const patchDocumentNode = (schema: Schema, oldNode: Node, newNode: Node): DiffNode[] => {
+export const patchDocumentNode = (
+  schema: Schema,
+  oldNode: Node,
+  newNode: Node,
+): DiffNode[] => {
   assertNodeTypeEqual(oldNode, newNode);
 
   const finalLeftChildren: DiffNode[] = [];
@@ -55,11 +59,7 @@ export const patchDocumentNode = (schema: Schema, oldNode: Node, newNode: Node):
   const diffNewChildren = newChildren.slice(left, newChildLen - right);
 
   if (diffOldChildren.length && diffNewChildren.length) {
-    const matchedNodes = matchNodes(
-      schema,
-      diffOldChildren,
-      diffNewChildren,
-    );
+    const matchedNodes = matchNodes(schema, diffOldChildren, diffNewChildren);
     finalLeftChildren.push(...matchedNodes);
   } else if (diffOldChildren.length) {
     finalLeftChildren.push(
@@ -110,27 +110,33 @@ const matchNodes = (
   newChildren: Node[],
 ): DiffNode[] => {
   const results: DiffNode[] = [];
-  
+
   // Simple diff implementation for now
   // This could be enhanced with a more sophisticated matching algorithm
   let oldIndex = 0;
   let newIndex = 0;
-  
+
   while (oldIndex < oldChildren.length && newIndex < newChildren.length) {
     const oldChild = oldChildren[oldIndex];
     const newChild = newChildren[newIndex];
-    
+
     if (isNodeEqual(oldChild, newChild)) {
       results.push({ type: DiffType.Unchanged, node: oldChild });
       oldIndex++;
       newIndex++;
-    } else if (oldChild.type === newChild.type && oldChild.isText && newChild.isText) {
+    } else if (
+      oldChild.type === newChild.type &&
+      oldChild.isText &&
+      newChild.isText
+    ) {
       // Handle text node differences
       const textDiffs = diffText(oldChild.text || '', newChild.text || '');
-      results.push(...textDiffs.map(diff => ({
-        type: diff.type,
-        node: schema.text(diff.text, oldChild.marks),
-      })));
+      results.push(
+        ...textDiffs.map((diff) => ({
+          type: diff.type,
+          node: schema.text(diff.text, oldChild.marks),
+        })),
+      );
       oldIndex++;
       newIndex++;
     } else {
@@ -141,18 +147,18 @@ const matchNodes = (
       newIndex++;
     }
   }
-  
+
   // Handle remaining nodes
   while (oldIndex < oldChildren.length) {
     results.push({ type: DiffType.Deleted, node: oldChildren[oldIndex] });
     oldIndex++;
   }
-  
+
   while (newIndex < newChildren.length) {
     results.push({ type: DiffType.Inserted, node: newChildren[newIndex] });
     newIndex++;
   }
-  
+
   return results;
 };
 
@@ -165,7 +171,7 @@ const diffText = (oldText: string, newText: string): TextDiff[] => {
   const dmp = new diff_match_patch();
   const diffs = dmp.diff_main(oldText, newText);
   dmp.diff_cleanupSemantic(diffs);
-  
+
   return diffs.map(([operation, text]) => ({
     type: operation as DiffTypeValue,
     text,
@@ -180,31 +186,28 @@ export const diffNodes = (
   return patchDocumentNode(schema, oldNode, newNode);
 };
 
-export const applyDiff = (
-  schema: Schema,
-  diffs: DiffNode[],
-): Node => {
+export const applyDiff = (schema: Schema, diffs: DiffNode[]): Node => {
   const content: Node[] = [];
-  
+
   for (const diff of diffs) {
     if (diff.type !== DiffType.Deleted) {
       content.push(diff.node);
     }
   }
-  
+
   return schema.nodes.doc.create({}, Fragment.from(content));
 };
 
 export const renderDiffAsHTML = (diffs: DiffNode[]): string => {
   return diffs
     .map((diff) => {
-      const className = 
-        diff.type === DiffType.Inserted 
-          ? 'diff-inserted' 
-          : diff.type === DiffType.Deleted 
-            ? 'diff-deleted' 
+      const className =
+        diff.type === DiffType.Inserted
+          ? 'diff-inserted'
+          : diff.type === DiffType.Deleted
+            ? 'diff-deleted'
             : 'diff-unchanged';
-      
+
       return `<span class="${className}">${escapeHtml(diff.node.textContent || '')}</span>`;
     })
     .join('');

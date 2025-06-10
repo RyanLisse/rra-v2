@@ -194,9 +194,9 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
         testBranch.branchId,
       );
 
-      expect(Number.parseInt(totalChunksResult.data?.results?.[0]?.count || '0')).toBe(
-        documentCount * chunksPerDocument,
-      );
+      expect(
+        Number.parseInt(totalChunksResult.data?.results?.[0]?.count || '0'),
+      ).toBe(documentCount * chunksPerDocument);
       expect(
         Number.parseInt(totalEmbeddingsResult.data?.results?.[0]?.count || '0'),
       ).toBe(documentCount * chunksPerDocument);
@@ -834,7 +834,9 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
         Number.parseInt(initialStats.data?.results?.[0]?.chunk_count || '0'),
       ).toBe(1000);
       expect(
-        Number.parseInt(initialStats.data?.results?.[0]?.embedding_count || '0'),
+        Number.parseInt(
+          initialStats.data?.results?.[0]?.embedding_count || '0',
+        ),
       ).toBe(1000);
 
       // Test cascading deletion performance
@@ -849,9 +851,9 @@ describe('Vector Search Performance Tests (Enhanced)', () => {
 
       // Verify cleanup completed
       const finalStats = await testUtils.getTestDataStats(testBranch.branchId);
-      expect(Number.parseInt(finalStats.data?.results?.[0]?.chunk_count || '0')).toBe(
-        0,
-      );
+      expect(
+        Number.parseInt(finalStats.data?.results?.[0]?.chunk_count || '0'),
+      ).toBe(0);
       expect(
         Number.parseInt(finalStats.data?.results?.[0]?.embedding_count || '0'),
       ).toBe(0);

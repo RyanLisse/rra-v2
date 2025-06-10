@@ -69,7 +69,10 @@ const analyticsSchema = z.object({
 export async function POST(request: NextRequest) {
   const user = await getUser();
   if (!user) {
-    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    return NextResponse.json(
+      { error: 'Authentication required' },
+      { status: 401 },
+    );
   }
 
   const startTime = Date.now();
@@ -292,7 +295,10 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const user = await getUser();
   if (!user) {
-    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    return NextResponse.json(
+      { error: 'Authentication required' },
+      { status: 401 },
+    );
   }
 
   try {
@@ -308,10 +314,7 @@ export async function GET(request: NextRequest) {
         'performance',
       ];
 
-      const analyticsData = await getSearchAnalytics(
-        user.id,
-        timeRange,
-      );
+      const analyticsData = await getSearchAnalytics(user.id, timeRange);
       const facetSummary = await getFacetSummary(user.id);
 
       return NextResponse.json({
@@ -518,7 +521,7 @@ async function generateFacetCounts(
       whereCondition = and(
         whereCondition,
         sql`${ragDocument.id} = ANY(${documentIds})`,
-      )!;
+      );
     }
 
     // Get document type counts

@@ -189,8 +189,8 @@ class GeminiRAGService {
       new Set(
         context.chunks
           .map((chunk) => chunk.elementType)
-          .filter((type): type is string => Boolean(type))
-      )
+          .filter((type): type is string => Boolean(type)),
+      ),
     );
 
     const hasStructuralData = elementTypes.length > 0;

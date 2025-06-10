@@ -14,7 +14,7 @@
 
 import { parseArgs } from 'node:util';
 import { writeFile, mkdir } from 'node:fs/promises';
-import { join, } from 'node:path';
+import { join } from 'node:path';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from '@/lib/db/schema';

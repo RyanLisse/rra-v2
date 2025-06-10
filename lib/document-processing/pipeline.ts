@@ -94,7 +94,9 @@ export class DocumentProcessingPipeline {
           document,
           statusManager,
         );
-        result.stats!.textExtraction = textResult;
+        if (result.stats) {
+          result.stats.textExtraction = textResult;
+        }
 
         if (!textResult.success) {
           result.errors?.push(`Text extraction failed: ${textResult.error}`);
@@ -116,7 +118,9 @@ export class DocumentProcessingPipeline {
           document,
           statusManager,
         );
-        result.stats!.adeProcessing = adeResult;
+        if (result.stats) {
+          result.stats.adeProcessing = adeResult;
+        }
 
         if (!adeResult.success) {
           result.warnings?.push(`ADE processing failed: ${adeResult.error}`);
@@ -142,7 +146,9 @@ export class DocumentProcessingPipeline {
           documentId,
           statusManager,
         );
-        result.stats!.chunking = chunkResult;
+        if (result.stats) {
+          result.stats.chunking = chunkResult;
+        }
 
         if (!chunkResult.success) {
           result.errors?.push(`Chunking failed: ${chunkResult.error}`);
@@ -157,7 +163,9 @@ export class DocumentProcessingPipeline {
           documentId,
           statusManager,
         );
-        result.stats!.embedding = embeddingResult;
+        if (result.stats) {
+          result.stats.embedding = embeddingResult;
+        }
 
         if (!embeddingResult.success) {
           result.errors?.push(`Embedding failed: ${embeddingResult.error}`);
@@ -191,7 +199,7 @@ export class DocumentProcessingPipeline {
 
       // Update document status to error
       try {
-        if (statusManager!) {
+        if (statusManager) {
           await statusManager.updateStatus({
             status: 'error',
             error: errorMessage,

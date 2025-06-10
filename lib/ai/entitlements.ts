@@ -35,22 +35,22 @@ export const entitlementsByUserType: Record<UserType, Entitlements> = {
       'grok-2-vision',
       'grok-3-mini',
       'grok-2',
-      
+
       // OpenAI Models
       'gpt-4o',
       'gpt-4o-mini',
       'o1-preview',
       'o1-mini',
-      
+
       // Anthropic Models
       'claude-3-5-sonnet',
       'claude-3-5-haiku',
-      
+
       // Google Models
       'gemini-2-flash-exp',
       'gemini-1-5-pro',
       'gemini-1-5-flash',
-      
+
       // Legacy support
       'chat-model',
       'chat-model-reasoning',

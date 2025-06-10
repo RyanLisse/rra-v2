@@ -55,7 +55,7 @@ export const chatModels: Array<ChatModel> = [
     contextWindow: 131072,
     maxOutput: 4096,
   },
-  
+
   // OpenAI Models
   {
     id: 'gpt-4o',

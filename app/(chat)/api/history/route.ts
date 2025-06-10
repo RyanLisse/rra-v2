@@ -1,5 +1,4 @@
-import { getUser, type UserType } from '@/lib/auth/kinde';
-import type { NextRequest } from 'next/server';
+import { getUser } from '@/lib/auth/kinde';
 import { getChatsByUserId } from '@/lib/db/queries';
 import { ChatSDKError } from '@/lib/errors';
 

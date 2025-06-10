@@ -449,10 +449,7 @@ export const createAdeTestDataFactory = () => {
     /**
      * Create context assembly test data
      */
-    createContextAssemblyData: (
-      documentId: string,
-      contextSize = 20,
-    ) => {
+    createContextAssemblyData: (documentId: string, contextSize = 20) => {
       const contextTypes: AdeElementType[] = [
         'title',
         'paragraph',

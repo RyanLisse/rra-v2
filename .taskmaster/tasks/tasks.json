@@ -23,9 +23,7 @@
           "id": 2,
           "title": "Provision NeonDB Instance",
           "description": "Set up a NeonDB PostgreSQL instance to serve as the project's primary database.",
-          "dependencies": [
-            1
-          ],
+          "dependencies": [1],
           "details": "Create a NeonDB account if needed. Provision a new database instance, configure user access, and securely store connection credentials. Document the database endpoint and credentials for team use.",
           "status": "pending",
           "testStrategy": "Connect to the NeonDB instance using a database client to confirm accessibility and permissions."
@@ -34,9 +32,7 @@
           "id": 3,
           "title": "Enable and Configure PGVector Extension",
           "description": "Install and enable the PGVector extension on the NeonDB instance to support vector operations.",
-          "dependencies": [
-            2
-          ],
+          "dependencies": [2],
           "details": "Connect to the NeonDB instance and execute the necessary SQL commands to enable the PGVector extension (e.g., CREATE EXTENSION IF NOT EXISTS vector;). Verify that the extension is active and available for use.",
           "status": "pending",
           "testStrategy": "Run a test query to create a table with a vector column and insert sample data to confirm PGVector functionality."
@@ -45,9 +41,7 @@
           "id": 4,
           "title": "Integrate Object Storage Solution",
           "description": "Set up and configure object storage (using Mastra or a separate provider) for storing files and assets.",
-          "dependencies": [
-            1
-          ],
+          "dependencies": [1],
           "details": "Provision an object storage bucket or container. Generate access keys and configure permissions. Integrate storage SDK or API into the project, and document usage patterns for developers.",
           "status": "pending",
           "testStrategy": "Upload and retrieve a test file using the configured storage integration to verify end-to-end connectivity."
@@ -56,10 +50,7 @@
           "id": 5,
           "title": "Configure Environment and Connection Management",
           "description": "Establish secure environment variable management for database and object storage credentials, and set up connection utilities in the codebase.",
-          "dependencies": [
-            2,
-            4
-          ],
+          "dependencies": [2, 4],
           "details": "Define environment variable schema for sensitive credentials. Implement configuration files or secrets management as appropriate. Add connection logic in the codebase for both NeonDB and object storage, ensuring credentials are loaded securely.",
           "status": "pending",
           "testStrategy": "Run local or CI tests to confirm that the application can connect to both NeonDB (with PGVector) and object storage using environment-based configuration."
@@ -73,9 +64,7 @@
       "details": "Set up the Mastra AI environment and define service interfaces and basic implementations for the required backend components outlined in the PRD architecture section. Focus on the service framework, not full feature implementation yet.",
       "testStrategy": "Basic service instantiation and inter-service communication tests.",
       "priority": "high",
-      "dependencies": [
-        1
-      ],
+      "dependencies": [1],
       "status": "pending",
       "subtasks": [
         {
@@ -91,9 +80,7 @@
           "id": 2,
           "title": "Implement Document Processing Services",
           "description": "Create the UploadService and DocProcessingService interfaces and basic implementations using Mastra's document processing capabilities.",
-          "dependencies": [
-            1
-          ],
+          "dependencies": [1],
           "details": "Implement the UploadService to handle document uploads with proper validation. Create the DocProcessingService to process documents (text, HTML, Markdown, JSON) into chunks and create embeddings using Mastra's RAG capabilities. Define the service interfaces with clear method signatures and implement basic functionality without full feature implementation.",
           "status": "pending",
           "testStrategy": "Test document upload functionality and basic document processing with sample files to ensure proper chunking and embedding generation."
@@ -102,9 +89,7 @@
           "id": 3,
           "title": "Implement Search and Vector Storage Services",
           "description": "Create the SearchService interface and implementation using Mastra's vector database integration for retrieval-augmented generation.",
-          "dependencies": [
-            2
-          ],
+          "dependencies": [2],
           "details": "Implement the SearchService to interface with Mastra's vector database capabilities. Configure the vector store connection (Pinecone, pgvector, etc.) and embedding provider (OpenAI, Cohere, etc.). Create methods for storing document embeddings and retrieving relevant chunks during search operations. Define clear interfaces with proper TypeScript typing.",
           "status": "pending",
           "testStrategy": "Test vector storage and retrieval with sample embeddings to verify search functionality and relevance of returned results."
@@ -113,9 +98,7 @@
           "id": 4,
           "title": "Implement LLM and Chat Services",
           "description": "Create the LLMService and ChatService interfaces and implementations using Mastra's agent capabilities and memory management.",
-          "dependencies": [
-            1
-          ],
+          "dependencies": [1],
           "details": "Implement the LLMService to handle interactions with language models through Mastra's API. Create the ChatService to manage conversation threads, maintain memory persistently within threads, and handle user interactions. Implement basic agent workflows using Mastra's workflow primitives (.parallel(), etc.) for branching and chaining operations.",
           "status": "pending",
           "testStrategy": "Test basic chat functionality with sample conversations to verify memory persistence and proper agent responses."
@@ -124,11 +107,7 @@
           "id": 5,
           "title": "Implement Document Management Service and API Integration",
           "description": "Create the DocMgmtService interface and implementation, and integrate all services into a cohesive API framework.",
-          "dependencies": [
-            2,
-            3,
-            4
-          ],
+          "dependencies": [2, 3, 4],
           "details": "Implement the DocMgmtService to handle document lifecycle management. Create API endpoints using Mastra's deployment helpers to expose service functionality. Integrate all services into a unified backend framework with proper dependency injection. Set up the server using Hono as recommended by Mastra for local development and eventual deployment.",
           "status": "pending",
           "testStrategy": "Test the integrated API endpoints with sample requests to verify proper interaction between services and correct response formatting."
@@ -142,9 +121,7 @@
       "details": "Develop the UploadService and DocProcessingService components. Integrate custom parsing pipeline, semantic chunking logic, and Cohere embed-v4.0. Implement status tracking (queued, processing, processed, error).",
       "testStrategy": "Unit tests for parsing, chunking, and embedding modules. Integration tests for the full pipeline with different document types and sizes (up to 50MB).",
       "priority": "high",
-      "dependencies": [
-        2
-      ],
+      "dependencies": [2],
       "status": "pending",
       "subtasks": [
         {
@@ -187,10 +164,7 @@
           "id": 5,
           "title": "Develop Asynchronous Processing with Status Tracking",
           "description": "Implement the DocProcessingService with asynchronous processing capabilities and comprehensive status tracking throughout the pipeline.",
-          "dependencies": [
-            3,
-            4
-          ],
+          "dependencies": [3, 4],
           "details": "Create a queue-based processing system that handles documents asynchronously. Implement status tracking that updates document status (queued, processing, processed, error) at each pipeline stage. Add detailed error handling with appropriate error messages and recovery mechanisms. Implement a status API endpoint for clients to check document processing progress.",
           "status": "pending",
           "testStrategy": "Test the full pipeline with various document types and sizes. Verify proper status transitions, error handling, and recovery from failures at different stages. Test concurrent processing of multiple documents."
@@ -204,9 +178,7 @@
       "details": "Translate the data architecture requirements into Drizzle ORM schema definitions. Implement necessary migrations. Ensure PGVector is correctly configured and accessible via the ORM.",
       "testStrategy": "Unit tests for ORM models and basic CRUD operations on all defined tables.",
       "priority": "high",
-      "dependencies": [
-        1
-      ],
+      "dependencies": [1],
       "status": "pending",
       "subtasks": [
         {
@@ -222,9 +194,7 @@
           "id": 2,
           "title": "Integrate PGVector Columns and HNSW Indexing",
           "description": "Extend the relevant schema(s) to include vector columns using PGVector, and configure HNSW indexing for efficient vector similarity search.",
-          "dependencies": [
-            1
-          ],
+          "dependencies": [1],
           "details": "For tables requiring vector storage (e.g., 'document_chunks'), add a 'vector' column using Drizzle's vector type. Ensure the column specifies the correct dimensions. Add SQL statements or Drizzle migration hooks to create HNSW indexes on these vector columns.",
           "status": "pending",
           "testStrategy": "Check that the vector columns are present in the generated SQL and that HNSW indexes are created by inspecting the database schema after migration."
@@ -233,9 +203,7 @@
           "id": 3,
           "title": "Configure Drizzle ORM and Database Connection",
           "description": "Set up Drizzle ORM configuration to connect to the PostgreSQL database with PGVector extension enabled.",
-          "dependencies": [
-            2
-          ],
+          "dependencies": [2],
           "details": "Edit or create the Drizzle configuration file (e.g., drizzle.config.ts) to specify the schema path, output directory, PostgreSQL dialect, and database credentials. Ensure the PGVector extension is installed and accessible in the target database.",
           "status": "pending",
           "testStrategy": "Test the connection by running a simple Drizzle query and verifying that the PGVector extension is available using a database query."
@@ -244,9 +212,7 @@
           "id": 4,
           "title": "Implement and Apply Database Migrations",
           "description": "Generate and apply database migrations based on the defined schemas, ensuring all tables, columns, and indexes are created in the database.",
-          "dependencies": [
-            3
-          ],
+          "dependencies": [3],
           "details": "Use Drizzle Kit CLI to generate migration files from the schema definitions. Apply the migrations to the database, confirming that all schema changes are reflected in the database structure.",
           "status": "pending",
           "testStrategy": "Inspect the database to verify that all tables, columns, and indexes (including vector and HNSW) exist as expected."
@@ -255,9 +221,7 @@
           "id": 5,
           "title": "Validate ORM Integration and Data Operations",
           "description": "Test CRUD operations and vector search functionality through Drizzle ORM to ensure the schema and PGVector integration work as intended.",
-          "dependencies": [
-            4
-          ],
+          "dependencies": [4],
           "details": "Write and execute tests or scripts that perform create, read, update, and delete operations on all tables. For vector columns, test inserting and querying vectors, including similarity search using HNSW indexing.",
           "status": "pending",
           "testStrategy": "Automate tests to check data integrity, vector storage/retrieval, and correct behavior of vector similarity queries."
@@ -271,10 +235,7 @@
       "details": "Develop the core search logic within the SearchService. Integrate Cohere Rerank API. Implement logic for retrieving adjacent chunks and applying filters based on document metadata.",
       "testStrategy": "Unit tests for search components (hybrid logic, reranking integration). Integration tests for search queries with various filters and parameters. DeepEval for retrieval accuracy.",
       "priority": "high",
-      "dependencies": [
-        2,
-        4
-      ],
+      "dependencies": [2, 4],
       "status": "pending",
       "subtasks": [
         {
@@ -331,11 +292,7 @@
       "details": "Develop the core RAG orchestration logic. Implement conversation state management. Integrate with the LLMService for Gemini calls. Implement citation parsing and follow-up question generation.",
       "testStrategy": "Unit tests for chat logic and conversation management. Integration tests for the end-to-end chat flow with RAG retrieval and response generation. DeepEval for LLM response quality and citation accuracy.",
       "priority": "high",
-      "dependencies": [
-        2,
-        4,
-        5
-      ],
+      "dependencies": [2, 4, 5],
       "status": "pending",
       "subtasks": [
         {
@@ -351,9 +308,7 @@
           "id": 2,
           "title": "Integrate LLMService for Gemini 2.5 Flash Calls",
           "description": "Connect the ChatService to the LLMService, enabling structured prompt construction and response handling for Gemini 2.5 Flash.",
-          "dependencies": [
-            1
-          ],
+          "dependencies": [1],
           "details": "Define interfaces for sending structured prompts to the LLMService. Implement logic to format user queries and retrieved context into the required prompt structure. Handle LLM responses, including error cases and retries.",
           "status": "pending",
           "testStrategy": "Mock LLMService responses to verify prompt formatting, error handling, and response parsing."
@@ -362,9 +317,7 @@
           "id": 3,
           "title": "Develop RAG Orchestration Workflow",
           "description": "Implement the core RAG workflow: retrieve relevant context, orchestrate LLM calls, and synthesize responses using agentic reasoning.",
-          "dependencies": [
-            2
-          ],
+          "dependencies": [2],
           "details": "Integrate retrieval logic to fetch relevant knowledge base chunks for each user query. Orchestrate the workflow to combine retrieved context with user input, invoke the LLM, and manage multi-step reasoning if needed. Ensure the workflow supports iterative refinement and context-aware responses.",
           "status": "pending",
           "testStrategy": "End-to-end tests simulating user queries, verifying correct retrieval, LLM invocation, and response synthesis."
@@ -373,9 +326,7 @@
           "id": 4,
           "title": "Implement Citation Parsing Logic",
           "description": "Extract and structure citations from LLM responses, linking them to retrieved knowledge base sources.",
-          "dependencies": [
-            3
-          ],
+          "dependencies": [3],
           "details": "Design a parser to identify citation markers in LLM outputs. Map these markers to the corresponding retrieved documents or chunks. Structure the citations for display and downstream processing.",
           "status": "pending",
           "testStrategy": "Unit test citation extraction with various LLM output formats. Verify correct mapping to source documents."
@@ -384,9 +335,7 @@
           "id": 5,
           "title": "Generate Follow-up Question Suggestions",
           "description": "Develop logic to suggest relevant follow-up questions based on conversation context and LLM outputs.",
-          "dependencies": [
-            4
-          ],
+          "dependencies": [4],
           "details": "Analyze the conversation history and LLM responses to identify potential areas for further inquiry. Use prompt engineering or LLM-based generation to produce a list of follow-up questions. Integrate suggestions into the chat UI or API response.",
           "status": "pending",
           "testStrategy": "Test with diverse conversation scenarios to ensure follow-up questions are contextually relevant and varied."
@@ -400,10 +349,7 @@
       "details": "Develop the DocMgmtService API endpoints and logic for interacting with the documents table via the ORM. Ensure metadata handling is supported.",
       "testStrategy": "Unit tests for CRUD operations. Integration tests for document lifecycle management (upload -> view -> update metadata -> delete).",
       "priority": "medium",
-      "dependencies": [
-        2,
-        4
-      ],
+      "dependencies": [2, 4],
       "status": "pending",
       "subtasks": [
         {
@@ -419,9 +365,7 @@
           "id": 2,
           "title": "Implement Document CRUD Operations in Service Layer",
           "description": "Develop the core DocMgmtService logic to handle create, read, update, and delete operations for documents, including metadata handling.",
-          "dependencies": [
-            1
-          ],
+          "dependencies": [1],
           "details": "Implement service methods for each CRUD operation, ensuring metadata is properly created, retrieved, updated, and deleted alongside documents. Use ORM methods for database interaction.",
           "status": "pending",
           "testStrategy": "Write unit tests for each service method to confirm correct CRUD behavior and metadata management."
@@ -430,9 +374,7 @@
           "id": 3,
           "title": "Develop API Endpoints for Document Management",
           "description": "Expose RESTful API endpoints for document CRUD operations, mapping HTTP methods to service layer functions.",
-          "dependencies": [
-            2
-          ],
+          "dependencies": [2],
           "details": "Create API routes for creating, reading, updating, and deleting documents. Ensure endpoints accept and return metadata fields. Validate input and handle errors appropriately.",
           "status": "pending",
           "testStrategy": "Use API testing tools to verify endpoint functionality, input validation, and error handling."
@@ -441,9 +383,7 @@
           "id": 4,
           "title": "Implement Access Control for Document Operations",
           "description": "Add logic to enforce access level restrictions on document operations based on user roles and document metadata.",
-          "dependencies": [
-            3
-          ],
+          "dependencies": [3],
           "details": "Integrate authentication and authorization checks in the service and API layers. Ensure only authorized users can perform operations according to the document's access level.",
           "status": "pending",
           "testStrategy": "Test with users of different roles to confirm access is correctly enforced for each operation."
@@ -452,9 +392,7 @@
           "id": 5,
           "title": "Document API Usage and Service Behavior",
           "description": "Write comprehensive documentation for the DocMgmtService API endpoints, data models, and metadata handling.",
-          "dependencies": [
-            4
-          ],
+          "dependencies": [4],
           "details": "Prepare API reference documentation, usage examples, and details on metadata fields. Include information on access control and expected error responses.",
           "status": "pending",
           "testStrategy": "Review documentation for completeness and clarity; have a developer follow the documentation to perform sample operations."
@@ -525,13 +463,7 @@
       "details": "Develop the UI pages and components for the main user interactions. Integrate with the UploadService, DocMgmtService, and ChatService APIs using Tanstack Query.",
       "testStrategy": "Component tests for UI elements. End-to-end tests for core user flows: document upload, viewing documents, starting/continuing a chat conversation.",
       "priority": "high",
-      "dependencies": [
-        3,
-        5,
-        6,
-        7,
-        8
-      ],
+      "dependencies": [3, 5, 6, 7, 8],
       "status": "pending",
       "subtasks": [
         {
@@ -588,10 +520,7 @@
       "details": "Implement security features across backend services. Configure caching layers. Set up Vitest for unit/integration tests and DeepEval for RAG evaluation. Integrate logging, metrics collection, and error reporting tools.",
       "testStrategy": "Security tests (auth, access control, validation). Performance tests (caching hit rates). Comprehensive unit/integration tests across relevant services. Verification of monitoring setup and data flow.",
       "priority": "high",
-      "dependencies": [
-        1,
-        2
-      ],
+      "dependencies": [1, 2],
       "status": "pending",
       "subtasks": [
         {

@@ -122,27 +122,39 @@ function generateElementTypeGuidance(elementTypes?: string[]): string {
   const guidance: string[] = ['ELEMENT TYPE GUIDANCE:'];
 
   if (elementTypes.includes('table_text')) {
-    guidance.push('- TABLES PRESENT: Focus on structured data, specific values, and relationships between data points');
+    guidance.push(
+      '- TABLES PRESENT: Focus on structured data, specific values, and relationships between data points',
+    );
   }
 
   if (elementTypes.includes('figure_caption')) {
-    guidance.push('- FIGURES PRESENT: Leverage visual descriptions and diagram explanations for comprehensive understanding');
+    guidance.push(
+      '- FIGURES PRESENT: Leverage visual descriptions and diagram explanations for comprehensive understanding',
+    );
   }
 
   if (elementTypes.includes('list_item')) {
-    guidance.push('- LISTS PRESENT: Ideal for step-by-step procedures, sequential instructions, and categorized information');
+    guidance.push(
+      '- LISTS PRESENT: Ideal for step-by-step procedures, sequential instructions, and categorized information',
+    );
   }
 
   if (elementTypes.includes('heading')) {
-    guidance.push('- HEADINGS PRESENT: Use for topic organization, section navigation, and hierarchical context');
+    guidance.push(
+      '- HEADINGS PRESENT: Use for topic organization, section navigation, and hierarchical context',
+    );
   }
 
   if (elementTypes.includes('title')) {
-    guidance.push('- TITLES PRESENT: Leverage for document overview, main topics, and conceptual framing');
+    guidance.push(
+      '- TITLES PRESENT: Leverage for document overview, main topics, and conceptual framing',
+    );
   }
 
   if (elementTypes.includes('paragraph')) {
-    guidance.push('- PARAGRAPHS PRESENT: Rich detail available for comprehensive explanations and context');
+    guidance.push(
+      '- PARAGRAPHS PRESENT: Rich detail available for comprehensive explanations and context',
+    );
   }
 
   return guidance.join('\n');

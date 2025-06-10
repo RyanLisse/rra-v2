@@ -292,10 +292,7 @@ export class NeonTestBranchManager {
   /**
    * Gets the connection string for a branch
    */
-  getConnectionString(
-    branchName: string,
-    pooled = false,
-  ): string | undefined {
+  getConnectionString(branchName: string, pooled = false): string | undefined {
     const branch = this.branches.get(branchName);
     if (!branch) return undefined;
     return pooled ? branch.pooledConnectionString : branch.connectionString;

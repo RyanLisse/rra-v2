@@ -31,27 +31,33 @@ function createLanguageModel(model: ChatModel) {
   }
 
   const baseModel = provider(model.modelId);
-  
+
   // Apply reasoning middleware for capable models with 'reasoning' in their capabilities
-  if (model.capabilities.reasoning && (model.id.includes('mini') || model.id.includes('o1'))) {
+  if (
+    model.capabilities.reasoning &&
+    (model.id.includes('mini') || model.id.includes('o1'))
+  ) {
     return wrapLanguageModel({
       model: baseModel,
       middleware: extractReasoningMiddleware({ tagName: 'think' }),
     });
   }
-  
+
   return baseModel;
 }
 
 // Create dynamic language models mapping
-const languageModels = chatModels.reduce((acc, model) => {
-  acc[model.id] = createLanguageModel(model);
-  return acc;
-}, {} as Record<string, any>);
+const languageModels = chatModels.reduce(
+  (acc, model) => {
+    acc[model.id] = createLanguageModel(model);
+    return acc;
+  },
+  {} as Record<string, any>,
+);
 
 // Add legacy model support
 Object.entries(legacyModels).forEach(([legacyId, modernId]) => {
-  const modernModel = chatModels.find(m => m.id === modernId);
+  const modernModel = chatModels.find((m) => m.id === modernId);
   if (modernModel) {
     languageModels[legacyId] = createLanguageModel(modernModel);
   }

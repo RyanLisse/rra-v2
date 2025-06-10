@@ -233,8 +233,12 @@ export function getInngestConfig() {
       textExtraction: Number.parseInt(
         process.env.INNGEST_TEXT_EXTRACTION_TIMEOUT || '300000',
       ),
-      chunking: Number.parseInt(process.env.INNGEST_CHUNKING_TIMEOUT || '120000'),
-      embedding: Number.parseInt(process.env.INNGEST_EMBEDDING_TIMEOUT || '600000'),
+      chunking: Number.parseInt(
+        process.env.INNGEST_CHUNKING_TIMEOUT || '120000',
+      ),
+      embedding: Number.parseInt(
+        process.env.INNGEST_EMBEDDING_TIMEOUT || '600000',
+      ),
       batchProcessing: Number.parseInt(
         process.env.INNGEST_BATCH_PROCESSING_TIMEOUT || '1800000',
       ),

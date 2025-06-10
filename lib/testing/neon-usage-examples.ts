@@ -481,7 +481,7 @@ export async function runAllExamples() {
 }
 
 // Export for direct usage
-export default {
+const neonUsageExamples = {
   basicUsageExample,
   testBranchExample,
   withTestBranchExample,
@@ -491,3 +491,5 @@ export default {
   parallelTestingExample,
   runAllExamples,
 };
+
+export default neonUsageExamples;

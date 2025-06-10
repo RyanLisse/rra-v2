@@ -17,7 +17,11 @@ import {
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import type { ChatSource } from '@/lib/ai/context-formatter';
 
@@ -45,14 +49,14 @@ export function SourceMetadataDisplay({
     return null;
   }
 
-  const displayedSources = showAllSources 
-    ? sources 
+  const displayedSources = showAllSources
+    ? sources
     : sources.slice(0, maxInitialSources);
   const hasMoreSources = sources.length > maxInitialSources;
 
   const getElementTypeIcon = (elementType: string | null | undefined) => {
     if (!elementType) return <FileText className="h-3 w-3" />;
-    
+
     switch (elementType.toLowerCase()) {
       case 'title':
         return <Hash className="h-3 w-3" />;
@@ -71,7 +75,7 @@ export function SourceMetadataDisplay({
 
   const getElementTypeColor = (elementType: string | null | undefined) => {
     if (!elementType) return 'bg-gray-100 text-gray-700';
-    
+
     switch (elementType.toLowerCase()) {
       case 'title':
         return 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300';
@@ -92,7 +96,9 @@ export function SourceMetadataDisplay({
 
   const formatElementType = (elementType: string | null | undefined) => {
     if (!elementType) return 'Text';
-    return elementType.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+    return elementType
+      .replace('_', ' ')
+      .replace(/\b\w/g, (l) => l.toUpperCase());
   };
 
   if (compact) {
@@ -102,12 +108,9 @@ export function SourceMetadataDisplay({
         {sources.slice(0, 3).map((source, index) => (
           <Tooltip key={source.id}>
             <TooltipTrigger>
-              <Badge 
-                variant="outline" 
-                className="h-5 text-xs cursor-help"
-              >
-                {source.title.length > 20 
-                  ? `${source.title.substring(0, 20)}...` 
+              <Badge variant="outline" className="h-5 text-xs cursor-help">
+                {source.title.length > 20
+                  ? `${source.title.substring(0, 20)}...`
                   : source.title}
                 {showPageNumbers && source.pageNumber && (
                   <span className="ml-1 text-muted-foreground">
@@ -182,23 +185,23 @@ export function SourceMetadataDisplay({
                   <div className="font-medium text-sm truncate">
                     {source.title}
                   </div>
-                  <Badge 
-                    variant="secondary" 
-                    className="text-xs"
-                  >
+                  <Badge variant="secondary" className="text-xs">
                     #{index + 1}
                   </Badge>
                 </div>
 
                 <div className="flex flex-wrap gap-2 mb-2">
                   {showElementTypes && source.elementType && (
-                    <Badge 
-                      className={cn("text-xs", getElementTypeColor(source.elementType))}
+                    <Badge
+                      className={cn(
+                        'text-xs',
+                        getElementTypeColor(source.elementType),
+                      )}
                     >
                       {formatElementType(source.elementType)}
                     </Badge>
                   )}
-                  
+
                   {showPageNumbers && source.pageNumber && (
                     <Badge variant="outline" className="text-xs">
                       <MapPin className="h-3 w-3 mr-1" />
@@ -233,15 +236,15 @@ export function SourceMetadataDisplay({
                   {showConfidenceScores && source.confidence && (
                     <Tooltip>
                       <TooltipTrigger>
-                        <Badge 
-                          variant="outline" 
+                        <Badge
+                          variant="outline"
                           className={cn(
-                            "text-xs",
-                            source.confidence > 0.8 
-                              ? "bg-green-50 text-green-700 dark:bg-green-900 dark:text-green-300"
+                            'text-xs',
+                            source.confidence > 0.8
+                              ? 'bg-green-50 text-green-700 dark:bg-green-900 dark:text-green-300'
                               : source.confidence > 0.6
-                              ? "bg-yellow-50 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300"
-                              : "bg-red-50 text-red-700 dark:bg-red-900 dark:text-red-300"
+                                ? 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
+                                : 'bg-red-50 text-red-700 dark:bg-red-900 dark:text-red-300',
                           )}
                         >
                           <Clock className="h-3 w-3 mr-1" />
@@ -257,7 +260,10 @@ export function SourceMetadataDisplay({
                   )}
 
                   {source.tokenCount && (
-                    <Badge variant="outline" className="text-xs text-muted-foreground">
+                    <Badge
+                      variant="outline"
+                      className="text-xs text-muted-foreground"
+                    >
                       ~{source.tokenCount} tokens
                     </Badge>
                   )}
@@ -266,9 +272,11 @@ export function SourceMetadataDisplay({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setExpandedSource(
-                    expandedSource === source.id ? null : source.id
-                  )}
+                  onClick={() =>
+                    setExpandedSource(
+                      expandedSource === source.id ? null : source.id,
+                    )
+                  }
                   className="h-6 text-xs"
                 >
                   {expandedSource === source.id ? (
@@ -291,32 +299,38 @@ export function SourceMetadataDisplay({
                       className="mt-2 pt-2 border-t border-border"
                     >
                       <div className="text-xs text-muted-foreground bg-background/50 p-2 rounded border max-h-32 overflow-y-auto">
-                        {source.content.length > 300 
+                        {source.content.length > 300
                           ? `${source.content.substring(0, 300)}...`
-                          : source.content
-                        }
+                          : source.content}
                       </div>
-                      
-                      {source.metadata && Object.keys(source.metadata).length > 0 && (
-                        <div className="mt-2 text-xs">
-                          <div className="font-medium text-muted-foreground mb-1">
-                            Additional metadata:
+
+                      {source.metadata &&
+                        Object.keys(source.metadata).length > 0 && (
+                          <div className="mt-2 text-xs">
+                            <div className="font-medium text-muted-foreground mb-1">
+                              Additional metadata:
+                            </div>
+                            <div className="space-y-1">
+                              {Object.entries(source.metadata).map(
+                                ([key, value]) => (
+                                  <div
+                                    key={key}
+                                    className="flex justify-between"
+                                  >
+                                    <span className="text-muted-foreground">
+                                      {key}:
+                                    </span>
+                                    <span className="text-foreground">
+                                      {typeof value === 'object'
+                                        ? JSON.stringify(value)
+                                        : String(value)}
+                                    </span>
+                                  </div>
+                                ),
+                              )}
+                            </div>
                           </div>
-                          <div className="space-y-1">
-                            {Object.entries(source.metadata).map(([key, value]) => (
-                              <div key={key} className="flex justify-between">
-                                <span className="text-muted-foreground">{key}:</span>
-                                <span className="text-foreground">
-                                  {typeof value === 'object' 
-                                    ? JSON.stringify(value)
-                                    : String(value)
-                                  }
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                        )}
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -330,10 +344,10 @@ export function SourceMetadataDisplay({
 }
 
 // Compact inline version for use within messages
-export function InlineSourcesBadge({ 
-  sources, 
-  maxSources = 2 
-}: { 
+export function InlineSourcesBadge({
+  sources,
+  maxSources = 2,
+}: {
   sources: ChatSource[];
   maxSources?: number;
 }) {
@@ -347,10 +361,7 @@ export function InlineSourcesBadge({
       {sources.slice(0, maxSources).map((source, index) => (
         <Tooltip key={source.id}>
           <TooltipTrigger>
-            <Badge 
-              variant="outline" 
-              className="h-4 text-xs cursor-help px-1"
-            >
+            <Badge variant="outline" className="h-4 text-xs cursor-help px-1">
               {index + 1}
               {source.pageNumber && (
                 <span className="ml-0.5 text-muted-foreground">
@@ -385,5 +396,5 @@ export function InlineSourcesBadge({
 
 function formatElementType(elementType: string | null | undefined) {
   if (!elementType) return 'Text';
-  return elementType.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+  return elementType.replace('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase());
 }

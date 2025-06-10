@@ -205,6 +205,7 @@ export function EnhancedSearch({
                     {savedSearches.map((saved) => (
                       <button
                         key={saved.id}
+                        type="button"
                         className="w-full px-2 py-2 text-left hover:bg-muted rounded text-sm flex items-center gap-2"
                         onClick={() => {
                           setQuery(saved.query);
@@ -222,6 +223,7 @@ export function EnhancedSearch({
                 {mockSuggestions.map((suggestion) => (
                   <button
                     key={suggestion.id}
+                    type="button"
                     className="w-full px-2 py-2 text-left hover:bg-muted rounded text-sm flex items-center gap-2"
                     onClick={() => {
                       if (
@@ -273,12 +275,16 @@ export function EnhancedSearch({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Date Range */}
                 <div>
-                  <label className="text-sm font-medium mb-2 block">
+                  <label
+                    htmlFor="date-range-dropdown"
+                    className="text-sm font-medium mb-2 block"
+                  >
                     Date Range
                   </label>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
+                        id="date-range-dropdown"
                         variant="outline"
                         className="w-full justify-between"
                       >
@@ -320,12 +326,16 @@ export function EnhancedSearch({
 
                 {/* Document Types */}
                 <div>
-                  <label className="text-sm font-medium mb-2 block">
+                  <label
+                    htmlFor="document-types-dropdown"
+                    className="text-sm font-medium mb-2 block"
+                  >
                     Document Types
                   </label>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
+                        id="document-types-dropdown"
                         variant="outline"
                         className="w-full justify-between"
                       >
@@ -370,10 +380,16 @@ export function EnhancedSearch({
 
                 {/* Tags */}
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Tags</label>
+                  <label
+                    htmlFor="tags-dropdown"
+                    className="text-sm font-medium mb-2 block"
+                  >
+                    Tags
+                  </label>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
+                        id="tags-dropdown"
                         variant="outline"
                         className="w-full justify-between"
                       >
@@ -503,8 +519,10 @@ export function SearchResults({
   if (isLoading) {
     return (
       <div className="space-y-4">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <Card key={i} className="p-4">
+        {Array.from({ length: 3 }, (_, i) => ({
+          id: `skeleton-${Date.now()}-${i}`,
+        })).map((item) => (
+          <Card key={item.id} className="p-4">
             <div className="space-y-3">
               <div className="h-4 bg-muted rounded animate-pulse" />
               <div className="h-3 bg-muted rounded animate-pulse w-3/4" />
@@ -537,13 +555,13 @@ export function SearchResults({
     return parts.map((part, index) =>
       highlights.some((h) => h.toLowerCase() === part.toLowerCase()) ? (
         <mark
-          key={index}
+          key={`highlight-${index}-${part}`}
           className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded"
         >
           {part}
         </mark>
       ) : (
-        part
+        <span key={`text-${index}-${part}`}>{part}</span>
       ),
     );
   };

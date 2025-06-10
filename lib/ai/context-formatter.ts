@@ -11,22 +11,22 @@ export interface ChatSource {
   content: string;
   chunkIndex: number;
   similarity: number;
-  
+
   // Enhanced ADE metadata
   elementType?: string | null;
   pageNumber?: number | null;
   bbox?: any;
-  
+
   // Enhanced document metadata
   documentId: string;
   fileName?: string;
   uploadedAt?: Date;
-  
+
   // Enhanced structural metadata from ADE
   elementId?: string; // ADE element identifier
   confidence?: number; // ADE confidence score
   metadata?: Record<string, any>; // Additional element metadata
-  
+
   // Context assembly metadata
   contextIndex: number; // Position in context list
   tokenCount?: number; // Estimated tokens for this source
@@ -79,20 +79,20 @@ export function formatContextForLLM(
       content: result.content,
       chunkIndex: result.chunkIndex,
       similarity: result.hybridScore || result.similarity,
-      
+
       // Enhanced ADE metadata
       elementType: result.elementType,
       pageNumber: result.pageNumber,
       bbox: result.bbox,
-      
+
       // Enhanced document metadata
       documentId: result.documentId,
       fileName: result.documentTitle, // Use documentTitle as fileName fallback
-      
+
       // Enhanced structural metadata from ADE
       confidence: result.metadata?.confidence,
       metadata: result.metadata,
-      
+
       // Context assembly metadata
       contextIndex: index,
       tokenCount: Math.ceil(result.content.length / 4), // Rough token estimate
@@ -212,9 +212,7 @@ function getStructuralPrefix(
 /**
  * Create a context-aware system prompt that instructs the LLM about structural information
  */
-export function createStructuredSystemPrompt(
-  hasStructuralData = true,
-): string {
+export function createStructuredSystemPrompt(hasStructuralData = true): string {
   const basePrompt = `You are an intelligent assistant that provides accurate, helpful answers based on the provided context documents.`;
 
   if (!hasStructuralData) {
@@ -381,22 +379,22 @@ export async function retrieveContextAndSources(
       content: source.content,
       chunkIndex: source.chunkIndex,
       similarity: source.similarity,
-      
+
       // Enhanced ADE metadata
       elementType: source.elementType,
       pageNumber: source.pageNumber,
       bbox: source.bbox,
-      
+
       // Enhanced document metadata
       documentId: source.documentId,
       fileName: source.fileName,
       uploadedAt: source.uploadedAt,
-      
+
       // Enhanced structural metadata from ADE
       elementId: source.elementId,
       confidence: source.confidence,
       metadata: source.metadata,
-      
+
       // Context assembly metadata
       contextIndex: source.contextIndex,
       tokenCount: source.tokenCount,

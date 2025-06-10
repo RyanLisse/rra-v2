@@ -118,18 +118,21 @@ export function MessageLoadingSkeleton({
       </div>
 
       <div className="flex flex-col gap-3 w-full max-w-2xl">
-        {Array.from({ length: lines }).map((_, i) => (
-          <motion.div
-            key={i}
-            className="h-4 bg-muted rounded animate-pulse"
-            style={{
-              width: i === lines - 1 ? '60%' : '100%',
-            }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: i * 0.1 }}
-          />
-        ))}
+        {Array.from({ length: lines }, (_, i) => {
+          const isLastLine = i === lines - 1;
+          return (
+            <motion.div
+              key={`skeleton-line-${Math.random()}-${i}`}
+              className="h-4 bg-muted rounded animate-pulse"
+              style={{
+                width: isLastLine ? '60%' : '100%',
+              }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: i * 0.1 }}
+            />
+          );
+        })}
       </div>
     </div>
   );

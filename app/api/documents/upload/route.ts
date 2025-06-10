@@ -4,7 +4,6 @@ import { join } from 'node:path';
 import { nanoid } from 'nanoid';
 import { db } from '@/lib/db';
 import { ragDocument } from '@/lib/db/schema';
-import { getUser } from '@/lib/auth/kinde';
 import { sendEvent } from '@/lib/inngest/client';
 
 const UPLOAD_DIR = join(process.cwd(), 'uploads');
@@ -93,7 +92,10 @@ export async function POST(request: NextRequest) {
             },
           });
         } catch (eventError) {
-          console.error(`Failed to emit upload event for ${file.name}:`, eventError);
+          console.error(
+            `Failed to emit upload event for ${file.name}:`,
+            eventError,
+          );
           // Continue execution - don't fail the upload if event emission fails
         }
 

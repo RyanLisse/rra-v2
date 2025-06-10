@@ -18,7 +18,10 @@ const StatusRequestSchema = z.object({
 export async function GET(request: NextRequest) {
   const user = await getUser();
   if (!user) {
-    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    return NextResponse.json(
+      { error: 'Authentication required' },
+      { status: 401 },
+    );
   }
 
   try {
@@ -62,10 +65,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user has access to this document
-    if (
-      document.uploadedBy !== user.id &&
-      user.type !== 'admin'
-    ) {
+    if (document.uploadedBy !== user.id && user.type !== 'admin') {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
@@ -146,7 +146,10 @@ function getNextStage(stages: any[]): string | null {
 export async function POST(request: NextRequest) {
   const user = await getUser();
   if (!user) {
-    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    return NextResponse.json(
+      { error: 'Authentication required' },
+      { status: 401 },
+    );
   }
 
   try {

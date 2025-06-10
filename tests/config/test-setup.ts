@@ -57,8 +57,12 @@ if (isNeonBranchingEnabled()) {
       },
       retryConfig: {
         maxRetries: Number.parseInt(process.env.NEON_API_MAX_RETRIES || '3'),
-        baseDelayMs: Number.parseInt(process.env.NEON_API_BASE_DELAY_MS || '1000'),
-        maxDelayMs: Number.parseInt(process.env.NEON_API_MAX_DELAY_MS || '10000'),
+        baseDelayMs: Number.parseInt(
+          process.env.NEON_API_BASE_DELAY_MS || '1000',
+        ),
+        maxDelayMs: Number.parseInt(
+          process.env.NEON_API_MAX_DELAY_MS || '10000',
+        ),
       },
       cleanupConfig: {
         maxBranchAgeHours: Number.parseInt(

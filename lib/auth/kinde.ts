@@ -13,7 +13,7 @@ export interface KindeUser {
 
 export async function getUser(): Promise<KindeUser | null> {
   const { getUser: getKindeUser, isAuthenticated } = getKindeServerSession();
-  
+
   if (!isAuthenticated()) {
     return null;
   }
@@ -48,7 +48,7 @@ export async function createGuestUser(): Promise<KindeUser> {
   // For guest users, we'll create a temporary session
   // This would typically integrate with your database
   const guestId = `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  
+
   return {
     id: guestId,
     email: `${guestId}@guest.local`,

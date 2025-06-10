@@ -234,11 +234,15 @@ export class EnhancedConfigBuilder implements ConfigBuilder {
       ),
       burstLimit: Number.parseInt(process.env.NEON_API_BURST_LIMIT || '10'),
       maxRetries: Number.parseInt(process.env.NEON_API_MAX_RETRIES || '3'),
-      baseDelayMs: Number.parseInt(process.env.NEON_API_BASE_DELAY_MS || '1000'),
+      baseDelayMs: Number.parseInt(
+        process.env.NEON_API_BASE_DELAY_MS || '1000',
+      ),
       maxDelayMs: Number.parseInt(process.env.NEON_API_MAX_DELAY_MS || '10000'),
 
       // Branch management
-      branchTimeout: Number.parseInt(process.env.NEON_BRANCH_TIMEOUT || '120000'),
+      branchTimeout: Number.parseInt(
+        process.env.NEON_BRANCH_TIMEOUT || '120000',
+      ),
       maxConcurrentBranches: Number.parseInt(
         process.env.NEON_MAX_CONCURRENT_BRANCHES || '5',
       ),
@@ -297,9 +301,13 @@ export class EnhancedConfigBuilder implements ConfigBuilder {
 
       testTimeout: Number.parseInt(process.env.VITEST_TIMEOUT || '120000'),
       hookTimeout: Number.parseInt(process.env.VITEST_HOOK_TIMEOUT || '120000'),
-      teardownTimeout: Number.parseInt(process.env.VITEST_TEARDOWN_TIMEOUT || '60000'),
+      teardownTimeout: Number.parseInt(
+        process.env.VITEST_TEARDOWN_TIMEOUT || '60000',
+      ),
 
-      maxConcurrency: Number.parseInt(process.env.VITEST_POOL_THREADS_MAX || '4'),
+      maxConcurrency: Number.parseInt(
+        process.env.VITEST_POOL_THREADS_MAX || '4',
+      ),
       sequential: !this.parseBoolean(
         process.env.VITEST_SEQUENCE_CONCURRENT,
         true,
@@ -323,7 +331,9 @@ export class EnhancedConfigBuilder implements ConfigBuilder {
                 process.env.NEON_DEFAULT_BRANCH_TAGS || 'test,automated'
               ).split(','),
               waitForReady: true,
-              timeoutMs: Number.parseInt(process.env.NEON_BRANCH_TIMEOUT || '120000'),
+              timeoutMs: Number.parseInt(
+                process.env.NEON_BRANCH_TIMEOUT || '120000',
+              ),
             },
           }
         : undefined,

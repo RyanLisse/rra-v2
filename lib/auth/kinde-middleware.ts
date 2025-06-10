@@ -9,29 +9,27 @@ export function withKindeAuth(
   handler: (
     request: NextRequest,
     context: { params?: any },
-    session: KindeSession
-  ) => Promise<Response> | Response
+    session: KindeSession,
+  ) => Promise<Response> | Response,
 ) {
-  return withAuth(
-    async (request: NextRequest, context: { params?: any }) => {
-      try {
-        // The session is available through Kinde's middleware
-        // We'll create a compatible session object
-        const session: KindeSession = {
-          user: (request as any).kindeAuth?.user || null,
-          isAuthenticated: !!(request as any).kindeAuth?.user,
-        };
+  return withAuth(async (request: NextRequest, context: { params?: any }) => {
+    try {
+      // The session is available through Kinde's middleware
+      // We'll create a compatible session object
+      const session: KindeSession = {
+        user: (request as any).kindeAuth?.user || null,
+        isAuthenticated: !!(request as any).kindeAuth?.user,
+      };
 
-        return await handler(request, context, session);
-      } catch (error) {
-        console.error('Kinde middleware error:', error);
-        return NextResponse.json(
-          { error: 'Authentication required' },
-          { status: 401 }
-        );
-      }
+      return await handler(request, context, session);
+    } catch (error) {
+      console.error('Kinde middleware error:', error);
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 },
+      );
     }
-  );
+  });
 }
 
 /**
@@ -40,8 +38,8 @@ export function withKindeAuth(
 export function protectedRoute(
   handler: (
     request: NextRequest,
-    context: { params?: any }
-  ) => Promise<Response> | Response
+    context: { params?: any },
+  ) => Promise<Response> | Response,
 ) {
   return withAuth(async (request: NextRequest, context: { params?: any }) => {
     // If we reach here, the user is authenticated
@@ -56,8 +54,8 @@ export function optionalAuth(
   handler: (
     request: NextRequest,
     context: { params?: any },
-    session: KindeSession | null
-  ) => Promise<Response> | Response
+    session: KindeSession | null,
+  ) => Promise<Response> | Response,
 ) {
   return async (request: NextRequest, context: { params?: any }) => {
     try {
@@ -86,13 +84,14 @@ export function requirePermission(permission: string) {
     handler: (
       request: NextRequest,
       context: { params?: any },
-      session: KindeSession
-    ) => Promise<Response> | Response
-  ) => withKindeAuth(async (request, context, session) => {
+      session: KindeSession,
+    ) => Promise<Response> | Response,
+  ) =>
+    withKindeAuth(async (request, context, session) => {
       if (!session.isAuthenticated) {
         return NextResponse.json(
           { error: 'Authentication required' },
-          { status: 401 }
+          { status: 401 },
         );
       }
 
@@ -103,7 +102,7 @@ export function requirePermission(permission: string) {
       if (!hasRequiredPermission) {
         return NextResponse.json(
           { error: 'Insufficient permissions' },
-          { status: 403 }
+          { status: 403 },
         );
       }
 
@@ -118,8 +117,8 @@ export function adminOnly(
   handler: (
     request: NextRequest,
     context: { params?: any },
-    session: KindeSession
-  ) => Promise<Response> | Response
+    session: KindeSession,
+  ) => Promise<Response> | Response,
 ) {
   return requirePermission('admin')(handler);
 }
@@ -130,18 +129,19 @@ export function adminOnly(
 export function withRateLimit(
   rateLimitKey: string,
   maxRequests = 10,
-  windowMs = 60000
+  windowMs = 60000,
 ) {
   return (
     handler: (
       request: NextRequest,
       context: { params?: any },
-      session: KindeSession
-    ) => Promise<Response> | Response
-  ) => withKindeAuth(async (request, context, session) => {
+      session: KindeSession,
+    ) => Promise<Response> | Response,
+  ) =>
+    withKindeAuth(async (request, context, session) => {
       // Implement rate limiting logic here
       // This is a placeholder - you'd integrate with your rate limiting solution
-      
+
       return await handler(request, context, session);
     });
 }

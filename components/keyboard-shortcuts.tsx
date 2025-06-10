@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   AlertDialog,
@@ -180,7 +180,10 @@ export function KeyboardShortcutsDialog({
                       </div>
                       <div className="flex items-center gap-1">
                         {shortcut.key.map((key, index) => (
-                          <div key={index} className="flex items-center">
+                          <div
+                            key={`${shortcut.id}-key-${index}`}
+                            className="flex items-center"
+                          >
                             <Badge
                               variant="outline"
                               className="text-xs px-2 py-1"
@@ -242,7 +245,7 @@ export function ShortcutToast({
               <span className="text-sm">{message}</span>
               <div className="flex items-center gap-1 ml-2">
                 {keys.map((key, index) => (
-                  <div key={index} className="flex items-center">
+                  <React.Fragment key={key}>
                     <Badge variant="outline" className="text-xs px-1.5 py-0.5">
                       {key}
                     </Badge>
@@ -251,7 +254,7 @@ export function ShortcutToast({
                         +
                       </span>
                     )}
-                  </div>
+                  </React.Fragment>
                 ))}
               </div>
             </div>

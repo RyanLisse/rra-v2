@@ -15,16 +15,19 @@ export default withAuth(
     }
 
     // Allow Kinde auth routes and health endpoints
-    if (pathname.startsWith('/api/auth') || pathname.startsWith('/api/health')) {
+    if (
+      pathname.startsWith('/api/auth') ||
+      pathname.startsWith('/api/health')
+    ) {
       return NextResponse.next();
     }
 
     // For authenticated users, handle redirects
     const kindeUser = request.kindeAuth?.user;
-    
+
     if (kindeUser) {
       const isGuest = guestRegex.test(kindeUser.email ?? '');
-      
+
       if (!isGuest && ['/login', '/register'].includes(pathname)) {
         return NextResponse.redirect(new URL('/', request.url));
       }
@@ -37,16 +40,20 @@ export default withAuth(
     loginPage: '/api/auth/login',
     isAuthorized: ({ token, request }) => {
       const pathname = request?.nextUrl?.pathname;
-      
+
       // Allow health check endpoints without authentication
-      if (pathname?.startsWith('/api/ping') || pathname?.startsWith('/api/health') || pathname?.startsWith('/ping')) {
+      if (
+        pathname?.startsWith('/api/ping') ||
+        pathname?.startsWith('/api/health') ||
+        pathname?.startsWith('/ping')
+      ) {
         return true;
       }
-      
+
       // Allow access for all authenticated users
       return !!token;
     },
-  }
+  },
 );
 
 export const config = {
@@ -61,7 +68,7 @@ export const config = {
      */
     '/',
     '/chat/:path*',
-    '/api/((?!ping|health).*)',  // Exclude ping and health from auth
+    '/api/((?!ping|health).*)', // Exclude ping and health from auth
     '/login',
     '/register',
     '/documents',

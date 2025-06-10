@@ -451,11 +451,7 @@ export class StressTestSeeder extends BaseSeeder {
     // Use smaller batch sizes for stress tests to manage memory
     const originalBatchInsert = this.batchInsert;
 
-    this.batchInsert = async <T>(
-      table: any,
-      data: T[],
-      batchSize = 500,
-    ) => {
+    this.batchInsert = async <T>(table: any, data: T[], batchSize = 500) => {
       return originalBatchInsert.call(
         this,
         table,

@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     if (!user) {
       return NextResponse.json(
         { error: 'Authentication required' },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -40,10 +40,7 @@ export async function POST(request: NextRequest) {
     // Process documents
     if (documentIds.length === 1) {
       // Single document processing
-      const result = await pipeline.processDocument(
-        documentIds[0],
-        user.id,
-      );
+      const result = await pipeline.processDocument(documentIds[0], user.id);
 
       return NextResponse.json({
         success: result.success,

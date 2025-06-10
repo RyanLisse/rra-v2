@@ -132,13 +132,22 @@ function parseArgs(): Partial<MonitoringConfig> & { help?: boolean } {
       result.outputFile = arg.split('=')[1];
     } else if (arg.startsWith('--stale-hours=')) {
       if (!result.alertThresholds) result.alertThresholds = {} as any;
-      result.alertThresholds.staleBranchHours = Number.parseInt(arg.split('=')[1], 10);
+      result.alertThresholds.staleBranchHours = Number.parseInt(
+        arg.split('=')[1],
+        10,
+      );
     } else if (arg.startsWith('--large-mb=')) {
       if (!result.alertThresholds) result.alertThresholds = {} as any;
-      result.alertThresholds.largeBranchMB = Number.parseInt(arg.split('=')[1], 10);
+      result.alertThresholds.largeBranchMB = Number.parseInt(
+        arg.split('=')[1],
+        10,
+      );
     } else if (arg.startsWith('--max-branches=')) {
       if (!result.alertThresholds) result.alertThresholds = {} as any;
-      result.alertThresholds.maxTestBranches = Number.parseInt(arg.split('=')[1], 10);
+      result.alertThresholds.maxTestBranches = Number.parseInt(
+        arg.split('=')[1],
+        10,
+      );
     } else if (arg.startsWith('--filter-env=')) {
       if (!result.filters) result.filters = {};
       result.filters.environment = arg.split('=')[1] as any;

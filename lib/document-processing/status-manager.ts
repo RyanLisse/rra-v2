@@ -222,12 +222,14 @@ export class DocumentStatusManager {
     const startIndex = stepNames.indexOf(stepName);
 
     for (let i = startIndex; i < stepNames.length; i++) {
-      const resetStep = this.steps.get(stepNames[i])!;
-      resetStep.status = 'pending';
-      resetStep.progress = 0;
-      resetStep.error = undefined;
-      resetStep.startTime = undefined;
-      resetStep.endTime = undefined;
+      const resetStep = this.steps.get(stepNames[i]);
+      if (resetStep) {
+        resetStep.status = 'pending';
+        resetStep.progress = 0;
+        resetStep.error = undefined;
+        resetStep.startTime = undefined;
+        resetStep.endTime = undefined;
+      }
     }
 
     await this.updateStatus({

@@ -1,9 +1,7 @@
 import { beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
 import { config } from 'dotenv';
 import { resolve } from 'node:path';
-import {
-  getTestBranchManager,
-} from '@/lib/testing/neon-test-branches';
+import { getTestBranchManager } from '@/lib/testing/neon-test-branches';
 import {
   getNeonApiClient,
   type EnhancedNeonApiClient,
@@ -110,7 +108,9 @@ export function setupNeonTestBranching(
               ...(process.env.NEON_DEFAULT_BRANCH_TAGS?.split(',') || []),
             ],
             waitForReady: true,
-            timeoutMs: Number.parseInt(process.env.NEON_BRANCH_TIMEOUT || '120000'),
+            timeoutMs: Number.parseInt(
+              process.env.NEON_BRANCH_TIMEOUT || '120000',
+            ),
             ...branchOptions,
           };
 

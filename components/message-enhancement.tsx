@@ -290,10 +290,11 @@ export function RegenerateOptions({
 
       <div className="space-y-3">
         <div>
-          <label className="text-sm font-medium">
+          <label htmlFor="temperature-slider" className="text-sm font-medium">
             Temperature: {temperature}
           </label>
           <input
+            id="temperature-slider"
             type="range"
             min="0"
             max="1"
@@ -309,10 +310,11 @@ export function RegenerateOptions({
         </div>
 
         <div>
-          <label className="text-sm font-medium">
+          <label htmlFor="custom-prompt" className="text-sm font-medium">
             Custom prompt (optional)
           </label>
           <Textarea
+            id="custom-prompt"
             value={customPrompt}
             onChange={(e) => setCustomPrompt(e.target.value)}
             placeholder="Add specific instructions for regeneration..."

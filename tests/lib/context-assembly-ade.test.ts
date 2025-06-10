@@ -11,7 +11,6 @@ import {
 import type { HybridSearchResult } from '@/lib/search/vector-search';
 
 describe('Context Assembly with ADE Metadata', () => {
-
   describe('formatContextForLLM', () => {
     const sampleResults: HybridSearchResult[] = [
       {
@@ -41,7 +40,7 @@ describe('Context Assembly with ADE Metadata', () => {
       {
         chunkId: 'chunk-3',
         content: 'Calibration Setup and Configuration',
-        similarity: 0.90,
+        similarity: 0.9,
         hybridScore: 0.92,
         documentId: 'doc-1',
         documentTitle: 'RoboRail Manual',
@@ -79,7 +78,9 @@ describe('Context Assembly with ADE Metadata', () => {
       expect(result.formattedContext).toContain('Type: heading');
       expect(result.formattedContext).toContain('Page: 5');
       expect(result.formattedContext).toContain('Page: 7');
-      expect(result.formattedContext).toContain('Position: [100, 200, 400, 250]');
+      expect(result.formattedContext).toContain(
+        'Position: [100, 200, 400, 250]',
+      );
       expect(result.formattedContext).toContain('Position: [50, 50, 550, 80]');
     });
 
@@ -153,7 +154,6 @@ describe('Context Assembly with ADE Metadata', () => {
     });
   });
 
-
   describe('createStructuredSystemPrompt', () => {
     it('should create enhanced prompt for data with structural information', () => {
       const prompt = createStructuredSystemPrompt(true);
@@ -169,7 +169,9 @@ describe('Context Assembly with ADE Metadata', () => {
 
       expect(prompt).not.toContain('document structure');
       expect(prompt).not.toContain('UNDERSTANDING DOCUMENT STRUCTURE');
-      expect(prompt).toContain('Base your answers on the provided context documents');
+      expect(prompt).toContain(
+        'Base your answers on the provided context documents',
+      );
     });
   });
 
@@ -212,25 +214,47 @@ describe('Context Assembly with ADE Metadata', () => {
     it('should generate correct prefixes for different element types', () => {
       const testCases = [
         { elementType: 'title', pageNumber: 1, expected: '[TITLE (Page 1)] ' },
-        { elementType: 'heading', pageNumber: 3, expected: '[HEADING (Page 3)] ' },
-        { elementType: 'figure_caption', pageNumber: 5, expected: '[FIGURE CAPTION (Page 5)] ' },
-        { elementType: 'table_text', pageNumber: 7, expected: '[TABLE (Page 7)] ' },
-        { elementType: 'list_item', pageNumber: 9, expected: '[LIST ITEM (Page 9)] ' },
-        { elementType: 'paragraph', pageNumber: 11, expected: '[PARAGRAPH (Page 11)] ' },
+        {
+          elementType: 'heading',
+          pageNumber: 3,
+          expected: '[HEADING (Page 3)] ',
+        },
+        {
+          elementType: 'figure_caption',
+          pageNumber: 5,
+          expected: '[FIGURE CAPTION (Page 5)] ',
+        },
+        {
+          elementType: 'table_text',
+          pageNumber: 7,
+          expected: '[TABLE (Page 7)] ',
+        },
+        {
+          elementType: 'list_item',
+          pageNumber: 9,
+          expected: '[LIST ITEM (Page 9)] ',
+        },
+        {
+          elementType: 'paragraph',
+          pageNumber: 11,
+          expected: '[PARAGRAPH (Page 11)] ',
+        },
       ];
 
       testCases.forEach(({ elementType, pageNumber, expected }) => {
-        const results: HybridSearchResult[] = [{
-          chunkId: 'test',
-          content: 'test content',
-          similarity: 0.8,
-          documentId: 'doc-1',
-          documentTitle: 'Test',
-          chunkIndex: 1,
-          elementType,
-          pageNumber,
-          bbox: null,
-        }];
+        const results: HybridSearchResult[] = [
+          {
+            chunkId: 'test',
+            content: 'test content',
+            similarity: 0.8,
+            documentId: 'doc-1',
+            documentTitle: 'Test',
+            chunkIndex: 1,
+            elementType,
+            pageNumber,
+            bbox: null,
+          },
+        ];
 
         const result = formatContextForLLM(results, {
           includeStructuralPrefixes: true,
@@ -244,17 +268,19 @@ describe('Context Assembly with ADE Metadata', () => {
     });
 
     it('should handle missing page numbers gracefully', () => {
-      const results: HybridSearchResult[] = [{
-        chunkId: 'test',
-        content: 'test content',
-        similarity: 0.8,
-        documentId: 'doc-1',
-        documentTitle: 'Test',
-        chunkIndex: 1,
-        elementType: 'heading',
-        pageNumber: null,
-        bbox: null,
-      }];
+      const results: HybridSearchResult[] = [
+        {
+          chunkId: 'test',
+          content: 'test content',
+          similarity: 0.8,
+          documentId: 'doc-1',
+          documentTitle: 'Test',
+          chunkIndex: 1,
+          elementType: 'heading',
+          pageNumber: null,
+          bbox: null,
+        },
+      ];
 
       const result = formatContextForLLM(results, {
         includeStructuralPrefixes: true,

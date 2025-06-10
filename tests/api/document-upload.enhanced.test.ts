@@ -15,9 +15,7 @@ import {
 import { db } from '@/lib/db';
 import { user, ragDocument } from '@/lib/db/schema';
 import { nanoid } from 'nanoid';
-import type {
-  PerformanceMetrics,
-} from '@/lib/testing/neon-api-client';
+import type { PerformanceMetrics } from '@/lib/testing/neon-api-client';
 import { getNeonLogger } from '@/lib/testing/neon-logger';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';

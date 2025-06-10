@@ -67,6 +67,7 @@ export function MobileNavigation({
               {navigationItems.map((item) => (
                 <button
                   key={item.id}
+                  type="button"
                   className={cn(
                     'w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors',
                     currentRoute === item.route
@@ -98,6 +99,7 @@ export function MobileNavigation({
           {navigationItems.map((item) => (
             <button
               key={item.id}
+              type="button"
               className={cn(
                 'flex flex-col items-center gap-1 p-2 rounded-lg transition-colors',
                 currentRoute === item.route
@@ -369,7 +371,7 @@ export function MobileChatInput({
             <div className="flex gap-1">
               {[0, 1, 2].map((i) => (
                 <motion.div
-                  key={i}
+                  key={`voice-indicator-${i}`}
                   className="w-1 bg-red-500 rounded-full"
                   animate={{
                     height: [4, 12, 4],

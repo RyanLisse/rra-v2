@@ -12,14 +12,14 @@ export default function Page() {
             Create an account to get started
           </p>
         </div>
-        
+
         <div className="flex flex-col gap-4 px-4 sm:px-16">
           <RegisterLink>
             <Button className="w-full" size="lg">
               Sign Up
             </Button>
           </RegisterLink>
-          
+
           <p className="text-center text-sm text-gray-600 mt-4 dark:text-zinc-400">
             {'Already have an account? '}
             <Link

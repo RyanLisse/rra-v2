@@ -62,7 +62,7 @@ function getStreamContext() {
 }
 
 export async function POST(request: Request) {
-    let requestBody: PostRequestBody;
+  let requestBody: PostRequestBody;
 
   try {
     const json = await request.json();
@@ -82,11 +82,11 @@ export async function POST(request: Request) {
     }
 
     // Create session-like object for backward compatibility
-    const session = { 
+    const session = {
       user: {
         ...user,
-        email: user.email ?? undefined // Convert null to undefined for compatibility
-      }
+        email: user.email ?? undefined, // Convert null to undefined for compatibility
+      },
     };
     const userType: UserType = user.type;
 
@@ -179,85 +179,85 @@ export async function POST(request: Request) {
             }),
           },
           onFinish: async ({ response }) => {
-              if (session.user?.id) {
-                try {
-                  const assistantId = getTrailingMessageId({
-                    messages: response.messages.filter(
-                      (message) => message.role === 'assistant',
-                    ),
-                  });
+            if (session.user?.id) {
+              try {
+                const assistantId = getTrailingMessageId({
+                  messages: response.messages.filter(
+                    (message) => message.role === 'assistant',
+                  ),
+                });
 
-                  if (!assistantId) {
-                    throw new Error('No assistant message found!');
-                  }
-
-                  const [, assistantMessage] = appendResponseMessages({
-                    messages: [message],
-                    responseMessages: response.messages,
-                  });
-
-                  await saveMessages({
-                    messages: [
-                      {
-                        id: assistantId,
-                        chatId: id,
-                        role: assistantMessage.role,
-                        parts: assistantMessage.parts,
-                        attachments:
-                          assistantMessage.experimental_attachments ?? [],
-                        createdAt: new Date(),
-                      },
-                    ],
-                  });
-                } catch (_) {
-                  console.error('Failed to save chat');
+                if (!assistantId) {
+                  throw new Error('No assistant message found!');
                 }
+
+                const [, assistantMessage] = appendResponseMessages({
+                  messages: [message],
+                  responseMessages: response.messages,
+                });
+
+                await saveMessages({
+                  messages: [
+                    {
+                      id: assistantId,
+                      chatId: id,
+                      role: assistantMessage.role,
+                      parts: assistantMessage.parts,
+                      attachments:
+                        assistantMessage.experimental_attachments ?? [],
+                      createdAt: new Date(),
+                    },
+                  ],
+                });
+              } catch (_) {
+                console.error('Failed to save chat');
               }
-            },
-            experimental_telemetry: {
-              isEnabled: isProductionEnvironment,
-              functionId: 'stream-text',
-            },
-          });
+            }
+          },
+          experimental_telemetry: {
+            isEnabled: isProductionEnvironment,
+            functionId: 'stream-text',
+          },
+        });
 
-          result.consumeStream();
+        result.consumeStream();
 
-          result.mergeIntoDataStream(dataStream, {
-            sendReasoning: true,
-          });
-        },
-        onError: () => {
-          return 'Oops, an error occurred!';
-        },
-      });
+        result.mergeIntoDataStream(dataStream, {
+          sendReasoning: true,
+        });
+      },
+      onError: () => {
+        return 'Oops, an error occurred!';
+      },
+    });
 
-      const streamContext = getStreamContext();
+    const streamContext = getStreamContext();
 
-      if (streamContext) {
-        return new Response(
-          await streamContext.resumableStream(streamId, () => stream),
-        );
-      } else {
-        return new Response(stream);
-      }
-    } catch (error) {
-      if (error instanceof ChatSDKError) {
-        return error.toResponse();
-      }
-      return new ChatSDKError('bad_request:api').toResponse();
+    if (streamContext) {
+      return new Response(
+        await streamContext.resumableStream(streamId, () => stream),
+      );
+    } else {
+      return new Response(stream);
     }
+  } catch (error) {
+    if (error instanceof ChatSDKError) {
+      return error.toResponse();
+    }
+    return new ChatSDKError('bad_request:api').toResponse();
+  }
 }
 
 export async function GET(request: Request) {
-    const streamContext = getStreamContext();
-    const resumeRequestedAt = new Date();
+  const streamContext = getStreamContext();
+  const resumeRequestedAt = new Date();
 
-    if (!streamContext) {
-      return new Response(null, { status: 204 });
-    }
+  if (!streamContext) {
+    return new Response(null, { status: 204 });
+  }
 
-    const { searchParams } = new URL(request.url);
-    const chatId = searchParams.get('chatId');
+  const { searchParams } = new URL(request.url);
+  const chatId = searchParams.get('chatId');
 
   if (!chatId) {
     return new ChatSDKError('bad_request:api').toResponse();
@@ -269,78 +269,78 @@ export async function GET(request: Request) {
     return new ChatSDKError('unauthorized:chat').toResponse();
   }
 
-    let chat: Chat;
+  let chat: Chat;
 
-    try {
-      chat = await getChatById({ id: chatId });
-    } catch {
-      return new ChatSDKError('not_found:chat').toResponse();
-    }
+  try {
+    chat = await getChatById({ id: chatId });
+  } catch {
+    return new ChatSDKError('not_found:chat').toResponse();
+  }
 
   if (chat.visibility === 'private' && chat.userId !== user.id) {
     return new ChatSDKError('forbidden:chat').toResponse();
   }
 
-    if (chat.visibility === 'private' && chat.userId !== session.user.id) {
-      return new ChatSDKError('forbidden:chat').toResponse();
+  if (chat.visibility === 'private' && chat.userId !== session.user.id) {
+    return new ChatSDKError('forbidden:chat').toResponse();
+  }
+
+  const streamIds = await getStreamIdsByChatId({ chatId });
+
+  if (!streamIds.length) {
+    return new ChatSDKError('not_found:stream').toResponse();
+  }
+
+  const recentStreamId = streamIds.at(-1);
+
+  if (!recentStreamId) {
+    return new ChatSDKError('not_found:stream').toResponse();
+  }
+
+  const emptyDataStream = createDataStream({
+    execute: () => {},
+  });
+
+  const stream = await streamContext.resumableStream(
+    recentStreamId,
+    () => emptyDataStream,
+  );
+
+  /*
+   * For when the generation is streaming during SSR
+   * but the resumable stream has concluded at this point.
+   */
+  if (!stream) {
+    const messages = await getMessagesByChatId({ id: chatId });
+    const mostRecentMessage = messages.at(-1);
+
+    if (!mostRecentMessage) {
+      return new Response(emptyDataStream, { status: 200 });
     }
 
-    const streamIds = await getStreamIdsByChatId({ chatId });
-
-    if (!streamIds.length) {
-      return new ChatSDKError('not_found:stream').toResponse();
+    if (mostRecentMessage.role !== 'assistant') {
+      return new Response(emptyDataStream, { status: 200 });
     }
 
-    const recentStreamId = streamIds.at(-1);
+    const messageCreatedAt = new Date(mostRecentMessage.createdAt);
 
-    if (!recentStreamId) {
-      return new ChatSDKError('not_found:stream').toResponse();
+    if (differenceInSeconds(resumeRequestedAt, messageCreatedAt) > 15) {
+      return new Response(emptyDataStream, { status: 200 });
     }
 
-    const emptyDataStream = createDataStream({
-      execute: () => {},
+    const restoredStream = createDataStream({
+      execute: (buffer) => {
+        buffer.writeData({
+          type: 'append-message',
+          message: JSON.stringify(mostRecentMessage),
+        });
+      },
     });
 
-    const stream = await streamContext.resumableStream(
-      recentStreamId,
-      () => emptyDataStream,
-    );
+    return new Response(restoredStream, { status: 200 });
+  }
 
-    /*
-     * For when the generation is streaming during SSR
-     * but the resumable stream has concluded at this point.
-     */
-    if (!stream) {
-      const messages = await getMessagesByChatId({ id: chatId });
-      const mostRecentMessage = messages.at(-1);
-
-      if (!mostRecentMessage) {
-        return new Response(emptyDataStream, { status: 200 });
-      }
-
-      if (mostRecentMessage.role !== 'assistant') {
-        return new Response(emptyDataStream, { status: 200 });
-      }
-
-      const messageCreatedAt = new Date(mostRecentMessage.createdAt);
-
-      if (differenceInSeconds(resumeRequestedAt, messageCreatedAt) > 15) {
-        return new Response(emptyDataStream, { status: 200 });
-      }
-
-      const restoredStream = createDataStream({
-        execute: (buffer) => {
-          buffer.writeData({
-            type: 'append-message',
-            message: JSON.stringify(mostRecentMessage),
-          });
-        },
-      });
-
-      return new Response(restoredStream, { status: 200 });
-    }
-
-    return new Response(stream, { status: 200 });
+  return new Response(stream, { status: 200 });
 }
 
 export async function DELETE(request: Request) {

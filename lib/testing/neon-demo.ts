@@ -57,9 +57,7 @@ async function runDemo() {
     if (projectResult.success) {
       console.log(`✅ Project: ${projectResult.data?.name}`);
       console.log(`📍 Region: ${projectResult.data?.region_id || 'N/A'}`);
-      console.log(
-        `🐘 PostgreSQL: ${projectResult.data?.pg_version || 'N/A'}`,
-      );
+      console.log(`🐘 PostgreSQL: ${projectResult.data?.pg_version || 'N/A'}`);
       console.log(`⏱️ Operation took ${projectResult.metadata.duration_ms}ms`);
     } else {
       console.log(`❌ Error: ${projectResult.error}`);

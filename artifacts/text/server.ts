@@ -34,8 +34,7 @@ export const textDocumentHandler = createDocumentHandler<'text'>({
 
         if (contextResult.sources.length > 0) {
           // Create structured system prompt aware of document context
-          contextualSystemPrompt =
-            `${createStructuredSystemPrompt(true)}\n\nWhen writing about the topic, incorporate relevant information from the provided context documents. Use the structural information to create well-organized content with appropriate headings, tables, and lists where relevant.`;
+          contextualSystemPrompt = `${createStructuredSystemPrompt(true)}\n\nWhen writing about the topic, incorporate relevant information from the provided context documents. Use the structural information to create well-organized content with appropriate headings, tables, and lists where relevant.`;
 
           // Enhance the prompt with context
           enhancedPrompt = `Topic: ${title}

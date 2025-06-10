@@ -184,7 +184,9 @@ describe('TEST_SUITE_NAME (Enhanced)', () => {
         testBranch.branchId,
       );
 
-      expect(Number.parseInt(countResult.data?.results?.[0]?.count || '0')).toBe(5);
+      expect(
+        Number.parseInt(countResult.data?.results?.[0]?.count || '0'),
+      ).toBe(5);
     });
   });
 
@@ -261,7 +263,9 @@ describe('TEST_SUITE_NAME (Enhanced)', () => {
         testBranch.branchId,
       );
 
-      expect(Number.parseInt(countResult.data?.results?.[0]?.count || '0')).toBe(0);
+      expect(
+        Number.parseInt(countResult.data?.results?.[0]?.count || '0'),
+      ).toBe(0);
     });
   });
 
@@ -305,7 +309,9 @@ describe('TEST_SUITE_NAME (Enhanced)', () => {
         'SELECT COUNT(*) as count FROM rag_documents',
         testBranch.branchId,
       );
-      expect(Number.parseInt(initialCount.data?.results?.[0]?.count || '0')).toBe(1);
+      expect(
+        Number.parseInt(initialCount.data?.results?.[0]?.count || '0'),
+      ).toBe(1);
 
       // Clean up test data
       await testUtils.cleanupTestData(testBranch.branchId);
@@ -315,7 +321,9 @@ describe('TEST_SUITE_NAME (Enhanced)', () => {
         'SELECT COUNT(*) as count FROM rag_documents',
         testBranch.branchId,
       );
-      expect(Number.parseInt(finalCount.data?.results?.[0]?.count || '0')).toBe(0);
+      expect(Number.parseInt(finalCount.data?.results?.[0]?.count || '0')).toBe(
+        0,
+      );
     });
   });
 

@@ -255,8 +255,49 @@ export function logDatabaseConfig() {
 }
 
 /**
- * Database instance
+ * Database instance with proper configuration
  */
-// biome-ignore lint: Forbidden non-null assertion.
-const client = postgres(process.env.POSTGRES_URL!);
-export const db = drizzle(client);
+let client: ReturnType<typeof postgres>;
+let db: ReturnType<typeof drizzle>;
+
+function createDatabaseInstance() {
+  if (!process.env.POSTGRES_URL) {
+    throw new Error('POSTGRES_URL environment variable is required');
+  }
+
+  try {
+    // Validate configuration
+    validateDatabaseConfig();
+
+    const config = getDatabaseConfig();
+
+    // Create postgres client with proper configuration
+    client = postgres(process.env.POSTGRES_URL, {
+      max: config.connection.max,
+      idle_timeout: config.connection.idle_timeout,
+      connect_timeout: config.connection.connect_timeout,
+      prepare: config.connection.prepare,
+      transform: config.connection.transform,
+      // Add connection error handling
+      onnotice: config.monitoring.enableLogging ? console.log : undefined,
+      debug: config.monitoring.enableLogging ? console.log : undefined,
+    });
+
+    // Create drizzle instance
+    db = drizzle(client);
+
+    // Log configuration in development
+    if (config.monitoring.enableLogging) {
+      logDatabaseConfig();
+    }
+
+    return db;
+  } catch (error) {
+    console.error('Failed to create database instance:', error);
+    throw error;
+  }
+}
+
+// Initialize database instance
+const dbInstance = createDatabaseInstance();
+export { dbInstance as db };

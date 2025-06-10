@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     if (!user) {
       return Response.json(
         { error: 'Authentication required' },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -154,10 +154,7 @@ export async function POST(request: Request) {
             searchTimeMs: searchResponse.searchTimeMs,
             fallbackAttempted: true,
           },
-          suggestions: await generateSearchSuggestions(
-            message,
-            user.id,
-          ),
+          suggestions: await generateSearchSuggestions(message, user.id),
         });
       }
 

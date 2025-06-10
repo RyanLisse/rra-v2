@@ -247,10 +247,7 @@ export const createPerformanceDataFactory = () => {
       return embedding;
     },
 
-    createSearchableEmbedding: (
-      dimension = 1536,
-      patternId = 0,
-    ) => {
+    createSearchableEmbedding: (dimension = 1536, patternId = 0) => {
       // Create embeddings with specific patterns for search testing
       const embedding = new Array(dimension);
       const patternPhase = (patternId * Math.PI * 2) / 10; // 10 different patterns

@@ -44,7 +44,7 @@ describe('Document Upload API - Inngest Integration', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Setup default database mock responses
     mockInsert.mockReturnValue({
       values: vi.fn().mockReturnValue({
@@ -92,7 +92,7 @@ describe('Document Upload API - Inngest Integration', () => {
     // Assert
     expect(response.status).toBe(200);
     expect(responseData.message).toContain('Successfully uploaded 1 file(s)');
-    
+
     // Verify Inngest event was emitted
     expect(mockSendEvent).toHaveBeenCalledTimes(1);
     expect(mockSendEvent).toHaveBeenCalledWith('document.uploaded', {
@@ -164,10 +164,10 @@ describe('Document Upload API - Inngest Integration', () => {
     // Assert
     expect(response.status).toBe(200);
     expect(responseData.message).toContain('Successfully uploaded 2 file(s)');
-    
+
     // Verify both Inngest events were emitted
     expect(mockSendEvent).toHaveBeenCalledTimes(2);
-    
+
     expect(mockSendEvent).toHaveBeenNthCalledWith(1, 'document.uploaded', {
       documentId: 'doc-1',
       userId: 'test-user-id',
@@ -218,7 +218,7 @@ describe('Document Upload API - Inngest Integration', () => {
     // Assert
     expect(response.status).toBe(400);
     expect(responseData.error).toBe('No files were successfully uploaded');
-    
+
     // Verify no Inngest events were emitted
     expect(mockSendEvent).not.toHaveBeenCalled();
   });
@@ -246,7 +246,7 @@ describe('Document Upload API - Inngest Integration', () => {
     // Assert - Upload should still succeed even if event emission fails
     expect(response.status).toBe(200);
     expect(responseData.message).toContain('Successfully uploaded 1 file(s)');
-    
+
     // Verify Inngest event was attempted
     expect(mockSendEvent).toHaveBeenCalledTimes(1);
   });
@@ -301,8 +301,10 @@ describe('Document Upload API - Inngest Integration', () => {
 
     // Assert
     expect(response.status).toBe(400);
-    expect(responseData.errors[0]).toContain('Only PDF, TXT, MD, DOCX, DOC files are allowed');
-    
+    expect(responseData.errors[0]).toContain(
+      'Only PDF, TXT, MD, DOCX, DOC files are allowed',
+    );
+
     // Verify no Inngest events were emitted
     expect(mockSendEvent).not.toHaveBeenCalled();
   });

@@ -10,7 +10,10 @@ import { readFile } from 'node:fs/promises';
 export async function POST(request: NextRequest) {
   const user = await getUser();
   if (!user) {
-    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    return NextResponse.json(
+      { error: 'Authentication required' },
+      { status: 401 },
+    );
   }
 
   try {
@@ -147,7 +150,7 @@ export async function POST(request: NextRequest) {
       // Calculate quality statistics
       const qualityStats = chunks.reduce(
         (stats, chunk) => {
-          const quality = chunk.metadata.quality!;
+          const quality = chunk.metadata.quality;
           return {
             avgCoherence: stats.avgCoherence + quality.coherence,
             avgCompleteness: stats.avgCompleteness + quality.completeness,

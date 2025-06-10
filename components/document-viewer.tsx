@@ -272,6 +272,7 @@ export function DocumentViewer({
           <div className="flex-1 overflow-y-auto p-2">
             {document.sections.map((section) => (
               <button
+                type="button"
                 key={section.id}
                 className={cn(
                   'w-full text-left p-2 rounded text-sm hover:bg-muted transition-colors',
@@ -427,6 +428,7 @@ export function DocumentViewer({
               lineHeight: 1.6,
             }}
             onMouseUp={handleTextSelection}
+            role="document"
             dangerouslySetInnerHTML={{
               __html: renderContentWithHighlights(document.content),
             }}
@@ -458,6 +460,7 @@ export function DocumentViewer({
                   {['#fef3c7', '#dcfce7', '#dbeafe', '#fce7f3', '#f3e8ff'].map(
                     (color) => (
                       <button
+                        type="button"
                         key={color}
                         className="w-6 h-6 rounded border-2 border-border hover:border-foreground"
                         style={{ backgroundColor: color }}
@@ -518,7 +521,7 @@ export function DocumentViewer({
                     Math.max(
                       1,
                       Math.min(
-                        document.pageCount!,
+                        document.pageCount || 1,
                         Number.parseInt(e.target.value) || 1,
                       ),
                     ),
@@ -535,7 +538,9 @@ export function DocumentViewer({
               variant="outline"
               size="sm"
               onClick={() =>
-                setCurrentPage(Math.min(document.pageCount!, currentPage + 1))
+                setCurrentPage(
+                  Math.min(document.pageCount || 1, currentPage + 1),
+                )
               }
               disabled={currentPage === document.pageCount}
             >

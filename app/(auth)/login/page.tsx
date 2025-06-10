@@ -12,14 +12,14 @@ export default function Page() {
             Sign in to your account to continue
           </p>
         </div>
-        
+
         <div className="flex flex-col gap-4 px-4 sm:px-16">
           <LoginLink>
             <Button className="w-full" size="lg">
               Sign In
             </Button>
           </LoginLink>
-          
+
           <p className="text-center text-sm text-gray-600 mt-4 dark:text-zinc-400">
             {"Don't have an account? "}
             <Link

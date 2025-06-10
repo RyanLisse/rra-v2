@@ -77,16 +77,18 @@ export class SemanticTextSplitter {
       if (chunks.length > 0 && sectionChunks.length > 0) {
         const lastChunk = chunks[chunks.length - 1];
         const firstNewChunk = sectionChunks[0];
-        const crossSectionOverlap = this.calculateCrossSectionOverlap(
-          lastChunk,
-          firstNewChunk,
-        );
+        if (lastChunk && firstNewChunk) {
+          const crossSectionOverlap = this.calculateCrossSectionOverlap(
+            lastChunk,
+            firstNewChunk,
+          );
 
-        if (crossSectionOverlap) {
-          firstNewChunk.metadata.overlap = {
-            ...firstNewChunk.metadata.overlap,
-            previousChunk: crossSectionOverlap,
-          };
+          if (crossSectionOverlap) {
+            firstNewChunk.metadata.overlap = {
+              ...firstNewChunk.metadata.overlap,
+              previousChunk: crossSectionOverlap,
+            };
+          }
         }
       }
 
@@ -336,7 +338,7 @@ export class SemanticTextSplitter {
       if (chunk.content.trim().length === 0) break;
 
       const overlap =
-        chunkIndex > startChunkIndex
+        chunkIndex > startChunkIndex && chunks.length > 0
           ? this.calculateOverlap(chunks[chunks.length - 1], chunk)
           : undefined;
 
@@ -436,14 +438,16 @@ export class SemanticTextSplitter {
         // Recalculate overlaps with quality consideration
         if (index > 0 && this.options.adaptiveOverlap) {
           const prevChunk = chunks[index - 1];
-          const adaptiveOverlap = this.calculateAdaptiveOverlap(
-            prevChunk,
-            chunk,
-          );
-          chunk.metadata.overlap = {
-            ...chunk.metadata.overlap,
-            ...adaptiveOverlap,
-          };
+          if (prevChunk) {
+            const adaptiveOverlap = this.calculateAdaptiveOverlap(
+              prevChunk,
+              chunk,
+            );
+            chunk.metadata.overlap = {
+              ...chunk.metadata.overlap,
+              ...adaptiveOverlap,
+            };
+          }
         }
 
         return chunk;
@@ -451,7 +455,7 @@ export class SemanticTextSplitter {
       .filter(
         (chunk) =>
           chunk.content.trim().length >= this.options.minChunkSize &&
-          chunk.metadata.quality?.coherence > 0.3,
+          (chunk.metadata.quality?.coherence ?? 0) > 0.3,
       );
   }
 
@@ -464,8 +468,18 @@ export class SemanticTextSplitter {
   ): {
     previousChunk?: string;
   } {
-    const prevQuality = prevChunk.metadata.quality!;
-    const currentQuality = currentChunk.metadata.quality!;
+    const prevQuality = prevChunk.metadata.quality;
+    const currentQuality = currentChunk.metadata.quality;
+
+    if (!prevQuality || !currentQuality) {
+      // Fallback to basic overlap if quality data is missing
+      const overlapLength = Math.min(
+        this.options.chunkOverlap,
+        prevChunk.content.length,
+      );
+      const previousOverlap = prevChunk.content.slice(-overlapLength);
+      return { previousChunk: previousOverlap };
+    }
 
     // Increase overlap for lower quality chunks
     const qualityFactor =

@@ -21,9 +21,7 @@ import {
   documentChunk,
 } from '@/lib/db/schema';
 import { nanoid } from 'nanoid';
-import type {
-  PerformanceMetrics,
-} from '@/lib/testing/neon-api-client';
+import type { PerformanceMetrics } from '@/lib/testing/neon-api-client';
 import { getNeonLogger } from '@/lib/testing/neon-logger';
 
 const logger = getNeonLogger();

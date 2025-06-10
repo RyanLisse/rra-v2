@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 
 import { AppSidebar } from '@/components/app-sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { getUser, type UserType } from '@/lib/auth/kinde';
+import { getUser } from '@/lib/auth/kinde';
 import Script from 'next/script';
 
 export const experimental_ppr = true;

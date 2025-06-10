@@ -2,7 +2,6 @@ import { Toaster } from 'sonner';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
-import { KindeProvider } from '@kinde-oss/kinde-auth-nextjs';
 
 import './globals.css';
 

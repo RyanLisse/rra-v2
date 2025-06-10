@@ -254,20 +254,18 @@ export class PerformanceFactory extends BaseFactory<any> {
           );
 
           // Create concurrent sessions for each user
-          const concurrentSessions = users
-            .flat()
-            .flatMap((user) => {
-              const sessionCount = faker.number.int({ min: 5, max: 15 });
-              return Array.from({ length: sessionCount }, () => ({
-                userId: user.user.id,
-                token: faker.string.alphanumeric(64),
-                expiresAt: faker.date.future(),
-                ipAddress: faker.internet.ip(),
-                userAgent: faker.internet.userAgent(),
-                createdAt: faker.date.recent(),
-                updatedAt: faker.date.recent(),
-              }));
-            });
+          const concurrentSessions = users.flat().flatMap((user) => {
+            const sessionCount = faker.number.int({ min: 5, max: 15 });
+            return Array.from({ length: sessionCount }, () => ({
+              userId: user.user.id,
+              token: faker.string.alphanumeric(64),
+              expiresAt: faker.date.future(),
+              ipAddress: faker.internet.ip(),
+              userAgent: faker.internet.userAgent(),
+              createdAt: faker.date.recent(),
+              updatedAt: faker.date.recent(),
+            }));
+          });
 
           return { users: users.flat(), concurrentSessions };
         },

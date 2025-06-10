@@ -9,17 +9,20 @@ export interface Session {
 
 export function useSession() {
   const { user, isAuthenticated, isLoading } = useKindeBrowserClient();
-  
-  const session: Session | null = user && isAuthenticated ? {
-    user: {
-      id: user.id,
-      email: user.email,
-      given_name: user.given_name,
-      family_name: user.family_name,
-      picture: user.picture,
-      type: user.email?.includes('guest') ? 'guest' : 'regular',
-    }
-  } : null;
+
+  const session: Session | null =
+    user && isAuthenticated
+      ? {
+          user: {
+            id: user.id,
+            email: user.email,
+            given_name: user.given_name,
+            family_name: user.family_name,
+            picture: user.picture,
+            type: user.email?.includes('guest') ? 'guest' : 'regular',
+          },
+        }
+      : null;
 
   return {
     data: session,
@@ -28,17 +31,20 @@ export function useSession() {
 }
 
 export function useAuth() {
-  const { user, isAuthenticated, isLoading, login, logout } = useKindeBrowserClient();
-  
+  const { user, isAuthenticated, isLoading, login, logout } =
+    useKindeBrowserClient();
+
   return {
-    user: user ? {
-      id: user.id,
-      email: user.email,
-      given_name: user.given_name,
-      family_name: user.family_name,
-      picture: user.picture,
-      type: user.email?.includes('guest') ? 'guest' : 'regular',
-    } : null,
+    user: user
+      ? {
+          id: user.id,
+          email: user.email,
+          given_name: user.given_name,
+          family_name: user.family_name,
+          picture: user.picture,
+          type: user.email?.includes('guest') ? 'guest' : 'regular',
+        }
+      : null,
     isAuthenticated,
     isLoading,
     login,

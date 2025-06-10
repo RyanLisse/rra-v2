@@ -8,7 +8,7 @@ const textPartSchema = z.object({
 
 // Generate valid model IDs from the models configuration
 const validModelIds = [
-  ...chatModels.map(model => model.id),
+  ...chatModels.map((model) => model.id),
   ...Object.keys(legacyModels), // Include legacy model IDs for backwards compatibility
 ] as [string, ...string[]];
 

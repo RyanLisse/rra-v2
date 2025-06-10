@@ -1,4 +1,4 @@
-import { getUser, type UserType } from '@/lib/auth/kinde';
+import { getUser } from '@/lib/auth/kinde';
 import { getChatById, getVotesByChatId, voteMessage } from '@/lib/db/queries';
 import { ChatSDKError } from '@/lib/errors';
 

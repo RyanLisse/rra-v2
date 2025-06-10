@@ -1,21 +1,31 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { SourceMetadataDisplay, InlineSourcesBadge } from '@/components/source-metadata-display';
+import {
+  SourceMetadataDisplay,
+  InlineSourcesBadge,
+} from '@/components/source-metadata-display';
 import type { ChatSource } from '@/lib/ai/context-formatter';
 
 // Mock the tooltip provider
 jest.mock('@/components/ui/tooltip', () => ({
-  Tooltip: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  TooltipTrigger: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  TooltipContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  Tooltip: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+  TooltipTrigger: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+  TooltipContent: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
 }));
 
 const mockSources: ChatSource[] = [
   {
     id: 'chunk-1',
     title: 'RoboRail Installation Guide',
-    content: 'This is a comprehensive guide for installing the RoboRail system...',
+    content:
+      'This is a comprehensive guide for installing the RoboRail system...',
     chunkIndex: 0,
     similarity: 0.95,
     elementType: 'title',
@@ -36,7 +46,8 @@ const mockSources: ChatSource[] = [
   {
     id: 'chunk-2',
     title: 'Calibration Procedures',
-    content: 'Follow these steps to calibrate your RoboRail system for optimal performance...',
+    content:
+      'Follow these steps to calibrate your RoboRail system for optimal performance...',
     chunkIndex: 5,
     similarity: 0.87,
     elementType: 'heading',
@@ -54,7 +65,8 @@ const mockSources: ChatSource[] = [
   {
     id: 'chunk-3',
     title: 'Troubleshooting Table',
-    content: 'Error Code | Description | Solution\n404 | Connection Lost | Check cables...',
+    content:
+      'Error Code | Description | Solution\n404 | Connection Lost | Check cables...',
     chunkIndex: 2,
     similarity: 0.76,
     elementType: 'table_text',
@@ -106,7 +118,12 @@ describe('SourceMetadataDisplay', () => {
   });
 
   it('shows confidence scores when enabled', () => {
-    render(<SourceMetadataDisplay sources={mockSources} showConfidenceScores={true} />);
+    render(
+      <SourceMetadataDisplay
+        sources={mockSources}
+        showConfidenceScores={true}
+      />,
+    );
 
     // Check confidence percentages
     expect(screen.getByText('92%')).toBeInTheDocument(); // chunk-1 confidence
@@ -115,7 +132,9 @@ describe('SourceMetadataDisplay', () => {
   });
 
   it('limits initial sources display and shows expand button', () => {
-    render(<SourceMetadataDisplay sources={mockSources} maxInitialSources={2} />);
+    render(
+      <SourceMetadataDisplay sources={mockSources} maxInitialSources={2} />,
+    );
 
     // Should show "Show all" button when there are more sources than maxInitialSources
     expect(screen.getByText('Show all')).toBeInTheDocument();
@@ -134,7 +153,9 @@ describe('SourceMetadataDisplay', () => {
 
     // Wait for content to appear
     await waitFor(() => {
-      expect(screen.getByText(/This is a comprehensive guide for installing/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/This is a comprehensive guide for installing/),
+      ).toBeInTheDocument();
     });
 
     // Check that "Hide preview" appears
@@ -176,13 +197,13 @@ describe('InlineSourcesBadge', () => {
     render(<InlineSourcesBadge sources={mockSources} maxSources={2} />);
 
     expect(screen.getByText('Sources:')).toBeInTheDocument();
-    
+
     // Should show numbered badges with page numbers
     expect(screen.getByText('1')).toBeInTheDocument();
     expect(screen.getByText('p1')).toBeInTheDocument(); // Page 1
     expect(screen.getByText('2')).toBeInTheDocument();
     expect(screen.getByText('p3')).toBeInTheDocument(); // Page 3
-    
+
     // Should show "+1" for the remaining source
     expect(screen.getByText('+1')).toBeInTheDocument();
   });
@@ -261,7 +282,9 @@ describe('Source Confidence Scoring', () => {
       },
     ];
 
-    render(<SourceMetadataDisplay sources={sources} showConfidenceScores={true} />);
+    render(
+      <SourceMetadataDisplay sources={sources} showConfidenceScores={true} />,
+    );
 
     // Check that confidence scores are displayed
     expect(screen.getByText('90%')).toBeInTheDocument();

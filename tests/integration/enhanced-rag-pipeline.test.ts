@@ -1,7 +1,5 @@
-import { describe, it, expect, } from 'vitest';
-import {
-  createContextAwareSystemPrompt,
-} from '@/lib/ai/context-formatter';
+import { describe, it, expect } from 'vitest';
+import { createContextAwareSystemPrompt } from '@/lib/ai/context-formatter';
 import { ragSystemPrompt, enhancedRagSystemPrompt } from '@/lib/ai/prompts';
 import type { EnhancedChatSource, ContextAssemblyResult } from '@/lib/types';
 

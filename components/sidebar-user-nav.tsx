@@ -51,7 +51,10 @@ export function SidebarUserNav({ user }: { user: KindeUser }) {
                 className="data-[state=open]:bg-sidebar-accent bg-background data-[state=open]:text-sidebar-accent-foreground h-10"
               >
                 <Image
-                  src={currentUser?.picture || `https://avatar.vercel.sh/${currentUser?.email || 'guest'}`}
+                  src={
+                    currentUser?.picture ||
+                    `https://avatar.vercel.sh/${currentUser?.email || 'guest'}`
+                  }
                   alt={currentUser?.email ?? 'User Avatar'}
                   width={24}
                   height={24}

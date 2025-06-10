@@ -17,14 +17,16 @@ import { cn } from '@/lib/utils';
 
 import { CheckCircleFillIcon, ChevronDownIcon } from './icons';
 import { entitlementsByUserType } from '@/lib/ai/entitlements';
-import type { Session } from '@/lib/auth/client';
 
 // Group models by provider
-const modelsByProvider = chatModels.reduce((acc, model) => {
-  if (!acc[model.provider]) acc[model.provider] = [];
-  acc[model.provider].push(model);
-  return acc;
-}, {} as Record<string, typeof chatModels>);
+const modelsByProvider = chatModels.reduce(
+  (acc, model) => {
+    if (!acc[model.provider]) acc[model.provider] = [];
+    acc[model.provider].push(model);
+    return acc;
+  },
+  {} as Record<string, typeof chatModels>,
+);
 
 const providerLabels = {
   xai: 'xAI',
@@ -35,8 +37,10 @@ const providerLabels = {
 
 const providerColors = {
   xai: 'bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300',
-  openai: 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300',
-  anthropic: 'bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-300',
+  openai:
+    'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300',
+  anthropic:
+    'bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-300',
   google: 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300',
 };
 
@@ -89,7 +93,9 @@ export function ModelSelector({
           className="md:px-2 md:h-[34px] max-w-[240px]"
         >
           <div className="flex flex-col items-start text-left">
-            <span className="font-medium truncate">{selectedChatModel?.name || 'Select Model'}</span>
+            <span className="font-medium truncate">
+              {selectedChatModel?.name || 'Select Model'}
+            </span>
             {selectedChatModel && (
               <span className="text-xs text-muted-foreground">
                 {providerLabels[selectedChatModel.provider]}
@@ -99,26 +105,35 @@ export function ModelSelector({
           <ChevronDownIcon />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="min-w-[380px] max-h-[600px] overflow-y-auto">
+      <DropdownMenuContent
+        align="start"
+        className="min-w-[380px] max-h-[600px] overflow-y-auto"
+      >
         {Object.entries(modelsByProvider).map(([provider, models]) => {
           const availableModels = models.filter((model) =>
             availableChatModelIds.includes(model.id),
           );
-          
+
           if (availableModels.length === 0) return null;
 
           return (
             <div key={provider}>
               <DropdownMenuLabel className="flex items-center gap-2">
-                <span className={`px-2 py-1 text-xs rounded-md font-medium ${providerColors[provider as keyof typeof providerColors]}`}>
+                <span
+                  className={`px-2 py-1 text-xs rounded-md font-medium ${providerColors[provider as keyof typeof providerColors]}`}
+                >
                   {providerLabels[provider as keyof typeof providerLabels]}
                 </span>
                 <div className="flex gap-1">
-                  {availableModels.some(m => m.capabilities.vision) && (
-                    <span className="px-1 py-0.5 text-xs bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 rounded">Vision</span>
+                  {availableModels.some((m) => m.capabilities.vision) && (
+                    <span className="px-1 py-0.5 text-xs bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 rounded">
+                      Vision
+                    </span>
                   )}
-                  {availableModels.some(m => m.capabilities.reasoning) && (
-                    <span className="px-1 py-0.5 text-xs bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300 rounded">Reasoning</span>
+                  {availableModels.some((m) => m.capabilities.reasoning) && (
+                    <span className="px-1 py-0.5 text-xs bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300 rounded">
+                      Reasoning
+                    </span>
                   )}
                 </div>
               </DropdownMenuLabel>
@@ -145,13 +160,22 @@ export function ModelSelector({
                         <span className="font-medium">{chatModel.name}</span>
                         <div className="flex gap-1">
                           {chatModel.capabilities.vision && (
-                            <span className="w-2 h-2 bg-blue-500 rounded-full" title="Vision capable" />
+                            <span
+                              className="w-2 h-2 bg-blue-500 rounded-full"
+                              title="Vision capable"
+                            />
                           )}
                           {chatModel.capabilities.reasoning && (
-                            <span className="w-2 h-2 bg-purple-500 rounded-full" title="Advanced reasoning" />
+                            <span
+                              className="w-2 h-2 bg-purple-500 rounded-full"
+                              title="Advanced reasoning"
+                            />
                           )}
                           {chatModel.capabilities.tools && (
-                            <span className="w-2 h-2 bg-green-500 rounded-full" title="Tool use" />
+                            <span
+                              className="w-2 h-2 bg-green-500 rounded-full"
+                              title="Tool use"
+                            />
                           )}
                         </div>
                       </div>
@@ -159,10 +183,15 @@ export function ModelSelector({
                         {chatModel.description}
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{(chatModel.contextWindow / 1000).toLocaleString()}K context</span>
+                        <span>
+                          {(chatModel.contextWindow / 1000).toLocaleString()}K
+                          context
+                        </span>
                         {chatModel.pricing && (
                           <span>
-                            {formatPrice(chatModel.pricing.inputTokens)}/{formatPrice(chatModel.pricing.outputTokens)} per 1M tokens
+                            {formatPrice(chatModel.pricing.inputTokens)}/
+                            {formatPrice(chatModel.pricing.outputTokens)} per 1M
+                            tokens
                           </span>
                         )}
                       </div>

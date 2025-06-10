@@ -1,4 +1,4 @@
-import { getUser, type UserType } from '@/lib/auth/kinde';
+import { getUser } from '@/lib/auth/kinde';
 import type { ArtifactKind } from '@/components/artifact';
 import {
   deleteDocumentsByIdAfterTimestamp,
