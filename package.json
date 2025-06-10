@@ -57,6 +57,7 @@
     "test:db:down": "docker-compose -f docker-compose.test.yml down",
     "test:db:stop": "docker-compose -f docker-compose.test.yml stop",
     "test:db:clean": "docker-compose -f docker-compose.test.yml down -v",
+    "validate:setup": "tsx scripts/validate-setup.ts",
     "test:db:logs": "docker-compose -f docker-compose.test.yml logs -f test-postgres",
     "test:db:wait": "until docker-compose -f docker-compose.test.yml exec -T test-postgres pg_isready -U test -d test_db; do sleep 1; done",
     "test:setup": "bun test:db:up && bun test:db:wait",

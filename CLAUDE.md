@@ -42,7 +42,7 @@ This is a production-grade Retrieval Augmented Generation (RAG) chat application
 
 **API Route Structure**
 - Routes in `app/(chat)/api/` follow RESTful conventions
-- All routes require Better-auth session authentication
+- All routes require Kinde session authentication
 - Error handling uses custom `ChatSDKError` class
 - Streaming responses with Redis-backed resumable streams
 - Rate limiting based on user type with 24-hour windows
@@ -79,7 +79,7 @@ This is a production-grade Retrieval Augmented Generation (RAG) chat application
 
 ### Adding New API Routes
 - Place in `app/(chat)/api/` directory structure
-- Include Better-auth session validation using `withAuth` middleware
+- Include Kinde session validation using `withAuth` middleware
 - Use Zod schemas for request/response validation
 - Handle errors with structured JSON responses
 - Consider rate limiting for user-facing endpoints
@@ -100,20 +100,25 @@ This is a production-grade Retrieval Augmented Generation (RAG) chat application
 
 ### Environment Variables Required
 - `POSTGRES_URL` - NeonDB connection string (with PGVector support)
-- `BETTER_AUTH_SECRET` - Better-auth authentication secret (random string for session encryption)
-- `BETTER_AUTH_URL` - Base URL for Better-auth API (defaults to http://localhost:3000 in development)
+- **Kinde Authentication** (required):
+  - `KINDE_CLIENT_ID` - Kinde application client ID
+  - `KINDE_CLIENT_SECRET` - Kinde application client secret
+  - `KINDE_ISSUER_URL` - Kinde domain URL
+  - `KINDE_SITE_URL` - Your application URL (http://localhost:3000 in development)
+  - `KINDE_POST_LOGOUT_REDIRECT_URL` - Redirect URL after logout
+  - `KINDE_POST_LOGIN_REDIRECT_URL` - Redirect URL after login
 - **AI Provider API Keys** (at least one required):
   - `OPENAI_API_KEY` - OpenAI API access (GPT-4o, GPT-4o-mini)
   - `ANTHROPIC_API_KEY` - Anthropic API access (Claude 3.5 Sonnet, Claude 3.5 Haiku)
   - `GEMINI_API_KEY` or `GOOGLE_GENERATIVE_AI_API_KEY` - Google Gemini API access (Gemini 2.0 Flash, Gemini 1.5 Flash)
 
-### Authentication System (Better-auth)
-- **Configuration**: `lib/auth/config.ts` - Main Better-auth configuration
-- **Client hooks**: `lib/auth/client.ts` - Client-side authentication hooks (useSession, signIn, signOut)
+### Authentication System (Kinde)
+- **Configuration**: Environment variables for Kinde OAuth setup
+- **Client hooks**: `lib/auth/client.ts` - Client-side authentication hooks (useSession, useAuth)
 - **Middleware**: `lib/auth/middleware.ts` - Server-side authentication utilities (withAuth)
-- **Anonymous Users**: Guest functionality via Better-auth anonymous plugin
-- **Session Management**: 30-day session expiration with 1-day update frequency
-- **Database Tables**: User, Session, Account tables managed by Better-auth with Drizzle adapter
+- **Routes**: `app/api/auth/[kindeAuth]/route.ts` - Kinde authentication handlers
+- **Session Management**: Kinde-managed sessions with secure token handling
+- **Database Integration**: User data synchronized with Drizzle schema
 
 ### Code Quality Tools
 - **Biome**: Replaces ESLint/Prettier with faster linting and formatting

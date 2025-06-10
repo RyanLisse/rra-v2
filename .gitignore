@@ -57,3 +57,23 @@ node_modules
 *.env.local
 .env.test*
 .env.test.local
+
+# Agent-specific files
+.agent-cache/
+.agent-temp/
+agent-workspace/
+*.agent.log
+.agent-session/
+.anthropic/
+.openai/
+.gemini/
+
+# AI/LLM generated files (exclude from version control)
+ai-outputs/
+llm-temp/
+model-cache/
+embedding-cache/
+
+# Development tools
+.turbo/
+.next/cache/

@@ -174,7 +174,7 @@ clean-cache:
 # Setup commands
 setup:
 	@echo "Running automated setup..."
-	@bash scripts/setup.sh
+	@./SETUP.sh
 
 setup-manual: clean install playwright-install db-migrate build
 

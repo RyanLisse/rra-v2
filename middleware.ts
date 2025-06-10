@@ -10,12 +10,12 @@ export default withAuth(
      * Playwright starts the dev server and requires a 200 status to
      * begin the tests, so this ensures that the tests can start
      */
-    if (pathname.startsWith('/ping')) {
+    if (pathname.startsWith('/ping') || pathname.startsWith('/api/ping')) {
       return new Response('pong', { status: 200 });
     }
 
-    // Allow Kinde auth routes
-    if (pathname.startsWith('/api/auth')) {
+    // Allow Kinde auth routes and health endpoints
+    if (pathname.startsWith('/api/auth') || pathname.startsWith('/api/health')) {
       return NextResponse.next();
     }
 
@@ -35,7 +35,14 @@ export default withAuth(
   {
     isReturnToCurrentPage: true,
     loginPage: '/api/auth/login',
-    isAuthorized: ({ token }) => {
+    isAuthorized: ({ token, request }) => {
+      const pathname = request?.nextUrl?.pathname;
+      
+      // Allow health check endpoints without authentication
+      if (pathname?.startsWith('/api/ping') || pathname?.startsWith('/api/health') || pathname?.startsWith('/ping')) {
+        return true;
+      }
+      
       // Allow access for all authenticated users
       return !!token;
     },
@@ -48,15 +55,13 @@ export const config = {
      * Match specific routes that need authentication handling:
      * - Root page
      * - Chat pages
-     * - API routes
+     * - API routes (except health endpoints)
      * - Auth pages
      * - Documents page
-     * - Ping endpoint for health checks
      */
     '/',
-    '/ping',
     '/chat/:path*',
-    '/api/:path*',
+    '/api/((?!ping|health).*)',  // Exclude ping and health from auth
     '/login',
     '/register',
     '/documents',
