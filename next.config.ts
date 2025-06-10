@@ -2,7 +2,6 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   experimental: {
-    ppr: true,
     optimizeCss: true,
     optimizePackageImports: [
       '@radix-ui/react-dropdown-menu',
@@ -11,14 +10,12 @@ const nextConfig: NextConfig = {
       'lucide-react',
       'framer-motion',
     ],
-    // Turbopack configuration (replaces webpack config when using --turbo)
-    // Keep minimal configuration to avoid module resolution issues
-    turbo: {
-      // Resolve aliases for module resolution
-      resolveAlias: {
-        // Tree-shake lodash
-        lodash: 'lodash-es',
-      },
+  },
+  // Turbopack configuration (moved out of experimental as it's now stable)
+  turbopack: {
+    resolveAlias: {
+      // Tree-shake lodash
+      lodash: 'lodash-es',
     },
   },
   images: {

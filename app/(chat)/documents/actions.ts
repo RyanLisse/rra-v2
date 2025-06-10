@@ -10,7 +10,7 @@ import { eq, desc, sql, and } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { getServerSession } from '@/lib/auth';
+import { getUser } from '@/lib/auth/kinde';
 
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
 
@@ -53,8 +53,8 @@ export interface DocumentStats {
 }
 
 export async function getManagedDocuments(): Promise<ManagedDocumentView[]> {
-  const session = await getServerSession();
-  if (!session?.user?.id) {
+  const user = await getUser();
+  if (!user?.id) {
     return [];
   }
 
@@ -70,7 +70,7 @@ export async function getManagedDocuments(): Promise<ManagedDocumentView[]> {
         documentContentsTable,
         eq(documentsTable.id, documentContentsTable.documentId),
       )
-      .where(eq(documentsTable.uploadedBy, session.user.id))
+      .where(eq(documentsTable.uploadedBy, user.id))
       .orderBy(desc(documentsTable.updatedAt));
 
     // Get chunk counts for each document
@@ -109,8 +109,8 @@ export async function getManagedDocuments(): Promise<ManagedDocumentView[]> {
 export async function getDocumentDetails(
   documentId: string,
 ): Promise<DocumentDetailView | null> {
-  const session = await getServerSession();
-  if (!session?.user?.id) {
+  const user = await getUser();
+  if (!user?.id) {
     return null;
   }
 
@@ -129,7 +129,7 @@ export async function getDocumentDetails(
       .where(
         and(
           eq(documentsTable.id, documentId),
-          eq(documentsTable.uploadedBy, session.user.id),
+          eq(documentsTable.uploadedBy, user.id),
         ),
       )
       .limit(1);
@@ -190,8 +190,8 @@ export async function getDocumentDetails(
 export async function deleteDocument(
   documentId: string,
 ): Promise<{ success: boolean; message?: string }> {
-  const session = await getServerSession();
-  if (!session?.user?.id) {
+  const user = await getUser();
+  if (!user?.id) {
     return { success: false, message: 'Unauthorized' };
   }
 
@@ -210,7 +210,7 @@ export async function deleteDocument(
       .where(
         and(
           eq(documentsTable.id, documentId),
-          eq(documentsTable.uploadedBy, session.user.id),
+          eq(documentsTable.uploadedBy, user.id),
         ),
       )
       .limit(1);
@@ -282,8 +282,8 @@ export async function deleteDocument(
 }
 
 export async function getDocumentStats(): Promise<DocumentStats> {
-  const session = await getServerSession();
-  if (!session?.user?.id) {
+  const user = await getUser();
+  if (!user?.id) {
     return {
       total: 0,
       uploaded: 0,
@@ -303,7 +303,7 @@ export async function getDocumentStats(): Promise<DocumentStats> {
         count: sql<number>`count(*)`,
       })
       .from(documentsTable)
-      .where(eq(documentsTable.uploadedBy, session.user.id))
+      .where(eq(documentsTable.uploadedBy, user.id))
       .groupBy(documentsTable.status);
 
     const result: DocumentStats = {
