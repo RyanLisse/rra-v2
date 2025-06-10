@@ -1,6 +1,5 @@
 import { withAuth } from '@kinde-oss/kinde-auth-nextjs/middleware';
 import { NextResponse, type NextRequest } from 'next/server';
-import { withAuth } from '@kinde-oss/kinde-auth-nextjs/middleware';
 import { guestRegex } from './lib/constants';
 
 export default withAuth(

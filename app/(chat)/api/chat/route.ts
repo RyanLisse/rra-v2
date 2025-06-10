@@ -95,11 +95,11 @@ export const POST = withAuth(
       return new ChatSDKError('rate_limit:chat').toResponse();
     }
 
-      const userType: UserType = session.user.type;
+    const chat = await getChatById({ id });
 
-      const messageCount = await getMessageCountByUserId({
-        id: session.user.id,
-        differenceInHours: 24,
+    if (!chat) {
+      const title = await generateTitleFromUserMessage({
+        message,
       });
 
       await saveChat({
@@ -112,87 +112,69 @@ export const POST = withAuth(
       if (chat.userId !== user.id) {
         return new ChatSDKError('forbidden:chat').toResponse();
       }
+    }
 
-      const chat = await getChatById({ id });
+    const previousMessages = await getMessagesByChatId({ id });
 
-      if (!chat) {
-        const title = await generateTitleFromUserMessage({
-          message,
-        });
+    const messages = appendClientMessage({
+      // @ts-expect-error: todo add type conversion from DBMessage[] to UIMessage[]
+      messages: previousMessages,
+      message,
+    });
 
-        await saveChat({
-          id,
-          userId: session.user.id,
-          title,
-          visibility: selectedVisibilityType,
-        });
-      } else {
-        if (chat.userId !== session.user.id) {
-          return new ChatSDKError('forbidden:chat').toResponse();
-        }
-      }
+    const { longitude, latitude, city, country } = geolocation(request);
 
-      const previousMessages = await getMessagesByChatId({ id });
+    const requestHints: RequestHints = {
+      longitude,
+      latitude,
+      city,
+      country,
+    };
 
-      const messages = appendClientMessage({
-        // @ts-expect-error: todo add type conversion from DBMessage[] to UIMessage[]
-        messages: previousMessages,
-        message,
-      });
+    await saveMessages({
+      messages: [
+        {
+          chatId: id,
+          id: message.id,
+          role: 'user',
+          parts: message.parts,
+          attachments: message.experimental_attachments ?? [],
+          createdAt: new Date(),
+        },
+      ],
+    });
 
-      const { longitude, latitude, city, country } = geolocation(request);
+    const streamId = generateUUID();
+    await createStreamId({ streamId, chatId: id });
 
-      const requestHints: RequestHints = {
-        longitude,
-        latitude,
-        city,
-        country,
-      };
-
-      await saveMessages({
-        messages: [
-          {
-            chatId: id,
-            id: message.id,
-            role: 'user',
-            parts: message.parts,
-            attachments: message.experimental_attachments ?? [],
-            createdAt: new Date(),
+    const stream = createDataStream({
+      execute: (dataStream) => {
+        const result = streamText({
+          model: myProvider.languageModel(selectedChatModel),
+          system: systemPrompt({ selectedChatModel, requestHints }),
+          messages,
+          maxSteps: 5,
+          experimental_activeTools:
+            selectedChatModel === 'chat-model-reasoning'
+              ? []
+              : [
+                  'getWeather',
+                  'createDocument',
+                  'updateDocument',
+                  'requestSuggestions',
+                ],
+          experimental_transform: smoothStream({ chunking: 'word' }),
+          experimental_generateMessageId: generateUUID,
+          tools: {
+            getWeather,
+            createDocument: createDocument({ session, dataStream }),
+            updateDocument: updateDocument({ session, dataStream }),
+            requestSuggestions: requestSuggestions({
+              session,
+              dataStream,
+            }),
           },
-        ],
-      });
-
-      const streamId = generateUUID();
-      await createStreamId({ streamId, chatId: id });
-
-      const stream = createDataStream({
-        execute: (dataStream) => {
-          const result = streamText({
-            model: myProvider.languageModel(selectedChatModel),
-            system: systemPrompt({ selectedChatModel, requestHints }),
-            messages,
-            maxSteps: 5,
-            experimental_activeTools:
-              selectedChatModel === 'chat-model-reasoning'
-                ? []
-                : [
-                    'getWeather',
-                    'createDocument',
-                    'updateDocument',
-                    'requestSuggestions',
-                  ],
-            experimental_transform: smoothStream({ chunking: 'word' }),
-            experimental_generateMessageId: generateUUID,
-            tools: {
-              getWeather,
-              createDocument: createDocument({ session, dataStream }),
-              updateDocument: updateDocument({ session, dataStream }),
-              requestSuggestions: requestSuggestions({
-                session,
-                dataStream,
-              }),
-            },
-            onFinish: async ({ response }) => {
+          onFinish: async ({ response }) => {
               if (session.user?.id) {
                 try {
                   const assistantId = getTrailingMessageId({
@@ -360,20 +342,31 @@ export const GET = withAuth(
   },
 );
 
+export async function DELETE(request: Request) {
+  const url = new URL(request.url);
+  const id = url.searchParams.get('id');
+
+  if (!id) {
+    return new ChatSDKError('bad_request:api').toResponse();
+  }
+
   const user = await getUser();
 
   if (!user) {
     return new ChatSDKError('unauthorized:chat').toResponse();
   }
 
-    const chat = await getChatById({ id });
+  const chat = await getChatById({ id });
+
+  if (!chat) {
+    return new ChatSDKError('not_found:chat').toResponse();
+  }
 
   if (chat.userId !== user.id) {
     return new ChatSDKError('forbidden:chat').toResponse();
   }
 
-    const deletedChat = await deleteChatById({ id });
+  const deletedChat = await deleteChatById({ id });
 
-    return Response.json(deletedChat, { status: 200 });
-  },
-);
+  return Response.json(deletedChat, { status: 200 });
+}
