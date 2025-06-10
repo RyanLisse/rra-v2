@@ -1,0 +1,56 @@
+{
+  "fileName": "FAQ No communication to PMAC.pdf",
+  "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/pdf/FAQ No communication to PMAC.pdf",
+  "convertedAt": "2025-06-08T10:09:41.624Z",
+  "totalPages": 5,
+  "imagesGenerated": 5,
+  "processingTime": 374,
+  "imageFiles": [
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ No communication to PMAC/images/page-001.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ No communication to PMAC/images/page-002.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ No communication to PMAC/images/page-003.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ No communication to PMAC/images/page-004.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ No communication to PMAC/images/page-005.png"
+  ],
+  "outputPaths": {
+    "imagesDir": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ No communication to PMAC/images",
+    "documentOutputDir": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ No communication to PMAC"
+  },
+  "conversionSettings": {
+    "outputFormat": "png",
+    "outputFolder": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ No communication to PMAC/images",
+    "pagesToProcess": -1
+  },
+  "imageDetails": [
+    {
+      "pageNumber": 1,
+      "fileName": "page-001.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ No communication to PMAC/images/page-001.png",
+      "relativePath": "data/processed-pdfs-images/FAQ No communication to PMAC/images/page-001.png"
+    },
+    {
+      "pageNumber": 2,
+      "fileName": "page-002.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ No communication to PMAC/images/page-002.png",
+      "relativePath": "data/processed-pdfs-images/FAQ No communication to PMAC/images/page-002.png"
+    },
+    {
+      "pageNumber": 3,
+      "fileName": "page-003.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ No communication to PMAC/images/page-003.png",
+      "relativePath": "data/processed-pdfs-images/FAQ No communication to PMAC/images/page-003.png"
+    },
+    {
+      "pageNumber": 4,
+      "fileName": "page-004.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ No communication to PMAC/images/page-004.png",
+      "relativePath": "data/processed-pdfs-images/FAQ No communication to PMAC/images/page-004.png"
+    },
+    {
+      "pageNumber": 5,
+      "fileName": "page-005.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ No communication to PMAC/images/page-005.png",
+      "relativePath": "data/processed-pdfs-images/FAQ No communication to PMAC/images/page-005.png"
+    }
+  ]
+}

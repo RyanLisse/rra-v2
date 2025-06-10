@@ -1,0 +1,320 @@
+{
+  "timestamp": "2025-06-07T21-18-02-695Z",
+  "config": {
+    "maxTestCases": 10,
+    "categories": [],
+    "difficulties": ["easy", "medium"],
+    "thresholds": {
+      "contextualRelevance": 0.6,
+      "faithfulness": 0.7,
+      "answerRelevance": 0.6
+    },
+    "model": "gemini-1.5-flash"
+  },
+  "summary": {
+    "totalTests": 7,
+    "averageScores": {
+      "contextualRelevance": 0,
+      "faithfulness": 0,
+      "answerRelevance": 0,
+      "overall": 0
+    },
+    "passRates": {
+      "contextualRelevance": 0,
+      "faithfulness": 0,
+      "answerRelevance": 0
+    },
+    "testsPassed": 0,
+    "testsPassedPercentage": 0
+  },
+  "results": [
+    {
+      "testCaseId": "roborail_main_purpose",
+      "query": "What is the main purpose of the RoboRail system?",
+      "actualOutput": "Error: Failed to process query - RAG pipeline failed: Hybrid search failed: Vector search failed: No query embedding returned from Cohere API",
+      "retrievalContext": [],
+      "metrics": {
+        "contextualRelevance": {
+          "score": 0,
+          "threshold": 0.6,
+          "passed": false,
+          "reason": "Evaluation failed: Failed after 3 attempts. Last error: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.",
+          "details": {
+            "error": true
+          }
+        },
+        "faithfulness": {
+          "score": 0,
+          "threshold": 0.7,
+          "passed": false,
+          "reason": "The generated answer is completely unfaithful to the provided source context.  The source context is empty; it provides no information whatsoever. The generated answer, an error message detailing a failure in a RAG pipeline involving a Cohere API and vector search, is entirely fabricated. There is no basis in the provided context to support any of the claims made in the generated answer.  The answer is a hallucination, completely unrelated to the input.  Therefore, it receives a faithfulness score of 0.0.",
+          "details": {
+            "answerLength": 141,
+            "contextPassagesCount": 0,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "answerRelevance": {
+          "score": 0,
+          "threshold": 0.6,
+          "passed": false,
+          "reason": "Evaluation failed: Failed after 3 attempts. Last error: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.",
+          "details": {
+            "error": true
+          }
+        }
+      },
+      "overallScore": 0,
+      "timestamp": "2025-06-07T21:17:43.618Z"
+    },
+    {
+      "testCaseId": "calibration_procedure",
+      "query": "How do I perform chuck alignment calibration on the RoboRail?",
+      "actualOutput": "Error: Failed to process query - RAG pipeline failed: Hybrid search failed: Vector search failed: No query embedding returned from Cohere API",
+      "retrievalContext": [],
+      "metrics": {
+        "contextualRelevance": {
+          "score": 0,
+          "threshold": 0.6,
+          "passed": false,
+          "reason": "No reasoning provided",
+          "details": {
+            "contextPassagesCount": 0,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "faithfulness": {
+          "score": 0,
+          "threshold": 0.7,
+          "passed": false,
+          "reason": "The generated answer is completely unfaithful to the provided source context.  The source context is empty; it provides no information whatsoever. The generated answer, an error message detailing a failure in a RAG pipeline involving a Cohere API and vector search, is entirely fabricated. There is no basis in the provided context to support any of the claims made in the generated answer.  The answer is a hallucination, completely unrelated to the input.  A faithfulness score of 0.0 is appropriate because the answer is entirely unsupported and invented.",
+          "details": {
+            "answerLength": 141,
+            "contextPassagesCount": 0,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "answerRelevance": {
+          "score": 0,
+          "threshold": 0.6,
+          "passed": false,
+          "reason": "The generated answer is completely irrelevant and unhelpful.  Instead of providing information on how to perform chuck alignment calibration on the RoboRail, it reports a technical error within the RAG pipeline itself.  The error message (\"RAG pipeline failed: Hybrid search failed: Vector search failed: No query embedding returned from Cohere API\") indicates a failure in the system's ability to process and retrieve relevant information, not a failure in the user's understanding of chuck alignment calibration.  The user receives no information whatsoever regarding their query.  The response is not only unhelpful but also suggests a significant problem with the functionality of the RAG system itself.",
+          "details": {
+            "queryLength": 61,
+            "answerLength": 141,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        }
+      },
+      "overallScore": 0,
+      "timestamp": "2025-06-07T21:17:45.873Z"
+    },
+    {
+      "testCaseId": "communication_troubleshooting",
+      "query": "What should I do if there is no communication to PMAC?",
+      "actualOutput": "Error: Failed to process query - RAG pipeline failed: Hybrid search failed: Vector search failed: No query embedding returned from Cohere API",
+      "retrievalContext": [],
+      "metrics": {
+        "contextualRelevance": {
+          "score": 0,
+          "threshold": 0.6,
+          "passed": false,
+          "reason": "No reasoning provided",
+          "details": {
+            "contextPassagesCount": 0,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "faithfulness": {
+          "score": 0,
+          "threshold": 0.7,
+          "passed": false,
+          "reason": "The generated answer is completely unfaithful to the provided source context.  The source context is empty; it provides no information whatsoever. The generated answer, an error message detailing a failure in a RAG pipeline involving a Cohere API and vector search, is entirely fabricated.  There is no basis in the provided context to support any of the claims made in the generated answer.  The answer is a hallucination, completely unrelated to the input.  Therefore, it receives a faithfulness score of 0.0.",
+          "details": {
+            "answerLength": 141,
+            "contextPassagesCount": 0,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "answerRelevance": {
+          "score": 0,
+          "threshold": 0.6,
+          "passed": false,
+          "reason": "The generated answer is completely irrelevant and unhelpful.  Instead of providing information on troubleshooting a lack of communication to a PMAC (presumably a system or device), it provides a technical error message detailing a failure within the RAG system itself.  The user receives no assistance in resolving their problem; instead, they are informed that the system used to answer their question malfunctioned.  This response fails to address the query at all, offering no relevant information or guidance.  The error message is only useful for diagnosing the RAG system, not for helping the user.",
+          "details": {
+            "queryLength": 54,
+            "answerLength": 141,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        }
+      },
+      "overallScore": 0,
+      "timestamp": "2025-06-07T21:17:48.055Z"
+    },
+    {
+      "testCaseId": "measurement_accuracy",
+      "query": "What is the measurement accuracy of the RoboRail system?",
+      "actualOutput": "Error: Failed to process query - RAG pipeline failed: Hybrid search failed: Vector search failed: No query embedding returned from Cohere API",
+      "retrievalContext": [],
+      "metrics": {
+        "contextualRelevance": {
+          "score": 0,
+          "threshold": 0.6,
+          "passed": false,
+          "reason": "No reasoning provided",
+          "details": {
+            "contextPassagesCount": 0,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "faithfulness": {
+          "score": 0,
+          "threshold": 0.7,
+          "passed": false,
+          "reason": "The generated answer is completely unfaithful to the provided source context.  The source context is empty; it provides no information whatsoever.  The generated answer, an error message detailing a failure in a RAG pipeline involving a Cohere API and vector search, is entirely fabricated. There is no basis in the provided context to support any of the claims made in the generated answer.  The answer is a hallucination, completely unrelated to the input.  Therefore, it receives a faithfulness score of 0.0.",
+          "details": {
+            "answerLength": 141,
+            "contextPassagesCount": 0,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "answerRelevance": {
+          "score": 0,
+          "threshold": 0.6,
+          "passed": false,
+          "reason": "The generated answer is completely irrelevant and unhelpful.  Instead of providing information about the measurement accuracy of the RoboRail system, it provides a technical error message detailing a failure within the RAG pipeline itself.  This error message indicates a problem with the system's ability to process the query, not an answer to the query.  The user receives no information about the RoboRail system's accuracy.  The response fails to address the query at all; it only describes a system malfunction.  Therefore, a score of 0.0 is appropriate.",
+          "details": {
+            "queryLength": 56,
+            "answerLength": 141,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        }
+      },
+      "overallScore": 0,
+      "timestamp": "2025-06-07T21:17:50.230Z"
+    },
+    {
+      "testCaseId": "data_collection_setup",
+      "query": "How do I set up data collection for measurement analysis?",
+      "actualOutput": "Error: Failed to process query - RAG pipeline failed: Hybrid search failed: Vector search failed: No query embedding returned from Cohere API",
+      "retrievalContext": [],
+      "metrics": {
+        "contextualRelevance": {
+          "score": 0,
+          "threshold": 0.6,
+          "passed": false,
+          "reason": "No reasoning provided",
+          "details": {
+            "contextPassagesCount": 0,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "faithfulness": {
+          "score": 0,
+          "threshold": 0.7,
+          "passed": false,
+          "reason": "The generated answer is completely unfaithful to the provided source context.  The source context is empty; it provides no information whatsoever. The generated answer, an error message detailing a failure in a RAG pipeline involving a Cohere API and vector search, is entirely fabricated. There is no basis in the provided context to support any of the claims made in the generated answer.  The answer is a hallucination, completely unrelated to the input.  A faithfulness score of 0.0 is appropriate because the answer is entirely unsupported and invented.",
+          "details": {
+            "answerLength": 141,
+            "contextPassagesCount": 0,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "answerRelevance": {
+          "score": 0,
+          "threshold": 0.6,
+          "passed": false,
+          "reason": "The generated answer is completely irrelevant and unhelpful.  Instead of providing information on setting up data collection for measurement analysis, it reports a technical error within the RAG pipeline itself.  The error message (\"Error: Failed to process query - RAG pipeline failed: Hybrid search failed: Vector search failed: No query embedding returned from Cohere API\") indicates a failure in the system's internal processes, not an answer to the user's question.  The user receives no information whatsoever regarding their query about data collection methodology.  The response fails on all criteria: clarity (it's an error message, not an explanation), completeness (it provides no relevant information), and usefulness (it offers no help to the user).  Therefore, a score of 0.0 is appropriate.",
+          "details": {
+            "queryLength": 57,
+            "answerLength": 141,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        }
+      },
+      "overallScore": 0,
+      "timestamp": "2025-06-07T21:17:52.654Z"
+    },
+    {
+      "testCaseId": "system_initialization",
+      "query": "What are the steps to initialize the RoboRail system?",
+      "actualOutput": "Error: Failed to process query - RAG pipeline failed: Hybrid search failed: Vector search failed: No query embedding returned from Cohere API",
+      "retrievalContext": [],
+      "metrics": {
+        "contextualRelevance": {
+          "score": 0,
+          "threshold": 0.6,
+          "passed": false,
+          "reason": "No reasoning provided",
+          "details": {
+            "contextPassagesCount": 0,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "faithfulness": {
+          "score": 0,
+          "threshold": 0.7,
+          "passed": false,
+          "reason": "The generated answer is completely unfaithful to the provided source context.  The source context is empty; it provides no information whatsoever.  The generated answer, an error message detailing a failure in a RAG pipeline involving a Cohere API and vector search, is entirely fabricated. There is no basis in the provided context to support any of the claims made in the generated answer.  The answer is a hallucination, completely unrelated to the input.  Therefore, it receives a faithfulness score of 0.0.",
+          "details": {
+            "answerLength": 141,
+            "contextPassagesCount": 0,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "answerRelevance": {
+          "score": 0,
+          "threshold": 0.6,
+          "passed": false,
+          "reason": "The generated answer is completely irrelevant and unhelpful.  Instead of providing steps to initialize the RoboRail system, it reports a technical error within the RAG pipeline itself.  The error message (\"Error: Failed to process query - RAG pipeline failed: Hybrid search failed: Vector search failed: No query embedding returned from Cohere API\") indicates a failure in the system's internal processes, not an answer to the user's question.  The user receives no information about initializing RoboRail; instead, they receive a diagnostic message about a system malfunction.  This is not only unhelpful but also suggests a significant problem with the RAG system's functionality.  The response provides zero information related to the user's query.",
+          "details": {
+            "queryLength": 53,
+            "answerLength": 141,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        }
+      },
+      "overallScore": 0,
+      "timestamp": "2025-06-07T21:17:55.459Z"
+    },
+    {
+      "testCaseId": "maintenance_schedule",
+      "query": "What is the recommended maintenance schedule for the RoboRail system?",
+      "actualOutput": "Error: Failed to process query - RAG pipeline failed: Hybrid search failed: Vector search failed: No query embedding returned from Cohere API",
+      "retrievalContext": [],
+      "metrics": {
+        "contextualRelevance": {
+          "score": 0,
+          "threshold": 0.6,
+          "passed": false,
+          "reason": "Evaluation failed: Failed after 3 attempts. Last error: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.",
+          "details": {
+            "error": true
+          }
+        },
+        "faithfulness": {
+          "score": 0,
+          "threshold": 0.7,
+          "passed": false,
+          "reason": "Evaluation failed: Failed after 3 attempts. Last error: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.",
+          "details": {
+            "error": true
+          }
+        },
+        "answerRelevance": {
+          "score": 0,
+          "threshold": 0.6,
+          "passed": false,
+          "reason": "The generated answer is completely irrelevant and unhelpful.  Instead of providing information on the RoboRail system's maintenance schedule, it reports a technical error within the RAG pipeline itself.  The error message (\"Error: Failed to process query - RAG pipeline failed: Hybrid search failed: Vector search failed: No query embedding returned from Cohere API\") indicates a failure in the system's ability to retrieve and process information, not a lack of information about the RoboRail system.  The user receives no information whatsoever regarding their query about the maintenance schedule.  The response is not only unhelpful but also suggests a significant problem with the functionality of the RAG system itself.",
+          "details": {
+            "queryLength": 69,
+            "answerLength": 141,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        }
+      },
+      "overallScore": 0,
+      "timestamp": "2025-06-07T21:18:02.694Z"
+    }
+  ]
+}

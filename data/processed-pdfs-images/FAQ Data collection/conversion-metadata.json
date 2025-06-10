@@ -1,0 +1,35 @@
+{
+  "fileName": "FAQ Data collection.pdf",
+  "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/pdf/FAQ Data collection.pdf",
+  "convertedAt": "2025-06-08T10:09:41.249Z",
+  "totalPages": 2,
+  "imagesGenerated": 2,
+  "processingTime": 168,
+  "imageFiles": [
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ Data collection/images/page-001.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ Data collection/images/page-002.png"
+  ],
+  "outputPaths": {
+    "imagesDir": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ Data collection/images",
+    "documentOutputDir": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ Data collection"
+  },
+  "conversionSettings": {
+    "outputFormat": "png",
+    "outputFolder": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ Data collection/images",
+    "pagesToProcess": -1
+  },
+  "imageDetails": [
+    {
+      "pageNumber": 1,
+      "fileName": "page-001.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ Data collection/images/page-001.png",
+      "relativePath": "data/processed-pdfs-images/FAQ Data collection/images/page-001.png"
+    },
+    {
+      "pageNumber": 2,
+      "fileName": "page-002.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ Data collection/images/page-002.png",
+      "relativePath": "data/processed-pdfs-images/FAQ Data collection/images/page-002.png"
+    }
+  ]
+}

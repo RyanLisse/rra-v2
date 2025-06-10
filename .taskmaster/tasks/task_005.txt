@@ -1,0 +1,43 @@
+# Task ID: 5
+# Title: Search & Retrieval Engine
+# Status: pending
+# Dependencies: 2, 4
+# Priority: high
+# Description: Implement the SearchService including hybrid search logic (vector similarity + Full-text search with RRF), integration with Cohere Rerank v3.0, context expansion (adjacent chunk retrieval), and filtering capabilities (metadata, date ranges, access levels).
+# Details:
+Develop the core search logic within the SearchService. Integrate Cohere Rerank API. Implement logic for retrieving adjacent chunks and applying filters based on document metadata.
+
+# Test Strategy:
+Unit tests for search components (hybrid logic, reranking integration). Integration tests for search queries with various filters and parameters. DeepEval for retrieval accuracy.
+
+# Subtasks:
+## 1. Implement Core Hybrid Search Logic [pending]
+### Dependencies: None
+### Description: Develop the foundation of the SearchService with hybrid search capabilities combining vector similarity search and full-text search using Reciprocal Rank Fusion (RRF).
+### Details:
+Create the SearchService class with methods for both vector similarity and full-text search. Implement the RRF algorithm to combine results from both search methods. Define relevance scoring mechanisms and result ranking logic. Ensure the service has a clean API that accepts search queries and returns ranked results.
+
+## 2. Integrate Cohere Rerank v3.0 API [pending]
+### Dependencies: None
+### Description: Connect the SearchService to Cohere's Rerank v3.0 API to improve search result relevance through advanced reranking capabilities.
+### Details:
+Set up API client for Cohere Rerank v3.0. Implement authentication and request handling. Create a reranking pipeline that takes initial search results and passes them to Cohere for improved relevance scoring. Handle API responses and integrate the reranked results back into the search flow. Implement error handling and fallback mechanisms for API failures.
+
+## 3. Implement Context Expansion with Adjacent Chunk Retrieval [pending]
+### Dependencies: None
+### Description: Enhance search results by retrieving and including adjacent content chunks to provide more comprehensive context for search results.
+### Details:
+Design a chunk mapping system that tracks relationships between content chunks. Implement logic to identify and retrieve adjacent chunks when a primary chunk is returned in search results. Create methods to merge or link adjacent chunks with their primary chunks in the result set. Optimize retrieval to balance context completeness with performance.
+
+## 4. Develop Metadata and Access Level Filtering [pending]
+### Dependencies: None
+### Description: Create filtering capabilities that allow search results to be refined based on document metadata and user access levels.
+### Details:
+Implement filter parsers for various metadata types (tags, categories, authors, etc.). Create access level verification logic that checks user permissions against document access requirements. Design a query builder that incorporates filter conditions into search queries. Ensure filters can be combined using AND/OR logic. Optimize filter application to maintain search performance.
+
+## 5. Add Date Range Filtering and Search Analytics [pending]
+### Dependencies: None
+### Description: Implement date-based filtering capabilities and add analytics tracking to monitor search performance and user behavior.
+### Details:
+Create date range filter logic that supports various date formats and relative date queries (e.g., 'last 7 days'). Implement search analytics collection to track query patterns, result quality, and user interactions. Add logging for search queries, results, and user selections. Create dashboard visualizations for search analytics data. Ensure all analytics respect privacy requirements.
+

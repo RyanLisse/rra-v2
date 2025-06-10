@@ -1,0 +1,21 @@
+{
+  "document": {
+    "fileName": "FAQ No communication to PMAC.pdf",
+    "originalPath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/pdf/FAQ No communication to PMAC.pdf",
+    "fileSize": 433433,
+    "lastModified": "2025-06-06T19:37:22.179Z"
+  },
+  "processing": {
+    "organizedAt": "2025-06-08T09:59:05.807Z",
+    "textExtracted": true,
+    "imagesConverted": false,
+    "embeddingsGenerated": false,
+    "status": "partially_processed"
+  },
+  "nextSteps": [
+    "Convert PDF pages to images",
+    "Generate vector embeddings for text chunks",
+    "Enable multimodal search capabilities",
+    "Integrate with RAG pipeline"
+  ]
+}

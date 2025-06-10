@@ -1,0 +1,43 @@
+# Task ID: 9
+# Title: Frontend Document & Chat UI
+# Status: pending
+# Dependencies: 3, 5, 6, 7, 8
+# Priority: high
+# Description: Implement the core user interface components for document management (upload form, document list) and the chat interface (message display, input area, citation rendering, follow-up suggestions). Connect frontend components to backend APIs.
+# Details:
+Develop the UI pages and components for the main user interactions. Integrate with the UploadService, DocMgmtService, and ChatService APIs using Tanstack Query.
+
+# Test Strategy:
+Component tests for UI elements. End-to-end tests for core user flows: document upload, viewing documents, starting/continuing a chat conversation.
+
+# Subtasks:
+## 1. Create Document Upload Component [pending]
+### Dependencies: None
+### Description: Implement a reusable UI component for document uploading with drag-and-drop functionality, file selection, and progress indicators
+### Details:
+Develop a React component that handles file selection via button click or drag-and-drop area. Implement file type validation, size limits, and multiple file selection. Show upload progress with a progress bar. Connect to the UploadService API using Tanstack Query mutations for file submission. Include error handling for failed uploads and success confirmation.
+
+## 2. Build Document List and Management Interface [pending]
+### Dependencies: None
+### Description: Create a component to display uploaded documents with sorting, filtering, and management actions
+### Details:
+Implement a table/grid view showing document metadata (name, type, upload date, size). Add functionality for sorting by different attributes and filtering by document type or date range. Include document management actions (view, delete, share) with appropriate confirmation dialogs. Connect to DocMgmtService API using Tanstack Query for data fetching and mutations. Implement pagination for large document collections.
+
+## 3. Develop Chat Message Display Component [pending]
+### Dependencies: None
+### Description: Create a component to render chat messages with support for different message types, citation highlighting, and message threading
+### Details:
+Build a message display component that handles user messages, AI responses, and system messages with appropriate styling. Implement citation rendering that highlights referenced document sections and provides tooltips with source information. Support markdown formatting in messages including code blocks and lists. Add message threading/grouping for related exchanges. Ensure proper handling of long messages with appropriate scrolling behavior.
+
+## 4. Implement Chat Input and Controls [pending]
+### Dependencies: None
+### Description: Create the message input area with typing indicators, command suggestions, and message submission functionality
+### Details:
+Build a text input component with auto-expanding height based on content. Add typing indicators and character count. Implement command suggestions that appear as the user types specific triggers. Connect to ChatService API using Tanstack Query mutations for message submission. Add support for keyboard shortcuts (Enter to send, Shift+Enter for new line). Include a button for additional actions like attaching files or using voice input.
+
+## 5. Integrate Components into Page Layout and Connect API Flows [pending]
+### Dependencies: None
+### Description: Assemble the individual components into cohesive page layouts and implement the complete data flow between components
+### Details:
+Create page layouts for document management and chat interfaces using a component-based architecture. Implement state management to share data between components (e.g., selected documents affecting chat context). Set up API request chains where actions in one component trigger updates in another. Add loading states, error handling, and recovery mechanisms for API interactions. Ensure responsive design works across different screen sizes. Implement proper routing between different sections of the application.
+

@@ -1,0 +1,87 @@
+{
+  "generatedAt": "2025-06-08T09:49:36.442Z",
+  "summary": {
+    "totalFiles": 7,
+    "successfulFiles": 0,
+    "failedFiles": 7,
+    "totalPages": 0,
+    "totalImages": 0,
+    "totalProcessingTime": 5,
+    "results": [
+      {
+        "fileName": "Confirm the calibration.pdf",
+        "success": false,
+        "totalPages": 0,
+        "imagesGenerated": 0,
+        "processingTime": 0,
+        "outputDir": "",
+        "error": "Cannot read properties of undefined (reading 'fromPath')"
+      },
+      {
+        "fileName": "FAQ Data collection.pdf",
+        "success": false,
+        "totalPages": 0,
+        "imagesGenerated": 0,
+        "processingTime": 0,
+        "outputDir": "",
+        "error": "Cannot read properties of undefined (reading 'fromPath')"
+      },
+      {
+        "fileName": "FAQ No communication to PMAC.pdf",
+        "success": false,
+        "totalPages": 0,
+        "imagesGenerated": 0,
+        "processingTime": 1,
+        "outputDir": "",
+        "error": "Cannot read properties of undefined (reading 'fromPath')"
+      },
+      {
+        "fileName": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+        "success": false,
+        "totalPages": 0,
+        "imagesGenerated": 0,
+        "processingTime": 0,
+        "outputDir": "",
+        "error": "Cannot read properties of undefined (reading 'fromPath')"
+      },
+      {
+        "fileName": "FAQ_RoboRail_Chuck_alignment_calibration_v0.0_080424.pdf",
+        "success": false,
+        "totalPages": 0,
+        "imagesGenerated": 0,
+        "processingTime": 0,
+        "outputDir": "",
+        "error": "Cannot read properties of undefined (reading 'fromPath')"
+      },
+      {
+        "fileName": "FAQ_RoboRail_measurement_v0.0_020524.pdf",
+        "success": false,
+        "totalPages": 0,
+        "imagesGenerated": 0,
+        "processingTime": 1,
+        "outputDir": "",
+        "error": "Cannot read properties of undefined (reading 'fromPath')"
+      },
+      {
+        "fileName": "Operators manual_RoboRail V2.2_170424.pdf",
+        "success": false,
+        "totalPages": 0,
+        "imagesGenerated": 0,
+        "processingTime": 0,
+        "outputDir": "",
+        "error": "Cannot read properties of undefined (reading 'fromPath')"
+      }
+    ]
+  },
+  "systemInfo": {
+    "nodeVersion": "v24.1.0",
+    "platform": "darwin",
+    "memoryUsage": {
+      "rss": 123142144,
+      "heapTotal": 13172736,
+      "heapUsed": 9224392,
+      "external": 2492720,
+      "arrayBuffers": 50881
+    }
+  }
+}

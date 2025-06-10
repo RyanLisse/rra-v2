@@ -1,0 +1,43 @@
+# Task ID: 8
+# Title: Frontend Setup & Core UI
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Set up the frontend project using Next.js 14 with App Router. Configure Shadcn UI and Tailwind CSS for styling. Integrate Tanstack Query for data fetching.
+# Details:
+Initialize the Next.js project. Configure Tailwind CSS and Shadcn UI. Set up Tanstack Query client and basic data fetching examples.
+
+# Test Strategy:
+Basic rendering tests for core components and layout.
+
+# Subtasks:
+## 1. Initialize Next.js 14 project with App Router [pending]
+### Dependencies: None
+### Description: Set up a new Next.js 14 project using create-next-app with TypeScript support and App Router configuration
+### Details:
+Run 'npx create-next-app@latest' and follow the CLI prompts to set up a new project with TypeScript, ESLint, and App Router. Configure the basic project structure including the app directory with layout.js and page.js files. Set up module path aliases for cleaner imports.
+
+## 2. Configure Tailwind CSS and basic styling [pending]
+### Dependencies: None
+### Description: Set up Tailwind CSS configuration, create global styles, and establish the base styling framework
+### Details:
+Configure tailwind.config.js with appropriate content paths, theme extensions, and plugins. Create a globals.css file with Tailwind directives and any custom CSS variables. Set up a consistent color palette and typography system in the Tailwind configuration.
+
+## 3. Integrate Shadcn UI components [pending]
+### Dependencies: None
+### Description: Install and configure Shadcn UI library, set up the component system, and create a UI components directory
+### Details:
+Install Shadcn UI using 'npx shadcn-ui@latest init'. Configure the components.json file with project-specific settings. Add essential UI components like Button, Card, Dialog, and Form components. Create a components directory structure that separates UI components from feature components.
+
+## 4. Set up Tanstack Query client provider [pending]
+### Dependencies: None
+### Description: Install and configure Tanstack Query for data fetching, set up the QueryClient provider in the app layout
+### Details:
+Install Tanstack Query packages with 'npm install @tanstack/react-query'. Create a QueryClient configuration with appropriate default options. Implement a provider component that wraps the application with the QueryClient provider. Configure the provider in the root layout.js file to make it available throughout the application.
+
+## 5. Implement basic data fetching examples [pending]
+### Dependencies: None
+### Description: Create example API endpoints and implement data fetching using Tanstack Query hooks
+### Details:
+Create sample API routes in the app/api directory. Implement custom hooks using useQuery for data fetching and useMutation for data updates. Create a utilities file for API client functions. Demonstrate proper error handling, loading states, and data caching with Tanstack Query.
+

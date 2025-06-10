@@ -1,0 +1,43 @@
+# Task ID: 6
+# Title: Chat Service & RAG Logic
+# Status: pending
+# Dependencies: 2, 4, 5
+# Priority: high
+# Description: Implement the ChatService responsible for conversation management (create, resume, auto-save drafts), orchestrating the RAG agent workflow, integrating with Gemini 2.5 Flash via LLMService (structured prompting), generating responses, parsing citations, and suggesting follow-up questions.
+# Details:
+Develop the core RAG orchestration logic. Implement conversation state management. Integrate with the LLMService for Gemini calls. Implement citation parsing and follow-up question generation.
+
+# Test Strategy:
+Unit tests for chat logic and conversation management. Integration tests for the end-to-end chat flow with RAG retrieval and response generation. DeepEval for LLM response quality and citation accuracy.
+
+# Subtasks:
+## 1. Implement Conversation State Management [pending]
+### Dependencies: None
+### Description: Develop the logic for creating, resuming, and auto-saving chat conversations, including draft management and persistent storage.
+### Details:
+Design data models for conversations and drafts. Implement methods to create new conversations, resume existing ones, and auto-save drafts at regular intervals or on user input. Ensure state is persisted in the chosen storage backend and can be restored reliably.
+
+## 2. Integrate LLMService for Gemini 2.5 Flash Calls [pending]
+### Dependencies: 6.1
+### Description: Connect the ChatService to the LLMService, enabling structured prompt construction and response handling for Gemini 2.5 Flash.
+### Details:
+Define interfaces for sending structured prompts to the LLMService. Implement logic to format user queries and retrieved context into the required prompt structure. Handle LLM responses, including error cases and retries.
+
+## 3. Develop RAG Orchestration Workflow [pending]
+### Dependencies: 6.2
+### Description: Implement the core RAG workflow: retrieve relevant context, orchestrate LLM calls, and synthesize responses using agentic reasoning.
+### Details:
+Integrate retrieval logic to fetch relevant knowledge base chunks for each user query. Orchestrate the workflow to combine retrieved context with user input, invoke the LLM, and manage multi-step reasoning if needed. Ensure the workflow supports iterative refinement and context-aware responses.
+
+## 4. Implement Citation Parsing Logic [pending]
+### Dependencies: 6.3
+### Description: Extract and structure citations from LLM responses, linking them to retrieved knowledge base sources.
+### Details:
+Design a parser to identify citation markers in LLM outputs. Map these markers to the corresponding retrieved documents or chunks. Structure the citations for display and downstream processing.
+
+## 5. Generate Follow-up Question Suggestions [pending]
+### Dependencies: 6.4
+### Description: Develop logic to suggest relevant follow-up questions based on conversation context and LLM outputs.
+### Details:
+Analyze the conversation history and LLM responses to identify potential areas for further inquiry. Use prompt engineering or LLM-based generation to produce a list of follow-up questions. Integrate suggestions into the chat UI or API response.
+

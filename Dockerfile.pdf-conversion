@@ -1,0 +1,146 @@
+# Multi-stage Dockerfile for PDF-to-image conversion
+# Shows configurations for both pdf-to-img and pdf2pic libraries
+
+# =============================================================================
+# Stage 1: pdf-to-img (lightweight, no external dependencies)
+# =============================================================================
+FROM node:18-alpine AS pdf-to-img-base
+
+# Install minimal dependencies for Canvas (optional - pdf-to-img can work without)
+RUN apk add --no-cache \
+    cairo-dev \
+    pango-dev \
+    jpeg-dev \
+    giflib-dev \
+    librsvg-dev \
+    pixman-dev \
+    pkgconfig \
+    python3 \
+    make \
+    g++
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm install pdf-to-img
+
+# Test pdf-to-img installation
+RUN node -e "console.log('pdf-to-img installation check:', require('pdf-to-img'))"
+
+# =============================================================================
+# Stage 2: pdf2pic (requires GraphicsMagick + Ghostscript)
+# =============================================================================
+FROM node:18-alpine AS pdf2pic-base
+
+# Install GraphicsMagick and Ghostscript
+RUN apk add --no-cache \
+    graphicsmagick \
+    ghostscript \
+    ghostscript-fonts \
+    ttf-dejavu \
+    fontconfig
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm install pdf2pic
+
+# Test pdf2pic installation
+RUN gm version && gs --version
+RUN node -e "console.log('pdf2pic installation check:', require('pdf2pic'))"
+
+# =============================================================================
+# Stage 3: Both libraries (comprehensive setup)
+# =============================================================================
+FROM node:18-alpine AS comprehensive
+
+# Install all dependencies for both libraries
+RUN apk add --no-cache \
+    # For pdf2pic
+    graphicsmagick \
+    ghostscript \
+    ghostscript-fonts \
+    ttf-dejavu \
+    fontconfig \
+    # For pdf-to-img Canvas support (optional)
+    cairo-dev \
+    pango-dev \
+    jpeg-dev \
+    giflib-dev \
+    librsvg-dev \
+    pixman-dev \
+    pkgconfig \
+    python3 \
+    make \
+    g++ \
+    # Additional utilities
+    poppler-utils
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm install pdf-to-img pdf2pic
+
+# Verify installations
+RUN echo "Testing system dependencies..." && \
+    gm version && \
+    gs --version && \
+    pdftoppm -h || true && \
+    echo "System dependencies OK"
+
+RUN echo "Testing Node.js libraries..." && \
+    node -e "console.log('pdf-to-img:', !!require('pdf-to-img'))" && \
+    node -e "console.log('pdf2pic:', !!require('pdf2pic'))" && \
+    echo "Node.js libraries OK"
+
+# =============================================================================
+# Stage 4: Production (choose your library)
+# =============================================================================
+FROM comprehensive AS production
+
+# Copy your application code
+COPY . .
+
+# Set environment variables for better performance
+ENV NODE_ENV=production
+ENV MAGICK_MEMORY_LIMIT=256MB
+ENV MAGICK_MAP_LIMIT=128MB
+ENV MAGICK_DISK_LIMIT=1GB
+
+# Create directories for image output
+RUN mkdir -p /app/output/images
+
+# Security: Run as non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001
+RUN chown -R nextjs:nodejs /app
+USER nextjs
+
+EXPOSE 3000
+
+CMD ["npm", "start"]
+
+# =============================================================================
+# Usage Examples:
+# =============================================================================
+
+# Build for pdf-to-img only (lightweight):
+# docker build --target pdf-to-img-base -t pdf-converter:light .
+
+# Build for pdf2pic only:
+# docker build --target pdf2pic-base -t pdf-converter:full .
+
+# Build with both libraries:
+# docker build --target production -t pdf-converter:complete .
+
+# =============================================================================
+# Alternative: Ubuntu-based for easier dependency management
+# =============================================================================
+
+# FROM ubuntu:22.04 AS ubuntu-base
+# 
+# RUN apt-get update && apt-get install -y \
+#     curl \
+#     nodejs \
+#     npm \
+#     graphicsmagick \
+#     ghostscript \
+#     poppler-utils \
+#     && rm -rf /var/lib/apt/lists/*

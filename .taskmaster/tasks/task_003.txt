@@ -1,0 +1,43 @@
+# Task ID: 3
+# Title: Document Ingestion Pipeline
+# Status: pending
+# Dependencies: 2
+# Priority: high
+# Description: Implement the document ingestion pipeline including handling multipart form data uploads, parsing various document types (PDF, DOCX, TXT), performing semantic chunking, and generating Cohere embeddings. Implement async processing with status tracking.
+# Details:
+Develop the UploadService and DocProcessingService components. Integrate custom parsing pipeline, semantic chunking logic, and Cohere embed-v4.0. Implement status tracking (queued, processing, processed, error).
+
+# Test Strategy:
+Unit tests for parsing, chunking, and embedding modules. Integration tests for the full pipeline with different document types and sizes (up to 50MB).
+
+# Subtasks:
+## 1. Implement UploadService with Multipart Form Data Handling [pending]
+### Dependencies: None
+### Description: Create the UploadService component that handles document uploads through multipart form data, validates file types (PDF, DOCX, TXT), and stores them temporarily for processing.
+### Details:
+Implement a service that accepts multipart form data uploads, validates file types and sizes, generates unique document IDs, stores files in a temporary location, and creates initial document metadata records with 'queued' status. Use async handlers to prevent blocking the main thread during uploads.
+
+## 2. Develop Document Parsing Pipeline [pending]
+### Dependencies: None
+### Description: Create parsers for different document types (PDF, DOCX, TXT) that extract raw text and metadata from uploaded documents.
+### Details:
+Implement a factory pattern for document parsers that selects the appropriate parser based on file extension. Each parser should extract text content, maintain structural information where possible, and handle common extraction errors. For PDFs, implement OCR fallback for scanned documents. Store extracted text in a standardized format for the chunking phase.
+
+## 3. Implement Semantic Chunking Logic [pending]
+### Dependencies: None
+### Description: Develop the semantic chunking component that divides extracted document text into meaningful, context-preserving chunks suitable for embedding generation.
+### Details:
+Implement sentence and paragraph detection, then apply semantic chunking algorithms that maintain context boundaries. Use a sliding window approach with overlap between chunks to preserve context. Ensure chunks are sized appropriately for the Cohere embedding model (within token limits). Preserve metadata linking chunks back to their source documents and positions.
+
+## 4. Integrate Cohere Embedding Generation [pending]
+### Dependencies: None
+### Description: Implement the embedding generation service using Cohere embed-v4.0 to create vector representations of document chunks.
+### Details:
+Create a service that batches document chunks for efficient processing, handles API rate limits and retries, and stores generated embeddings alongside their corresponding chunks. Implement caching to avoid regenerating embeddings for identical content. Use Cohere's embed-v4.0 model with appropriate parameters for document retrieval use cases.
+
+## 5. Develop Asynchronous Processing with Status Tracking [pending]
+### Dependencies: 3.3, 3.4
+### Description: Implement the DocProcessingService with asynchronous processing capabilities and comprehensive status tracking throughout the pipeline.
+### Details:
+Create a queue-based processing system that handles documents asynchronously. Implement status tracking that updates document status (queued, processing, processed, error) at each pipeline stage. Add detailed error handling with appropriate error messages and recovery mechanisms. Implement a status API endpoint for clients to check document processing progress.
+

@@ -1,0 +1,369 @@
+{
+  "timestamp": "2025-06-07T21-21-11-829Z",
+  "config": {
+    "maxTestCases": 10,
+    "categories": [],
+    "difficulties": ["easy", "medium"],
+    "thresholds": {
+      "contextualRelevance": 0.6,
+      "faithfulness": 0.7,
+      "answerRelevance": 0.6
+    },
+    "model": "gemini-1.5-flash"
+  },
+  "summary": {
+    "totalTests": 7,
+    "testsPassed": 5,
+    "testsPassedPercentage": 71.4
+  },
+  "results": [
+    {
+      "testCaseId": "roborail_main_purpose",
+      "query": "What is the main purpose of the RoboRail system?",
+      "actualOutput": "The RoboRail system is an automated rail measurement system designed for precision metrology applications in industrial automation. It provides high-accuracy positioning and measurement capabilities, primarily used for automated quality control and dimensional measurement in manufacturing environments.",
+      "retrievalContext": [
+        "The RoboRail system is an automated rail measurement system designed for precision metrology applications.",
+        "RoboRail provides high-accuracy positioning and measurement capabilities for industrial automation.",
+        "The system is primarily used for automated quality control and dimensional measurement in manufacturing."
+      ],
+      "metrics": {
+        "contextualRelevance": {
+          "score": 0.95,
+          "threshold": {
+            "model": "gemini-1.5-flash",
+            "temperature": 0.1,
+            "maxRetries": 3
+          },
+          "passed": false,
+          "reason": "Passage [1] is highly relevant and provides a strong foundation for answering the query.  The statement \"The RoboRail system is an automated rail measurement system designed for precision metrology applications\" directly addresses the query's core question by stating the system's purpose: automated rail measurement for precision.  This is a concise and accurate description of the main purpose.  Score: 0.98\n\nPassage [2] is also relevant, adding detail to the main purpose.  \"RoboRail provides high-accuracy positioning and measurement capabilities for industrial automation\" expands on the precision aspect mentioned in [1] and clarifies the application domain (industrial automation). This enhances the understanding of the system's purpose. Score: 0.92\n\nPassage [3] is very relevant, further specifying the primary use case.  \"The system is primarily used for automated quality control and dimensional measurement in manufacturing\" provides a concrete example of how the main purpose (measurement) is applied. This adds valuable context and clarifies the practical implications of the system's design. Score: 0.95\n\nThe slight deduction from a perfect 1.0 score is due to the fact that none of the passages explicitly state the *main* purpose in a single, definitive sentence. While all three passages strongly support the conclusion that the main purpose is automated rail measurement for quality control in manufacturing, a more explicit statement would be ideal.  However, the combined information from all three passages provides a highly accurate and comprehensive answer to the query.  The passages are complementary and work together exceptionally well to paint a complete picture of the RoboRail system's purpose.",
+          "details": {
+            "contextPassagesCount": 3,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "faithfulness": {
+          "score": 1,
+          "threshold": 0.8,
+          "passed": true,
+          "reason": "The generated answer is perfectly faithful to the provided source context.  Each claim made in the answer is directly supported by one of the provided source sentences:\n\n* \"The RoboRail system is an automated rail measurement system designed for precision metrology applications\" is a direct combination of the information in source [1] and the implied application from source [2].\n* \"It provides high-accuracy positioning and measurement capabilities\" is directly supported by source [2].\n* \"primarily used for automated quality control and dimensional measurement in manufacturing environments\" is directly supported by source [3].\n\nThere are no unsupported claims, hallucinations, or extrapolations. The answer effectively synthesizes the information from the three sources into a coherent and accurate description of the RoboRail system.",
+          "details": {
+            "answerLength": 303,
+            "contextPassagesCount": 3,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "answerRelevance": {
+          "score": 0.9,
+          "threshold": 0.7,
+          "passed": true,
+          "reason": "The generated answer directly and effectively addresses the core of the query: the main purpose of the RoboRail system.  It clearly states that its purpose is automated rail measurement for precision metrology in industrial automation, focusing on quality control and dimensional measurement. This is a concise and accurate description of the system's primary function.\n\nThe answer could be slightly improved by adding a brief mention of *why* this precise measurement is important (e.g., ensuring the smooth operation of machinery, preventing defects, etc.), which would provide a more complete understanding of the system's overall impact. However, the omission of this detail doesn't significantly detract from the answer's overall helpfulness and relevance to the user's question.  The response is clear, complete enough for a general understanding, and highly useful in providing a concise answer to the query.",
+          "details": {
+            "queryLength": 48,
+            "answerLength": 303,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        }
+      },
+      "overallScore": 0.9550000000000001,
+      "timestamp": "2025-06-07T21:20:47.950Z"
+    },
+    {
+      "testCaseId": "calibration_procedure",
+      "query": "How do I perform chuck alignment calibration on the RoboRail?",
+      "actualOutput": "To perform chuck alignment calibration on the RoboRail: 1) Ensure the system is properly initialized with all safety protocols active, 2) Use the calibration wizard in the control software to guide the alignment process, 3) Follow the step-by-step alignment procedures, and 4) Verify calibration results using the built-in measurement verification routines.",
+      "retrievalContext": [
+        "Chuck alignment calibration involves several critical steps for accurate positioning.",
+        "First, ensure the system is properly initialized and all safety protocols are active.",
+        "Use the calibration wizard in the control software to guide the alignment process.",
+        "Verify calibration results using the built-in measurement verification routines."
+      ],
+      "metrics": {
+        "contextualRelevance": {
+          "score": 0.7,
+          "threshold": {
+            "model": "gemini-1.5-flash",
+            "temperature": 0.1,
+            "maxRetries": 3
+          },
+          "passed": false,
+          "reason": "The retrieved passages offer a decent, albeit incomplete, foundation for answering the query \"How do I perform chuck alignment calibration on the RoboRail?\".  Let's analyze each passage:\n\n* **Passage [1]: \"Chuck alignment calibration involves several critical steps for accurate positioning.\"**  This passage is highly relevant (score of 0.9). It directly addresses the query's core topic – chuck alignment calibration – and sets the stage for a more detailed explanation.  It highlights the importance of accuracy, which is crucial for understanding the procedure.\n\n* **Passage [2]: \"First, ensure the system is properly initialized and all safety protocols are active.\"** This passage is moderately relevant (score of 0.7). It provides a crucial preliminary step often omitted in simplistic instructions, thus adding value to the overall answer.  It's important for safety and successful calibration.\n\n* **Passage [3]: \"Use the calibration wizard in the control software to guide the alignment process.\"** This passage is very relevant (score of 0.8). It provides a concrete action – using a specific tool (calibration wizard) – directly addressing the \"how\" in the query. This is a key step in the procedure.\n\n* **Passage [4]: \"Verify calibration results using the built-in measurement verification routines.\"** This passage is highly relevant (score of 0.8). It addresses the post-calibration verification, a critical step to ensure the accuracy of the alignment.  This completes the process described.\n\nThe overall score is 0.7 because while the passages cover important aspects of the calibration process, they lack specifics related to the *RoboRail*.  The answer assumes the RoboRail has a calibration wizard and built-in verification routines, which might not be true.  The passages provide a general procedure, applicable to many systems, but not a guaranteed solution for the RoboRail specifically.  To achieve a higher score, passages detailing RoboRail-specific instructions or mentioning the model number of the RoboRail would be needed.",
+          "details": {
+            "contextPassagesCount": 4,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "faithfulness": {
+          "score": 0.8,
+          "threshold": 0.8,
+          "passed": true,
+          "reason": "The generated answer is largely faithful to the source context.  Points 2, 3, and 4 are directly lifted or very closely paraphrased from the source context.  The addition of \"Follow the step-by-step alignment procedures\" (point 3 in the generated answer) is a reasonable inference based on the instruction to \"Use the calibration wizard...to guide the alignment process.\"  The wizard would inherently involve step-by-step procedures.  Therefore, this addition doesn't constitute a significant hallucination but rather a minor, acceptable inference. Point 1, while not explicitly stated in the same way, is implied by the context's emphasis on safety protocols.  The phrasing \"Ensure the system is properly initialized\" is a slightly more general and complete statement than the source's \"First, ensure the system is properly initialized and all safety protocols are active,\" but it doesn't contradict the source.  The overall structure and information presented are faithful to the source, with only a minor inferential addition.  Therefore, a score of 0.8 reflects the high degree of faithfulness while acknowledging the minor inference.",
+          "details": {
+            "answerLength": 357,
+            "contextPassagesCount": 4,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "answerRelevance": {
+          "score": 0.6,
+          "threshold": 0.7,
+          "passed": false,
+          "reason": "The generated answer provides a high-level overview of the chuck alignment calibration process for the RoboRail, hitting key steps like safety protocols, using the calibration wizard, following procedures, and verifying results.  This is helpful in that it gives a general idea of the process. However, it lacks crucial detail.  The answer is too generic.  It doesn't specify *how* to use the calibration wizard, what the step-by-step procedures entail, or how to interpret the measurement verification routines.  A user seeking to actually *perform* the calibration would be left wanting.  The answer provides a framework, but not the substance needed to complete the task.  Therefore, while relevant, it's incomplete and lacks the practical, actionable information a user would need, resulting in a score below 0.8.",
+          "details": {
+            "queryLength": 61,
+            "answerLength": 357,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        }
+      },
+      "overallScore": 0.71,
+      "timestamp": "2025-06-07T21:20:51.012Z"
+    },
+    {
+      "testCaseId": "communication_troubleshooting",
+      "query": "What should I do if there is no communication to PMAC?",
+      "actualOutput": "If there is no communication to PMAC, follow these troubleshooting steps: 1) Check all cable connections between the PMAC controller and host computer, 2) Verify correct communication protocol and settings are configured, 3) Restart the PMAC controller if necessary, and 4) Re-establish the communication link through the software interface.",
+      "retrievalContext": [
+        "Communication issues with PMAC can be resolved through several troubleshooting steps.",
+        "Check all cable connections between the PMAC controller and the host computer.",
+        "Verify that the correct communication protocol and settings are configured.",
+        "Restart the PMAC controller and re-establish the communication link if necessary."
+      ],
+      "metrics": {
+        "contextualRelevance": {
+          "score": 0.9,
+          "threshold": {
+            "model": "gemini-1.5-flash",
+            "temperature": 0.1,
+            "maxRetries": 3
+          },
+          "passed": false,
+          "reason": "The retrieved passages are highly relevant to the query \"What should I do if there is no communication to PMAC?\".  They directly address the problem of absent communication with a PMAC controller.\n\n* **Passage [1]:** This passage is excellent. It sets the stage by acknowledging the problem and promising solutions.  This is crucial for a helpful response. Score: 1.0\n\n* **Passage [2]:** This passage provides a concrete troubleshooting step. Checking cable connections is a fundamental and often successful first step in resolving communication issues. Score: 0.9\n\n* **Passage [3]:** This passage offers another crucial troubleshooting step. Incorrect protocol or settings are common causes of communication failures. Score: 0.9\n\n* **Passage [4]:**  Restarting the controller is a standard troubleshooting technique.  It's a simple action that can often resolve temporary glitches. Score: 0.8\n\nThe slight deduction from a perfect 1.0 score is due to the lack of more advanced troubleshooting steps.  The passages focus on basic checks.  A truly comprehensive answer might include steps like checking device drivers, examining log files, or verifying power supply. However, for a first-pass response, these passages are exceptionally relevant and provide a strong foundation for generating a helpful answer to the user's query.  They are directly actionable and address the core issue.",
+          "details": {
+            "contextPassagesCount": 4,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "faithfulness": {
+          "score": 0.8,
+          "threshold": 0.8,
+          "passed": true,
+          "reason": "The generated answer is largely faithful to the source context.  Points 2, 3, and 4 in the generated answer are directly supported by points [2], [3], and [4] in the source context, respectively.  The phrasing is slightly different but the meaning remains consistent.  The addition of \"If there is no communication to PMAC, follow these troubleshooting steps:\" in the generated answer is a reasonable and acceptable inference based on the context which implies these steps are for troubleshooting communication issues.  The only minor deviation is the separation of restarting the PMAC controller and re-establishing the communication link (point [4] in the source) into two separate steps (3 and 4) in the generated answer. While this is a slight restructuring, it doesn't introduce any factual inaccuracies and remains within the bounds of reasonable interpretation.  Therefore, a score of 0.8 reflects the minor restructuring while acknowledging the overall faithfulness to the source material.",
+          "details": {
+            "answerLength": 341,
+            "contextPassagesCount": 4,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "answerRelevance": {
+          "score": 0.8,
+          "threshold": 0.7,
+          "passed": true,
+          "reason": "The generated answer directly addresses the user's query about troubleshooting lack of communication with a PMAC (presumably a Programmable Motion Controller).  It provides a concise list of actionable steps: checking cables, verifying communication settings, restarting the controller, and re-establishing the link via software.  This is helpful and relevant to the user's problem.\n\nHowever, the answer lacks completeness. While it offers troubleshooting steps, it doesn't offer any diagnostic information to help determine *why* communication is failing.  For example, it doesn't suggest checking error logs on either the PMAC or the host computer, which could provide crucial clues.  It also assumes a basic level of user knowledge about PMAC controllers and their software interfaces. A user completely unfamiliar with the system might still struggle.  Therefore, while the answer is highly relevant and useful as a starting point, its lack of depth prevents it from achieving a perfect score.",
+          "details": {
+            "queryLength": 54,
+            "answerLength": 341,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        }
+      },
+      "overallScore": 0.8300000000000001,
+      "timestamp": "2025-06-07T21:20:53.376Z"
+    },
+    {
+      "testCaseId": "measurement_accuracy",
+      "query": "What is the measurement accuracy of the RoboRail system?",
+      "actualOutput": "The RoboRail system achieves measurement accuracy within ±2 micrometers under standard operating conditions. This accuracy can be affected by environmental factors such as temperature and vibration. Regular calibration and maintenance ensure optimal performance, and the system includes real-time error compensation algorithms.",
+      "retrievalContext": [
+        "The RoboRail system achieves measurement accuracy within ±2 micrometers under standard conditions.",
+        "Environmental factors such as temperature and vibration can affect accuracy.",
+        "Regular calibration and maintenance ensure optimal measurement performance.",
+        "The system includes real-time error compensation algorithms for improved accuracy."
+      ],
+      "metrics": {
+        "contextualRelevance": {
+          "score": 0.9,
+          "threshold": {
+            "model": "gemini-1.5-flash",
+            "temperature": 0.1,
+            "maxRetries": 3
+          },
+          "passed": false,
+          "reason": "Passage [1] is extremely relevant (score of 1.0). It directly answers the query by stating the measurement accuracy of the RoboRail system under standard conditions.  This is the core information sought by the query.\n\nPassage [2] is relevant (score of 0.7). While it doesn't provide a specific accuracy number, it highlights a crucial contextual factor affecting the accuracy stated in passage [1].  This information is necessary for a complete and nuanced answer, explaining potential deviations from the ±2 micrometer figure.  It adds depth and prevents a misleadingly simplistic response.\n\nPassage [3] is moderately relevant (score of 0.5).  It indirectly relates to accuracy by mentioning maintenance impacting performance.  While not directly answering the query about *measurement* accuracy, it contributes to the overall understanding of how to maintain that accuracy.  It's useful for a comprehensive answer but less crucial than passages [1] and [2].\n\nPassage [4] is moderately relevant (score of 0.6). Similar to passage [3], it indirectly addresses accuracy by mentioning error compensation algorithms. This adds valuable context to how the system strives for high accuracy.  It's helpful for a complete answer but doesn't provide a direct numerical answer to the query.\n\nThe overall score of 0.9 reflects the high relevance of the retrieved passages as a whole.  The presence of passage [1] directly answering the query significantly boosts the overall score.  The other passages provide valuable contextual information that enhances the quality of a generated answer, making it more informative and complete.  A perfect score of 1.0 would only be achieved if all passages were as directly relevant and informative as passage [1].",
+          "details": {
+            "contextPassagesCount": 4,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "faithfulness": {
+          "score": 0.9,
+          "threshold": 0.8,
+          "passed": true,
+          "reason": "The generated answer demonstrates high faithfulness to the source context.  All major claims are directly supported: the ±2 micrometer accuracy (1), the influence of environmental factors (2), the importance of calibration and maintenance (3), and the inclusion of real-time error compensation algorithms (4).\n\nThe only minor deviation from perfect faithfulness is the addition of the phrase \"under standard operating conditions\" in the first sentence. While the source (1) mentions \"standard conditions,\" the generated answer slightly expands this to \"standard operating conditions.\" This is a minor and acceptable inference, not a significant departure from the original meaning.  The addition doesn't introduce any new information or alter the core meaning of the source statement.  Therefore, a score of 0.9 reflects the near-perfect faithfulness while acknowledging this slight expansion.",
+          "details": {
+            "answerLength": 327,
+            "contextPassagesCount": 4,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "answerRelevance": {
+          "score": 0.9,
+          "threshold": 0.7,
+          "passed": true,
+          "reason": "The generated answer directly and almost completely addresses the query.  It provides a specific measurement accuracy (±2 micrometers) which is the core information the user sought.  Furthermore, it usefully adds context by mentioning the impact of environmental factors and the importance of calibration and maintenance.  The inclusion of real-time error compensation algorithms is also relevant and enhances the understanding of the system's capabilities.\n\nThe only minor gap is that \"standard operating conditions\" are not defined.  While this is implied, explicitly stating what constitutes standard operating conditions (e.g., temperature range, vibration levels) would make the answer even more complete and helpful.  This minor omission prevents a perfect score.  However, the answer is highly relevant and provides a clear, concise, and useful response to the user's query.",
+          "details": {
+            "queryLength": 56,
+            "answerLength": 327,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        }
+      },
+      "overallScore": 0.9000000000000001,
+      "timestamp": "2025-06-07T21:20:56.269Z"
+    },
+    {
+      "testCaseId": "data_collection_setup",
+      "query": "How do I set up data collection for measurement analysis?",
+      "actualOutput": "To set up data collection for measurement analysis: 1) Configure measurement parameters and sampling rates for your application, 2) Define the measurement area and specify data points to be collected, 3) Set appropriate filtering and averaging parameters, and 4) Configure data export formats and storage locations for subsequent analysis.",
+      "retrievalContext": [
+        "Data collection setup requires configuring measurement parameters and sampling rates.",
+        "Define the measurement area and specify the data points to be collected.",
+        "Set appropriate filtering and averaging parameters for your application.",
+        "Configure data export formats and storage locations for analysis."
+      ],
+      "metrics": {
+        "contextualRelevance": {
+          "score": 0.9,
+          "threshold": {
+            "model": "gemini-1.5-flash",
+            "temperature": 0.1,
+            "maxRetries": 3
+          },
+          "passed": false,
+          "reason": "The retrieved passages demonstrate a high degree of relevance to the query \"How do I set up data collection for measurement analysis.\"  All four passages directly address crucial aspects of data collection setup within the context of measurement analysis.\n\n* **Passage 1 (Data collection setup requires configuring measurement parameters and sampling rates):** This passage is highly relevant (score ~0.95). It provides a concise and accurate overview of a fundamental aspect of data collection setup – defining the parameters that govern the data acquisition process.  It's a strong starting point for a comprehensive answer.\n\n* **Passage 2 (Define the measurement area and specify the data points to be collected):** This passage is also highly relevant (score ~0.95). It focuses on the crucial step of identifying what data needs to be collected and from where.  This is essential for a well-structured data collection plan.\n\n* **Passage 3 (Set appropriate filtering and averaging parameters for your application):** This passage is very relevant (score ~0.9). While not as foundational as passages 1 and 2, it addresses an important aspect of data quality and preparation for analysis.  Filtering and averaging are key steps in many measurement analysis workflows.\n\n* **Passage 4 (Configure data export formats and storage locations for analysis):** This passage is highly relevant (score ~0.85). It addresses the final, but crucial, step of preparing the collected data for analysis.  Choosing appropriate formats and storage locations is essential for efficient and effective analysis.  It's slightly less directly related to the *setup* phase than the others, but still vital for the overall process.\n\nThe slight deduction from a perfect 1.0 score is due to the lack of information on practical implementation details (e.g., specific software or hardware considerations, error handling).  However, the passages provide an excellent foundation for generating a comprehensive and accurate answer to the query.  They cover the key conceptual steps involved in setting up data collection for measurement analysis.",
+          "details": {
+            "contextPassagesCount": 4,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "faithfulness": {
+          "score": 0.8,
+          "threshold": 0.8,
+          "passed": true,
+          "reason": "The generated answer is largely faithful to the source context.  Each of the four numbered steps directly corresponds to a sentence in the source context.  The answer successfully synthesizes the information into a coherent, numbered list.\n\nHowever, a minor inference is made. While the source mentions \"measurement parameters and sampling rates\" in [1] and \"filtering and averaging parameters\" in [3], the generated answer combines these into steps 1 and 3, respectively, implying a relationship between them that isn't explicitly stated in the source.  The source presents these as separate configuration steps.  This is a minor addition, not a significant alteration or hallucination, hence the score of 0.8 rather than 1.0.  The addition of \"for your application\" in step 3 is also a minor addition that doesn't significantly alter the meaning but is not explicitly stated in the source.  The overall structure and information presented are strongly supported by the source material.",
+          "details": {
+            "answerLength": 339,
+            "contextPassagesCount": 4,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "answerRelevance": {
+          "score": 0.6,
+          "threshold": 0.7,
+          "passed": false,
+          "reason": "The generated answer provides a high-level, structured outline of steps involved in setting up data collection for measurement analysis.  It hits key aspects like defining parameters, specifying data points, and considering data export.  However, it lacks crucial detail and practical advice.  The user likely needs more than just a numbered list.  For example, the answer doesn't address:\n\n* **What tools or technologies are appropriate?**  The answer is generic and doesn't consider the context of the measurement (e.g., physical sensors, surveys, logs, etc.).  Different data sources require different collection methods.\n* **Data validation and cleaning:**  A crucial step often overlooked, the answer doesn't mention how to ensure data quality.\n* **Specific examples:**  Illustrative examples of how to configure parameters or define data points would significantly improve the answer's usefulness.\n* **Error handling:** What happens if data collection fails?  The answer is silent on this important aspect.\n* **Ethical considerations:** Depending on the data being collected, ethical considerations might be relevant (e.g., privacy, consent).\n\nWhile the answer provides a framework, it's too superficial to be truly helpful.  It's a starting point, but a user would need to consult other resources to fill in the significant gaps.  Therefore, a score of 0.6 reflects its partial address of the query while highlighting its incompleteness.",
+          "details": {
+            "queryLength": 57,
+            "answerLength": 339,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        }
+      },
+      "overallScore": 0.77,
+      "timestamp": "2025-06-07T21:20:59.478Z"
+    },
+    {
+      "testCaseId": "system_initialization",
+      "query": "What are the steps to initialize the RoboRail system?",
+      "actualOutput": "To initialize the RoboRail system: 1) Power on all components in the correct sequence, 2) Load appropriate configuration files for your measurement setup, 3) Perform system self-check and calibration verification routines, and 4) Confirm all axes are properly homed and ready for operation.",
+      "retrievalContext": [
+        "System initialization begins with powering on all components in the correct sequence.",
+        "Load the appropriate configuration files for your specific measurement setup.",
+        "Perform the system self-check and calibration verification routines.",
+        "Confirm all axes are properly homed and ready for operation."
+      ],
+      "metrics": {
+        "contextualRelevance": {
+          "score": 0.9,
+          "threshold": {
+            "model": "gemini-1.5-flash",
+            "temperature": 0.1,
+            "maxRetries": 3
+          },
+          "passed": false,
+          "reason": "The retrieved passages are highly relevant to the query \"What are the steps to initialize the RoboRail system?\".  All four passages directly address aspects of the initialization process.\n\n* **Passage 1 (System initialization begins with powering on all components in the correct sequence.):** This is a crucial first step in any system initialization and is perfectly relevant (score of 1.0 for this passage alone).  It provides a foundational step.\n\n* **Passage 2 (Load the appropriate configuration files for your specific measurement setup.):** This is also highly relevant (score of 0.9 for this passage alone).  Configuration is a vital part of setting up the system correctly, and its omission would lead to an incomplete answer.  The slight deduction is due to the potential for the \"measurement setup\" to be specific to a subset of RoboRail functionalities, not necessarily all initialization.\n\n* **Passage 3 (Perform the system self-check and calibration verification routines.):** This is extremely relevant (score of 1.0 for this passage alone). Self-checks and calibrations are standard procedures in system initialization and are essential for ensuring proper functionality.\n\n* **Passage 4 (Confirm all axes are properly homed and ready for operation.):** This is highly relevant (score of 0.9 for this passage alone).  Homing the axes is a critical step in robotic systems, ensuring correct positioning and preventing errors.  The slight deduction is similar to passage 2;  it assumes a robotic component within RoboRail, which might not be universally true for all configurations.\n\n\nThe overall score of 0.9 reflects the minor caveats mentioned above.  While all passages are highly relevant and contribute to a comprehensive answer, the slight ambiguity in passages 2 and 4 prevents a perfect score.  A more complete answer might require additional context about the specific RoboRail configuration.  However, the provided passages are excellent starting points for generating a thorough and accurate response to the query.",
+          "details": {
+            "contextPassagesCount": 4,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "faithfulness": {
+          "score": 0,
+          "threshold": 0.8,
+          "passed": false,
+          "reason": "Evaluation failed: Failed after 3 attempts. Last error: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.",
+          "details": {
+            "error": true
+          }
+        },
+        "answerRelevance": {
+          "score": 0,
+          "threshold": 0.7,
+          "passed": false,
+          "reason": "Evaluation failed: Failed after 3 attempts. Last error: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.",
+          "details": {
+            "error": true
+          }
+        }
+      },
+      "overallScore": 0.27,
+      "timestamp": "2025-06-07T21:21:05.707Z"
+    },
+    {
+      "testCaseId": "maintenance_schedule",
+      "query": "What is the recommended maintenance schedule for the RoboRail system?",
+      "actualOutput": "The recommended maintenance schedule for RoboRail includes: Monthly regular maintenance for optimal performance, weekly cleaning of optical components and measurement surfaces, annual calibration verification and comprehensive inspection, and replacement of consumable components according to the schedule in the maintenance manual.",
+      "retrievalContext": [
+        "Regular maintenance should be performed monthly for optimal system performance.",
+        "Weekly cleaning of optical components and measurement surfaces is recommended.",
+        "Annual calibration verification and comprehensive system inspection is required.",
+        "Replace consumable components according to the maintenance schedule in the manual."
+      ],
+      "metrics": {
+        "contextualRelevance": {
+          "score": 0.9,
+          "threshold": {
+            "model": "gemini-1.5-flash",
+            "temperature": 0.1,
+            "maxRetries": 3
+          },
+          "passed": false,
+          "reason": "The retrieved passages are highly relevant to the query \"What is the recommended maintenance schedule for the RoboRail system?\".  They collectively provide a comprehensive overview of the maintenance schedule, covering different time intervals and aspects of maintenance.\n\n* **Passage [1] (Regular maintenance should be performed monthly for optimal system performance.):** Score: 0.8. This passage provides a crucial piece of information – the overall frequency of general maintenance.  It's slightly less specific than ideal, lacking detail on *what* constitutes \"regular maintenance,\" but it's a strong foundation for a complete answer.\n\n* **Passage [2] (Weekly cleaning of optical components and measurement surfaces is recommended.):** Score: 0.9. This passage is highly relevant, specifying a more frequent maintenance task.  The detail about cleaning optical components and measurement surfaces is directly applicable to the query.\n\n* **Passage [3] (Annual calibration verification and comprehensive system inspection is required.):** Score: 0.9. This passage provides another crucial element of the maintenance schedule, outlining the less frequent but essential annual tasks.  The terms \"calibration verification\" and \"comprehensive system inspection\" are highly relevant and informative.\n\n* **Passage [4] (Replace consumable components according to the maintenance schedule in the manual.):** Score: 0.7. This passage is less directly relevant as it points to an external source (the manual) for complete information. However, it acknowledges the existence of a more detailed schedule and is useful in directing the user to a potentially more complete answer.  It's valuable for completeness but not as directly informative as the other passages.\n\nOverall, the passages work together synergistically to provide a good overview of the RoboRail system's maintenance schedule.  The slight deduction from a perfect 1.0 score is due to Passage [4]'s indirectness and Passage [1]'s lack of specificity regarding the nature of the monthly maintenance.  However, the combination of passages provides a strong basis for a comprehensive and accurate response to the query.",
+          "details": {
+            "contextPassagesCount": 4,
+            "evaluationModel": "gemini-1.5-flash"
+          }
+        },
+        "faithfulness": {
+          "score": 0,
+          "threshold": 0.8,
+          "passed": false,
+          "reason": "Evaluation failed: Failed after 3 attempts. Last error: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.",
+          "details": {
+            "error": true
+          }
+        },
+        "answerRelevance": {
+          "score": 0,
+          "threshold": 0.7,
+          "passed": false,
+          "reason": "Evaluation failed: Failed after 3 attempts. Last error: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.",
+          "details": {
+            "error": true
+          }
+        }
+      },
+      "overallScore": 0.27,
+      "timestamp": "2025-06-07T21:21:11.829Z"
+    }
+  ]
+}

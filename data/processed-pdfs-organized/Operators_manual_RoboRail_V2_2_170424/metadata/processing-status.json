@@ -1,0 +1,21 @@
+{
+  "document": {
+    "fileName": "Operators manual_RoboRail V2.2_170424.pdf",
+    "originalPath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/pdf/Operators manual_RoboRail V2.2_170424.pdf",
+    "fileSize": 4492737,
+    "lastModified": "2025-06-06T19:37:22.297Z"
+  },
+  "processing": {
+    "organizedAt": "2025-06-08T09:59:05.820Z",
+    "textExtracted": true,
+    "imagesConverted": false,
+    "embeddingsGenerated": false,
+    "status": "partially_processed"
+  },
+  "nextSteps": [
+    "Convert PDF pages to images",
+    "Generate vector embeddings for text chunks",
+    "Enable multimodal search capabilities",
+    "Integrate with RAG pipeline"
+  ]
+}
