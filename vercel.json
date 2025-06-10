@@ -1,5 +1,10 @@
 {
   "buildCommand": "npm run build:vercel",
-  "installCommand": "npm install --legacy-peer-deps",
-  "framework": "nextjs"
+  "installCommand": "npm install --legacy-peer-deps --optional",
+  "framework": "nextjs",
+  "functions": {
+    "app/api/**": {
+      "maxDuration": 60
+    }
+  }
 }
