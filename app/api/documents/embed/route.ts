@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { ragDocument, documentChunk, documentEmbedding } from '@/lib/db/schema';
 import { eq, sql } from 'drizzle-orm';
-import { withAuth } from '@/lib/auth';
+import { getUser } from '@/lib/auth/kinde';
 import { cohereService } from '@/lib/ai/cohere-client';
 import { z } from 'zod';
 
@@ -19,7 +19,12 @@ const embedRequestSchema = z.object({
     .optional(),
 });
 
-export const POST = withAuth(async (request: NextRequest, session: any) => {
+export async function POST(request: NextRequest) {
+  const user = await getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
 
@@ -85,7 +90,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
     }
 
     // Verify document belongs to user
-    if (document.uploadedBy !== session.user.id) {
+    if (document.uploadedBy !== user.id) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
@@ -249,4 +254,4 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
       { status: 500 },
     );
   }
-});
+}

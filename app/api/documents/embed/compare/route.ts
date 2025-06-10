@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { withAuth } from '@/lib/auth';
+import { getUser } from '@/lib/auth/kinde';
 import { cohereService } from '@/lib/ai/cohere-client';
 import { z } from 'zod';
 
@@ -9,7 +9,12 @@ const compareRequestSchema = z.object({
   iterations: z.number().min(1).max(10).optional(),
 });
 
-export const POST = withAuth(async (request: NextRequest, session: any) => {
+export async function POST(request: NextRequest) {
+  const user = await getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
 
@@ -141,7 +146,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
       { status: 500 },
     );
   }
-});
+}
 
 function generateModelRecommendation(
   comparison: any,

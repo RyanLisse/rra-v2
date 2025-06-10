@@ -2,12 +2,17 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { ragDocument, documentChunk } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
-import { withAuth } from '@/lib/auth';
+import { getUser } from '@/lib/auth/kinde';
 import { SemanticTextSplitter } from '@/lib/chunking/text-splitter';
 import { DocumentStatusManager } from '@/lib/document-processing/status-manager';
 import { readFile } from 'node:fs/promises';
 
-export const POST = withAuth(async (request: NextRequest, session: any) => {
+export async function POST(request: NextRequest) {
+  const user = await getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const { documentId } = body;
@@ -35,7 +40,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
     }
 
     // Verify document belongs to user
-    if (document.uploadedBy !== session.user.id) {
+    if (document.uploadedBy !== user.id) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
@@ -218,7 +223,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
       { status: 500 },
     );
   }
-});
+}
 
 function determineDocumentType(
   filename: string,

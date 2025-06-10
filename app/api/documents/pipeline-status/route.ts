@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { withAuth } from '@/lib/auth';
+import { getUser } from '@/lib/auth/kinde';
 import { z } from 'zod';
 import { PipelineTracker } from '@/lib/document-processing/pipeline-tracker';
 import { db } from '@/lib/db';
@@ -15,7 +15,12 @@ const StatusRequestSchema = z.object({
  *
  * Get comprehensive pipeline status for a document
  */
-export const GET = withAuth(async (request: NextRequest, session: any) => {
+export async function GET(request: NextRequest) {
+  const user = await getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const documentId = searchParams.get('documentId');
@@ -58,8 +63,8 @@ export const GET = withAuth(async (request: NextRequest, session: any) => {
 
     // Check if user has access to this document
     if (
-      document.uploadedBy !== session.user.id &&
-      session.user.role !== 'admin'
+      document.uploadedBy !== user.id &&
+      user.type !== 'admin'
     ) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
@@ -89,7 +94,7 @@ export const GET = withAuth(async (request: NextRequest, session: any) => {
       { status: 500 },
     );
   }
-});
+}
 
 /**
  * Calculate estimated time remaining based on average stage durations
@@ -138,10 +143,15 @@ function getNextStage(stages: any[]): string | null {
  *
  * Get pipeline metrics across all documents
  */
-export const POST = withAuth(async (request: NextRequest, session: any) => {
+export async function POST(request: NextRequest) {
+  const user = await getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+  }
+
   try {
     // Only admins can view system-wide metrics
-    if (session.user.role !== 'admin') {
+    if (user.type !== 'admin') {
       return NextResponse.json(
         { error: 'Admin access required' },
         { status: 403 },
@@ -166,4 +176,4 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
       { status: 500 },
     );
   }
-});
+}
