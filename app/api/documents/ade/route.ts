@@ -35,7 +35,11 @@ export async function POST(request: NextRequest) {
     const { documentId, options } = RequestSchema.parse(body);
 
     // Get document from database
-    const results = await db.select().from(ragDocument).where(eq(ragDocument.id, documentId)).limit(1);
+    const results = await db
+      .select()
+      .from(ragDocument)
+      .where(eq(ragDocument.id, documentId))
+      .limit(1);
     const document = results[0];
 
     if (!document) {

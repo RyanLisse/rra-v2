@@ -28,11 +28,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch document and its content
-    const results = await db.select().from(ragDocument).where(eq(ragDocument.id, documentId)).limit(1);
+    const results = await db
+      .select()
+      .from(ragDocument)
+      .where(eq(ragDocument.id, documentId))
+      .limit(1);
     const document = results[0];
-    
+
     // Fetch document content separately
-    const contentResults = await db.select().from(documentContent).where(eq(documentContent.documentId, documentId)).limit(1);
+    const contentResults = await db
+      .select()
+      .from(documentContent)
+      .where(eq(documentContent.documentId, documentId))
+      .limit(1);
     const content = contentResults[0];
 
     if (!document) {

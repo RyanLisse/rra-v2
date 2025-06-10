@@ -131,8 +131,10 @@ function parseArgs(): Partial<Omit<CleanupConfig, 'policies'>> & {
   policies?: string;
 } {
   const args = process.argv.slice(2);
-  const result: Partial<CleanupConfig> & { help?: boolean; policies?: string } =
-    {};
+  const result: Partial<Omit<CleanupConfig, 'policies'>> & {
+    help?: boolean;
+    policies?: string;
+  } = {};
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
@@ -280,6 +282,7 @@ async function performSafetyChecks(
     const recentFailures = logs.filter(
       (log) =>
         !log.success &&
+        log.metadata?.timestamp &&
         Date.now() - new Date(log.metadata.timestamp).getTime() <
           30 * 60 * 1000, // 30 minutes
     );
@@ -356,7 +359,11 @@ async function applyCleanupPolicy(
     };
   }
 
-  const { deleted, failed, skipped } = result.data!;
+  const { deleted, failed, skipped } = result.data || {
+    deleted: [],
+    failed: [],
+    skipped: [],
+  };
 
   console.log(`   ✅ Deleted: ${deleted.length}`);
   console.log(`   ❌ Failed: ${failed.length}`);
@@ -543,7 +550,12 @@ async function main() {
     process.exit(0);
   }
 
-  const config = { ...getDefaultConfig(), ...args };
+  const baseConfig = getDefaultConfig();
+  const config: CleanupConfig = {
+    ...baseConfig,
+    ...args,
+    policies: baseConfig.policies, // Keep default policies initially
+  };
 
   // Select policies
   if (args.policies && typeof args.policies === 'string') {

@@ -24,13 +24,9 @@ export class UserFactory extends BaseFactory<UserInsert> {
       password: realistic
         ? faker.internet.password({ length: 12 })
         : 'test-password-123',
-      emailVerified: realistic
-        ? faker.datatype.boolean(0.8)
-        : true,
+      emailVerified: realistic ? faker.datatype.boolean(0.8) : true,
       image:
-        realistic && faker.datatype.boolean(0.3)
-          ? faker.image.avatar()
-          : null,
+        realistic && faker.datatype.boolean(0.3) ? faker.image.avatar() : null,
       name: realistic
         ? faker.person.fullName()
         : `Test User ${faker.string.alphanumeric(4)}`,

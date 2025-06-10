@@ -163,7 +163,11 @@ async function seedDocuments(userIds: string[], preset: SeedPreset) {
         content: chunkContent,
         chunkIndex: j.toString(),
         tokenCount: Math.floor(chunkContent.length / 4).toString(), // Rough estimate
-        elementType: faker.helpers.arrayElement(['paragraph', 'title', 'list_item']),
+        elementType: faker.helpers.arrayElement([
+          'paragraph',
+          'title',
+          'list_item',
+        ]),
         pageNumber: Math.floor(j / 5) + 1,
         metadata: {
           section: contentType,

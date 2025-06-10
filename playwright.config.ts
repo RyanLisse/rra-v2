@@ -150,10 +150,6 @@ export default defineConfig({
     // Enhanced assertion timeout for Neon operations
     toHaveScreenshot: {
       threshold: 0.2,
-      mode: 'strict',
-    },
-    toMatchScreenshot: {
-      threshold: 0.2,
     },
   },
 

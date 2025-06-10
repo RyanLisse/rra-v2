@@ -1,7 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { extname } from 'node:path';
 import { nanoid } from 'nanoid';
-import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { eq } from 'drizzle-orm';
 import * as schema from '@/lib/db/schema';
 import { TextSplitter } from '@/lib/chunking/text-splitter';
@@ -438,7 +437,7 @@ export class DocumentProcessor {
   async uploadDocument(params: {
     file: File;
     userId: string;
-    db: PostgresJsDatabase<typeof schema>;
+    db: any; // Use any for compatibility with different db instance types
   }) {
     const { file, userId, db } = params;
 
@@ -478,13 +477,13 @@ export class DocumentProcessor {
    */
   async extractText(params: {
     documentId: string;
-    db: PostgresJsDatabase<typeof schema>;
+    db: any; // Use any for compatibility with different db instance types
   }) {
     const { documentId, db } = params;
 
     // Get document
     const document = await db.query.ragDocument.findFirst({
-      where: (doc, { eq }) => eq(doc.id, documentId),
+      where: (doc: any, { eq }: any) => eq(doc.id, documentId),
     });
 
     if (!document) {
@@ -539,7 +538,7 @@ export class DocumentProcessor {
    */
   async processDocumentComplete(params: {
     documentId: string;
-    db: PostgresJsDatabase<typeof schema>;
+    db: any; // Use any for compatibility with different db instance types
     chunkSize?: number;
     chunkOverlap?: number;
     useADE?: boolean;
@@ -557,7 +556,7 @@ export class DocumentProcessor {
     try {
       // Get document
       const document = await db.query.ragDocument.findFirst({
-        where: (doc, { eq }) => eq(doc.id, documentId),
+        where: (doc: any, { eq }: any) => eq(doc.id, documentId),
       });
 
       if (!document) {
@@ -590,7 +589,7 @@ export class DocumentProcessor {
       if (shouldGenerateEmbeddings && chunks.length > 0) {
         console.log(`[ADE] Generating embeddings for ${chunks.length} chunks`);
 
-        const chunkData = chunks.map((chunk) => ({
+        const chunkData = chunks.map((chunk: any) => ({
           id: chunk.id,
           content: chunk.content,
         }));
@@ -631,7 +630,7 @@ export class DocumentProcessor {
     content: string;
     chunkSize?: number;
     chunkOverlap?: number;
-    db: PostgresJsDatabase<typeof schema>;
+    db: any; // Use any for compatibility with different db instance types
     filePath?: string;
     useADE?: boolean;
   }) {
@@ -680,7 +679,7 @@ export class DocumentProcessor {
     documentId: string,
     adeOutput: AdeOutput,
     fallbackContent: string,
-    db: PostgresJsDatabase<typeof schema>,
+    db: any, // Use any for compatibility with different db instance types
   ) {
     const insertedChunks = [];
     let chunkIndex = 0;
@@ -757,7 +756,7 @@ export class DocumentProcessor {
     content: string,
     chunkSize: number,
     chunkOverlap: number,
-    db: PostgresJsDatabase<typeof schema>,
+    db: any, // Use any for compatibility with different db instance types
   ) {
     // Split content into chunks
     const chunks = this.textSplitter.splitText(content);
@@ -768,10 +767,10 @@ export class DocumentProcessor {
       chunkIndex: index.toString(),
       content: chunk.content,
       tokenCount: chunk.metadata.tokenCount.toString(),
-      metadata: { 
-        startChar: chunk.metadata.startIndex, 
+      metadata: {
+        startChar: chunk.metadata.startIndex,
         endChar: chunk.metadata.endIndex,
-        ...chunk.metadata 
+        ...chunk.metadata,
       },
       elementType: null, // No ADE data available
       pageNumber: null,
@@ -801,19 +800,19 @@ export class DocumentProcessor {
   async generateEmbeddings(params: {
     chunks: Array<{ id: string; content: string }>;
     batchSize?: number;
-    db: PostgresJsDatabase<typeof schema>;
+    db: any; // Use any for compatibility with different db instance types
   }) {
     const { chunks, batchSize = 25, db } = params;
 
     // Fetch full chunk data from database to get ADE metadata
     const chunkIds = chunks.map((c) => c.id);
     const fullChunks = await db.query.documentChunk.findMany({
-      where: (chunk, { inArray }) => inArray(chunk.id, chunkIds),
+      where: (chunk: any, { inArray }: any) => inArray(chunk.id, chunkIds),
     });
 
     // Create enhanced chunk objects with ADE metadata
     const enhancedChunks = chunks.map((chunk) => {
-      const fullChunk = fullChunks.find((fc) => fc.id === chunk.id);
+      const fullChunk = fullChunks.find((fc: any) => fc.id === chunk.id);
       return {
         id: chunk.id,
         content: chunk.content,
@@ -942,22 +941,21 @@ export class DocumentProcessor {
       metadata?: any;
     }>;
     batchSize?: number;
-    db: PostgresJsDatabase<typeof schema>;
+    db: any; // Use any for compatibility with different db instance types
   }) {
     const { chunks, batchSize = 25, db } = params;
 
     if (!this.cohereClient) {
       // Get document ID from the first chunk
-      const firstChunk = await db.query.documentChunk
-        .findFirst({
-          where: (c, { eq }) => eq(c.id, chunks[0].id),
-        });
-      
+      const firstChunk = await db.query.documentChunk.findFirst({
+        where: (c: any, { eq }: any) => eq(c.id, chunks[0].id),
+      });
+
       if (!firstChunk?.documentId) {
         throw new Error('No document ID found for chunks');
       }
-      
-      const embeddings = chunks.map((chunk) => ({
+
+      const embeddings = chunks.map((chunk: any) => ({
         chunkId: chunk.id,
         documentId: firstChunk.documentId,
         embedding: JSON.stringify(
@@ -994,18 +992,20 @@ export class DocumentProcessor {
       );
 
       // Generate embeddings via Cohere
-      const embeddings = await this.cohereClient.generateEmbeddingBatch(enrichedTexts);
+      const embeddings =
+        await this.cohereClient.generateEmbeddingBatch(enrichedTexts);
 
       // Get document ID from the first chunk in batch
-      const batchFirstChunk = await db.query.documentChunk
-        .findFirst({
-          where: (c, { eq }) => eq(c.id, batch[0].id),
-        });
-      
+      const batchFirstChunk = await db.query.documentChunk.findFirst({
+        where: (c: any, { eq }: any) => eq(c.id, batch[0].id),
+      });
+
       const embeddingData = batch.map((chunk, index) => ({
         chunkId: chunk.id,
         documentId: batchFirstChunk?.documentId || '',
-        embedding: JSON.stringify(embeddings.embeddings[index]?.embedding || []),
+        embedding: JSON.stringify(
+          embeddings.embeddings[index]?.embedding || [],
+        ),
         model: 'cohere-embed-v4.0',
       }));
 
@@ -1020,9 +1020,9 @@ export class DocumentProcessor {
     // Update document status
     const documentId = await db.query.documentChunk
       .findFirst({
-        where: (c, { eq }) => eq(c.id, chunks[0].id),
+        where: (c: any, { eq }: any) => eq(c.id, chunks[0].id),
       })
-      .then((chunk) => chunk?.documentId);
+      .then((chunk: any) => chunk?.documentId);
 
     if (documentId) {
       await db

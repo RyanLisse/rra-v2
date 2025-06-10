@@ -574,7 +574,9 @@ export class TextSplitter extends SemanticTextSplitter {
   async splitTextLegacy(
     text: string,
     options?: { chunkSize?: number; chunkOverlap?: number },
-  ): Promise<{ text: string; startChar: number; endChar: number; tokenCount: number; }[]> {
+  ): Promise<
+    { text: string; startChar: number; endChar: number; tokenCount: number }[]
+  > {
     // Update options if provided
     if (options) {
       this.options = { ...this.options, ...options };

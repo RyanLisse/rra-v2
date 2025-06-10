@@ -113,6 +113,7 @@ export class DocumentService {
       filePath: params.filePath,
       fileSize: params.fileSize,
       mimeType: params.mimeType,
+      status: 'uploaded',
     });
 
     return document;
@@ -220,7 +221,7 @@ export class DocumentService {
     }
 
     // Create chunk using ADE helpers
-    const chunks = await createChunkWithADE({
+    const chunk = await createChunkWithADE({
       documentId: params.documentId,
       chunkIndex: params.chunkIndex,
       content: params.content,
@@ -231,7 +232,11 @@ export class DocumentService {
       tokenCount: params.tokenCount,
     });
 
-    return chunks[0]; // Return the first chunk for backward compatibility
+    if (!chunk) {
+      throw new Error('Failed to create document chunk');
+    }
+
+    return chunk;
   }
 
   /**
@@ -358,7 +363,9 @@ export class DocumentService {
     if (options?.userId) {
       documents = await ragDocumentRepository.findByUploadedBy(options.userId);
     } else {
-      documents = await ragDocumentRepository.findMany({ limit: options?.limit });
+      documents = await ragDocumentRepository.findMany({
+        limit: options?.limit,
+      });
     }
 
     // Filter by name
@@ -418,7 +425,10 @@ export class DocumentService {
 
     const totalDocuments = allDocuments.length;
     const totalChunks = allChunks.length;
-    const totalSize = allDocuments.reduce((sum, doc) => sum + Number.parseInt(doc.fileSize), 0);
+    const totalSize = allDocuments.reduce(
+      (sum, doc) => sum + Number.parseInt(doc.fileSize),
+      0,
+    );
     const averageChunksPerDocument =
       totalDocuments > 0 ? totalChunks / totalDocuments : 0;
 

@@ -161,7 +161,7 @@ export class PerformanceOptimizer {
     try {
       const { db } = await import('@/lib/db');
       const { sql } = await import('drizzle-orm');
-      
+
       // Get connection count (PostgreSQL specific)
       const connectionResult = await db.execute(sql`
         SELECT count(*) as connection_count 
@@ -222,7 +222,7 @@ export class PerformanceOptimizer {
     try {
       const { db } = await import('@/lib/db');
       const { sql } = await import('drizzle-orm');
-      
+
       // Get slow queries from PostgreSQL stats
       const slowQueriesResult = await db.execute(sql`
         SELECT 
@@ -339,8 +339,8 @@ export class PerformanceOptimizer {
    * Export performance report
    */
   exportPerformanceReport(): {
-    summary: ReturnType<typeof this.getAnalytics>;
-    systemResources: ReturnType<typeof this.getSystemResourceUsage>;
+    summary: ReturnType<PerformanceOptimizer['getAnalytics']>;
+    systemResources: ReturnType<PerformanceOptimizer['getSystemResourceUsage']>;
     recommendations: string[];
     timestamp: number;
   } {

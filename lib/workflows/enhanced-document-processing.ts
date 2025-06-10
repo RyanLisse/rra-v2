@@ -43,21 +43,23 @@ export const enhancedDocumentProcessing = inngest.createFunction(
         try {
           const processor = new BatchPDFProcessor();
 
-          // Use performance-optimized processing
-          const outputDir = `${process.cwd()}/data/processed-pdfs`;
-          const result = await processor.processSinglePDF(filePath, outputDir, {
-            imageFormat: options.imageFormat || 'png',
+          // Use performance-optimized processing with public method
+          const result = await processor.processAllPDFs({
+            concurrency: 1, // Process single file
+            skipExisting: options.skipExisting || false,
+            imageFormat:
+              (options.imageFormat as 'png' | 'jpeg' | 'webp') || 'png',
             imageQuality: options.imageQuality || 2.0,
             generateEmbeddings: options.generateEmbeddings || true,
-            skipExisting: options.skipExisting || false,
+            outputBaseDir: `${process.cwd()}/data/processed-pdfs`,
           });
 
           return {
-            success: result.success,
-            pagesProcessed: result.pagesProcessed,
-            imagesGenerated: result.imagesGenerated,
-            processingTime: result.processingTime,
-            error: result.error,
+            success: result.successfulFiles > 0,
+            pagesProcessed: result.totalPages,
+            imagesGenerated: result.totalImages,
+            processingTime: result.totalProcessingTime,
+            error: result.errors.length > 0 ? result.errors[0] : undefined,
           };
         } catch (error) {
           return {
@@ -82,7 +84,7 @@ export const enhancedDocumentProcessing = inngest.createFunction(
         try {
           // Get document chunks with ADE metadata
           const chunks = await documentService.getDocumentChunks(documentId, {
-            includeMetadata: true,
+            limit: 100,
           });
 
           // Generate enriched context for better embeddings
@@ -194,9 +196,9 @@ export const enhancedDocumentProcessing = inngest.createFunction(
             skipped: embeddingGeneration.skipped,
           },
           performance: {
-            cacheHitRate: finalMetrics.cache.hitRate,
-            memoryOptimizations: finalMetrics.memory.gcTriggers,
-            poolEfficiency: finalMetrics.objectPools.efficiency,
+            cacheHitRate: finalMetrics.cache?.hitRate || 0,
+            memoryOptimizations: finalMetrics.memory?.gcTriggers || 0,
+            poolEfficiency: finalMetrics.objectPools?.efficiency || 0,
           },
           timestamp: new Date().toISOString(),
         };
@@ -301,7 +303,10 @@ export const batchDocumentProcessing = inngest.createFunction(
           const report = {
             batchId: `batch_${Date.now()}`,
             processedAt: new Date().toISOString(),
-            summary: batchProcessing.summary,
+            summary:
+              'summary' in batchProcessing
+                ? batchProcessing.summary
+                : undefined,
             performanceMetrics,
             systemInfo: {
               nodeVersion: process.version,
@@ -325,9 +330,18 @@ export const batchDocumentProcessing = inngest.createFunction(
 
     return {
       success: batchProcessing.success && reportGeneration.success,
-      batchId: reportGeneration.success ? reportGeneration.report?.batchId : undefined,
-      summary: batchProcessing.summary,
-      report: reportGeneration.success ? reportGeneration.report : undefined,
+      batchId:
+        reportGeneration.success &&
+        'report' in reportGeneration &&
+        reportGeneration.report
+          ? reportGeneration.report.batchId
+          : undefined,
+      summary:
+        'summary' in batchProcessing ? batchProcessing.summary : undefined,
+      report:
+        reportGeneration.success && 'report' in reportGeneration
+          ? reportGeneration.report
+          : undefined,
     };
   },
 );

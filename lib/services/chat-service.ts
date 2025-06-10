@@ -100,7 +100,7 @@ export class ChatService {
       throw new Error('Unauthorized access to chat');
     }
 
-    let messages: Message[] = [];
+    let messages: DBMessage[] = [];
     if (options?.includeMessages) {
       messages = await messageRepository.findByChatId(chatId);
     }
@@ -165,9 +165,7 @@ export class ChatService {
     });
 
     // Update chat's updated timestamp
-    await chatRepository.update(params.chatId, {
-      updatedAt: new Date(),
-    });
+    await chatRepository.update(params.chatId, {});
 
     return message;
   }
@@ -182,7 +180,11 @@ export class ChatService {
       preserveFirstTurn?: boolean;
       includeMetadata?: boolean;
     },
-  ): Promise<{ messages: DBMessage[]; prunedCount: number; originalCount: number }> {
+  ): Promise<{
+    messages: DBMessage[];
+    prunedCount: number;
+    originalCount: number;
+  }> {
     const allMessages = await messageRepository.findByChatId(chatId);
 
     if (!allMessages.length) {
@@ -193,7 +195,9 @@ export class ChatService {
     const coreMessages: CoreMessageWithId[] = allMessages.map((msg) => ({
       id: msg.id,
       role: msg.role as 'user' | 'assistant' | 'system',
-      content: msg.parts.find(p => p.type === 'text')?.text || '',
+      content: Array.isArray(msg.parts)
+        ? (msg.parts as any[]).find((p: any) => p.type === 'text')?.text || ''
+        : '',
     }));
 
     // Apply conversation pruning
@@ -310,13 +314,12 @@ export class ChatService {
     const assistantMessageCount = messages.filter(
       (m) => m.role === 'assistant',
     ).length;
-    const totalCharacters = messages.reduce(
-      (sum, m) => {
-        const textContent = m.parts.find(p => p.type === 'text')?.text || '';
-        return sum + textContent.length;
-      },
-      0,
-    );
+    const totalCharacters = messages.reduce((sum, m) => {
+      const textContent = Array.isArray(m.parts)
+        ? (m.parts as any[]).find((p: any) => p.type === 'text')?.text || ''
+        : '';
+      return sum + textContent.length;
+    }, 0);
     const averageMessageLength =
       messageCount > 0 ? totalCharacters / messageCount : 0;
 
@@ -349,7 +352,10 @@ export class ChatService {
 
     // Simple text search (could be enhanced with full-text search)
     const matchingMessages = messages.filter((message) => {
-      const textContent = message.parts.find(p => p.type === 'text')?.text || '';
+      const textContent = Array.isArray(message.parts)
+        ? (message.parts as any[]).find((p: any) => p.type === 'text')?.text ||
+          ''
+        : '';
       return textContent.toLowerCase().includes(query.toLowerCase());
     });
 

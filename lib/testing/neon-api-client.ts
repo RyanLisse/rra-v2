@@ -194,7 +194,7 @@ class RetryManager {
     operation: () => Promise<T>,
     context: string,
   ): Promise<T> {
-    let lastError: Error;
+    let lastError: Error = new Error('Unknown error');
 
     for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
       try {
@@ -229,7 +229,7 @@ class RetryManager {
  * Enhanced Neon API Client with MCP tool integration
  */
 export class EnhancedNeonApiClient {
-  private readonly config: Required<NeonApiClientConfig>;
+  public readonly config: Required<NeonApiClientConfig>;
   private readonly rateLimiter: RateLimiter;
   private readonly retryManager: RetryManager;
   private readonly logger: NeonLogger;
@@ -306,7 +306,25 @@ export class EnhancedNeonApiClient {
 
         // Use MCP interface
         const response = await NeonMCPInterface.listProjects();
-        return response.projects;
+        // Transform MCPNeonProject to NeonProject with default settings
+        return response.projects.map((project) => ({
+          ...project,
+          settings: {
+            allowed_ips: {
+              ips: [],
+              protected_branches_only: false,
+            },
+            enable_logical_replication: false,
+            maintenance_window: {
+              weekdays: [0],
+              start_time: '00:00',
+              end_time: '04:00',
+            },
+            block_public_connections: false,
+            block_vpc_connections: false,
+            hipaa: false,
+          },
+        }));
       }, 'List projects');
 
       return result;
@@ -358,7 +376,9 @@ export class EnhancedNeonApiClient {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const branchName = `test-${testSuite}-${timestamp}-${randomUUID().slice(0, 8)}`;
 
-    return this.executeOperation(
+    let createdBranchId: string | undefined;
+
+    const operationResult = await this.executeOperation(
       'create_test_branch',
       async () => {
         await this.rateLimiter.checkLimit();
@@ -371,6 +391,7 @@ export class EnhancedNeonApiClient {
           );
 
           const branchId = createResponse.branch.id;
+          createdBranchId = branchId;
 
           // Wait for branch to be ready if requested
           if (waitForReady) {
@@ -412,8 +433,10 @@ export class EnhancedNeonApiClient {
 
         return result;
       },
-      { branch_id: result?.branchId },
+      { branch_id: createdBranchId },
     );
+
+    return operationResult;
   }
 
   /**
@@ -422,13 +445,13 @@ export class EnhancedNeonApiClient {
   async deleteTestBranch(
     branchNameOrId: string,
   ): Promise<DatabaseOperationResult<void>> {
+    const branchInfo = this.activeBranches.get(branchNameOrId);
+    const branchId = branchInfo?.branchId || branchNameOrId;
+
     return this.executeOperation(
       'delete_test_branch',
       async () => {
         await this.rateLimiter.checkLimit();
-
-        const branchInfo = this.activeBranches.get(branchNameOrId);
-        const branchId = branchInfo?.branchId || branchNameOrId;
 
         await this.retryManager.executeWithRetry(async () => {
           // Delete branch using MCP interface

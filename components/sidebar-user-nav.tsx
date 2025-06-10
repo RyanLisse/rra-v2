@@ -96,7 +96,9 @@ export function SidebarUserNav({ user }: { user: KindeUser }) {
                 className="w-full cursor-pointer"
                 onClick={() => {
                   if (isLoading) {
-                    toast.error('Checking authentication status, please try again!');
+                    toast.error(
+                      'Checking authentication status, please try again!',
+                    );
 
                     return;
                   }

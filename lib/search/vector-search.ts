@@ -346,6 +346,7 @@ export class VectorSearchService {
         .filter((result) => result.similarity >= adaptiveThreshold)
         .map((result) => ({
           ...result,
+          chunkId: result.chunkId || '',
           chunkIndex: Number.parseInt(result.chunkIndex),
         }));
 
@@ -1303,7 +1304,7 @@ export class VectorSearch {
       .limit(limit);
 
     // Mock scoring for tests
-    const results = chunks.map((row, index) => ({
+    const results = chunks.map((row: any, index: number) => ({
       id: row.chunk.id,
       content: row.chunk.content,
       score: Math.max(threshold, 1 - index * 0.1),
@@ -1320,7 +1321,7 @@ export class VectorSearch {
     }));
 
     return {
-      results: results.filter((r) => r.score >= threshold),
+      results: results.filter((r: any) => r.score >= threshold),
       totalFound: results.length,
       query,
     };
@@ -1344,11 +1345,11 @@ export class VectorSearch {
     // Mock reranking
     const rerankedResults = searchResults.results
       .slice(0, rerankTopK)
-      .map((result, index) => ({
+      .map((result: any, index: number) => ({
         ...result,
         rerankScore: result.score + 0.1 * (rerankTopK - index),
       }))
-      .sort((a, b) => b.rerankScore! - a.rerankScore!);
+      .sort((a: any, b: any) => b.rerankScore! - a.rerankScore!);
 
     return {
       ...searchResults,

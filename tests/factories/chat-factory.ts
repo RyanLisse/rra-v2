@@ -478,7 +478,7 @@ export class CompleteChatFactory extends BaseFactory<CompleteChat> {
    */
   createPublic(options?: FactoryOptions): CompleteChat {
     const chat = this.chatFactory.createPublic(options);
-    
+
     const messages = [
       this.messageFactory.createUserMessage({ overrides: { chatId: chat.id } }),
       this.messageFactory.createAssistantMessage({

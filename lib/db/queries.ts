@@ -753,13 +753,27 @@ export async function getDocumentProcessingStats({
     const [stats] = await db
       .select({
         total: count(),
-        uploaded: sum(sql`CASE WHEN ${ragDocument.status} = 'uploaded' THEN 1 ELSE 0 END`),
-        processing: sum(sql`CASE WHEN ${ragDocument.status} = 'processing' THEN 1 ELSE 0 END`),
-        textExtracted: sum(sql`CASE WHEN ${ragDocument.status} = 'text_extracted' THEN 1 ELSE 0 END`),
-        chunked: sum(sql`CASE WHEN ${ragDocument.status} = 'chunked' THEN 1 ELSE 0 END`),
-        embedded: sum(sql`CASE WHEN ${ragDocument.status} = 'embedded' THEN 1 ELSE 0 END`),
-        processed: sum(sql`CASE WHEN ${ragDocument.status} = 'processed' THEN 1 ELSE 0 END`),
-        error: sum(sql`CASE WHEN ${ragDocument.status} = 'error' THEN 1 ELSE 0 END`),
+        uploaded: sum(
+          sql`CASE WHEN ${ragDocument.status} = 'uploaded' THEN 1 ELSE 0 END`,
+        ),
+        processing: sum(
+          sql`CASE WHEN ${ragDocument.status} = 'processing' THEN 1 ELSE 0 END`,
+        ),
+        textExtracted: sum(
+          sql`CASE WHEN ${ragDocument.status} = 'text_extracted' THEN 1 ELSE 0 END`,
+        ),
+        chunked: sum(
+          sql`CASE WHEN ${ragDocument.status} = 'chunked' THEN 1 ELSE 0 END`,
+        ),
+        embedded: sum(
+          sql`CASE WHEN ${ragDocument.status} = 'embedded' THEN 1 ELSE 0 END`,
+        ),
+        processed: sum(
+          sql`CASE WHEN ${ragDocument.status} = 'processed' THEN 1 ELSE 0 END`,
+        ),
+        error: sum(
+          sql`CASE WHEN ${ragDocument.status} = 'error' THEN 1 ELSE 0 END`,
+        ),
       })
       .from(ragDocument)
       .where(eq(ragDocument.uploadedBy, userId));

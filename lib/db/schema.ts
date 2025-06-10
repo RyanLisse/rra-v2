@@ -362,7 +362,9 @@ export const documentChunk = pgTable(
       table.documentId,
       table.pageNumber,
     ),
-    adeElementIdIdx: index('document_chunk_ade_element_id_idx').on(table.adeElementId),
+    adeElementIdIdx: index('document_chunk_ade_element_id_idx').on(
+      table.adeElementId,
+    ),
     confidenceIdx: index('document_chunk_confidence_idx').on(table.confidence),
   }),
 );
@@ -396,7 +398,9 @@ export const documentImage = pgTable(
       table.documentId,
       table.pageNumber,
     ),
-    extractedByIdx: index('document_image_extracted_by_idx').on(table.extractedBy),
+    extractedByIdx: index('document_image_extracted_by_idx').on(
+      table.extractedBy,
+    ),
     createdAtIdx: index('document_image_created_at_idx').on(table.createdAt),
     docPageUniqueIdx: uniqueIndex('document_image_doc_page_unique_idx').on(
       table.documentId,
@@ -412,11 +416,15 @@ export const documentEmbedding = pgTable(
   'DocumentEmbedding',
   {
     id: uuid('id').primaryKey().notNull().defaultRandom(),
-    chunkId: uuid('chunkId').references(() => documentChunk.id, { onDelete: 'cascade' }),
+    chunkId: uuid('chunkId').references(() => documentChunk.id, {
+      onDelete: 'cascade',
+    }),
     documentId: uuid('documentId')
       .notNull()
       .references(() => ragDocument.id, { onDelete: 'cascade' }),
-    imageId: uuid('imageId').references(() => documentImage.id, { onDelete: 'cascade' }),
+    imageId: uuid('imageId').references(() => documentImage.id, {
+      onDelete: 'cascade',
+    }),
     embedding: text('embedding').notNull(), // JSON array of floats
     embeddingType: varchar('embeddingType').notNull().default('text'),
     dimensions: integer('dimensions').notNull().default(1024),
@@ -425,14 +433,27 @@ export const documentEmbedding = pgTable(
   },
   (table) => ({
     chunkIdIdx: index('document_embedding_chunk_id_idx').on(table.chunkId),
-    documentIdIdx: index('document_embedding_document_id_idx').on(table.documentId),
+    documentIdIdx: index('document_embedding_document_id_idx').on(
+      table.documentId,
+    ),
     imageIdIdx: index('document_embedding_image_id_idx').on(table.imageId),
     typeIdx: index('document_embedding_type_idx').on(table.embeddingType),
     modelIdx: index('document_embedding_model_idx').on(table.model),
-    createdAtIdx: index('document_embedding_created_at_idx').on(table.createdAt),
-    docTypeIdx: index('document_embedding_doc_type_idx').on(table.documentId, table.embeddingType),
-    chunkTypeIdx: index('document_embedding_chunk_type_idx').on(table.chunkId, table.embeddingType),
-    imageTypeIdx: index('document_embedding_image_type_idx').on(table.imageId, table.embeddingType),
+    createdAtIdx: index('document_embedding_created_at_idx').on(
+      table.createdAt,
+    ),
+    docTypeIdx: index('document_embedding_doc_type_idx').on(
+      table.documentId,
+      table.embeddingType,
+    ),
+    chunkTypeIdx: index('document_embedding_chunk_type_idx').on(
+      table.chunkId,
+      table.embeddingType,
+    ),
+    imageTypeIdx: index('document_embedding_image_type_idx').on(
+      table.imageId,
+      table.embeddingType,
+    ),
   }),
 );
 
@@ -488,13 +509,16 @@ export const documentEmbeddingRelations = relations(
   }),
 );
 
-export const documentImageRelations = relations(documentImage, ({ one, many }) => ({
-  document: one(ragDocument, {
-    fields: [documentImage.documentId],
-    references: [ragDocument.id],
+export const documentImageRelations = relations(
+  documentImage,
+  ({ one, many }) => ({
+    document: one(ragDocument, {
+      fields: [documentImage.documentId],
+      references: [ragDocument.id],
+    }),
+    embeddings: many(documentEmbedding),
   }),
-  embeddings: many(documentEmbedding),
-}));
+);
 
 // Rate Limiting Tables
 export const rateLimitLog = pgTable(

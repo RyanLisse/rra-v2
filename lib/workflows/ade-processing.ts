@@ -153,45 +153,52 @@ async function generateMockAdeResponse(
   }
 
   // Generate mock figure elements for each image
-  for (const image of images) {
-    // Create figure element
-    elements.push({
-      element_id: `figure-${elementIdCounter++}`,
-      element_type: 'figure',
-      page_number: image.pageNumber,
-      bounding_box: {
-        x1: 72,
-        y1: 300,
-        x2: 540,
-        y2: 500,
-      },
-      confidence_score: 0.88 + Math.random() * 0.1, // 0.88-0.98
-      metadata: {
-        figure_type: 'diagram',
-        has_caption: true,
-        image_path: image.imagePath,
-        width: image.width,
-        height: image.height,
-      },
-    });
+  if (images && Array.isArray(images)) {
+    for (const image of images) {
+      // Validate image object has required properties
+      if (!image || typeof image.pageNumber !== 'number') {
+        continue;
+      }
 
-    // Create associated caption
-    elements.push({
-      element_id: `caption-${elementIdCounter++}`,
-      element_type: 'caption',
-      text_content: `Figure ${image.pageNumber}: Technical diagram showing system components and measurement parameters.`,
-      page_number: image.pageNumber,
-      bounding_box: {
-        x1: 72,
-        y1: 510,
-        x2: 540,
-        y2: 530,
-      },
-      confidence_score: 0.92 + Math.random() * 0.06, // 0.92-0.98
-      metadata: {
-        associated_figure: `figure-${elementIdCounter - 1}`,
-      },
-    });
+      // Create figure element
+      elements.push({
+        element_id: `figure-${elementIdCounter++}`,
+        element_type: 'figure',
+        page_number: image.pageNumber,
+        bounding_box: {
+          x1: 72,
+          y1: 300,
+          x2: 540,
+          y2: 500,
+        },
+        confidence_score: 0.88 + Math.random() * 0.1, // 0.88-0.98
+        metadata: {
+          figure_type: 'diagram',
+          has_caption: true,
+          image_path: image.imagePath || '',
+          width: image.width || 0,
+          height: image.height || 0,
+        },
+      });
+
+      // Create associated caption
+      elements.push({
+        element_id: `caption-${elementIdCounter++}`,
+        element_type: 'caption',
+        text_content: `Figure ${image.pageNumber}: Technical diagram showing system components and measurement parameters.`,
+        page_number: image.pageNumber,
+        bounding_box: {
+          x1: 72,
+          y1: 510,
+          x2: 540,
+          y2: 530,
+        },
+        confidence_score: 0.92 + Math.random() * 0.06, // 0.92-0.98
+        metadata: {
+          associated_figure: `figure-${elementIdCounter - 1}`,
+        },
+      });
+    }
   }
 
   // Add some mock table elements for technical documents
@@ -352,7 +359,7 @@ export const adeProcessingWorkflow = async (
           startedAt: new Date(),
           originalName: documentDetails.originalName,
           totalPages,
-          imagesCount: images.length,
+          imagesCount: images?.length || 0,
         },
       });
     });
@@ -361,7 +368,7 @@ export const adeProcessingWorkflow = async (
     const adeResponse = await step.run('simulate-ade-processing', async () => {
       const stepLogger = logger.stepStart('simulate-ade-processing', {
         step: 'ade_processing',
-        imagesCount: images.length,
+        imagesCount: images?.length || 0,
         totalPages,
       });
 
@@ -385,7 +392,7 @@ export const adeProcessingWorkflow = async (
             averageConfidence:
               result.data?.document_metadata?.confidence_score || 0,
             totalPages,
-            imagesProcessed: images.length,
+            imagesProcessed: images?.length || 0,
           },
         );
 
@@ -440,7 +447,7 @@ export const adeProcessingWorkflow = async (
         metadata: {
           processingTime: adeResponse.data.document_metadata.processing_time_ms,
           totalPages,
-          imagesProcessed: images.length,
+          imagesProcessed: images?.length || 0,
         },
       });
     });
@@ -483,7 +490,7 @@ export const adeProcessingWorkflow = async (
         userId,
         step: 'ade_processing',
         error: errorMessage,
-        metadata: { totalPages, imagesCount: images.length },
+        metadata: { totalPages, imagesCount: images?.length || 0 },
       });
     });
 

@@ -111,7 +111,8 @@ async function verifyInngestSetup() {
   try {
     const packageJson = await import('../package.json');
     const hasInngest =
-      (packageJson.dependencies as any)?.inngest || (packageJson.devDependencies as any)?.inngest;
+      (packageJson.dependencies as any)?.inngest ||
+      (packageJson.devDependencies as any)?.inngest;
     console.log(
       `   Inngest package: ${hasInngest ? '✓ Installed' : '❌ Missing'}`,
     );

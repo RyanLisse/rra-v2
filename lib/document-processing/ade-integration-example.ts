@@ -21,23 +21,37 @@ export async function processDocumentWithADEExample(documentId: string) {
   try {
     console.log(`Starting ADE-enhanced processing for document ${documentId}`);
 
-    // Use the complete processing pipeline
-    const result = await processor.processDocumentComplete({
+    // Extract text first
+    const content = await processor.extractText({ documentId, db });
+
+    // Create chunks with ADE
+    const chunks = await processor.createChunks({
       documentId,
+      content: content.extractedText || '',
       db,
       useADE: true,
-      generateEmbeddings: true,
-      chunkSize: 500,
-      chunkOverlap: 100,
     });
 
+    // Generate embeddings if cohereClient is available
+    if (chunks.length > 0) {
+      const chunkData = chunks.map((chunk: any) => ({
+        id: chunk.id,
+        content: chunk.content,
+      }));
+
+      await processor.generateEmbeddings({
+        chunks: chunkData,
+        db,
+      });
+    }
+
     console.log(`Successfully processed document ${documentId}:`);
-    console.log(`- Created ${result.chunks.length} chunks`);
+    console.log(`- Created ${chunks.length} chunks`);
     console.log(
-      `- ADE metadata available: ${result.chunks.some((c) => c.elementType !== null)}`,
+      `- ADE metadata available: ${chunks.some((c: any) => c.elementType !== null)}`,
     );
 
-    return result;
+    return { content, chunks };
   } catch (error) {
     console.error(`Failed to process document ${documentId}:`, error);
     throw error;
@@ -63,7 +77,7 @@ export async function processDocumentTraditionalExample(documentId: string) {
     });
 
     // Generate embeddings
-    const chunkData = chunks.map((chunk) => ({
+    const chunkData = chunks.map((chunk: any) => ({
       id: chunk.id,
       content: chunk.content,
     }));
@@ -191,18 +205,35 @@ export async function batchProcessDocumentsExample(documentIds: string[]) {
     try {
       console.log(`Processing document ${documentId}...`);
 
-      const result = await processor.processDocumentComplete({
+      // Extract text
+      const content = await processor.extractText({ documentId, db });
+
+      // Create chunks with ADE
+      const chunks = await processor.createChunks({
         documentId,
+        content: content.extractedText || '',
         db,
         useADE: true,
-        generateEmbeddings: true,
       });
+
+      // Generate embeddings
+      if (chunks.length > 0) {
+        const chunkData = chunks.map((chunk: any) => ({
+          id: chunk.id,
+          content: chunk.content,
+        }));
+
+        await processor.generateEmbeddings({
+          chunks: chunkData,
+          db,
+        });
+      }
 
       results.push({
         documentId,
         success: true,
-        chunksCreated: result.chunks.length,
-        adeDataAvailable: result.chunks.some((c) => c.elementType !== null),
+        chunksCreated: chunks.length,
+        adeDataAvailable: chunks.some((c: any) => c.elementType !== null),
       });
 
       console.log(`✓ Completed ${documentId}`);
@@ -230,21 +261,38 @@ export async function robustDocumentProcessingExample(documentId: string) {
     // Try ADE processing first
     console.log(`Attempting ADE processing for ${documentId}`);
 
-    const result = await processor.processDocumentComplete({
+    // Extract text
+    const content = await processor.extractText({ documentId, db });
+
+    // Create chunks with ADE
+    const chunks = await processor.createChunks({
       documentId,
+      content: content.extractedText || '',
       db,
       useADE: true,
-      generateEmbeddings: true,
     });
 
-    const adeSuccess = result.chunks.some((c) => c.elementType !== null);
+    // Generate embeddings
+    if (chunks.length > 0) {
+      const chunkData = chunks.map((chunk: any) => ({
+        id: chunk.id,
+        content: chunk.content,
+      }));
+
+      await processor.generateEmbeddings({
+        chunks: chunkData,
+        db,
+      });
+    }
+
+    const adeSuccess = chunks.some((c: any) => c.elementType !== null);
 
     if (adeSuccess) {
       console.log(`✓ ADE processing successful`);
-      return { ...result, processingMethod: 'ADE' };
+      return { content, chunks, processingMethod: 'ADE' };
     } else {
       console.log(`⚠ ADE processing fell back to traditional chunking`);
-      return { ...result, processingMethod: 'traditional' };
+      return { content, chunks, processingMethod: 'traditional' };
     }
   } catch (error) {
     console.warn(`ADE processing failed, trying traditional:`, error);
@@ -300,7 +348,7 @@ export async function enhancedDocumentSearchExample(
       totalChunks: chunks.length,
       searchableChunks: searchableChunks.length,
       matches: sortedMatches,
-      hasAdeData: chunks.some((c) => c.elementType !== null),
+      hasAdeData: chunks.some((c: any) => c.elementType !== null),
     };
   } catch (error) {
     console.error(`Enhanced search failed:`, error);

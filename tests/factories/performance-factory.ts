@@ -2,7 +2,10 @@ import { faker } from '@faker-js/faker';
 import { BaseFactory, BatchCreator } from './base-factory';
 import { RelationshipFactory } from './relationship-factory';
 import { CompleteUserFactory } from './user-factory';
-import { CompleteRAGDocumentFactory, documentEmbeddingFactory } from './rag-factory';
+import {
+  CompleteRAGDocumentFactory,
+  documentEmbeddingFactory,
+} from './rag-factory';
 import { CompleteChatFactory } from './chat-factory';
 import type {
   FactoryOptions,

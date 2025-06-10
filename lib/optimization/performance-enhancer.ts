@@ -91,7 +91,9 @@ class LRUCache<K, V> {
     // Remove oldest if at capacity
     if (this.cache.size >= this.maxSize && !this.cache.has(key)) {
       const firstKey = this.cache.keys().next().value;
-      this.delete(firstKey);
+      if (firstKey !== undefined) {
+        this.delete(firstKey);
+      }
     }
 
     this.cache.set(key, value);

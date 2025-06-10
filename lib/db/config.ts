@@ -284,7 +284,7 @@ function createDatabaseInstance() {
     });
 
     // Create drizzle instance with schema and enable query mode
-    db = drizzle(client, { 
+    db = drizzle(client, {
       schema,
       logger: config.monitoring.enableLogging,
     });

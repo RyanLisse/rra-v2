@@ -174,22 +174,35 @@ export class NeonLogger {
    * Get performance metrics for operations
    */
   getMetrics(operation?: string): PerformanceMetrics[] {
-    const metricsEntries = operation
-      ? [[operation, this.metrics.get(operation)]]
-      : Array.from(this.metrics.entries());
+    if (operation) {
+      const data = this.metrics.get(operation);
+      if (!data) {
+        return [];
+      }
+      return [
+        {
+          operation,
+          count: data.count,
+          totalDuration: data.totalDuration,
+          avgDuration: Math.round(data.totalDuration / data.count),
+          minDuration: data.minDuration,
+          maxDuration: data.maxDuration,
+          successRate: Math.round((data.successCount / data.count) * 100) / 100,
+          lastExecuted: data.lastExecuted,
+        },
+      ];
+    }
 
-    return metricsEntries
-      .filter(([, data]) => data !== undefined)
-      .map(([op, data]) => ({
-        operation: op,
-        count: data.count,
-        totalDuration: data.totalDuration,
-        avgDuration: Math.round(data.totalDuration / data.count),
-        minDuration: data.minDuration,
-        maxDuration: data.maxDuration,
-        successRate: Math.round((data.successCount / data.count) * 100) / 100,
-        lastExecuted: data.lastExecuted,
-      }));
+    return Array.from(this.metrics.entries()).map(([op, data]) => ({
+      operation: op,
+      count: data.count,
+      totalDuration: data.totalDuration,
+      avgDuration: Math.round(data.totalDuration / data.count),
+      minDuration: data.minDuration,
+      maxDuration: data.maxDuration,
+      successRate: Math.round((data.successCount / data.count) * 100) / 100,
+      lastExecuted: data.lastExecuted,
+    }));
   }
 
   /**
@@ -378,7 +391,7 @@ export function timed(operation: string) {
   ) => {
     const method = descriptor.value!;
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (this: any, ...args: any[]) {
       const logger = getNeonLogger();
       const operationId = logger.startOperation(
         operation,

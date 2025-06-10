@@ -15,7 +15,8 @@ export type DocumentStatus =
   | 'error'
   | 'error_image_extraction'
   | 'error_ade_processing'
-  | 'failed';
+  | 'failed'
+  | 'retrying';
 
 export interface StatusUpdate {
   status: DocumentStatus;
@@ -283,17 +284,11 @@ export class DocumentStatusManager {
       return 'text_extracted';
     }
 
-    if (
-      imageStep?.status === 'completed' &&
-      adeStep?.status === 'pending'
-    ) {
+    if (imageStep?.status === 'completed' && adeStep?.status === 'pending') {
       return 'images_extracted';
     }
 
-    if (
-      adeStep?.status === 'completed' &&
-      chunkingStep?.status === 'pending'
-    ) {
+    if (adeStep?.status === 'completed' && chunkingStep?.status === 'pending') {
       return 'ade_processed';
     }
 
@@ -359,9 +354,12 @@ export class DocumentStatusManager {
    */
   static async create(documentId: string): Promise<DocumentStatusManager> {
     // Verify document exists
-    const document = await db.query.ragDocument.findFirst({
-      where: eq(ragDocument.id, documentId),
-    });
+    const document = await db
+      .select()
+      .from(ragDocument)
+      .where(eq(ragDocument.id, documentId))
+      .limit(1)
+      .then((results) => results[0]);
 
     if (!document) {
       throw new Error(`Document not found: ${documentId}`);
@@ -383,34 +381,40 @@ export class DocumentStatusManager {
     try {
       // This would be more efficient with proper aggregation queries
       // For now, using a simplified approach
-      const allDocuments = await db.query.ragDocument.findMany({
-        columns: {
-          status: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-      });
+      const allDocuments = await db
+        .select({
+          status: ragDocument.status,
+          createdAt: ragDocument.createdAt,
+          updatedAt: ragDocument.updatedAt,
+        })
+        .from(ragDocument);
 
       const stats = {
         totalDocuments: allDocuments.length,
-        processingDocuments: allDocuments.filter((doc) =>
-          ['processing', 'ade_processing'].includes(doc.status),
+        processingDocuments: allDocuments.filter(
+          (doc: (typeof allDocuments)[0]) =>
+            ['processing', 'ade_processing'].includes(doc.status),
         ).length,
         completedDocuments: allDocuments.filter(
-          (doc) => doc.status === 'processed',
+          (doc: (typeof allDocuments)[0]) => doc.status === 'processed',
         ).length,
-        errorDocuments: allDocuments.filter((doc) => 
-          ['error', 'error_image_extraction', 'error_ade_processing', 'failed'].includes(doc.status)
+        errorDocuments: allDocuments.filter((doc: (typeof allDocuments)[0]) =>
+          [
+            'error',
+            'error_image_extraction',
+            'error_ade_processing',
+            'failed',
+          ].includes(doc.status),
         ).length,
       };
 
       // Calculate average processing time for completed documents
       const completedDocs = allDocuments.filter(
-        (doc) => doc.status === 'processed',
+        (doc: (typeof allDocuments)[0]) => doc.status === 'processed',
       );
       if (completedDocs.length > 0) {
         const totalTime = completedDocs.reduce(
-          (sum, doc) =>
+          (sum: number, doc: (typeof allDocuments)[0]) =>
             sum + (doc.updatedAt.getTime() - doc.createdAt.getTime()),
           0,
         );

@@ -38,7 +38,10 @@ export default withAuth(
   {
     isReturnToCurrentPage: true,
     loginPage: '/api/auth/login',
-    isAuthorized: ({ token, request }: { token: any; request: NextRequest }) => {
+    isAuthorized: ({
+      token,
+      request,
+    }: { token: any; request: NextRequest }) => {
       const pathname = request?.nextUrl?.pathname;
 
       // Allow health check endpoints without authentication

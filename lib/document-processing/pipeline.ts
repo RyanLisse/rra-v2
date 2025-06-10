@@ -66,19 +66,28 @@ export class DocumentProcessingPipeline {
       warnings: [],
     };
 
-    let statusManager: DocumentStatusManager;
+    let statusManager: DocumentStatusManager | undefined;
 
     try {
       // Initialize status manager
       statusManager = await DocumentStatusManager.create(documentId);
 
       // Fetch document details
-      const document = await db.query.ragDocument.findFirst({
-        where: eq(ragDocument.id, documentId),
-        with: {
-          content: true,
-        },
-      });
+      const document = await db
+        .select()
+        .from(ragDocument)
+        .where(eq(ragDocument.id, documentId))
+        .limit(1)
+        .then((results) => results[0]);
+
+      const content = document
+        ? await db
+            .select()
+            .from(documentContent)
+            .where(eq(documentContent.documentId, documentId))
+            .limit(1)
+            .then((results) => results[0])
+        : null;
 
       if (!document) {
         throw new Error('Document not found');
@@ -269,14 +278,15 @@ export class DocumentProcessingPipeline {
       // Save extracted text to file
       const textFilename = `${document.fileName.replace(/\.[^.]+$/, '')}.txt`;
       const textFilePath = join(process.cwd(), 'uploads', textFilename);
-      await writeFile(textFilePath, result.text);
+      await writeFile(textFilePath, result.text || '');
 
       // Save content to database
       await db.transaction(async (tx) => {
         await tx.insert(documentContent).values({
           documentId: document.id,
           textFilePath: textFilePath,
-          extractedText: result.text?.length > 10000 ? undefined : result.text,
+          extractedText:
+            result.text && result.text.length > 10000 ? undefined : result.text,
           pageCount: result.metadata?.pageCount?.toString(),
           charCount: result.metadata?.charCount?.toString(),
           metadata: result.metadata,
@@ -292,7 +302,7 @@ export class DocumentProcessingPipeline {
       });
 
       await statusManager.completeStep('text_extraction', {
-        textLength: result.text.length,
+        textLength: result.text?.length || 0,
         confidence: result.metadata?.confidence,
         processingTime: result.metadata?.processingTime,
       });
@@ -301,7 +311,7 @@ export class DocumentProcessingPipeline {
         success: true,
         warnings: result.metadata?.warnings,
         stats: {
-          textLength: result.text.length,
+          textLength: result.text?.length || 0,
           confidence: result.metadata?.confidence,
           processingTime: result.metadata?.processingTime,
         },
@@ -403,22 +413,33 @@ export class DocumentProcessingPipeline {
       await statusManager.startStep('chunking');
 
       // Get document and content
-      const document = await db.query.ragDocument.findFirst({
-        where: eq(ragDocument.id, documentId),
-        with: { content: true },
-      });
+      const document = await db
+        .select()
+        .from(ragDocument)
+        .where(eq(ragDocument.id, documentId))
+        .limit(1)
+        .then((results) => results[0]);
 
-      if (!document || !document.content) {
+      const content = document
+        ? await db
+            .select()
+            .from(documentContent)
+            .where(eq(documentContent.documentId, documentId))
+            .limit(1)
+            .then((results) => results[0])
+        : null;
+
+      if (!document || !content) {
         throw new Error('Document or content not found');
       }
 
       // Get text content
       let textContent: string;
-      if (document.content.extractedText) {
-        textContent = document.content.extractedText;
-      } else if (document.content.textFilePath) {
+      if (content.extractedText) {
+        textContent = content.extractedText;
+      } else if (content.textFilePath) {
         const { readFile } = await import('node:fs/promises');
-        textContent = await readFile(document.content.textFilePath, 'utf-8');
+        textContent = await readFile(content.textFilePath, 'utf-8');
       } else {
         throw new Error('No text content available');
       }

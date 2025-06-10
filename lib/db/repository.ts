@@ -15,7 +15,14 @@ import type {
   DocumentChunk,
   RAGDocument,
 } from '@/lib/db/schema';
-import { user, chat, message, document, documentChunk, ragDocument } from '@/lib/db/schema';
+import {
+  user,
+  chat,
+  message,
+  document,
+  documentChunk,
+  ragDocument,
+} from '@/lib/db/schema';
 
 /**
  * Base repository interface
@@ -321,7 +328,10 @@ export class RAGDocumentRepository implements BaseRepository<RAGDocument> {
   async findMany(options?: { limit?: number; offset?: number }): Promise<
     RAGDocument[]
   > {
-    const query = db.select().from(ragDocument).orderBy(desc(ragDocument.createdAt));
+    const query = db
+      .select()
+      .from(ragDocument)
+      .orderBy(desc(ragDocument.createdAt));
 
     if (options?.limit) query.limit(options.limit);
     if (options?.offset) query.offset(options.offset);
@@ -329,7 +339,9 @@ export class RAGDocumentRepository implements BaseRepository<RAGDocument> {
     return await query;
   }
 
-  async create(data: Omit<RAGDocument, 'id' | 'createdAt' | 'updatedAt'>): Promise<RAGDocument> {
+  async create(
+    data: Omit<RAGDocument, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Promise<RAGDocument> {
     const [newDocument] = await db
       .insert(ragDocument)
       .values({
@@ -350,7 +362,10 @@ export class RAGDocumentRepository implements BaseRepository<RAGDocument> {
     return updatedDocument;
   }
 
-  async updateStatus(id: string, status: RAGDocument['status']): Promise<RAGDocument> {
+  async updateStatus(
+    id: string,
+    status: RAGDocument['status'],
+  ): Promise<RAGDocument> {
     const [updatedDocument] = await db
       .update(ragDocument)
       .set({ status, updatedAt: new Date() })

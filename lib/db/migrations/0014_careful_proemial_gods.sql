@@ -1,8 +1,8 @@
-DROP TABLE "DocumentImage";--> statement-breakpoint
-ALTER TABLE "DocumentEmbedding" DROP CONSTRAINT "DocumentEmbedding_documentId_RAGDocument_id_fk";
+ALTER TABLE "DocumentEmbedding" DROP CONSTRAINT IF EXISTS "DocumentEmbedding_imageId_DocumentImage_id_fk";
 --> statement-breakpoint
-ALTER TABLE "DocumentEmbedding" DROP CONSTRAINT "DocumentEmbedding_imageId_DocumentImage_id_fk";
+ALTER TABLE "DocumentEmbedding" DROP CONSTRAINT IF EXISTS "DocumentEmbedding_documentId_RAGDocument_id_fk";
 --> statement-breakpoint
+DROP TABLE IF EXISTS "DocumentImage";--> statement-breakpoint
 DROP INDEX IF EXISTS "document_chunk_ade_element_id_idx";--> statement-breakpoint
 DROP INDEX IF EXISTS "document_chunk_confidence_idx";--> statement-breakpoint
 DROP INDEX IF EXISTS "document_embedding_document_id_idx";--> statement-breakpoint

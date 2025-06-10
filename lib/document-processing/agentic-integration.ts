@@ -15,7 +15,7 @@ import {
   type DocumentAnalysis,
   type DocumentElement,
 } from './agentic-doc';
-import { eq, } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { generateEmbedding } from '@/lib/ai/multimodal-embeddings';
@@ -102,8 +102,12 @@ export class AgenticDocumentService {
       // Generate embeddings if requested
       let embeddingsGenerated = 0;
       if (opts.generateEmbeddings) {
+        const chunksWithDocId = chunks.map((chunk) => ({
+          ...chunk,
+          metadata: { ...chunk.metadata, documentId },
+        }));
         embeddingsGenerated = await this.generateChunkEmbeddings(
-          chunks,
+          chunksWithDocId,
           userId,
         );
       }
@@ -387,15 +391,13 @@ export class AgenticDocumentService {
       try {
         const embedding = await generateEmbedding(chunk.content);
 
-        await db
-          .insert(documentEmbedding)
-          .values({
-            documentId,
-            chunkId: chunk.id,
-            embeddingType: 'text',
-            embedding: JSON.stringify(embedding),
-            model: 'text-embedding-3-large',
-          });
+        await db.insert(documentEmbedding).values({
+          documentId: chunk.metadata?.documentId,
+          chunkId: chunk.id,
+          embeddingType: 'text',
+          embedding: JSON.stringify(embedding),
+          model: 'text-embedding-3-large',
+        });
 
         embeddingsGenerated++;
       } catch (error) {
@@ -411,7 +413,20 @@ export class AgenticDocumentService {
 
   private async updateDocumentStatus(
     documentId: string,
-    status: string,
+    status:
+      | 'uploaded'
+      | 'processing'
+      | 'text_extracted'
+      | 'images_extracted'
+      | 'ade_processing'
+      | 'ade_processed'
+      | 'chunked'
+      | 'embedded'
+      | 'processed'
+      | 'error'
+      | 'error_image_extraction'
+      | 'error_ade_processing'
+      | 'failed',
   ): Promise<void> {
     await db
       .update(ragDocument)
@@ -425,8 +440,20 @@ export class AgenticDocumentService {
   private async getStoredAnalysis(
     documentId: string,
   ): Promise<DocumentAnalysis | null> {
-    const document = await this.getDocumentInfo(documentId);
-    if (!document?.metadata?.agenticAnalysis) {
+    // Get content first to check for stored analysis
+    const contentResults = await db
+      .select()
+      .from(documentContent)
+      .where(eq(documentContent.documentId, documentId))
+      .limit(1);
+
+    const content = contentResults[0];
+    if (!content?.metadata || typeof content.metadata !== 'object') {
+      return null;
+    }
+
+    const metadata = content.metadata as Record<string, any>;
+    if (!metadata.agenticAnalysis) {
       return null;
     }
 
@@ -434,9 +461,7 @@ export class AgenticDocumentService {
     const elementsData = await db
       .select()
       .from(documentContent)
-      .where(
-        eq(documentContent.documentId, documentId),
-      )
+      .where(eq(documentContent.documentId, documentId))
       .limit(1);
 
     if (!elementsData[0]) {
@@ -444,7 +469,7 @@ export class AgenticDocumentService {
     }
 
     const elements = JSON.parse(elementsData[0].extractedText || '[]');
-    const agenticMeta = (elementsData[0].metadata as any) || {};
+    const agenticMeta = (elementsData[0].metadata as Record<string, any>) || {};
 
     return {
       documentId,

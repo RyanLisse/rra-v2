@@ -55,7 +55,7 @@ export function createBaseEventPayload(
  */
 export async function updateDocumentStatus(
   documentId: string,
-  status: DocumentStatus,
+  status: (typeof DocumentStatus)[keyof typeof DocumentStatus],
   errorMessage?: string,
 ): Promise<void> {
   try {
@@ -98,9 +98,13 @@ export async function getDocumentInfo(documentId: string) {
     const { ragDocument } = await import('@/lib/db/schema');
     const { eq } = await import('drizzle-orm');
 
-    const document = await db.query.ragDocument.findFirst({
-      where: eq(ragDocument.id, documentId),
-    });
+    const documents = await db
+      .select()
+      .from(ragDocument)
+      .where(eq(ragDocument.id, documentId))
+      .limit(1);
+
+    const document = documents[0];
 
     if (!document) {
       throw new Error(`Document not found: ${documentId}`);
@@ -190,7 +194,8 @@ export function createErrorEventPayload(
       code: error.name || 'UNKNOWN_ERROR',
       stack: error.stack,
     },
-    status: `${failedStep.replace('-', '_')}_failed` as DocumentStatus,
+    status:
+      `${failedStep.replace('-', '_')}_failed` as (typeof DocumentStatus)[keyof typeof DocumentStatus],
     retryAttempt,
     maxRetries,
     isRetryable: retryAttempt < maxRetries,
@@ -288,14 +293,18 @@ export function generateBatchId(): string {
 /**
  * Check if a document status indicates completion
  */
-export function isDocumentProcessed(status: DocumentStatus): boolean {
+export function isDocumentProcessed(
+  status: (typeof DocumentStatus)[keyof typeof DocumentStatus],
+): boolean {
   return status === DocumentStatus.PROCESSED;
 }
 
 /**
  * Check if a document status indicates failure
  */
-export function isDocumentFailed(status: string | DocumentStatus): boolean {
+export function isDocumentFailed(
+  status: string | (typeof DocumentStatus)[keyof typeof DocumentStatus],
+): boolean {
   return status.includes('failed');
 }
 
@@ -303,9 +312,12 @@ export function isDocumentFailed(status: string | DocumentStatus): boolean {
  * Get the next expected status in the processing pipeline
  */
 export function getNextExpectedStatus(
-  currentStatus: DocumentStatus,
-): DocumentStatus | null {
-  const statusFlow: Record<string, DocumentStatus> = {
+  currentStatus: (typeof DocumentStatus)[keyof typeof DocumentStatus],
+): (typeof DocumentStatus)[keyof typeof DocumentStatus] | null {
+  const statusFlow: Record<
+    string,
+    (typeof DocumentStatus)[keyof typeof DocumentStatus]
+  > = {
     [DocumentStatus.UPLOADED]: DocumentStatus.TEXT_EXTRACTED,
     [DocumentStatus.TEXT_EXTRACTED]: DocumentStatus.CHUNKED,
     [DocumentStatus.CHUNKED]: DocumentStatus.EMBEDDED,

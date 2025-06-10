@@ -195,14 +195,14 @@ export abstract class BaseSeeder {
     try {
       // Check foreign key constraints
       const orphanedChunks = await this.db
-        .select({ 
+        .select({
           chunkId: schema.documentChunk.id,
-          documentId: schema.ragDocument.id
+          documentId: schema.ragDocument.id,
         })
         .from(schema.documentChunk)
         .leftJoin(
-          schema.ragDocument, 
-          eq(schema.documentChunk.documentId, schema.ragDocument.id)
+          schema.ragDocument,
+          eq(schema.documentChunk.documentId, schema.ragDocument.id),
         )
         .where(isNull(schema.ragDocument.id));
 
@@ -212,14 +212,14 @@ export abstract class BaseSeeder {
 
       // Check for missing embeddings
       const chunksWithoutEmbeddings = await this.db
-        .select({ 
+        .select({
           chunkId: schema.documentChunk.id,
-          embeddingId: schema.documentEmbedding.id
+          embeddingId: schema.documentEmbedding.id,
         })
         .from(schema.documentChunk)
         .leftJoin(
-          schema.documentEmbedding, 
-          eq(schema.documentChunk.id, schema.documentEmbedding.chunkId)
+          schema.documentEmbedding,
+          eq(schema.documentChunk.id, schema.documentEmbedding.chunkId),
         )
         .where(isNull(schema.documentEmbedding.id));
 

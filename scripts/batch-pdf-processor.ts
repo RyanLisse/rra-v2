@@ -212,16 +212,12 @@ class BatchPDFProcessor {
       // Step 1: Create document record
       const documentStats = await fs.stat(pdfPath);
       const document = await documentService.createDocument({
-        userId: this.DEFAULT_USER_ID,
-        name: fileName,
-        fileSize: documentStats.size,
+        uploadedBy: this.DEFAULT_USER_ID,
+        fileName: fileName,
+        originalName: fileName,
+        fileSize: documentStats.size.toString(),
         mimeType: 'application/pdf',
         filePath: pdfPath,
-        metadata: {
-          source: 'batch-processing',
-          originalPath: pdfPath,
-          outputDirectory: documentOutputDir,
-        },
       });
 
       // Step 2: Convert PDF to images
@@ -257,9 +253,9 @@ class BatchPDFProcessor {
             documentId: document.id,
             chunkIndex: index.toString(),
             content: chunk,
-            elementType: 'text' as any,
-            pageNumber: null,
-            bbox: null,
+            elementType: 'paragraph',
+            pageNumber: Math.floor(index / 5) + 1, // Estimate page number
+            tokenCount: Math.ceil(chunk.length / 4).toString(),
             metadata: {
               chunkIndex: index,
               totalChunks: chunks.length,
@@ -338,8 +334,8 @@ class BatchPDFProcessor {
    */
   private createSimpleChunks(text: string, maxSize = 1000): string[] {
     const chunks: string[] = [];
-    const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
-    
+    const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 0);
+
     let currentChunk = '';
     for (const sentence of sentences) {
       if (currentChunk.length + sentence.length > maxSize && currentChunk) {
@@ -349,11 +345,11 @@ class BatchPDFProcessor {
         currentChunk += (currentChunk ? '. ' : '') + sentence;
       }
     }
-    
+
     if (currentChunk.trim()) {
       chunks.push(currentChunk.trim());
     }
-    
+
     return chunks.length > 0 ? chunks : [text];
   }
 
