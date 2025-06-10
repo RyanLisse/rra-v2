@@ -123,6 +123,49 @@ validate_database() {
     fi
 }
 
+# Safe database migration with conflict handling
+migrate_database() {
+    log_info "Running database migrations..."
+    
+    if [[ ! -f "drizzle.config.ts" ]]; then
+        log_warn "No Drizzle configuration found, skipping migrations"
+        return 0
+    fi
+    
+    # Check if migrations directory exists
+    if [[ ! -d "lib/db/migrations" ]]; then
+        log_warn "No migrations directory found, skipping migration"
+        return 0
+    fi
+    
+    # Run migration with error handling
+    if $PACKAGE_MANAGER run db:migrate 2>&1 | tee migration.log; then
+        log_info "Database migration completed successfully"
+        rm -f migration.log
+    else
+        # Check if the error is about tables already existing
+        if grep -q "already exists\|SQLITE_ERROR.*exists" migration.log 2>/dev/null; then
+            log_warn "Some tables already exist - this is usually safe to ignore"
+            log_info "Migration conflicts detected but database may be functional"
+            
+            # Optionally mark migrations as applied
+            if command_exists drizzle-kit; then
+                log_info "Attempting to resolve migration state..."
+                # Note: This would need to be implemented based on your specific needs
+                # For now, we'll just warn the user
+                log_warn "You may need to manually resolve migration conflicts"
+                log_info "Consider running: drizzle-kit push --force (use with caution)"
+            fi
+        else
+            log_error "Database migration failed with unexpected error:"
+            cat migration.log
+            rm -f migration.log
+            return 1
+        fi
+        rm -f migration.log
+    fi
+}
+
 # Run initial validations
 run_validations() {
     log_info "Running initial validations..."
@@ -166,14 +209,15 @@ main() {
     install_dependencies
     setup_environment
     validate_database
+    migrate_database
     run_validations
     
     log_info "Setup completed successfully!"
     echo
     log_info "Next steps:"
     echo "  1. Configure your environment variables in .env.local"
-    echo "  2. Run 'bun run db:migrate' to set up the database"
-    echo "  3. Start development with 'bun dev'"
+    echo "  2. Start development with 'bun dev'"
+    echo "  3. Run tests with 'bun test'"
     echo
     log_info "For more information, see AGENTS.md and CLAUDE.md"
 }

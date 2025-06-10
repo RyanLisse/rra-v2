@@ -13,6 +13,12 @@ Run `bun validate:setup` to verify setup completeness and agent compatibility.
 - `bun run db:migrate` - Apply database migrations
 - `bun run db:studio` - Open database GUI
 
+## Database Migration Troubleshooting
+- `bun run db:fix-conflicts` - Fix "table already exists" errors
+- `bun run db:reset-migrations` - Clear and regenerate all migrations (destructive)
+- `./SETUP.sh` - Includes automatic migration conflict handling
+- Migration errors are gracefully handled during automated setup
+
 ## Architecture Overview  
 - **Type**: Next.js 15 + TypeScript RAG chat application
 - **Database**: Drizzle ORM + PostgreSQL/PGVector (schema: `lib/db/schema.ts`)

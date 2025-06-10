@@ -1,6 +1,6 @@
 {
-  "id": "0c25071d-09f2-4950-b9d5-6ffa1dabfcb3",
-  "prevId": "1718f43d-6dd3-4298-9d8b-678705e71f81",
+  "id": "845a4273-abcc-4ffa-9445-3b48ea5dea95",
+  "prevId": "0c25071d-09f2-4950-b9d5-6ffa1dabfcb3",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -361,18 +361,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "confidence": {
-          "name": "confidence",
-          "type": "numeric(3, 2)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "ade_element_id": {
-          "name": "ade_element_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "createdAt": {
           "name": "createdAt",
           "type": "timestamp",
@@ -474,36 +462,6 @@
             },
             {
               "expression": "page_number",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "document_chunk_ade_element_id_idx": {
-          "name": "document_chunk_ade_element_id_idx",
-          "columns": [
-            {
-              "expression": "ade_element_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "document_chunk_confidence_idx": {
-          "name": "document_chunk_confidence_idx",
-          "columns": [
-            {
-              "expression": "confidence",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -634,30 +592,11 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "documentId": {
-          "name": "documentId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
         "chunkId": {
           "name": "chunkId",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": false
-        },
-        "imageId": {
-          "name": "imageId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "embeddingType": {
-          "name": "embeddingType",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'text'"
+          "notNull": true
         },
         "embedding": {
           "name": "embedding",
@@ -672,13 +611,6 @@
           "notNull": true,
           "default": "'cohere-embed-v4.0'"
         },
-        "dimensions": {
-          "name": "dimensions",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 1024
-        },
         "createdAt": {
           "name": "createdAt",
           "type": "timestamp",
@@ -688,21 +620,6 @@
         }
       },
       "indexes": {
-        "document_embedding_document_id_idx": {
-          "name": "document_embedding_document_id_idx",
-          "columns": [
-            {
-              "expression": "documentId",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
         "document_embedding_chunk_id_idx": {
           "name": "document_embedding_chunk_id_idx",
           "columns": [
@@ -713,37 +630,7 @@
               "nulls": "last"
             }
           ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "document_embedding_image_id_idx": {
-          "name": "document_embedding_image_id_idx",
-          "columns": [
-            {
-              "expression": "imageId",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "document_embedding_type_idx": {
-          "name": "document_embedding_type_idx",
-          "columns": [
-            {
-              "expression": "embeddingType",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
+          "isUnique": true,
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -762,335 +649,15 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
-        },
-        "document_embedding_created_at_idx": {
-          "name": "document_embedding_created_at_idx",
-          "columns": [
-            {
-              "expression": "createdAt",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "document_embedding_doc_type_idx": {
-          "name": "document_embedding_doc_type_idx",
-          "columns": [
-            {
-              "expression": "documentId",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "embeddingType",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "document_embedding_chunk_type_idx": {
-          "name": "document_embedding_chunk_type_idx",
-          "columns": [
-            {
-              "expression": "chunkId",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "embeddingType",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "document_embedding_image_type_idx": {
-          "name": "document_embedding_image_type_idx",
-          "columns": [
-            {
-              "expression": "imageId",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "embeddingType",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
         }
       },
       "foreignKeys": {
-        "DocumentEmbedding_documentId_RAGDocument_id_fk": {
-          "name": "DocumentEmbedding_documentId_RAGDocument_id_fk",
-          "tableFrom": "DocumentEmbedding",
-          "tableTo": "RAGDocument",
-          "columnsFrom": [
-            "documentId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
         "DocumentEmbedding_chunkId_DocumentChunk_id_fk": {
           "name": "DocumentEmbedding_chunkId_DocumentChunk_id_fk",
           "tableFrom": "DocumentEmbedding",
           "tableTo": "DocumentChunk",
           "columnsFrom": [
             "chunkId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "DocumentEmbedding_imageId_DocumentImage_id_fk": {
-          "name": "DocumentEmbedding_imageId_DocumentImage_id_fk",
-          "tableFrom": "DocumentEmbedding",
-          "tableTo": "DocumentImage",
-          "columnsFrom": [
-            "imageId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.DocumentImage": {
-      "name": "DocumentImage",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "documentId": {
-          "name": "documentId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "pageNumber": {
-          "name": "pageNumber",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "imagePath": {
-          "name": "imagePath",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "imageUrl": {
-          "name": "imageUrl",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "width": {
-          "name": "width",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "height": {
-          "name": "height",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "fileSize": {
-          "name": "fileSize",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "mimeType": {
-          "name": "mimeType",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'image/png'"
-        },
-        "extractedBy": {
-          "name": "extractedBy",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'pdf_conversion'"
-        },
-        "extractionMetadata": {
-          "name": "extractionMetadata",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "document_image_document_id_idx": {
-          "name": "document_image_document_id_idx",
-          "columns": [
-            {
-              "expression": "documentId",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "document_image_page_number_idx": {
-          "name": "document_image_page_number_idx",
-          "columns": [
-            {
-              "expression": "pageNumber",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "document_image_doc_page_idx": {
-          "name": "document_image_doc_page_idx",
-          "columns": [
-            {
-              "expression": "documentId",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "pageNumber",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "document_image_extracted_by_idx": {
-          "name": "document_image_extracted_by_idx",
-          "columns": [
-            {
-              "expression": "extractedBy",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "document_image_created_at_idx": {
-          "name": "document_image_created_at_idx",
-          "columns": [
-            {
-              "expression": "createdAt",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "document_image_doc_page_unique_idx": {
-          "name": "document_image_doc_page_unique_idx",
-          "columns": [
-            {
-              "expression": "documentId",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "pageNumber",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "extractedBy",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "DocumentImage_documentId_RAGDocument_id_fk": {
-          "name": "DocumentImage_documentId_RAGDocument_id_fk",
-          "tableFrom": "DocumentImage",
-          "tableTo": "RAGDocument",
-          "columnsFrom": [
-            "documentId"
           ],
           "columnsTo": [
             "id"

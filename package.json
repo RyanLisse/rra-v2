@@ -19,6 +19,8 @@
     "db:pull": "drizzle-kit pull",
     "db:check": "drizzle-kit check",
     "db:up": "drizzle-kit up",
+    "db:fix-conflicts": "./scripts/fix-migration-conflicts.sh",
+    "db:reset-migrations": "./scripts/fix-migration-conflicts.sh --clear",
     "test": "npx vitest",
     "test:unit": "npx vitest run",
     "test:watch": "npx vitest --watch",

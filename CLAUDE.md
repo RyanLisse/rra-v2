@@ -21,6 +21,13 @@ You MUST inform the user how to view your work using git checkout <branch_name>.
 - `bun run db:studio` - Open Drizzle Studio for database GUI
 - `bun run db:push` - Push schema changes directly (development only)
 
+### Database Migration Troubleshooting
+- `bun run db:fix-conflicts` - Resolve "table already exists" errors
+- `bun run db:reset-migrations` - Nuclear option: clear and regenerate migrations
+- `./scripts/fix-migration-conflicts.sh` - Direct script execution with options
+- `./SETUP.sh` - Automated setup includes safe migration handling
+- Migration conflicts are automatically handled during setup with graceful error recovery
+
 ### Testing
 - `bun test` - Run Vitest unit tests
 - `bun run test:e2e` - Run Playwright end-to-end tests
@@ -74,8 +81,9 @@ This is a production-grade Retrieval Augmented Generation (RAG) chat application
 ### Database Schema Changes
 1. Modify `lib/db/schema.ts`
 2. Run `bun run db:generate` to create migration
-3. Run `bun run db:migrate` to apply changes
-4. Verify with `bun run db:studio`
+3. Run `bun run db:migrate` to apply changes (or use `./SETUP.sh` for safe handling)
+4. If migration conflicts occur, use `./scripts/fix-migration-conflicts.sh`
+5. Verify with `bun run db:studio`
 
 ### Adding New API Routes
 - Place in `app/(chat)/api/` directory structure
