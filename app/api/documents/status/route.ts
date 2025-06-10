@@ -2,10 +2,15 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { ragDocument } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
-import { withAuth } from '@/lib/auth';
+import { getUser } from '@/lib/auth/kinde';
 import { DocumentStatusManager } from '@/lib/document-processing/status-manager';
 
-export const GET = withAuth(async (request: NextRequest, session: any) => {
+export async function GET(request: NextRequest) {
+  const user = await getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const documentId = searchParams.get('documentId');
@@ -30,7 +35,7 @@ export const GET = withAuth(async (request: NextRequest, session: any) => {
     }
 
     // Verify document belongs to user
-    if (document.uploadedBy !== session.user.id) {
+    if (document.uploadedBy !== user.id) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
@@ -56,10 +61,15 @@ export const GET = withAuth(async (request: NextRequest, session: any) => {
       { status: 500 },
     );
   }
-});
+}
 
 // Get processing statistics for all documents
-export const POST = withAuth(async (request: NextRequest, session: any) => {
+export async function POST(request: NextRequest) {
+  const user = await getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const action = body.action;
@@ -91,7 +101,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
         );
       }
 
-      if (document.uploadedBy !== session.user.id) {
+      if (document.uploadedBy !== user.id) {
         return NextResponse.json({ error: 'Access denied' }, { status: 403 });
       }
 
@@ -115,4 +125,4 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
       { status: 500 },
     );
   }
-});
+}

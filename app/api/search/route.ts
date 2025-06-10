@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { withAuth } from '@/lib/auth';
+import { getUser } from '@/lib/auth/kinde';
 import { vectorSearchService } from '@/lib/search/vector-search';
 import { db } from '@/lib/db';
 import { ragDocument, documentChunk } from '@/lib/db/schema';
@@ -66,7 +66,12 @@ const analyticsSchema = z.object({
     .optional(),
 });
 
-export const POST = withAuth(async (request: NextRequest, session: any) => {
+export async function POST(request: NextRequest) {
+  const user = await getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+  }
+
   const startTime = Date.now();
 
   try {
@@ -104,7 +109,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
     let filteredDocumentIds = documentIds;
     if (facets) {
       filteredDocumentIds = await applyDocumentFacets(
-        session.user.id,
+        user.id,
         facets,
         documentIds,
       );
@@ -140,7 +145,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
       case 'vector':
         searchResponse = await vectorSearchService.vectorSearch(
           query,
-          session.user.id,
+          user.id,
           {
             limit,
             threshold,
@@ -155,7 +160,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
       case 'context-aware':
         searchResponse = await vectorSearchService.contextAwareSearch(
           query,
-          session.user.id,
+          user.id,
           [], // No conversation context in direct search
           {
             limit,
@@ -170,7 +175,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
       case 'multi-step':
         searchResponse = await vectorSearchService.multiStepSearch(
           query,
-          session.user.id,
+          user.id,
           {
             maxSteps: 3,
             minResultsPerStep: Math.ceil(limit / 3),
@@ -185,7 +190,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
       default:
         searchResponse = await vectorSearchService.hybridSearch(
           query,
-          session.user.id,
+          user.id,
           {
             ...searchOptions,
             elementTypes: facets?.elementTypes,
@@ -209,7 +214,7 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
     // Track search analytics
     if (trackSearch && redis) {
       await trackSearchAnalytics({
-        userId: session.user.id,
+        userId: user.id,
         query,
         searchType,
         resultCount: searchResponse.totalResults,
@@ -222,12 +227,12 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
     // Include analytics if requested
     let analytics: any;
     if (includeAnalytics) {
-      analytics = await getSearchAnalytics(session.user.id, 'day');
+      analytics = await getSearchAnalytics(user.id, 'day');
     }
 
     // Generate facet counts for the UI
     const facetCounts = await generateFacetCounts(
-      session.user.id,
+      user.id,
       query,
       filteredDocumentIds,
     );
@@ -282,9 +287,14 @@ export const POST = withAuth(async (request: NextRequest, session: any) => {
       { status: 500 },
     );
   }
-});
+}
 
-export const GET = withAuth(async (request: NextRequest, session: any) => {
+export async function GET(request: NextRequest) {
+  const user = await getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q');
@@ -299,10 +309,10 @@ export const GET = withAuth(async (request: NextRequest, session: any) => {
       ];
 
       const analyticsData = await getSearchAnalytics(
-        session.user.id,
+        user.id,
         timeRange,
       );
-      const facetSummary = await getFacetSummary(session.user.id);
+      const facetSummary = await getFacetSummary(user.id);
 
       return NextResponse.json({
         analytics: analyticsData,
@@ -313,8 +323,8 @@ export const GET = withAuth(async (request: NextRequest, session: any) => {
 
     if (!query) {
       // Return search suggestions and popular queries
-      const popularQueries = await getPopularQueries(session.user.id);
-      const suggestions = await getSearchSuggestions(session.user.id);
+      const popularQueries = await getPopularQueries(user.id);
+      const suggestions = await getSearchSuggestions(user.id);
 
       return NextResponse.json({
         popularQueries,
@@ -327,7 +337,7 @@ export const GET = withAuth(async (request: NextRequest, session: any) => {
     const startTime = Date.now();
     const searchResponse = await vectorSearchService.vectorSearch(
       query,
-      session.user.id,
+      user.id,
       {
         limit: 5,
         threshold: 0.3,
@@ -341,7 +351,7 @@ export const GET = withAuth(async (request: NextRequest, session: any) => {
     // Track simple search
     if (redis) {
       await trackSearchAnalytics({
-        userId: session.user.id,
+        userId: user.id,
         query,
         searchType: 'vector',
         resultCount: searchResponse.totalResults,
@@ -366,7 +376,7 @@ export const GET = withAuth(async (request: NextRequest, session: any) => {
       { status: 500 },
     );
   }
-});
+}
 
 /**
  * Apply document-level faceted filtering

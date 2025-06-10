@@ -8,7 +8,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { withAuth } from '@/lib/auth';
+import { getUser } from '@/lib/auth/kinde';
 
 // Define the base directories for security validation
 const UPLOAD_BASE_DIR = path.resolve(process.cwd(), 'uploads');
@@ -21,7 +21,12 @@ const PROCESSED_PDFS_BASE_DIR = path.resolve(
  * Securely serve images from uploads and processed PDFs directories
  * GET /api/images/[...imagePathParts]
  */
-export const GET = withAuth(async (request: NextRequest, session: any) => {
+export async function GET(request: NextRequest) {
+  const user = await getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+  }
+
   // Extract image path from URL
   const url = new URL(request.url);
   const pathParts = url.pathname.split('/').filter(Boolean);
@@ -45,7 +50,7 @@ export const GET = withAuth(async (request: NextRequest, session: any) => {
       console.warn(
         `Attempted directory traversal with '..': ${relativeImagePath}`,
         {
-          userId: session.user.id,
+          userId: user.id,
           userAgent: request.headers.get('user-agent'),
           ip:
             request.headers.get('x-forwarded-for') ||
@@ -89,7 +94,7 @@ export const GET = withAuth(async (request: NextRequest, session: any) => {
       console.warn(
         `Attempted directory traversal: ${relativeImagePath} -> ${absoluteImagePath}`,
         {
-          userId: session.user.id,
+          userId: user.id,
           userAgent: request.headers.get('user-agent'),
           ip:
             request.headers.get('x-forwarded-for') ||
@@ -155,7 +160,7 @@ export const GET = withAuth(async (request: NextRequest, session: any) => {
     console.error('Image serving error:', {
       error: error.message,
       path: imagePathParts?.join('/'),
-      userId: session?.user?.id,
+      userId: user?.id,
       code: error.code,
     });
 
@@ -184,7 +189,7 @@ export const GET = withAuth(async (request: NextRequest, session: any) => {
       { status: 500 },
     );
   }
-});
+}
 
 // Disable other HTTP methods
 export async function POST() {
