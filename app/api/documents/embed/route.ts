@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { ragDocument, documentChunk, documentEmbedding } from '@/lib/db/schema';
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, asc } from 'drizzle-orm';
 import { getUser } from '@/lib/auth/kinde';
 import { cohereService } from '@/lib/ai/cohere-client';
 import { z } from 'zod';
@@ -54,22 +54,22 @@ export async function POST(request: NextRequest) {
 
     // Check if embeddings already exist and not overwriting
     if (!overwrite) {
-      const existingEmbeddings = await db.query.documentEmbedding.findFirst({
-        where: (embeddings, { eq, and }) => {
-          return and(
-            eq(
-              embeddings.chunkId,
-              sql`(
+      const existingEmbeddings = await db
+        .select()
+        .from(documentEmbedding)
+        .where(
+          eq(
+            documentEmbedding.chunkId,
+            sql`(
               SELECT id FROM ${documentChunk} 
               WHERE document_id = ${documentId} 
               LIMIT 1
             )`,
-            ),
-          );
-        },
-      });
+          ),
+        )
+        .limit(1);
 
-      if (existingEmbeddings) {
+      if (existingEmbeddings.length > 0) {
         return NextResponse.json(
           {
             error: 'Embeddings already exist for this document',
@@ -81,9 +81,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch document and its chunks
-    const document = await db.query.ragDocument.findFirst({
-      where: eq(ragDocument.id, documentId),
-    });
+    const [document] = await db
+      .select()
+      .from(ragDocument)
+      .where(eq(ragDocument.id, documentId))
+      .limit(1);
 
     if (!document) {
       return NextResponse.json(
@@ -108,10 +110,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Get document chunks
-    const chunks = await db.query.documentChunk.findMany({
-      where: eq(documentChunk.documentId, documentId),
-      orderBy: (chunks, { asc }) => [asc(chunks.chunkIndex)],
-    });
+    const chunks = await db
+      .select()
+      .from(documentChunk)
+      .where(eq(documentChunk.documentId, documentId))
+      .orderBy(asc(documentChunk.chunkIndex));
 
     if (chunks.length === 0) {
       return NextResponse.json(
@@ -163,6 +166,7 @@ export async function POST(request: NextRequest) {
       // Prepare embedding records for database with enhanced metadata
       const embeddingInserts = chunks.map((chunk, index) => ({
         chunkId: chunk.id,
+        documentId: documentId,
         embedding: JSON.stringify(embeddingBatch.embeddings[index].embedding),
         model: embeddingBatch.model,
         createdAt: new Date(),

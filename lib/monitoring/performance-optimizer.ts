@@ -6,8 +6,6 @@
  */
 
 import { performance } from 'node:perf_hooks';
-import { db } from '@/lib/db';
-import { sql } from 'drizzle-orm';
 
 /**
  * Performance metrics collection
@@ -161,6 +159,9 @@ export class PerformanceOptimizer {
     indexUsage: Array<{ table: string; index: string; usage: number }>;
   }> {
     try {
+      const { db } = await import('@/lib/db');
+      const { sql } = await import('drizzle-orm');
+      
       // Get connection count (PostgreSQL specific)
       const connectionResult = await db.execute(sql`
         SELECT count(*) as connection_count 
@@ -219,6 +220,9 @@ export class PerformanceOptimizer {
     recommendations: string[];
   }> {
     try {
+      const { db } = await import('@/lib/db');
+      const { sql } = await import('drizzle-orm');
+      
       // Get slow queries from PostgreSQL stats
       const slowQueriesResult = await db.execute(sql`
         SELECT 

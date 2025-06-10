@@ -100,6 +100,89 @@ export interface EventSchemas {
   };
 
   /**
+   * Image Extraction Events
+   */
+  'document.images-extracted': {
+    data: {
+      documentId: string;
+      userId: string;
+      imagesCreated: number;
+      totalPages: number;
+      outputDirectory?: string;
+      images?: Array<{
+        id: string;
+        pageNumber: number;
+        imagePath: string;
+        width?: number;
+        height?: number;
+      }>;
+      metadata?: {
+        conversionTime?: number;
+        imageFormat?: string;
+        quality?: number;
+      };
+    };
+  };
+
+  'document.image-extraction-failed': {
+    data: {
+      documentId: string;
+      userId: string;
+      error: string;
+      failedAt: Date;
+      metadata?: {
+        attemptCount?: number;
+        step?: string;
+      };
+    };
+  };
+
+  /**
+   * ADE Processing Events
+   */
+  'document.ade-processed': {
+    data: {
+      documentId: string;
+      userId: string;
+      elementsExtracted: number;
+      chunksEnhanced: number;
+      averageConfidence: number;
+      metadata?: {
+        processingTime?: number;
+        totalPages?: number;
+        imagesProcessed?: number;
+        provider?: string;
+      };
+    };
+  };
+
+  'document.ade-processing-failed': {
+    data: {
+      documentId: string;
+      userId: string;
+      error: string;
+      failedAt: Date;
+      metadata?: {
+        attemptCount?: number;
+        step?: string;
+      };
+    };
+  };
+
+  /**
+   * General Processing Error Events
+   */
+  'document.processing-failed': {
+    data: {
+      documentId: string;
+      userId: string;
+      step: string;
+      error: string;
+      metadata?: any;
+    };
+  };
+
+  /**
    * Document Processing Completion Events
    */
   'document.processed': {

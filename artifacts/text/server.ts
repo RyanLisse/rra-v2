@@ -27,7 +27,7 @@ export const textDocumentHandler = createDocumentHandler<'text'>({
           {
             limit: 8,
             threshold: 0.3,
-            prioritizeElementTypes: ELEMENT_TYPE_PRIORITIES.conceptual,
+            prioritizeElementTypes: [...ELEMENT_TYPE_PRIORITIES.conceptual],
             maxContextTokens: 2000,
           },
         );

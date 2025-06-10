@@ -1,6 +1,7 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { migrate } from 'drizzle-orm/postgres-js/migrator';
+import { eq, isNull } from 'drizzle-orm';
 import * as schema from '@/lib/db/schema';
 import type {
   SeederConfig,
@@ -14,8 +15,8 @@ import type {
  * Base seeder class providing common functionality for all seeders
  */
 export abstract class BaseSeeder {
-  protected db: ReturnType<typeof drizzle>;
-  protected connection: postgres.Sql;
+  protected db!: ReturnType<typeof drizzle>;
+  protected connection!: postgres.Sql;
   protected config: SeederConfig;
   protected metrics: PerformanceMetrics[] = [];
 
@@ -60,7 +61,9 @@ export abstract class BaseSeeder {
         'DocumentEmbedding',
         'DocumentChunk',
         'DocumentContent',
+        'DocumentImage',
         'RAGDocument',
+        'RateLimitLog',
         'Suggestion',
         'Document',
         'Vote_v2',
@@ -163,7 +166,9 @@ export abstract class BaseSeeder {
       ragDocuments: schema.ragDocument,
       documentContent: schema.documentContent,
       documentChunks: schema.documentChunk,
+      documentImages: schema.documentImage,
       documentEmbeddings: schema.documentEmbedding,
+      rateLimitLogs: schema.rateLimitLog,
     };
 
     const counts: Record<string, number> = {};
@@ -190,10 +195,16 @@ export abstract class BaseSeeder {
     try {
       // Check foreign key constraints
       const orphanedChunks = await this.db
-        .select({ id: schema.documentChunk.id })
+        .select({ 
+          chunkId: schema.documentChunk.id,
+          documentId: schema.ragDocument.id
+        })
         .from(schema.documentChunk)
-        .leftJoin(schema.ragDocument, schema.documentChunk.documentId)
-        .where(() => null); // This would check for null documents
+        .leftJoin(
+          schema.ragDocument, 
+          eq(schema.documentChunk.documentId, schema.ragDocument.id)
+        )
+        .where(isNull(schema.ragDocument.id));
 
       if (orphanedChunks.length > 0) {
         issues.push(`Found ${orphanedChunks.length} orphaned document chunks`);
@@ -201,10 +212,16 @@ export abstract class BaseSeeder {
 
       // Check for missing embeddings
       const chunksWithoutEmbeddings = await this.db
-        .select({ id: schema.documentChunk.id })
+        .select({ 
+          chunkId: schema.documentChunk.id,
+          embeddingId: schema.documentEmbedding.id
+        })
         .from(schema.documentChunk)
-        .leftJoin(schema.documentEmbedding, schema.documentChunk.id)
-        .where(() => null); // This would check for null embeddings
+        .leftJoin(
+          schema.documentEmbedding, 
+          eq(schema.documentChunk.id, schema.documentEmbedding.chunkId)
+        )
+        .where(isNull(schema.documentEmbedding.id));
 
       if (chunksWithoutEmbeddings.length > 0) {
         issues.push(
@@ -297,13 +314,13 @@ export abstract class BaseSeeder {
    * Record performance metrics
    */
   protected recordMetrics(
-    operationType: 'insert' | 'select' | 'update' | 'delete' | 'migration',
+    operationType: PerformanceMetrics['operationType'] | 'migration',
     tableName: string,
     rowCount: number,
     executionTime: number,
   ): void {
     const metrics: PerformanceMetrics = {
-      operationType,
+      operationType: operationType as PerformanceMetrics['operationType'],
       tableName,
       rowCount,
       executionTime,

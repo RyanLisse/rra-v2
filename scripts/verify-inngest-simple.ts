@@ -111,14 +111,14 @@ async function verifyInngestSetup() {
   try {
     const packageJson = await import('../package.json');
     const hasInngest =
-      packageJson.dependencies?.inngest || packageJson.devDependencies?.inngest;
+      (packageJson.dependencies as any)?.inngest || (packageJson.devDependencies as any)?.inngest;
     console.log(
       `   Inngest package: ${hasInngest ? '✓ Installed' : '❌ Missing'}`,
     );
 
     const hasConcurrently =
-      packageJson.dependencies?.concurrently ||
-      packageJson.devDependencies?.concurrently;
+      (packageJson.dependencies as any)?.concurrently ||
+      (packageJson.devDependencies as any)?.concurrently;
     console.log(
       `   Concurrently package: ${hasConcurrently ? '✓ Installed' : '❌ Missing'}`,
     );
@@ -135,7 +135,7 @@ async function verifyInngestSetup() {
 }
 
 // Run verification if this script is executed directly
-if (import.meta.main) {
+if (require.main === module) {
   verifyInngestSetup().catch((error) => {
     console.error('❌ Verification failed:', error);
     process.exit(1);

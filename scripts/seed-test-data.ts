@@ -120,16 +120,13 @@ async function seedDocuments(userIds: string[], preset: SeedPreset) {
     // Create document
     documents.push({
       id: docId,
-      userId,
-      filename: `${faker.system.fileName({ extensionCount: 0 })}.pdf`,
-      fileType: 'application/pdf',
-      fileSize: faker.number.int({ min: 100000, max: 10000000 }),
+      uploadedBy: userId,
+      fileName: `${faker.system.fileName({ extensionCount: 0 })}.pdf`,
+      originalName: `${faker.system.fileName({ extensionCount: 0 })}.pdf`,
+      filePath: `/uploads/${docId}.pdf`,
+      mimeType: 'application/pdf',
+      fileSize: faker.number.int({ min: 100000, max: 10000000 }).toString(),
       status: 'processed' as const,
-      metadata: {
-        title: faker.company.catchPhrase(),
-        author: faker.person.fullName(),
-        pageCount: faker.number.int({ min: 10, max: 100 }),
-      },
       createdAt: faker.date.past(),
       updatedAt: new Date(),
     });
@@ -144,13 +141,13 @@ async function seedDocuments(userIds: string[], preset: SeedPreset) {
       id: contentId,
       documentId: docId,
       extractedText: fullContent,
+      pageCount: faker.number.int({ min: 10, max: 100 }).toString(),
+      charCount: fullContent.length.toString(),
       metadata: {
         extractedAt: new Date().toISOString(),
         method: 'pdf-parse',
-        pageCount: faker.number.int({ min: 10, max: 100 }),
       },
       createdAt: new Date(),
-      updatedAt: new Date(),
     });
 
     // Create chunks
@@ -163,31 +160,29 @@ async function seedDocuments(userIds: string[], preset: SeedPreset) {
       chunks.push({
         id: chunkId,
         documentId: docId,
-        contentId,
         content: chunkContent,
-        chunkIndex: j,
-        startOffset: j * 500,
-        endOffset: (j + 1) * 500,
+        chunkIndex: j.toString(),
+        tokenCount: Math.floor(chunkContent.length / 4).toString(), // Rough estimate
+        elementType: faker.helpers.arrayElement(['paragraph', 'title', 'list_item']),
+        pageNumber: Math.floor(j / 5) + 1,
         metadata: {
-          pageNumber: Math.floor(j / 5) + 1,
           section: contentType,
+          startOffset: j * 500,
+          endOffset: (j + 1) * 500,
         },
         createdAt: new Date(),
-        updatedAt: new Date(),
       });
 
       // Create embedding
       embeddings.push({
         id: createId(),
         chunkId,
-        embedding: generateEmbedding(),
-        model: 'text-embedding-3-small',
-        metadata: {
-          dimension: 1024,
-          createdAt: new Date().toISOString(),
-        },
+        documentId: docId,
+        embedding: JSON.stringify(generateEmbedding()),
+        embeddingType: 'text',
+        dimensions: 1024,
+        model: 'cohere-embed-v4.0',
         createdAt: new Date(),
-        updatedAt: new Date(),
       });
     }
 
@@ -232,7 +227,7 @@ async function verifyData() {
       (SELECT COUNT(*) FROM ${documentEmbedding}) as embeddings
   `);
 
-  return counts.rows[0];
+  return counts[0];
 }
 
 async function main() {

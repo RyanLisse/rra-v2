@@ -35,7 +35,7 @@ interface ResetOptions {
  */
 function parseArguments(): ResetOptions {
   const { values } = parseArgs({
-    args: Bun.argv.slice(2),
+    args: process.argv.slice(2),
     options: {
       env: { type: 'string', short: 'e' },
       branch: { type: 'string', short: 'b' },
@@ -401,7 +401,7 @@ process.on('exit', () => {
 });
 
 // Run the script
-if (import.meta.main) {
+if (require.main === module) {
   main()
     .then(() => cleanup())
     .catch((error) => {

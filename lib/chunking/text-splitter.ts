@@ -37,7 +37,7 @@ export interface ChunkingOptions {
 }
 
 export class SemanticTextSplitter {
-  private options: ChunkingOptions;
+  protected options: ChunkingOptions;
 
   constructor(options: Partial<ChunkingOptions> = {}) {
     this.options = {
@@ -568,10 +568,13 @@ export class SemanticTextSplitter {
 
 // Export as TextSplitter for backward compatibility
 export class TextSplitter extends SemanticTextSplitter {
-  async splitText(
+  /**
+   * Legacy method for backward compatibility
+   */
+  async splitTextLegacy(
     text: string,
     options?: { chunkSize?: number; chunkOverlap?: number },
-  ) {
+  ): Promise<{ text: string; startChar: number; endChar: number; tokenCount: number; }[]> {
     // Update options if provided
     if (options) {
       this.options = { ...this.options, ...options };

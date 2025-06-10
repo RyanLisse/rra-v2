@@ -126,7 +126,7 @@ const DEFAULT_POLICIES: CleanupPolicy[] = [
   },
 ];
 
-function parseArgs(): Partial<CleanupConfig> & {
+function parseArgs(): Partial<Omit<CleanupConfig, 'policies'>> & {
   help?: boolean;
   policies?: string;
 } {
@@ -546,7 +546,7 @@ async function main() {
   const config = { ...getDefaultConfig(), ...args };
 
   // Select policies
-  if (args.policies) {
+  if (args.policies && typeof args.policies === 'string') {
     config.policies = selectPolicies(args.policies, DEFAULT_POLICIES);
   }
 

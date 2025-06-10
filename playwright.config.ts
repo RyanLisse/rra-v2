@@ -149,12 +149,10 @@ export default defineConfig({
     timeout: expectTimeout,
     // Enhanced assertion timeout for Neon operations
     toHaveScreenshot: {
-      timeout: 30000,
       threshold: 0.2,
       mode: 'strict',
     },
     toMatchScreenshot: {
-      timeout: 30000,
       threshold: 0.2,
     },
   },
@@ -186,8 +184,6 @@ export default defineConfig({
         // Enhanced browser context for E2E tests
         contextOptions: {
           ignoreHTTPSErrors: true,
-          // Enable console capture for debugging
-          recordConsole: process.env.ENABLE_CONSOLE_CAPTURE === 'true',
           // Enable request/response logging
           recordHar:
             process.env.ENABLE_REQUEST_LOGGING === 'true'

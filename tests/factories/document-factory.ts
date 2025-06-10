@@ -194,7 +194,7 @@ export class DocumentFactory extends BaseFactory<DocumentInsert> {
       );
 
       // Sometimes add lists
-      if (faker.datatype.boolean({ probability: 0.4 })) {
+      if (faker.datatype.boolean(0.4)) {
         const listItems = faker.number.int({ min: 2, max: 5 });
         for (let j = 0; j < listItems; j++) {
           content.push(`- ${faker.lorem.sentence()}`);
@@ -292,7 +292,7 @@ export class ${faker.helpers.arrayElement(['Service', 'Manager', 'Controller'])}
             x: faker.number.int({ min: 0, max: 800 }),
             y: faker.number.int({ min: 0, max: 600 }),
             properties: {
-              color: faker.color.hex(),
+              color: faker.color.rgb(),
               text: faker.hacker.noun(),
             },
           }),
@@ -397,7 +397,7 @@ export class SuggestionFactory extends BaseFactory<SuggestionInsert> {
       originalText,
       suggestedText,
       description: this.generateSuggestionDescription(),
-      isResolved: faker.datatype.boolean({ probability: 0.3 }),
+      isResolved: faker.datatype.boolean(0.3),
       userId: options?.overrides?.userId || this.generateId(),
       createdAt: this.generateTimestamp(
         new Date(),

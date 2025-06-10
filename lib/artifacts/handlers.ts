@@ -72,7 +72,8 @@ export function createDocumentHandler<T extends ArtifactKind>(
 export async function saveArtifactDocument(
   props: SaveDocumentProps,
 ): Promise<Document> {
-  return await saveDocument(props);
+  const result = await saveDocument(props);
+  return result[0];
 }
 
 /**

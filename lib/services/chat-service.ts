@@ -10,7 +10,7 @@ import {
   messageRepository,
   userRepository,
 } from '@/lib/db/repository';
-import type { Chat, Message } from '@/lib/db/schema';
+import type { Chat, DBMessage } from '@/lib/db/schema';
 import { pruneConversationHistory } from '@/lib/ai/conversation-pruning';
 import type { CoreMessageWithId } from '@/lib/ai/conversation-pruning';
 
@@ -48,7 +48,7 @@ export interface ChatQueryOptions {
  * Chat with messages
  */
 export interface ChatWithMessages extends Chat {
-  messages: Message[];
+  messages: DBMessage[];
   messageCount: number;
 }
 
@@ -149,7 +149,7 @@ export class ChatService {
   /**
    * Add a message to a chat
    */
-  async addMessage(params: CreateMessageParams): Promise<Message> {
+  async addMessage(params: CreateMessageParams): Promise<DBMessage> {
     // Validate chat exists
     const chat = await chatRepository.findById(params.chatId);
     if (!chat) {
@@ -160,8 +160,8 @@ export class ChatService {
     const message = await messageRepository.create({
       chatId: params.chatId,
       role: params.role,
-      content: params.content,
-      metadata: params.metadata,
+      parts: [{ type: 'text', text: params.content }],
+      attachments: [],
     });
 
     // Update chat's updated timestamp
@@ -182,18 +182,18 @@ export class ChatService {
       preserveFirstTurn?: boolean;
       includeMetadata?: boolean;
     },
-  ): Promise<{ messages: Message[]; pruned: boolean; originalCount: number }> {
+  ): Promise<{ messages: DBMessage[]; prunedCount: number; originalCount: number }> {
     const allMessages = await messageRepository.findByChatId(chatId);
 
     if (!allMessages.length) {
-      return { messages: [], pruned: false, originalCount: 0 };
+      return { messages: [], prunedCount: 0, originalCount: 0 };
     }
 
     // Convert to conversation pruning format
     const coreMessages: CoreMessageWithId[] = allMessages.map((msg) => ({
       id: msg.id,
       role: msg.role as 'user' | 'assistant' | 'system',
-      content: msg.content,
+      content: msg.parts.find(p => p.type === 'text')?.text || '',
     }));
 
     // Apply conversation pruning
@@ -211,7 +211,7 @@ export class ChatService {
 
     return {
       messages: resultMessages,
-      pruned: pruningResult.pruned,
+      prunedCount: pruningResult.messages.length,
       originalCount: allMessages.length,
     };
   }
@@ -311,7 +311,10 @@ export class ChatService {
       (m) => m.role === 'assistant',
     ).length;
     const totalCharacters = messages.reduce(
-      (sum, m) => sum + m.content.length,
+      (sum, m) => {
+        const textContent = m.parts.find(p => p.type === 'text')?.text || '';
+        return sum + textContent.length;
+      },
       0,
     );
     const averageMessageLength =
@@ -333,7 +336,7 @@ export class ChatService {
     chatId: string,
     query: string,
     options?: { limit?: number; userId?: string },
-  ): Promise<Message[]> {
+  ): Promise<DBMessage[]> {
     // Check authorization if userId provided
     if (options?.userId) {
       const chat = await chatRepository.findById(chatId);
@@ -345,9 +348,10 @@ export class ChatService {
     const messages = await messageRepository.findByChatId(chatId);
 
     // Simple text search (could be enhanced with full-text search)
-    const matchingMessages = messages.filter((message) =>
-      message.content.toLowerCase().includes(query.toLowerCase()),
-    );
+    const matchingMessages = messages.filter((message) => {
+      const textContent = message.parts.find(p => p.type === 'text')?.text || '';
+      return textContent.toLowerCase().includes(query.toLowerCase());
+    });
 
     return options?.limit
       ? matchingMessages.slice(0, options.limit)

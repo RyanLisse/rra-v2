@@ -5,6 +5,7 @@ import { nanoid } from 'nanoid';
 import { db } from '@/lib/db';
 import { ragDocument } from '@/lib/db/schema';
 import { sendEvent } from '@/lib/inngest/client';
+import { getUser } from '@/lib/auth/kinde';
 
 const UPLOAD_DIR = join(process.cwd(), 'uploads');
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
@@ -25,6 +26,14 @@ async function ensureUploadDirExists() {
 }
 
 export async function POST(request: NextRequest) {
+  const user = await getUser();
+  if (!user) {
+    return NextResponse.json(
+      { error: 'Authentication required' },
+      { status: 401 },
+    );
+  }
+
   try {
     await ensureUploadDirExists();
 
@@ -75,7 +84,7 @@ export async function POST(request: NextRequest) {
             mimeType: file.type,
             fileSize: file.size.toString(),
             status: 'uploaded',
-            uploadedBy: session.user.id,
+            uploadedBy: user.id,
           })
           .returning();
 
@@ -83,7 +92,7 @@ export async function POST(request: NextRequest) {
         try {
           await sendEvent('document.uploaded', {
             documentId: newDocument.id,
-            userId: session.user.id,
+            userId: user.id,
             filePath: filePath,
             metadata: {
               originalName: file.name,

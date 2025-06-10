@@ -13,6 +13,7 @@
  */
 
 import { parseArgs } from 'node:util';
+import fs from 'node:fs';
 import { writeFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { drizzle } from 'drizzle-orm/postgres-js';
@@ -47,7 +48,7 @@ interface ExportResult {
  */
 function parseArguments(): ExportOptions {
   const { values } = parseArgs({
-    args: Bun.argv.slice(2),
+    args: process.argv.slice(2),
     options: {
       env: { type: 'string', short: 'e' },
       branch: { type: 'string', short: 'b' },
@@ -520,8 +521,8 @@ async function main(): Promise<void> {
       // Calculate total size
       const totalSize = files.reduce((sum, file) => {
         try {
-          const stats = Bun.file(file);
-          return sum + (stats.size || 0);
+          const stats = fs.statSync(file);
+          return sum + stats.size;
         } catch {
           return sum;
         }
@@ -574,7 +575,7 @@ async function main(): Promise<void> {
 }
 
 // Run the script
-if (import.meta.main) {
+if (require.main === module) {
   main().catch((error) => {
     console.error('Fatal error:', error);
     process.exit(1);

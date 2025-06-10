@@ -341,6 +341,7 @@ export const multimodalEmbeddingGenerationWorkflow = async (
                   documentId,
                   chunkIndex: `multimodal_${caption.chunkIndex}`,
                   content: `${caption.content} [with associated image]`,
+                  tokenCount: Math.ceil(caption.content.length / 4).toString(),
                   elementType: 'multimodal',
                   pageNumber: caption.pageNumber,
                   metadata: {

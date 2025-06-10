@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
 import { useTheme } from 'next-themes';
 import type { KindeUser } from '@/lib/auth/kinde';
+import { guestRegex } from '@/lib/constants';
+import { toast } from 'sonner';
 
 import {
   DropdownMenu,
@@ -18,13 +20,19 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { useRouter } from 'next/navigation';
 import { LoaderIcon } from './icons';
 
 export function SidebarUserNav({ user }: { user: KindeUser }) {
-  const router = useRouter();
-  const { logout, isLoading } = useKindeBrowserClient();
+  const { isLoading } = useKindeBrowserClient();
   const { setTheme, resolvedTheme } = useTheme();
+
+  const handleAuth = () => {
+    if (isGuest) {
+      window.location.href = '/api/auth/login';
+    } else {
+      window.location.href = '/api/auth/logout';
+    }
+  };
 
   const isGuest = guestRegex.test(user?.email ?? '');
 
@@ -52,16 +60,16 @@ export function SidebarUserNav({ user }: { user: KindeUser }) {
               >
                 <Image
                   src={
-                    currentUser?.picture ||
-                    `https://avatar.vercel.sh/${currentUser?.email || 'guest'}`
+                    user?.picture ||
+                    `https://avatar.vercel.sh/${user?.email || 'guest'}`
                   }
-                  alt={currentUser?.email ?? 'User Avatar'}
+                  alt={user?.email ?? 'User Avatar'}
                   width={24}
                   height={24}
                   className="rounded-full"
                 />
                 <span data-testid="user-email" className="truncate">
-                  {isUserAuthenticated ? currentUser?.email : 'Guest'}
+                  {user?.email || 'Guest'}
                 </span>
                 <ChevronUp className="ml-auto" />
               </SidebarMenuButton>
@@ -88,20 +96,12 @@ export function SidebarUserNav({ user }: { user: KindeUser }) {
                 className="w-full cursor-pointer"
                 onClick={() => {
                   if (isLoading) {
-                    toast({
-                      type: 'error',
-                      description:
-                        'Checking authentication status, please try again!',
-                    });
+                    toast.error('Checking authentication status, please try again!');
 
                     return;
                   }
 
-                  if (isGuest) {
-                    router.push('/api/auth/login');
-                  } else {
-                    logout();
-                  }
+                  handleAuth();
                 }}
               >
                 {isGuest ? 'Login to your account' : 'Sign out'}

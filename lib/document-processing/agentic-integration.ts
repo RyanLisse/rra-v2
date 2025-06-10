@@ -15,7 +15,7 @@ import {
   type DocumentAnalysis,
   type DocumentElement,
 } from './agentic-doc';
-import { eq, and } from 'drizzle-orm';
+import { eq, } from 'drizzle-orm';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { generateEmbedding } from '@/lib/ai/multimodal-embeddings';
@@ -339,13 +339,14 @@ export class AgenticDocumentService {
         documentId,
         content: chunk.content,
         chunkIndex: chunks.indexOf(chunk).toString(),
+        tokenCount: Math.ceil(chunk.content.length / 4).toString(),
         metadata: chunk.metadata,
         elementType: chunk.metadata?.elementType || 'paragraph',
         pageNumber: chunk.metadata?.pageNumber || 1,
         confidence: chunk.metadata?.confidence
-          ? chunk.metadata.confidence.toString()
+          ? chunk.metadata.confidence.toFixed(3)
           : null,
-        adeElementId: chunk.metadata?.adeElementId || null,
+        adeElementId: chunk.metadata?.elementId || null,
       });
     }
 
@@ -394,13 +395,6 @@ export class AgenticDocumentService {
             embeddingType: 'text',
             embedding: JSON.stringify(embedding),
             model: 'text-embedding-3-large',
-          })
-          .onConflictDoUpdate({
-            target: documentEmbedding.chunkId,
-            set: {
-              embedding: JSON.stringify(embedding),
-              updatedAt: new Date(),
-            },
           });
 
         embeddingsGenerated++;
@@ -441,10 +435,7 @@ export class AgenticDocumentService {
       .select()
       .from(documentContent)
       .where(
-        and(
-          eq(documentContent.documentId, documentId),
-          eq(documentContent.contentType, 'agentic_elements'),
-        ),
+        eq(documentContent.documentId, documentId),
       )
       .limit(1);
 
@@ -452,8 +443,8 @@ export class AgenticDocumentService {
       return null;
     }
 
-    const elements = JSON.parse(elementsData[0].content);
-    const agenticMeta = document.metadata.agenticAnalysis;
+    const elements = JSON.parse(elementsData[0].extractedText || '[]');
+    const agenticMeta = (elementsData[0].metadata as any) || {};
 
     return {
       documentId,

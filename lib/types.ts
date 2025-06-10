@@ -86,9 +86,15 @@ export type DocumentStatus =
   | 'uploaded'
   | 'processing'
   | 'text_extracted'
+  | 'images_extracted'
+  | 'ade_processing'
+  | 'ade_processed'
   | 'chunked'
   | 'embedded'
   | 'processed'
+  | 'error'
+  | 'error_image_extraction'
+  | 'error_ade_processing'
   | 'failed';
 
 export interface DocumentProcessingJob {

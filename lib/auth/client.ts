@@ -31,8 +31,15 @@ export function useSession() {
 }
 
 export function useAuth() {
-  const { user, isAuthenticated, isLoading, login, logout } =
-    useKindeBrowserClient();
+  const { user, isAuthenticated, isLoading } = useKindeBrowserClient();
+
+  const login = () => {
+    window.location.href = '/api/auth/login';
+  };
+
+  const logout = () => {
+    window.location.href = '/api/auth/logout';
+  };
 
   return {
     user: user

@@ -6,11 +6,16 @@ export type DocumentStatus =
   | 'uploaded'
   | 'processing'
   | 'text_extracted'
+  | 'images_extracted'
+  | 'ade_processing'
+  | 'ade_processed'
   | 'chunked'
   | 'embedded'
   | 'processed'
   | 'error'
-  | 'retrying';
+  | 'error_image_extraction'
+  | 'error_ade_processing'
+  | 'failed';
 
 export interface StatusUpdate {
   status: DocumentStatus;
@@ -45,7 +50,8 @@ export class DocumentStatusManager {
   private initializeSteps() {
     const stepNames = [
       'text_extraction',
-      'quality_assessment',
+      'image_extraction',
+      'ade_processing',
       'chunking',
       'embedding',
       'indexing',
@@ -265,14 +271,30 @@ export class DocumentStatusManager {
 
     // Check completion status
     const extractionStep = this.steps.get('text_extraction');
+    const imageStep = this.steps.get('image_extraction');
+    const adeStep = this.steps.get('ade_processing');
     const chunkingStep = this.steps.get('chunking');
     const embeddingStep = this.steps.get('embedding');
 
     if (
       extractionStep?.status === 'completed' &&
-      chunkingStep?.status === 'pending'
+      imageStep?.status === 'pending'
     ) {
       return 'text_extracted';
+    }
+
+    if (
+      imageStep?.status === 'completed' &&
+      adeStep?.status === 'pending'
+    ) {
+      return 'images_extracted';
+    }
+
+    if (
+      adeStep?.status === 'completed' &&
+      chunkingStep?.status === 'pending'
+    ) {
+      return 'ade_processed';
     }
 
     if (
@@ -372,13 +394,14 @@ export class DocumentStatusManager {
       const stats = {
         totalDocuments: allDocuments.length,
         processingDocuments: allDocuments.filter((doc) =>
-          ['processing', 'retrying'].includes(doc.status),
+          ['processing', 'ade_processing'].includes(doc.status),
         ).length,
         completedDocuments: allDocuments.filter(
           (doc) => doc.status === 'processed',
         ).length,
-        errorDocuments: allDocuments.filter((doc) => doc.status === 'error')
-          .length,
+        errorDocuments: allDocuments.filter((doc) => 
+          ['error', 'error_image_extraction', 'error_ade_processing', 'failed'].includes(doc.status)
+        ).length,
       };
 
       // Calculate average processing time for completed documents

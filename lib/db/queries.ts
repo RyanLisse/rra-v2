@@ -10,6 +10,8 @@ import {
   gte,
   inArray,
   lt,
+  sum,
+  sql,
   type SQL,
 } from 'drizzle-orm';
 
@@ -32,7 +34,7 @@ import {
 } from './schema';
 import type { ArtifactKind } from '@/components/artifact';
 import { generateUUID } from '../utils';
-import { generateHashedPassword } from './utils';
+import { generateHashedPassword } from '../auth/password-utils';
 import type { VisibilityType } from '@/components/visibility-selector';
 import { ChatSDKError } from '../errors';
 import { db } from './index';
@@ -751,13 +753,13 @@ export async function getDocumentProcessingStats({
     const [stats] = await db
       .select({
         total: count(),
-        uploaded: count().where(eq(ragDocument.status, 'uploaded')),
-        processing: count().where(eq(ragDocument.status, 'processing')),
-        textExtracted: count().where(eq(ragDocument.status, 'text_extracted')),
-        chunked: count().where(eq(ragDocument.status, 'chunked')),
-        embedded: count().where(eq(ragDocument.status, 'embedded')),
-        processed: count().where(eq(ragDocument.status, 'processed')),
-        error: count().where(eq(ragDocument.status, 'error')),
+        uploaded: sum(sql`CASE WHEN ${ragDocument.status} = 'uploaded' THEN 1 ELSE 0 END`),
+        processing: sum(sql`CASE WHEN ${ragDocument.status} = 'processing' THEN 1 ELSE 0 END`),
+        textExtracted: sum(sql`CASE WHEN ${ragDocument.status} = 'text_extracted' THEN 1 ELSE 0 END`),
+        chunked: sum(sql`CASE WHEN ${ragDocument.status} = 'chunked' THEN 1 ELSE 0 END`),
+        embedded: sum(sql`CASE WHEN ${ragDocument.status} = 'embedded' THEN 1 ELSE 0 END`),
+        processed: sum(sql`CASE WHEN ${ragDocument.status} = 'processed' THEN 1 ELSE 0 END`),
+        error: sum(sql`CASE WHEN ${ragDocument.status} = 'error' THEN 1 ELSE 0 END`),
       })
       .from(ragDocument)
       .where(eq(ragDocument.uploadedBy, userId));

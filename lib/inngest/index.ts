@@ -7,7 +7,7 @@
  */
 
 // Core client and configuration
-export { inngest, createEvent, type InngestClient } from './client';
+export { inngest, sendEvent, sendEvents, Events } from './client';
 
 // Type definitions
 export {
@@ -31,7 +31,6 @@ export {
 
 // Utility functions
 export {
-  sendEvent,
   createBaseEventPayload,
   updateDocumentStatus,
   getDocumentInfo,

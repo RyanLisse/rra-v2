@@ -355,7 +355,7 @@ export class PerformanceEnhancer {
       const { sql } = await import('drizzle-orm');
 
       // Analyze and optimize slow queries
-      await this.analyzeSlowQueries();
+      await this.analyzeSlowQueries(db, sql);
       optimizations.push('Analyzed slow queries');
 
       // Update database statistics
@@ -363,7 +363,7 @@ export class PerformanceEnhancer {
       optimizations.push('Updated database statistics');
 
       // Check and suggest index optimizations
-      const indexSuggestions = await this.analyzeIndexUsage();
+      const indexSuggestions = await this.analyzeIndexUsage(db, sql);
       optimizations.push(...indexSuggestions);
 
       const endTime = performance.now();
@@ -393,7 +393,7 @@ export class PerformanceEnhancer {
   /**
    * Analyze slow queries
    */
-  private async analyzeSlowQueries(): Promise<void> {
+  private async analyzeSlowQueries(db: any, sql: any): Promise<void> {
     try {
       const slowQueries = await db.execute(sql`
         SELECT 
@@ -420,7 +420,7 @@ export class PerformanceEnhancer {
   /**
    * Analyze index usage
    */
-  private async analyzeIndexUsage(): Promise<string[]> {
+  private async analyzeIndexUsage(db: any, sql: any): Promise<string[]> {
     const suggestions: string[] = [];
 
     try {

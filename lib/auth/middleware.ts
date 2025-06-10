@@ -19,10 +19,7 @@ export function withAuth<T extends any[]>(
         );
       }
 
-      // Create a session-like object for backward compatibility
-      const session = { user };
-
-      return await handler(request, session, ...args);
+      return await handler(request, user, ...args);
     } catch (error) {
       console.error('Auth middleware error:', error);
       return NextResponse.json(

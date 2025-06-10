@@ -106,7 +106,7 @@ export const pdfToImageConversionWorkflow = async (
     // Step 2: Update status to processing images
     await step.run('update-status-processing', async () => {
       await statusManager.updateStatus({
-        status: 'images_extracted',
+        status: 'processing',
         metadata: {
           step: 'pdf_to_image_conversion',
           startedAt: new Date(),

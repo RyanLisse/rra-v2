@@ -123,7 +123,7 @@ async function verifyInngestSetup() {
 }
 
 // Run verification if this script is executed directly
-if (import.meta.main) {
+if (require.main === module) {
   verifyInngestSetup().catch((error) => {
     console.error('❌ Verification failed:', error);
     process.exit(1);

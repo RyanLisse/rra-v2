@@ -13,6 +13,7 @@ import { PDFToImageConverter } from '@/lib/document-processing/pdf-to-image-conv
 import { DocumentProcessor } from '@/lib/document-processing/document-processor';
 import { documentService } from '@/lib/services/document-service';
 import { performanceOptimizer } from '@/lib/monitoring/performance-optimizer';
+import { db } from '@/lib/db';
 
 interface BatchProcessingOptions {
   concurrency?: number;
@@ -241,30 +242,27 @@ class BatchPDFProcessor {
 
       // Step 3: Extract text and create chunks
       console.log(`📝 Extracting text from ${fileName}...`);
-      const extractionResult =
-        await this.documentProcessor.extractTextFromPDF(pdfPath);
+      const extractionResult = await this.documentProcessor.extractText({
+        documentId: document.id,
+        db: db,
+      });
 
-      if (!extractionResult.success) {
-        throw new Error(extractionResult.error || 'Text extraction failed');
-      }
-
+      // extractionResult is the document content record from database
       let chunksCreated = 0;
-      if (extractionResult.elements && extractionResult.elements.length > 0) {
-        // Create document chunks from extracted elements
-        for (const [index, element] of extractionResult.elements.entries()) {
+      if (extractionResult.extractedText) {
+        // Simple text chunking for now
+        const chunks = this.createSimpleChunks(extractionResult.extractedText);
+        for (const [index, chunk] of chunks.entries()) {
           await documentService.addDocumentChunk({
             documentId: document.id,
             chunkIndex: index.toString(),
-            content: element.content || element.text || '',
-            elementType: element.elementType,
-            pageNumber: element.pageNumber,
-            bbox: element.bbox,
+            content: chunk,
+            elementType: 'text' as any,
+            pageNumber: null,
+            bbox: null,
             metadata: {
-              ...element.metadata,
-              imageIndex: element.pageNumber ? element.pageNumber - 1 : null,
-              imagePath: conversionResult.images.find(
-                (img) => img.pageNumber === element.pageNumber,
-              )?.imagePath,
+              chunkIndex: index,
+              totalChunks: chunks.length,
             },
           });
           chunksCreated++;
@@ -284,9 +282,9 @@ class BatchPDFProcessor {
         totalChunks: chunksCreated,
         conversionResult,
         extractionResult: {
-          success: extractionResult.success,
-          totalElements: extractionResult.elements?.length || 0,
-          processingTime: extractionResult.processingTime,
+          success: true,
+          totalElements: chunksCreated,
+          processingTime: 0,
         },
         outputPaths: {
           imagesDir,
@@ -301,10 +299,10 @@ class BatchPDFProcessor {
       );
 
       // Save extracted data
-      if (extractionResult.elements) {
+      if (extractionResult.extractedText) {
         await fs.writeFile(
-          path.join(dataDir, 'extracted-elements.json'),
-          JSON.stringify(extractionResult.elements, null, 2),
+          path.join(dataDir, 'extracted-text.txt'),
+          extractionResult.extractedText,
         );
       }
 
@@ -333,6 +331,30 @@ class BatchPDFProcessor {
         error: error instanceof Error ? error.message : String(error),
       };
     }
+  }
+
+  /**
+   * Create simple text chunks
+   */
+  private createSimpleChunks(text: string, maxSize = 1000): string[] {
+    const chunks: string[] = [];
+    const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    
+    let currentChunk = '';
+    for (const sentence of sentences) {
+      if (currentChunk.length + sentence.length > maxSize && currentChunk) {
+        chunks.push(currentChunk.trim());
+        currentChunk = sentence;
+      } else {
+        currentChunk += (currentChunk ? '. ' : '') + sentence;
+      }
+    }
+    
+    if (currentChunk.trim()) {
+      chunks.push(currentChunk.trim());
+    }
+    
+    return chunks.length > 0 ? chunks : [text];
   }
 
   /**

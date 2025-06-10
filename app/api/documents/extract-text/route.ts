@@ -29,9 +29,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch document from database
-    const document = await db.query.ragDocument.findFirst({
-      where: eq(ragDocument.id, documentId),
-    });
+    const [document] = await db
+      .select()
+      .from(ragDocument)
+      .where(eq(ragDocument.id, documentId))
+      .limit(1);
 
     if (!document) {
       return NextResponse.json(

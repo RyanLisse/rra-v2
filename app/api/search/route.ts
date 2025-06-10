@@ -521,7 +521,7 @@ async function generateFacetCounts(
       whereCondition = and(
         whereCondition,
         sql`${ragDocument.id} = ANY(${documentIds})`,
-      );
+      )!;
     }
 
     // Get document type counts

@@ -23,7 +23,7 @@ export default withAuth(
     }
 
     // For authenticated users, handle redirects
-    const kindeUser = request.kindeAuth?.user;
+    const kindeUser = (request as any).kindeAuth?.user;
 
     if (kindeUser) {
       const isGuest = guestRegex.test(kindeUser.email ?? '');
@@ -38,7 +38,7 @@ export default withAuth(
   {
     isReturnToCurrentPage: true,
     loginPage: '/api/auth/login',
-    isAuthorized: ({ token, request }) => {
+    isAuthorized: ({ token, request }: { token: any; request: NextRequest }) => {
       const pathname = request?.nextUrl?.pathname;
 
       // Allow health check endpoints without authentication

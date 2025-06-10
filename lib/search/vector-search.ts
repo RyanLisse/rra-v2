@@ -3,7 +3,7 @@ import { ragDocument, documentChunk, documentEmbedding } from '@/lib/db/schema';
 import { eq, sql, desc, and } from 'drizzle-orm';
 import { cohereService } from '@/lib/ai/cohere-client';
 import { createClient, type RedisClientType } from 'redis';
-import crypto from 'node:crypto';
+import { createHash } from 'node:crypto';
 
 export interface SearchResult {
   chunkId: string;
@@ -129,12 +129,10 @@ export class VectorSearchService {
    * Generate cache key for search query
    */
   private getCacheKey(query: string, userId: string, options: any): string {
-    const optionsHash = crypto
-      .createHash('md5')
+    const optionsHash = createHash('md5')
       .update(JSON.stringify(options))
       .digest('hex');
-    return `${this.cacheConfig.keyPrefix}${userId}:${crypto
-      .createHash('md5')
+    return `${this.cacheConfig.keyPrefix}${userId}:${createHash('md5')
       .update(query)
       .digest('hex')}:${optionsHash}`;
   }

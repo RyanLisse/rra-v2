@@ -6,11 +6,11 @@
  */
 
 import {
-  documentRepository,
+  ragDocumentRepository,
   documentChunkRepository,
   userRepository,
 } from '@/lib/db/repository';
-import type { Document, DocumentChunk } from '@/lib/db/schema';
+import type { RAGDocument, DocumentChunk } from '@/lib/db/schema';
 import {
   createChunkWithADE,
   getChunksByElementType,
@@ -25,12 +25,12 @@ import {
  * Document creation parameters
  */
 export interface CreateDocumentParams {
-  userId: string;
-  name: string;
-  fileSize: number;
+  uploadedBy: string;
+  fileName: string;
+  originalName: string;
+  filePath: string;
+  fileSize: string;
   mimeType: string;
-  filePath?: string;
-  metadata?: any;
 }
 
 /**
@@ -61,7 +61,7 @@ export interface DocumentQueryOptions {
 /**
  * Document with chunks
  */
-export interface DocumentWithChunks extends Document {
+export interface DocumentWithChunks extends RAGDocument {
   chunks: DocumentChunk[];
   chunkCount: number;
   processingProgress?: number;
@@ -98,22 +98,21 @@ export class DocumentService {
   /**
    * Create a new document
    */
-  async createDocument(params: CreateDocumentParams): Promise<Document> {
+  async createDocument(params: CreateDocumentParams): Promise<RAGDocument> {
     // Validate user exists
-    const user = await userRepository.findById(params.userId);
+    const user = await userRepository.findById(params.uploadedBy);
     if (!user) {
       throw new Error('User not found');
     }
 
     // Create document
-    const document = await documentRepository.create({
-      userId: params.userId,
-      name: params.name,
+    const document = await ragDocumentRepository.create({
+      uploadedBy: params.uploadedBy,
+      fileName: params.fileName,
+      originalName: params.originalName,
+      filePath: params.filePath,
       fileSize: params.fileSize,
       mimeType: params.mimeType,
-      filePath: params.filePath,
-      status: 'uploaded',
-      metadata: params.metadata,
     });
 
     return document;
@@ -126,11 +125,11 @@ export class DocumentService {
     documentId: string,
     options?: { includeChunks?: boolean; userId?: string },
   ): Promise<DocumentWithChunks | null> {
-    const document = await documentRepository.findById(documentId);
+    const document = await ragDocumentRepository.findById(documentId);
     if (!document) return null;
 
     // Check authorization if userId provided
-    if (options?.userId && document.userId !== options.userId) {
+    if (options?.userId && document.uploadedBy !== options.userId) {
       throw new Error('Unauthorized access to document');
     }
 
@@ -156,7 +155,7 @@ export class DocumentService {
     userId: string,
     options?: DocumentQueryOptions,
   ): Promise<DocumentWithChunks[]> {
-    const documents = await documentRepository.findByUserId(userId, {
+    const documents = await ragDocumentRepository.findByUploadedBy(userId, {
       limit: options?.limit,
     });
 
@@ -196,16 +195,16 @@ export class DocumentService {
     documentId: string,
     status: DocumentStatus,
     userId?: string,
-  ): Promise<Document> {
+  ): Promise<RAGDocument> {
     // Check authorization if userId provided
     if (userId) {
-      const document = await documentRepository.findById(documentId);
-      if (!document || document.userId !== userId) {
+      const document = await ragDocumentRepository.findById(documentId);
+      if (!document || document.uploadedBy !== userId) {
         throw new Error('Unauthorized or document not found');
       }
     }
 
-    return await documentRepository.updateStatus(documentId, status);
+    return await ragDocumentRepository.updateStatus(documentId, status);
   }
 
   /**
@@ -215,7 +214,7 @@ export class DocumentService {
     params: CreateDocumentChunkParams,
   ): Promise<DocumentChunk> {
     // Validate document exists
-    const document = await documentRepository.findById(params.documentId);
+    const document = await ragDocumentRepository.findById(params.documentId);
     if (!document) {
       throw new Error('Document not found');
     }
@@ -249,8 +248,8 @@ export class DocumentService {
   ): Promise<DocumentChunk[]> {
     // Check authorization if userId provided
     if (options?.userId) {
-      const document = await documentRepository.findById(documentId);
-      if (!document || document.userId !== options.userId) {
+      const document = await ragDocumentRepository.findById(documentId);
+      if (!document || document.uploadedBy !== options.userId) {
         throw new Error('Unauthorized access to document');
       }
     }
@@ -281,8 +280,8 @@ export class DocumentService {
   }> {
     // Check authorization if userId provided
     if (userId) {
-      const document = await documentRepository.findById(documentId);
-      if (!document || document.userId !== userId) {
+      const document = await ragDocumentRepository.findById(documentId);
+      if (!document || document.uploadedBy !== userId) {
         throw new Error('Unauthorized access to document');
       }
     }
@@ -305,8 +304,8 @@ export class DocumentService {
   ): Promise<string> {
     // Check authorization if userId provided
     if (options?.userId) {
-      const document = await documentRepository.findById(documentId);
-      if (!document || document.userId !== options.userId) {
+      const document = await ragDocumentRepository.findById(documentId);
+      if (!document || document.uploadedBy !== options.userId) {
         throw new Error('Unauthorized access to document');
       }
     }
@@ -320,8 +319,8 @@ export class DocumentService {
   async deleteDocument(documentId: string, userId?: string): Promise<void> {
     // Check authorization if userId provided
     if (userId) {
-      const document = await documentRepository.findById(documentId);
-      if (!document || document.userId !== userId) {
+      const document = await ragDocumentRepository.findById(documentId);
+      if (!document || document.uploadedBy !== userId) {
         throw new Error('Unauthorized or document not found');
       }
     }
@@ -330,7 +329,7 @@ export class DocumentService {
     await documentChunkRepository.deleteByDocumentId(documentId);
 
     // Delete document
-    await documentRepository.delete(documentId);
+    await ragDocumentRepository.delete(documentId);
   }
 
   /**
@@ -339,8 +338,8 @@ export class DocumentService {
   async getDocumentsByStatus(
     status: DocumentStatus,
     options?: { limit?: number; offset?: number },
-  ): Promise<Document[]> {
-    return await documentRepository.findByStatus(status, options);
+  ): Promise<RAGDocument[]> {
+    return await ragDocumentRepository.findByStatus(status, options);
   }
 
   /**
@@ -354,17 +353,17 @@ export class DocumentService {
       searchContent?: boolean;
     },
   ): Promise<DocumentWithChunks[]> {
-    let documents: Document[];
+    let documents: RAGDocument[];
 
     if (options?.userId) {
-      documents = await documentRepository.findByUserId(options.userId);
+      documents = await ragDocumentRepository.findByUploadedBy(options.userId);
     } else {
-      documents = await documentRepository.findMany({ limit: options?.limit });
+      documents = await ragDocumentRepository.findMany({ limit: options?.limit });
     }
 
     // Filter by name
     let filteredDocuments = documents.filter((doc) =>
-      doc.name.toLowerCase().includes(query.toLowerCase()),
+      doc.originalName.toLowerCase().includes(query.toLowerCase()),
     );
 
     // Search content if requested
@@ -381,7 +380,7 @@ export class DocumentService {
 
       const documentsWithContentMatches = contentMatches.filter(
         (doc) => doc !== null,
-      ) as Document[];
+      ) as RAGDocument[];
 
       // Combine name and content matches, remove duplicates
       const allMatches = [...filteredDocuments, ...documentsWithContentMatches];
@@ -414,12 +413,12 @@ export class DocumentService {
    * Get document statistics
    */
   async getDocumentStatistics(): Promise<DocumentStatistics> {
-    const allDocuments = await documentRepository.findMany();
+    const allDocuments = await ragDocumentRepository.findMany();
     const allChunks = await documentChunkRepository.findMany();
 
     const totalDocuments = allDocuments.length;
     const totalChunks = allChunks.length;
-    const totalSize = allDocuments.reduce((sum, doc) => sum + doc.fileSize, 0);
+    const totalSize = allDocuments.reduce((sum, doc) => sum + Number.parseInt(doc.fileSize), 0);
     const averageChunksPerDocument =
       totalDocuments > 0 ? totalChunks / totalDocuments : 0;
 
@@ -482,16 +481,16 @@ export class DocumentService {
   async batchUpdateStatus(
     documentIds: string[],
     status: DocumentStatus,
-  ): Promise<Document[]> {
+  ): Promise<RAGDocument[]> {
     return await Promise.all(
-      documentIds.map((id) => documentRepository.updateStatus(id, status)),
+      documentIds.map((id) => ragDocumentRepository.updateStatus(id, status)),
     );
   }
 
   /**
    * Get processing queue (documents not yet processed)
    */
-  async getProcessingQueue(): Promise<Document[]> {
+  async getProcessingQueue(): Promise<RAGDocument[]> {
     const processingStatuses: DocumentStatus[] = [
       'uploaded',
       'processing',
@@ -502,7 +501,7 @@ export class DocumentService {
 
     const queuedDocuments = await Promise.all(
       processingStatuses.map((status) =>
-        documentRepository.findByStatus(status),
+        ragDocumentRepository.findByStatus(status),
       ),
     );
 

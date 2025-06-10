@@ -25,7 +25,7 @@ interface ComparisonResult {
   regression: boolean;
 }
 
-const REGRESSION_THRESHOLDS = {
+const REGRESSION_THRESHOLDS: Record<string, number> = {
   // API response times (milliseconds)
   'api.upload': 100,
   'api.search': 50,

@@ -25,10 +25,10 @@ export class UserFactory extends BaseFactory<UserInsert> {
         ? faker.internet.password({ length: 12 })
         : 'test-password-123',
       emailVerified: realistic
-        ? faker.datatype.boolean({ probability: 0.8 })
+        ? faker.datatype.boolean(0.8)
         : true,
       image:
-        realistic && faker.datatype.boolean({ probability: 0.3 })
+        realistic && faker.datatype.boolean(0.3)
           ? faker.image.avatar()
           : null,
       name: realistic
@@ -210,14 +210,14 @@ export class AccountFactory extends BaseFactory<AccountInsert> {
       accountId: faker.string.alphanumeric(16),
       providerId: provider,
       accessToken: faker.string.alphanumeric(128),
-      refreshToken: faker.datatype.boolean({ probability: 0.8 })
+      refreshToken: faker.datatype.boolean(0.8)
         ? faker.string.alphanumeric(128)
         : null,
-      idToken: faker.datatype.boolean({ probability: 0.6 })
+      idToken: faker.datatype.boolean(0.6)
         ? faker.string.alphanumeric(256)
         : null,
       accessTokenExpiresAt: this.generateTimestamp(baseTime, 60), // 1 hour from now
-      refreshTokenExpiresAt: faker.datatype.boolean({ probability: 0.8 })
+      refreshTokenExpiresAt: faker.datatype.boolean(0.8)
         ? this.generateTimestamp(baseTime, 30 * 24 * 60)
         : null, // 30 days from now
       scope: this.generateScopeForProvider(provider),

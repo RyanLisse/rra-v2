@@ -157,12 +157,13 @@ export async function isDocumentAdeProcessed(
   documentId: string,
 ): Promise<boolean> {
   try {
-    const document = await db.query.ragDocument.findFirst({
-      where: eq(ragDocument.id, documentId),
-      columns: {
-        status: true,
-      },
-    });
+    const [document] = await db
+      .select({
+        status: ragDocument.status,
+      })
+      .from(ragDocument)
+      .where(eq(ragDocument.id, documentId))
+      .limit(1);
 
     return (
       document?.status === 'ade_processed' ||

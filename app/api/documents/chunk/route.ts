@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { ragDocument, documentChunk } from '@/lib/db/schema';
+import { ragDocument, documentChunk, documentContent } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { getUser } from '@/lib/auth/kinde';
 import { SemanticTextSplitter } from '@/lib/chunking/text-splitter';
@@ -28,12 +28,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch document and its content
-    const document = await db.query.ragDocument.findFirst({
-      where: eq(ragDocument.id, documentId),
-      with: {
-        content: true,
-      },
-    });
+    const results = await db.select().from(ragDocument).where(eq(ragDocument.id, documentId)).limit(1);
+    const document = results[0];
+    
+    // Fetch document content separately
+    const contentResults = await db.select().from(documentContent).where(eq(documentContent.documentId, documentId)).limit(1);
+    const content = contentResults[0];
 
     if (!document) {
       return NextResponse.json(
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!document.content) {
+    if (!content) {
       return NextResponse.json(
         { error: 'No content found for document' },
         { status: 400 },
@@ -72,10 +72,10 @@ export async function POST(request: NextRequest) {
       // Get text content
       let textContent: string;
 
-      if (document.content.extractedText) {
-        textContent = document.content.extractedText;
-      } else if (document.content.textFilePath) {
-        textContent = await readFile(document.content.textFilePath, 'utf-8');
+      if (content.extractedText) {
+        textContent = content.extractedText;
+      } else if (content.textFilePath) {
+        textContent = await readFile(content.textFilePath, 'utf-8');
       } else {
         throw new Error('No text content available');
       }
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
           overlap: chunk.metadata.overlap,
           documentType: chunk.metadata.documentType,
           section: chunk.metadata.section,
-          quality: chunk.metadata.quality,
+          quality: chunk.metadata.quality || null,
         },
       }));
 
@@ -151,6 +151,9 @@ export async function POST(request: NextRequest) {
       const qualityStats = chunks.reduce(
         (stats, chunk) => {
           const quality = chunk.metadata.quality;
+          if (!quality) {
+            return stats;
+          }
           return {
             avgCoherence: stats.avgCoherence + quality.coherence,
             avgCompleteness: stats.avgCompleteness + quality.completeness,

@@ -760,18 +760,19 @@ export class DocumentProcessor {
     db: PostgresJsDatabase<typeof schema>,
   ) {
     // Split content into chunks
-    const chunks = await this.textSplitter.splitText(content, {
-      chunkSize,
-      chunkOverlap,
-    });
+    const chunks = this.textSplitter.splitText(content);
 
     // Create chunk records (traditional way, no ADE metadata)
     const chunkData = chunks.map((chunk, index) => ({
       documentId,
       chunkIndex: index.toString(),
-      content: chunk.text,
-      tokenCount: chunk.tokenCount.toString(),
-      metadata: { startChar: chunk.startChar, endChar: chunk.endChar },
+      content: chunk.content,
+      tokenCount: chunk.metadata.tokenCount.toString(),
+      metadata: { 
+        startChar: chunk.metadata.startIndex, 
+        endChar: chunk.metadata.endIndex,
+        ...chunk.metadata 
+      },
       elementType: null, // No ADE data available
       pageNumber: null,
       bbox: null,
@@ -946,9 +947,19 @@ export class DocumentProcessor {
     const { chunks, batchSize = 25, db } = params;
 
     if (!this.cohereClient) {
-      // For testing, generate mock embeddings
+      // Get document ID from the first chunk
+      const firstChunk = await db.query.documentChunk
+        .findFirst({
+          where: (c, { eq }) => eq(c.id, chunks[0].id),
+        });
+      
+      if (!firstChunk?.documentId) {
+        throw new Error('No document ID found for chunks');
+      }
+      
       const embeddings = chunks.map((chunk) => ({
         chunkId: chunk.id,
+        documentId: firstChunk.documentId,
         embedding: JSON.stringify(
           Array(1024)
             .fill(0)
@@ -960,17 +971,13 @@ export class DocumentProcessor {
       await db.insert(schema.documentEmbedding).values(embeddings);
 
       // Update document status
-      const documentId = await db.query.documentChunk
-        .findFirst({
-          where: (c, { eq }) => eq(c.id, chunks[0].id),
-        })
-        .then((chunk) => chunk?.documentId);
+      const documentIdForUpdate = firstChunk.documentId;
 
-      if (documentId) {
+      if (documentIdForUpdate) {
         await db
           .update(schema.ragDocument)
           .set({ status: 'processed' })
-          .where(eq(schema.ragDocument.id, documentId));
+          .where(eq(schema.ragDocument.id, documentIdForUpdate));
       }
 
       return embeddings;
@@ -987,11 +994,18 @@ export class DocumentProcessor {
       );
 
       // Generate embeddings via Cohere
-      const embeddings = await this.cohereClient.embed(enrichedTexts);
+      const embeddings = await this.cohereClient.generateEmbeddingBatch(enrichedTexts);
 
+      // Get document ID from the first chunk in batch
+      const batchFirstChunk = await db.query.documentChunk
+        .findFirst({
+          where: (c, { eq }) => eq(c.id, batch[0].id),
+        });
+      
       const embeddingData = batch.map((chunk, index) => ({
         chunkId: chunk.id,
-        embedding: JSON.stringify(embeddings[index]),
+        documentId: batchFirstChunk?.documentId || '',
+        embedding: JSON.stringify(embeddings.embeddings[index]?.embedding || []),
         model: 'cohere-embed-v4.0',
       }));
 

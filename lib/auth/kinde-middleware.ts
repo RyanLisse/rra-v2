@@ -1,6 +1,11 @@
 import { withAuth } from '@kinde-oss/kinde-auth-nextjs/middleware';
 import { type NextRequest, NextResponse } from 'next/server';
-import type { KindeSession } from './kinde';
+import type { KindeUser } from './kinde';
+
+export interface KindeSession {
+  user: KindeUser | null;
+  isAuthenticated: boolean;
+}
 
 /**
  * Kinde authentication middleware wrapper

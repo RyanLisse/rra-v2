@@ -59,6 +59,31 @@ export const entitlementsByUserType: Record<UserType, Entitlements> = {
   },
 
   /*
+   * For admin users - Full access to all models
+   */
+  admin: {
+    maxMessagesPerDay: 1000,
+    availableChatModelIds: [
+      // All available models
+      'grok-2-vision',
+      'grok-3-mini',
+      'grok-2',
+      'gpt-4o',
+      'gpt-4o-mini',
+      'o1-preview',
+      'o1-mini',
+      'claude-3-5-sonnet',
+      'claude-3-5-haiku',
+      'gemini-2-flash-exp',
+      'gemini-1-5-pro',
+      'gemini-1-5-flash',
+      'chat-model',
+      'chat-model-reasoning',
+    ],
+    availableProviders: ['xai', 'openai', 'anthropic', 'google'],
+  },
+
+  /*
    * TODO: For users with an account and a paid membership
    * premium: {
    *   maxMessagesPerDay: 500,

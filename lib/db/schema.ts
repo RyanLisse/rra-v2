@@ -270,10 +270,16 @@ export const ragDocument = pgTable(
         'uploaded',
         'processing',
         'text_extracted',
+        'images_extracted',
+        'ade_processing',
+        'ade_processed',
         'chunked',
         'embedded',
         'processed',
         'error',
+        'error_image_extraction',
+        'error_ade_processing',
+        'failed',
       ],
     })
       .notNull()
@@ -336,6 +342,8 @@ export const documentChunk = pgTable(
     elementType: text('element_type'), // e.g., 'paragraph', 'title', 'figure_caption', 'table_text', 'list_item'
     pageNumber: integer('page_number'), // page number where the element appears
     bbox: jsonb('bbox'), // optional bounding box coordinates as [x1, y1, x2, y2]
+    confidence: text('confidence'), // ADE confidence score (stored as text for precision)
+    adeElementId: text('ade_element_id'), // ADE element identifier
     createdAt: timestamp('createdAt').notNull().defaultNow(),
   },
   (table) => ({
@@ -354,27 +362,77 @@ export const documentChunk = pgTable(
       table.documentId,
       table.pageNumber,
     ),
+    adeElementIdIdx: index('document_chunk_ade_element_id_idx').on(table.adeElementId),
+    confidenceIdx: index('document_chunk_confidence_idx').on(table.confidence),
   }),
 );
 
 export type DocumentChunk = InferSelectModel<typeof documentChunk>;
 
+// Document Image table for multimodal processing
+export const documentImage = pgTable(
+  'DocumentImage',
+  {
+    id: uuid('id').primaryKey().notNull().defaultRandom(),
+    documentId: uuid('documentId')
+      .notNull()
+      .references(() => ragDocument.id, { onDelete: 'cascade' }),
+    pageNumber: integer('pageNumber').notNull(),
+    imagePath: text('imagePath').notNull(),
+    imageUrl: text('imageUrl'),
+    width: integer('width'),
+    height: integer('height'),
+    fileSize: integer('fileSize'),
+    mimeType: text('mimeType').notNull().default('image/png'),
+    extractedBy: varchar('extractedBy').notNull().default('pdf_conversion'),
+    extractionMetadata: jsonb('extractionMetadata'),
+    createdAt: timestamp('createdAt').notNull().defaultNow(),
+    updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+  },
+  (table) => ({
+    documentIdIdx: index('document_image_document_id_idx').on(table.documentId),
+    pageNumberIdx: index('document_image_page_number_idx').on(table.pageNumber),
+    docPageIdx: index('document_image_doc_page_idx').on(
+      table.documentId,
+      table.pageNumber,
+    ),
+    extractedByIdx: index('document_image_extracted_by_idx').on(table.extractedBy),
+    createdAtIdx: index('document_image_created_at_idx').on(table.createdAt),
+    docPageUniqueIdx: uniqueIndex('document_image_doc_page_unique_idx').on(
+      table.documentId,
+      table.pageNumber,
+      table.extractedBy,
+    ),
+  }),
+);
+
+export type DocumentImage = InferSelectModel<typeof documentImage>;
+
 export const documentEmbedding = pgTable(
   'DocumentEmbedding',
   {
     id: uuid('id').primaryKey().notNull().defaultRandom(),
-    chunkId: uuid('chunkId')
+    chunkId: uuid('chunkId').references(() => documentChunk.id, { onDelete: 'cascade' }),
+    documentId: uuid('documentId')
       .notNull()
-      .references(() => documentChunk.id, { onDelete: 'cascade' }),
+      .references(() => ragDocument.id, { onDelete: 'cascade' }),
+    imageId: uuid('imageId').references(() => documentImage.id, { onDelete: 'cascade' }),
     embedding: text('embedding').notNull(), // JSON array of floats
+    embeddingType: varchar('embeddingType').notNull().default('text'),
+    dimensions: integer('dimensions').notNull().default(1024),
     model: text('model').notNull().default('cohere-embed-v4.0'),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
   },
   (table) => ({
-    chunkIdIdx: uniqueIndex('document_embedding_chunk_id_idx').on(
-      table.chunkId,
-    ),
+    chunkIdIdx: index('document_embedding_chunk_id_idx').on(table.chunkId),
+    documentIdIdx: index('document_embedding_document_id_idx').on(table.documentId),
+    imageIdIdx: index('document_embedding_image_id_idx').on(table.imageId),
+    typeIdx: index('document_embedding_type_idx').on(table.embeddingType),
     modelIdx: index('document_embedding_model_idx').on(table.model),
+    createdAtIdx: index('document_embedding_created_at_idx').on(table.createdAt),
+    docTypeIdx: index('document_embedding_doc_type_idx').on(table.documentId, table.embeddingType),
+    chunkTypeIdx: index('document_embedding_chunk_type_idx').on(table.chunkId, table.embeddingType),
+    imageTypeIdx: index('document_embedding_image_type_idx').on(table.imageId, table.embeddingType),
   }),
 );
 
@@ -387,6 +445,8 @@ export const ragDocumentRelations = relations(ragDocument, ({ one, many }) => ({
     references: [documentContent.documentId],
   }),
   chunks: many(documentChunk),
+  images: many(documentImage),
+  embeddings: many(documentEmbedding),
 }));
 
 export const documentContentRelations = relations(
@@ -417,8 +477,24 @@ export const documentEmbeddingRelations = relations(
       fields: [documentEmbedding.chunkId],
       references: [documentChunk.id],
     }),
+    document: one(ragDocument, {
+      fields: [documentEmbedding.documentId],
+      references: [ragDocument.id],
+    }),
+    image: one(documentImage, {
+      fields: [documentEmbedding.imageId],
+      references: [documentImage.id],
+    }),
   }),
 );
+
+export const documentImageRelations = relations(documentImage, ({ one, many }) => ({
+  document: one(ragDocument, {
+    fields: [documentImage.documentId],
+    references: [ragDocument.id],
+  }),
+  embeddings: many(documentEmbedding),
+}));
 
 // Rate Limiting Tables
 export const rateLimitLog = pgTable(

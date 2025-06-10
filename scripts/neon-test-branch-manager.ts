@@ -517,7 +517,7 @@ async function showStatistics(
   if (metricsData.length > 0) {
     console.log('\n⚡ Performance Metrics:');
     const avgDuration =
-      metricsData.reduce((sum, m) => sum + m.duration, 0) / metricsData.length;
+      metricsData.reduce((sum, m) => sum + m.avgDuration, 0) / metricsData.length;
     console.log(`   Average operation time: ${Math.round(avgDuration)}ms`);
     console.log(`   Total operations: ${metricsData.length}`);
 
@@ -539,10 +539,14 @@ async function showStatistics(
     console.log(`   Total errors: ${errorSummary.totalErrors}`);
     console.log(`   Recent errors: ${errorSummary.recentErrors}`);
 
-    if (errorSummary.topErrors.length > 0) {
+    const topErrors = Object.entries(errorSummary.errorsByOperation)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 5);
+    
+    if (topErrors.length > 0) {
       console.log('   Top errors:');
-      errorSummary.topErrors.forEach((error) => {
-        console.log(`     - ${error.message} (${error.count}x)`);
+      topErrors.forEach(([operation, count]) => {
+        console.log(`     - ${operation}: ${count}x`);
       });
     }
   }

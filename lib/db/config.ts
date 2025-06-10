@@ -5,9 +5,9 @@
  * Handles connection pooling, timeouts, and performance tuning.
  */
 
-import 'server-only';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
+import * as schema from './schema';
 
 /**
  * Database Connection Pool Configuration
@@ -283,8 +283,11 @@ function createDatabaseInstance() {
       debug: config.monitoring.enableLogging ? console.log : undefined,
     });
 
-    // Create drizzle instance
-    db = drizzle(client);
+    // Create drizzle instance with schema and enable query mode
+    db = drizzle(client, { 
+      schema,
+      logger: config.monitoring.enableLogging,
+    });
 
     // Log configuration in development
     if (config.monitoring.enableLogging) {

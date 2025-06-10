@@ -1,6 +1,6 @@
 import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
 
-export type UserType = 'guest' | 'regular';
+export type UserType = 'guest' | 'regular' | 'admin';
 
 export interface KindeUser {
   id: string;
@@ -14,7 +14,7 @@ export interface KindeUser {
 export async function getUser(): Promise<KindeUser | null> {
   const { getUser: getKindeUser, isAuthenticated } = getKindeServerSession();
 
-  if (!isAuthenticated()) {
+  if (!(isAuthenticated() ?? false)) {
     return null;
   }
 
@@ -41,7 +41,7 @@ export async function requireAuth(): Promise<KindeUser> {
 
 export async function isAuthenticated(): Promise<boolean> {
   const { isAuthenticated: kindeIsAuthenticated } = getKindeServerSession();
-  return kindeIsAuthenticated();
+  return kindeIsAuthenticated() ?? false;
 }
 
 export async function createGuestUser(): Promise<KindeUser> {

@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { chatModels } from '@/lib/ai/models';
 import { cn } from '@/lib/utils';
+import type { UserType } from '@/lib/auth/kinde';
 
 import { CheckCircleFillIcon, ChevronDownIcon } from './icons';
 import { entitlementsByUserType } from '@/lib/ai/entitlements';
@@ -56,14 +57,14 @@ export function ModelSelector({
   selectedModelId,
   className,
 }: {
-  session: any;
+  session: { user?: { type?: UserType } } | null;
   selectedModelId: string;
 } & React.ComponentProps<typeof Button>) {
   const [open, setOpen] = useState(false);
   const [optimisticModelId, setOptimisticModelId] =
     useOptimistic(selectedModelId);
 
-  const userType = session?.user?.type || 'guest';
+  const userType: UserType = session?.user?.type || 'guest';
   const { availableChatModelIds } = entitlementsByUserType[userType];
 
   const availableChatModels = chatModels.filter((chatModel) =>

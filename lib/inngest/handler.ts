@@ -12,7 +12,7 @@ import { inngest } from './client';
  * List of Inngest functions to register
  * Add new functions here as they are implemented
  */
-const functions = [
+const functions: any[] = [
   // processDocumentUpload,
   // extractDocumentText,
   // chunkDocument,
@@ -28,11 +28,10 @@ export const inngestHandler = serve({
   client: inngest,
   functions,
   signingKey: process.env.INNGEST_SIGNING_KEY,
-  env: process.env.NODE_ENV,
   logLevel: process.env.NODE_ENV === 'development' ? 'debug' : 'info',
 
   // Configure streaming and real-time features
-  streaming: process.env.INNGEST_STREAMING_ENABLED === 'true',
+  streaming: process.env.INNGEST_STREAMING_ENABLED === 'true' ? 'allow' : false,
 
   // Set up development-specific options
   ...(process.env.NODE_ENV === 'development' && {

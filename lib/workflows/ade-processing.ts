@@ -263,7 +263,7 @@ async function processAdeElements(
           elementType: mappedElementType,
           pageNumber: element.page_number,
           bbox: element.bounding_box,
-          confidence: element.confidence_score.toString(),
+          confidence: element.confidence_score.toFixed(3),
           adeElementId: element.element_id,
           metadata: {
             ade_metadata: element.metadata,

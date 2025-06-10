@@ -40,7 +40,7 @@ interface InitOptions {
  */
 function parseArguments(): InitOptions {
   const { values, positionals } = parseArgs({
-    args: Bun.argv.slice(2),
+    args: process.argv.slice(2),
     options: {
       env: { type: 'string', short: 'e', default: 'unit' },
       size: { type: 'string', short: 's', default: 'standard' },
@@ -299,7 +299,7 @@ process.on('SIGINT', async () => {
 });
 
 // Run the script
-if (import.meta.main) {
+if (require.main === module) {
   main().catch((error) => {
     console.error('Fatal error:', error);
     process.exit(1);

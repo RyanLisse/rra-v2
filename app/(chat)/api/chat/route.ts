@@ -281,10 +281,6 @@ export async function GET(request: Request) {
     return new ChatSDKError('forbidden:chat').toResponse();
   }
 
-  if (chat.visibility === 'private' && chat.userId !== session.user.id) {
-    return new ChatSDKError('forbidden:chat').toResponse();
-  }
-
   const streamIds = await getStreamIdsByChatId({ chatId });
 
   if (!streamIds.length) {

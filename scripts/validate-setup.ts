@@ -702,6 +702,6 @@ async function main() {
   process.exit(hasCriticalFailures ? 1 : 0);
 }
 
-if (import.meta.main) {
+if (require.main === module) {
   main().catch(console.error);
 }

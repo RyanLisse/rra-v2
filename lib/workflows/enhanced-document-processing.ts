@@ -325,9 +325,9 @@ export const batchDocumentProcessing = inngest.createFunction(
 
     return {
       success: batchProcessing.success && reportGeneration.success,
-      batchId: reportGeneration.report?.batchId,
+      batchId: reportGeneration.success ? reportGeneration.report?.batchId : undefined,
       summary: batchProcessing.summary,
-      report: reportGeneration.report,
+      report: reportGeneration.success ? reportGeneration.report : undefined,
     };
   },
 );

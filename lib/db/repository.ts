@@ -13,8 +13,9 @@ import type {
   DBMessage,
   Document,
   DocumentChunk,
+  RAGDocument,
 } from '@/lib/db/schema';
-import { user, chat, message, document, documentChunk } from '@/lib/db/schema';
+import { user, chat, message, document, documentChunk, ragDocument } from '@/lib/db/schema';
 
 /**
  * Base repository interface
@@ -274,6 +275,96 @@ export class DocumentRepository implements BaseRepository<Document> {
 }
 
 /**
+ * RAG Document Repository
+ */
+export class RAGDocumentRepository implements BaseRepository<RAGDocument> {
+  async findById(id: string): Promise<RAGDocument | null> {
+    const result = await db
+      .select()
+      .from(ragDocument)
+      .where(eq(ragDocument.id, id))
+      .limit(1);
+    return result[0] || null;
+  }
+
+  async findByUploadedBy(
+    uploadedBy: string,
+    options?: { limit?: number },
+  ): Promise<RAGDocument[]> {
+    const query = db
+      .select()
+      .from(ragDocument)
+      .where(eq(ragDocument.uploadedBy, uploadedBy))
+      .orderBy(desc(ragDocument.createdAt));
+
+    if (options?.limit) query.limit(options.limit);
+
+    return await query;
+  }
+
+  async findByStatus(
+    status: RAGDocument['status'],
+    options?: { limit?: number; offset?: number },
+  ): Promise<RAGDocument[]> {
+    const query = db
+      .select()
+      .from(ragDocument)
+      .where(eq(ragDocument.status, status))
+      .orderBy(desc(ragDocument.createdAt));
+
+    if (options?.limit) query.limit(options.limit);
+    if (options?.offset) query.offset(options.offset);
+
+    return await query;
+  }
+
+  async findMany(options?: { limit?: number; offset?: number }): Promise<
+    RAGDocument[]
+  > {
+    const query = db.select().from(ragDocument).orderBy(desc(ragDocument.createdAt));
+
+    if (options?.limit) query.limit(options.limit);
+    if (options?.offset) query.offset(options.offset);
+
+    return await query;
+  }
+
+  async create(data: Omit<RAGDocument, 'id' | 'createdAt' | 'updatedAt'>): Promise<RAGDocument> {
+    const [newDocument] = await db
+      .insert(ragDocument)
+      .values({
+        ...data,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .returning();
+    return newDocument;
+  }
+
+  async update(id: string, data: Partial<RAGDocument>): Promise<RAGDocument> {
+    const [updatedDocument] = await db
+      .update(ragDocument)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(ragDocument.id, id))
+      .returning();
+    return updatedDocument;
+  }
+
+  async updateStatus(id: string, status: RAGDocument['status']): Promise<RAGDocument> {
+    const [updatedDocument] = await db
+      .update(ragDocument)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(ragDocument.id, id))
+      .returning();
+    return updatedDocument;
+  }
+
+  async delete(id: string): Promise<void> {
+    await db.delete(ragDocument).where(eq(ragDocument.id, id));
+  }
+}
+
+/**
  * Document Chunk Repository
  */
 export class DocumentChunkRepository implements BaseRepository<DocumentChunk> {
@@ -380,6 +471,7 @@ export class RepositoryRegistry {
     this.repositories.set('chat', new ChatRepository());
     this.repositories.set('message', new MessageRepository());
     this.repositories.set('document', new DocumentRepository());
+    this.repositories.set('ragDocument', new RAGDocumentRepository());
     this.repositories.set('documentChunk', new DocumentChunkRepository());
   }
 
@@ -408,6 +500,7 @@ export const userRepository = new UserRepository();
 export const chatRepository = new ChatRepository();
 export const messageRepository = new MessageRepository();
 export const documentRepository = new DocumentRepository();
+export const ragDocumentRepository = new RAGDocumentRepository();
 export const documentChunkRepository = new DocumentChunkRepository();
 
 // Export registry for dependency injection

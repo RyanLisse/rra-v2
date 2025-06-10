@@ -100,8 +100,8 @@ async function analyzeCodebase(): Promise<
             }
 
             if (
-              content.includes('any') &&
-              content.match(/:\s*any/g)?.length > 5
+              content?.includes('any') &&
+              (content.match(/:\s*any/g)?.length ?? 0) > 5
             ) {
               issues.push(
                 'Multiple any types detected (reduce for better type safety)',

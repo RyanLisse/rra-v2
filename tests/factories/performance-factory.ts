@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { BaseFactory, BatchCreator } from './base-factory';
 import { RelationshipFactory } from './relationship-factory';
 import { CompleteUserFactory } from './user-factory';
-import { CompleteRAGDocumentFactory } from './rag-factory';
+import { CompleteRAGDocumentFactory, documentEmbeddingFactory } from './rag-factory';
 import { CompleteChatFactory } from './chat-factory';
 import type {
   FactoryOptions,
@@ -225,7 +225,7 @@ export class PerformanceFactory extends BaseFactory<any> {
           const extraEmbeddings = documents.flatMap((doc) =>
             doc.chunks.flatMap((chunk) =>
               models.map((model) =>
-                this.ragFactory.documentEmbeddingFactory.createForModel(model, {
+                documentEmbeddingFactory.createForModel(model, {
                   overrides: { chunkId: chunk.id },
                 }),
               ),
@@ -457,7 +457,7 @@ export class PerformanceFactory extends BaseFactory<any> {
     // Assign documents to random users
     documents.forEach((doc: any) => {
       if (users.length > 0) {
-        const randomUser = faker.helpers.arrayElement(users);
+        const randomUser = faker.helpers.arrayElement(users) as any;
         doc.document.uploadedBy = randomUser.user.id;
       }
     });
@@ -465,7 +465,7 @@ export class PerformanceFactory extends BaseFactory<any> {
     // Assign chats to random users
     chats.forEach((chat: any) => {
       if (users.length > 0) {
-        const randomUser = faker.helpers.arrayElement(users);
+        const randomUser = faker.helpers.arrayElement(users) as any;
         chat.chat.userId = randomUser.user.id;
       }
     });

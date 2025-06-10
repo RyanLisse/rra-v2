@@ -436,11 +436,15 @@ export class RelationshipFactory extends BaseFactory<any> {
         description: 'Data with missing parent relationships',
         setup: async () => {
           // Create chunks without documents
-          const orphanedChunks =
-            this.ragFactory.documentChunkFactory.createBatch({
-              count: 5,
-              overrides: { documentId: faker.string.uuid() }, // Non-existent document ID
-            });
+          const orphanedChunks = Array.from({ length: 5 }, () => ({
+            id: faker.string.uuid(),
+            documentId: faker.string.uuid(), // Non-existent document ID
+            chunkIndex: faker.number.int().toString(),
+            content: faker.lorem.paragraph(),
+            metadata: {},
+            tokenCount: faker.number.int({ min: 50, max: 500 }).toString(),
+            createdAt: new Date(),
+          }));
 
           return { orphanedChunks };
         },
@@ -453,14 +457,17 @@ export class RelationshipFactory extends BaseFactory<any> {
           const document = this.ragFactory.create();
 
           // Create invalid embeddings
-          const corruptedEmbeddings = document.chunks.map((chunk) =>
-            this.ragFactory.documentEmbeddingFactory.create({
-              overrides: {
-                chunkId: chunk.id,
-                embedding: 'invalid-json-data', // Corrupted embedding
-              },
-            }),
-          );
+          const corruptedEmbeddings = document.chunks.map((chunk) => ({
+            id: faker.string.uuid(),
+            chunkId: chunk.id,
+            documentId: document.document.id,
+            imageId: null,
+            embedding: 'invalid-json-data', // Corrupted embedding
+            embeddingType: 'text',
+            dimensions: 1536,
+            model: 'cohere-embed-v4.0',
+            createdAt: new Date(),
+          }));
 
           return { document, corruptedEmbeddings };
         },

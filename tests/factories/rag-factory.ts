@@ -388,7 +388,7 @@ export class DocumentChunkFactory extends BaseFactory<DocumentChunkInsert> {
       count: chunkCount,
       ...options,
       overrides: { documentId, ...options?.overrides },
-      customizer: (index) => ({ chunkIndex: index }),
+      customizer: (index) => ({ chunkIndex: index.toString() }),
     });
   }
 
@@ -397,7 +397,7 @@ export class DocumentChunkFactory extends BaseFactory<DocumentChunkInsert> {
       () => this.generateParagraphChunk(),
       () => this.generateListChunk(),
       () => this.generateTableChunk(),
-      () => this.generateCodeChunk(),
+      () => this.generateCodeChunkContent(),
       () => this.generateQuoteChunk(),
     ];
 
@@ -534,7 +534,11 @@ export class DocumentEmbeddingFactory extends BaseFactory<DocumentEmbeddingInser
     const embedding: DocumentEmbeddingInsert = {
       id: this.generateId(),
       chunkId: options?.overrides?.chunkId || this.generateId(),
+      documentId: options?.overrides?.documentId || this.generateId(),
+      imageId: options?.overrides?.imageId || null,
       embedding: JSON.stringify(this.generateEmbedding(dimensions)),
+      embeddingType: options?.overrides?.embeddingType || 'text',
+      dimensions,
       model,
       createdAt: this.generateTimestamp(
         new Date(),
@@ -558,6 +562,7 @@ export class DocumentEmbeddingFactory extends BaseFactory<DocumentEmbeddingInser
       ...options,
       overrides: {
         model,
+        dimensions,
         embedding: JSON.stringify(this.generateEmbedding(dimensions)),
         ...options?.overrides,
       },
@@ -569,12 +574,13 @@ export class DocumentEmbeddingFactory extends BaseFactory<DocumentEmbeddingInser
    */
   createEmbeddingsForChunks(
     chunkIds: string[],
+    documentId: string,
     options?: FactoryOptions,
   ): DocumentEmbeddingInsert[] {
     return chunkIds.map((chunkId) =>
       this.create({
         ...options,
-        overrides: { chunkId, ...options?.overrides },
+        overrides: { chunkId, documentId, ...options?.overrides },
       }),
     );
   }
@@ -607,7 +613,7 @@ export class DocumentEmbeddingFactory extends BaseFactory<DocumentEmbeddingInser
       'text-embedding-3-small': 1536,
       'text-embedding-3-large': 3072,
     };
-    return modelDimensions[model as keyof typeof modelDimensions] || 1536;
+    return modelDimensions[model as keyof typeof modelDimensions] || 1024;
   }
 
   private generateSimilarEmbedding(
@@ -640,14 +646,15 @@ export class CompleteRAGDocumentFactory extends BaseFactory<CompleteRAGDocument>
     // Generate realistic number of chunks based on content size
     const chunkCount = this.calculateChunkCount(content.extractedText || '');
     const chunks = this.chunkFactory.createChunksForDocument(
-      document.id,
+      document.id!,
       chunkCount,
       options,
     );
 
     // Create embeddings for all chunks
     const embeddings = this.embeddingFactory.createEmbeddingsForChunks(
-      chunks.map((chunk) => chunk.id),
+      chunks.map((chunk) => chunk.id!),
+      document.id!,
       options,
     );
 
@@ -674,12 +681,13 @@ export class CompleteRAGDocumentFactory extends BaseFactory<CompleteRAGDocument>
     });
 
     const chunks = this.chunkFactory.createChunksForDocument(
-      document.id,
+      document.id!,
       1,
       options,
     );
     const embeddings = this.embeddingFactory.createEmbeddingsForChunks(
-      chunks.map((chunk) => chunk.id),
+      chunks.map((chunk) => chunk.id!),
+      document.id!,
       options,
     );
 
@@ -696,12 +704,13 @@ export class CompleteRAGDocumentFactory extends BaseFactory<CompleteRAGDocument>
     });
 
     const chunks = this.chunkFactory.createChunksForDocument(
-      document.id,
+      document.id!,
       50,
       options,
     );
     const embeddings = this.embeddingFactory.createEmbeddingsForChunks(
-      chunks.map((chunk) => chunk.id),
+      chunks.map((chunk) => chunk.id!),
+      document.id!,
       options,
     );
 

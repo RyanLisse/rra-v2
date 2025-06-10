@@ -258,7 +258,7 @@ export class MessageFactory extends BaseFactory<MessageInsert> {
       return [{ type: 'text', text: 'Test assistant response' }];
     }
 
-    const hasCode = faker.datatype.boolean({ probability: 0.3 });
+    const hasCode = faker.datatype.boolean(0.3);
     const parts: any[] = [];
 
     // Main response
@@ -287,7 +287,7 @@ export class MessageFactory extends BaseFactory<MessageInsert> {
   private generateCodeSnippet(language: string): string {
     const snippets = {
       javascript: `function ${faker.hacker.verb()}${faker.helpers.arrayElement(['Data', 'Info', 'Result'])}() {
-  const ${faker.hacker.noun()} = ${faker.datatype.json()};
+  const ${faker.hacker.noun()} = ${JSON.stringify({ key: faker.hacker.noun(), value: faker.number.int() })};
   return ${faker.hacker.noun()}.${faker.hacker.verb()}();
 }`,
       python: `def ${faker.hacker.verb()}_${faker.hacker.noun()}():
@@ -309,7 +309,7 @@ WHERE ${faker.hacker.adjective()} = '${faker.hacker.noun()}';`,
   }
 
   private generateAttachments(realistic: boolean): any[] {
-    if (!realistic || !faker.datatype.boolean({ probability: 0.2 })) {
+    if (!realistic || !faker.datatype.boolean(0.2)) {
       return [];
     }
 
@@ -365,7 +365,7 @@ export class VoteFactory extends BaseFactory<VoteInsert> {
     const vote: VoteInsert = {
       chatId: options?.overrides?.chatId || this.generateId(),
       messageId: options?.overrides?.messageId || this.generateId(),
-      isUpvoted: faker.datatype.boolean({ probability: 0.7 }), // More upvotes than downvotes
+      isUpvoted: faker.datatype.boolean(0.7), // More upvotes than downvotes
     };
 
     return this.applyOverrides(vote, options?.overrides);
@@ -430,16 +430,16 @@ export class CompleteChatFactory extends BaseFactory<CompleteChat> {
 
     // Generate realistic conversation
     const messageCount = faker.number.int({ min: 2, max: 20 });
-    const messages = this.generateConversation(chat.id, messageCount);
+    const messages = this.generateConversation(chat.id!, messageCount);
 
     // Generate votes for some messages
-    const votes = this.generateVotesForMessages(chat.id, messages);
+    const votes = this.generateVotesForMessages(chat.id!, messages);
 
     // Generate streams
     const streamCount = faker.number.int({ min: 0, max: 3 });
     const streams = this.streamFactory.createBatch({
       count: streamCount,
-      overrides: { chatId: chat.id },
+      overrides: { chatId: chat.id! },
     });
 
     const result: CompleteChat = {
@@ -461,7 +461,28 @@ export class CompleteChatFactory extends BaseFactory<CompleteChat> {
     const messages = [
       this.messageFactory.createUserMessage({ overrides: { chatId: chat.id } }),
       this.messageFactory.createAssistantMessage({
-        overrides: { chatId: chat.id },
+        overrides: { chatId: chat.id! },
+      }),
+    ];
+
+    return {
+      chat,
+      messages,
+      votes: [],
+      streams: [],
+    };
+  }
+
+  /**
+   * Create public chat
+   */
+  createPublic(options?: FactoryOptions): CompleteChat {
+    const chat = this.chatFactory.createPublic(options);
+    
+    const messages = [
+      this.messageFactory.createUserMessage({ overrides: { chatId: chat.id } }),
+      this.messageFactory.createAssistantMessage({
+        overrides: { chatId: chat.id! },
       }),
     ];
 
@@ -483,10 +504,10 @@ export class CompleteChatFactory extends BaseFactory<CompleteChat> {
       this.messageFactory.createUserMessage({ overrides: { chatId: chat.id } }),
       this.messageFactory.createCodeMessage({ overrides: { chatId: chat.id } }),
       this.messageFactory.createMessageWithAttachments({
-        overrides: { chatId: chat.id },
+        overrides: { chatId: chat.id! },
       }),
       this.messageFactory.createAssistantMessage({
-        overrides: { chatId: chat.id },
+        overrides: { chatId: chat.id! },
       }),
     ];
 
@@ -501,7 +522,7 @@ export class CompleteChatFactory extends BaseFactory<CompleteChat> {
 
     const streams = this.streamFactory.createBatch({
       count: 2,
-      overrides: { chatId: chat.id },
+      overrides: { chatId: chat.id! },
     });
 
     return {
@@ -553,7 +574,7 @@ export class CompleteChatFactory extends BaseFactory<CompleteChat> {
     const assistantMessages = messages.filter((m) => m.role === 'assistant');
 
     for (const message of assistantMessages) {
-      if (faker.datatype.boolean({ probability: 0.4 })) {
+      if (faker.datatype.boolean(0.4)) {
         // 40% chance of vote
         votes.push(
           this.voteFactory.create({

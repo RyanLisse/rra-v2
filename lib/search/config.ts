@@ -177,7 +177,7 @@ export class SearchConfig {
   }
 
   public isRedisAvailable(): boolean {
-    return this.redisClient?.isReady;
+    return this.redisClient?.isReady ?? false;
   }
 
   public isCacheEnabled(): boolean {
