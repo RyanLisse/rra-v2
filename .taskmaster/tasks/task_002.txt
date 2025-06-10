@@ -1,0 +1,43 @@
+# Task ID: 2
+# Title: Backend Services Framework & Structure
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Implement the foundational backend services framework using Mastra AI and define the basic structure for core services: UploadService, DocProcessingService, SearchService, ChatService, DocMgmtService, and LLMService.
+# Details:
+Set up the Mastra AI environment and define service interfaces and basic implementations for the required backend components outlined in the PRD architecture section. Focus on the service framework, not full feature implementation yet.
+
+# Test Strategy:
+Basic service instantiation and inter-service communication tests.
+
+# Subtasks:
+## 1. Set up Mastra AI Framework and Project Structure [pending]
+### Dependencies: None
+### Description: Initialize the Mastra AI framework in the project, configure the development environment, and establish the foundational project structure for all backend services.
+### Details:
+Install Mastra core package (@mastra/core) and set up the TypeScript project configuration. Create the base directory structure for services. Configure the agent development environment for local testing. Set up the necessary configuration files for model routing and workflow graphs.
+
+## 2. Implement Document Processing Services [pending]
+### Dependencies: 2.1
+### Description: Create the UploadService and DocProcessingService interfaces and basic implementations using Mastra's document processing capabilities.
+### Details:
+Implement the UploadService to handle document uploads with proper validation. Create the DocProcessingService to process documents (text, HTML, Markdown, JSON) into chunks and create embeddings using Mastra's RAG capabilities. Define the service interfaces with clear method signatures and implement basic functionality without full feature implementation.
+
+## 3. Implement Search and Vector Storage Services [pending]
+### Dependencies: 2.2
+### Description: Create the SearchService interface and implementation using Mastra's vector database integration for retrieval-augmented generation.
+### Details:
+Implement the SearchService to interface with Mastra's vector database capabilities. Configure the vector store connection (Pinecone, pgvector, etc.) and embedding provider (OpenAI, Cohere, etc.). Create methods for storing document embeddings and retrieving relevant chunks during search operations. Define clear interfaces with proper TypeScript typing.
+
+## 4. Implement LLM and Chat Services [pending]
+### Dependencies: 2.1
+### Description: Create the LLMService and ChatService interfaces and implementations using Mastra's agent capabilities and memory management.
+### Details:
+Implement the LLMService to handle interactions with language models through Mastra's API. Create the ChatService to manage conversation threads, maintain memory persistently within threads, and handle user interactions. Implement basic agent workflows using Mastra's workflow primitives (.parallel(), etc.) for branching and chaining operations.
+
+## 5. Implement Document Management Service and API Integration [pending]
+### Dependencies: 2.2, 2.3, 2.4
+### Description: Create the DocMgmtService interface and implementation, and integrate all services into a cohesive API framework.
+### Details:
+Implement the DocMgmtService to handle document lifecycle management. Create API endpoints using Mastra's deployment helpers to expose service functionality. Integrate all services into a unified backend framework with proper dependency injection. Set up the server using Hono as recommended by Mastra for local development and eventual deployment.
+

@@ -1,0 +1,43 @@
+# Task ID: 4
+# Title: Data Model & ORM Implementation
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Define and implement the database schema for documents, document_chunks, conversations, and conversation_messages using Drizzle ORM. Configure and utilize the PGVector extension for vector storage with HNSW indexing.
+# Details:
+Translate the data architecture requirements into Drizzle ORM schema definitions. Implement necessary migrations. Ensure PGVector is correctly configured and accessible via the ORM.
+
+# Test Strategy:
+Unit tests for ORM models and basic CRUD operations on all defined tables.
+
+# Subtasks:
+## 1. Define Drizzle ORM Schemas for Core Entities [pending]
+### Dependencies: None
+### Description: Create TypeScript schema definitions for the 'documents', 'document_chunks', 'conversations', and 'conversation_messages' tables using Drizzle ORM.
+### Details:
+Use Drizzle ORM's schema API to define each table, specifying columns, types, primary keys, and relationships as needed. Ensure each entity reflects the required data architecture, including foreign keys and constraints where appropriate.
+
+## 2. Integrate PGVector Columns and HNSW Indexing [pending]
+### Dependencies: 4.1
+### Description: Extend the relevant schema(s) to include vector columns using PGVector, and configure HNSW indexing for efficient vector similarity search.
+### Details:
+For tables requiring vector storage (e.g., 'document_chunks'), add a 'vector' column using Drizzle's vector type. Ensure the column specifies the correct dimensions. Add SQL statements or Drizzle migration hooks to create HNSW indexes on these vector columns.
+
+## 3. Configure Drizzle ORM and Database Connection [pending]
+### Dependencies: 4.2
+### Description: Set up Drizzle ORM configuration to connect to the PostgreSQL database with PGVector extension enabled.
+### Details:
+Edit or create the Drizzle configuration file (e.g., drizzle.config.ts) to specify the schema path, output directory, PostgreSQL dialect, and database credentials. Ensure the PGVector extension is installed and accessible in the target database.
+
+## 4. Implement and Apply Database Migrations [pending]
+### Dependencies: 4.3
+### Description: Generate and apply database migrations based on the defined schemas, ensuring all tables, columns, and indexes are created in the database.
+### Details:
+Use Drizzle Kit CLI to generate migration files from the schema definitions. Apply the migrations to the database, confirming that all schema changes are reflected in the database structure.
+
+## 5. Validate ORM Integration and Data Operations [pending]
+### Dependencies: 4.4
+### Description: Test CRUD operations and vector search functionality through Drizzle ORM to ensure the schema and PGVector integration work as intended.
+### Details:
+Write and execute tests or scripts that perform create, read, update, and delete operations on all tables. For vector columns, test inserting and querying vectors, including similarity search using HNSW indexing.
+

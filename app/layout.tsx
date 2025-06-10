@@ -71,16 +71,15 @@ export default async function RootLayout({
         />
       </head>
       <body className="antialiased">
-        <KindeProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            disableTransitionOnChange
-          >
-            <Toaster position="top-center" />
-            {children}
-          </ThemeProvider>
-        </KindeProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Toaster position="top-center" />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

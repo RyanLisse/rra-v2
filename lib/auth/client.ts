@@ -1,10 +1,47 @@
-import { createAuthClient } from 'better-auth/react';
-import { anonymousClient } from 'better-auth/client/plugins';
+'use client';
 
-export const authClient = createAuthClient({
-  baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
-  plugins: [anonymousClient()],
-});
+import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
+import type { KindeUser } from './kinde';
 
-export const { signIn, signOut, signUp, useSession, getSession } = authClient;
-export const { signInAnonymous } = authClient.anonymous;
+export interface Session {
+  user: KindeUser;
+}
+
+export function useSession() {
+  const { user, isAuthenticated, isLoading } = useKindeBrowserClient();
+  
+  const session: Session | null = user && isAuthenticated ? {
+    user: {
+      id: user.id,
+      email: user.email,
+      given_name: user.given_name,
+      family_name: user.family_name,
+      picture: user.picture,
+      type: user.email?.includes('guest') ? 'guest' : 'regular',
+    }
+  } : null;
+
+  return {
+    data: session,
+    isPending: isLoading,
+  };
+}
+
+export function useAuth() {
+  const { user, isAuthenticated, isLoading, login, logout } = useKindeBrowserClient();
+  
+  return {
+    user: user ? {
+      id: user.id,
+      email: user.email,
+      given_name: user.given_name,
+      family_name: user.family_name,
+      picture: user.picture,
+      type: user.email?.includes('guest') ? 'guest' : 'regular',
+    } : null,
+    isAuthenticated,
+    isLoading,
+    login,
+    logout,
+  };
+}

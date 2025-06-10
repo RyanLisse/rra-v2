@@ -1,4 +1,4 @@
-import { withAuth } from '@/lib/auth';
+import { getUser, type UserType } from '@/lib/auth/kinde';
 import { getChatById, getVotesByChatId, voteMessage } from '@/lib/db/queries';
 import { ChatSDKError } from '@/lib/errors';
 
@@ -13,13 +13,19 @@ export const GET = withAuth(async (request: Request, session: any) => {
     ).toResponse();
   }
 
+  const user = await getUser();
+
+  if (!user) {
+    return new ChatSDKError('unauthorized:vote').toResponse();
+  }
+
   const chat = await getChatById({ id: chatId });
 
   if (!chat) {
     return new ChatSDKError('not_found:chat').toResponse();
   }
 
-  if (chat.userId !== session.user.id) {
+  if (chat.userId !== user.id) {
     return new ChatSDKError('forbidden:vote').toResponse();
   }
 
@@ -43,13 +49,19 @@ export const PATCH = withAuth(async (request: Request, session: any) => {
     ).toResponse();
   }
 
+  const user = await getUser();
+
+  if (!user) {
+    return new ChatSDKError('unauthorized:vote').toResponse();
+  }
+
   const chat = await getChatById({ id: chatId });
 
   if (!chat) {
     return new ChatSDKError('not_found:vote').toResponse();
   }
 
-  if (chat.userId !== session.user.id) {
+  if (chat.userId !== user.id) {
     return new ChatSDKError('forbidden:vote').toResponse();
   }
 

@@ -1,0 +1,14 @@
+{
+  "success": true,
+  "text": "FAQ Entry, no communication to PMAC \n\nWhenever the PMAC has no communication in the software, the network needs to be \nchecked. The internal network can be recognized by the yellow rj45 cat5 cables inside of \nthe control cabinet.\n\nThe error notification for this issue looks like this: \nPower PMAC connection error in RoboRail software \n\n \nFollow this flowchart to investigate the issue, more instructions are on the next pages: \nFlowchart for solving PMAC connection issues \n\nTo test the physical connection to the PMAC, it should be pinged: \n1. Press windows start and type cmd, press enter. \n\n \n\n2. Type “ping 192.168.7.10” and check the results \nAn example of a correct response: \n\n \nAn example of a bad response: \n\n3. If the ping fails and mentions TTL expired in transit, try to ping 192.168.7.11 as \nwell \n\nThe situation in the upper right corner should look like this: \n\n \n\nBypassing the switch: \n1. Locate the empty RJ45 feedtrough on the right side of the control cabinet with the \ntext “Internal”: \n\n \n\n2. Unscrew the two crosshead screws and undo the coupler. \n3. Use the couple to connect the ETH_RC and ETH_CK3 directly to each other: \n\n \n4. Check if 192.168.7.10 can now be successfully pinged.",
+  "fileName": "FAQ No communication to PMAC.pdf",
+  "filePath": "data/pdf/FAQ No communication to PMAC.pdf",
+  "metadata": {
+    "pageCount": 5,
+    "confidence": 1,
+    "processingTime": 8,
+    "charCount": 1209,
+    "wordCount": 197,
+    "language": "en"
+  }
+}

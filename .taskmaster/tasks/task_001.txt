@@ -1,0 +1,43 @@
+# Task ID: 1
+# Title: Setup Project & Core Infrastructure
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Set up project repositories, configure basic project structure, initialize the database (NeonDB with PGVector), and integrate object storage.
+# Details:
+Includes setting up code repositories, configuring build tools, initializing NeonDB instance, enabling PGVector extension, and setting up connection to object storage (via Mastra or separate).
+
+# Test Strategy:
+Verify infrastructure setup, connectivity to DB and object storage.
+
+# Subtasks:
+## 1. Initialize Code Repository and Project Structure [pending]
+### Dependencies: None
+### Description: Create the main code repository, set up version control, and establish the foundational directory and build tool configuration for the project.
+### Details:
+Set up a new repository on the chosen platform (e.g., GitHub, GitLab). Initialize with a standard .gitignore, README, and license. Define the initial directory structure (e.g., src, tests, config). Configure build tools and scripts (e.g., package.json for Node.js, pyproject.toml for Python).
+
+## 2. Provision NeonDB Instance [pending]
+### Dependencies: 1.1
+### Description: Set up a NeonDB PostgreSQL instance to serve as the project's primary database.
+### Details:
+Create a NeonDB account if needed. Provision a new database instance, configure user access, and securely store connection credentials. Document the database endpoint and credentials for team use.
+
+## 3. Enable and Configure PGVector Extension [pending]
+### Dependencies: 1.2
+### Description: Install and enable the PGVector extension on the NeonDB instance to support vector operations.
+### Details:
+Connect to the NeonDB instance and execute the necessary SQL commands to enable the PGVector extension (e.g., CREATE EXTENSION IF NOT EXISTS vector;). Verify that the extension is active and available for use.
+
+## 4. Integrate Object Storage Solution [pending]
+### Dependencies: 1.1
+### Description: Set up and configure object storage (using Mastra or a separate provider) for storing files and assets.
+### Details:
+Provision an object storage bucket or container. Generate access keys and configure permissions. Integrate storage SDK or API into the project, and document usage patterns for developers.
+
+## 5. Configure Environment and Connection Management [pending]
+### Dependencies: 1.2, 1.4
+### Description: Establish secure environment variable management for database and object storage credentials, and set up connection utilities in the codebase.
+### Details:
+Define environment variable schema for sensitive credentials. Implement configuration files or secrets management as appropriate. Add connection logic in the codebase for both NeonDB and object storage, ensuring credentials are loaded securely.
+

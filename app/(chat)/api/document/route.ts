@@ -1,4 +1,4 @@
-import { withAuth } from '@/lib/auth';
+import { getUser, type UserType } from '@/lib/auth/kinde';
 import type { ArtifactKind } from '@/components/artifact';
 import {
   deleteDocumentsByIdAfterTimestamp,
@@ -18,6 +18,12 @@ export const GET = withAuth(async (request: Request, session: any) => {
     ).toResponse();
   }
 
+  const user = await getUser();
+
+  if (!user) {
+    return new ChatSDKError('unauthorized:document').toResponse();
+  }
+
   const documents = await getDocumentsById({ id });
 
   const [document] = documents;
@@ -26,7 +32,7 @@ export const GET = withAuth(async (request: Request, session: any) => {
     return new ChatSDKError('not_found:document').toResponse();
   }
 
-  if (document.userId !== session.user.id) {
+  if (document.userId !== user.id) {
     return new ChatSDKError('forbidden:document').toResponse();
   }
 
@@ -44,6 +50,12 @@ export const POST = withAuth(async (request: Request, session: any) => {
     ).toResponse();
   }
 
+  const user = await getUser();
+
+  if (!user) {
+    return new ChatSDKError('not_found:document').toResponse();
+  }
+
   const {
     content,
     title,
@@ -56,7 +68,7 @@ export const POST = withAuth(async (request: Request, session: any) => {
   if (documents.length > 0) {
     const [document] = documents;
 
-    if (document.userId !== session.user.id) {
+    if (document.userId !== user.id) {
       return new ChatSDKError('forbidden:document').toResponse();
     }
   }
@@ -66,7 +78,7 @@ export const POST = withAuth(async (request: Request, session: any) => {
     content,
     title,
     kind,
-    userId: session.user.id,
+    userId: user.id,
   });
 
   return Response.json(document, { status: 200 });
@@ -91,11 +103,17 @@ export const DELETE = withAuth(async (request: Request, session: any) => {
     ).toResponse();
   }
 
+  const user = await getUser();
+
+  if (!user) {
+    return new ChatSDKError('unauthorized:document').toResponse();
+  }
+
   const documents = await getDocumentsById({ id });
 
   const [document] = documents;
 
-  if (document.userId !== session.user.id) {
+  if (document.userId !== user.id) {
     return new ChatSDKError('forbidden:document').toResponse();
   }
 

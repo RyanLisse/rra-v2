@@ -1,74 +1,47 @@
 import { withAuth } from '@kinde-oss/kinde-auth-nextjs/middleware';
 import { NextResponse, type NextRequest } from 'next/server';
+import { withAuth } from '@kinde-oss/kinde-auth-nextjs/middleware';
+import { guestRegex } from './lib/constants';
 
-// Optimized static asset patterns
-const STATIC_PATTERNS = [
-  '/_next/',
-  '/api/auth/',
-  '/favicon',
-  '/manifest.json',
-  '/sw.js',
-  '/robots.txt',
-  '/sitemap.xml',
-];
+export default withAuth(
+  async function middleware(request: NextRequest) {
+    const { pathname } = request.nextUrl;
 
-// Optimized file extension check
-const FILE_EXTENSIONS =
-  /\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|map)$/;
+    /*
+     * Playwright starts the dev server and requires a 200 status to
+     * begin the tests, so this ensures that the tests can start
+     */
+    if (pathname.startsWith('/ping')) {
+      return new Response('pong', { status: 200 });
+    }
 
-function handleMiddleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+    // Allow Kinde auth routes
+    if (pathname.startsWith('/api/auth')) {
+      return NextResponse.next();
+    }
 
-  // Health check for testing
-  if (pathname === '/ping') {
-    return new Response('pong', { status: 200 });
-  }
+    // For authenticated users, handle redirects
+    const kindeUser = request.kindeAuth?.user;
+    
+    if (kindeUser) {
+      const isGuest = guestRegex.test(kindeUser.email ?? '');
+      
+      if (!isGuest && ['/login', '/register'].includes(pathname)) {
+        return NextResponse.redirect(new URL('/', request.url));
+      }
+    }
 
-  // Allow ping endpoint without authentication
-  if (pathname === '/api/ping') {
     return NextResponse.next();
+  },
+  {
+    isReturnToCurrentPage: true,
+    loginPage: '/api/auth/login',
+    isAuthorized: ({ token }) => {
+      // Allow access for all authenticated users
+      return !!token;
+    },
   }
-
-  // Optimized static asset check
-  if (
-    STATIC_PATTERNS.some((pattern) => pathname.startsWith(pattern)) ||
-    FILE_EXTENSIONS.test(pathname)
-  ) {
-    return NextResponse.next();
-  }
-
-  // Allow access to auth pages without authentication
-  if (pathname === '/login' || pathname === '/register') {
-    return NextResponse.next();
-  }
-
-  // Continue with Kinde auth middleware
-  return NextResponse.next();
-}
-
-// Use Kinde's auth middleware but wrap it with our custom logic
-export function middleware(request: NextRequest) {
-  // Run our custom middleware first
-  const customResponse = handleMiddleware(request);
-  
-  // If custom middleware wants to handle the request, let it
-  if (customResponse.status !== 200 || customResponse.headers.get('location')) {
-    return customResponse;
-  }
-
-  // For protected routes, delegate to Kinde
-  return withAuth(request);
-}
-
-function handleUnauthenticated(pathname: string, request: NextRequest) {
-  // For API routes (except auth), return 401
-  if (pathname.startsWith('/api/')) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  // For other pages, redirect to login
-  return NextResponse.redirect(new URL('/login', request.url));
-}
+);
 
 export const config = {
   matcher: [

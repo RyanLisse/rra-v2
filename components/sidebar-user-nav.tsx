@@ -3,8 +3,8 @@
 import { ChevronUp } from 'lucide-react';
 import Image from 'next/image';
 import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
-import { LogoutLink, LoginLink } from '@kinde-oss/kinde-auth-nextjs/components';
 import { useTheme } from 'next-themes';
+import type { KindeUser } from '@/lib/auth/kinde';
 
 import {
   DropdownMenu,
@@ -21,14 +21,12 @@ import {
 import { useRouter } from 'next/navigation';
 import { LoaderIcon } from './icons';
 
-export function SidebarUserNav({ user }: { user: any }) {
+export function SidebarUserNav({ user }: { user: KindeUser }) {
   const router = useRouter();
-  const { user: kindeUser, isAuthenticated, isLoading } = useKindeBrowserClient();
+  const { logout, isLoading } = useKindeBrowserClient();
   const { setTheme, resolvedTheme } = useTheme();
 
-  // Use Kinde user data if available, fallback to passed user prop
-  const currentUser = kindeUser || user;
-  const isUserAuthenticated = isAuthenticated && currentUser;
+  const isGuest = guestRegex.test(user?.email ?? '');
 
   return (
     <SidebarMenu>
@@ -82,15 +80,29 @@ export function SidebarUserNav({ user }: { user: any }) {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild data-testid="user-nav-item-auth">
-              {isUserAuthenticated ? (
-                <LogoutLink className="w-full cursor-pointer">
-                  Sign out
-                </LogoutLink>
-              ) : (
-                <LoginLink className="w-full cursor-pointer">
-                  Login to your account
-                </LoginLink>
-              )}
+              <button
+                type="button"
+                className="w-full cursor-pointer"
+                onClick={() => {
+                  if (isLoading) {
+                    toast({
+                      type: 'error',
+                      description:
+                        'Checking authentication status, please try again!',
+                    });
+
+                    return;
+                  }
+
+                  if (isGuest) {
+                    router.push('/api/auth/login');
+                  } else {
+                    logout();
+                  }
+                }}
+              >
+                {isGuest ? 'Login to your account' : 'Sign out'}
+              </button>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

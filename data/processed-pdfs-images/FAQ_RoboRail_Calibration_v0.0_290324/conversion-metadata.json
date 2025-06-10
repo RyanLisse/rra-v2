@@ -1,0 +1,147 @@
+{
+  "fileName": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+  "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/pdf/FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+  "convertedAt": "2025-06-08T10:09:42.872Z",
+  "totalPages": 18,
+  "imagesGenerated": 18,
+  "processingTime": 1247,
+  "imageFiles": [
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-001.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-002.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-003.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-004.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-005.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-006.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-007.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-008.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-009.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-010.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-011.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-012.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-013.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-014.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-015.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-016.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-017.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-018.png"
+  ],
+  "outputPaths": {
+    "imagesDir": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images",
+    "documentOutputDir": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324"
+  },
+  "conversionSettings": {
+    "outputFormat": "png",
+    "outputFolder": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images",
+    "pagesToProcess": -1
+  },
+  "imageDetails": [
+    {
+      "pageNumber": 1,
+      "fileName": "page-001.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-001.png",
+      "relativePath": "data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-001.png"
+    },
+    {
+      "pageNumber": 2,
+      "fileName": "page-002.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-002.png",
+      "relativePath": "data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-002.png"
+    },
+    {
+      "pageNumber": 3,
+      "fileName": "page-003.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-003.png",
+      "relativePath": "data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-003.png"
+    },
+    {
+      "pageNumber": 4,
+      "fileName": "page-004.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-004.png",
+      "relativePath": "data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-004.png"
+    },
+    {
+      "pageNumber": 5,
+      "fileName": "page-005.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-005.png",
+      "relativePath": "data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-005.png"
+    },
+    {
+      "pageNumber": 6,
+      "fileName": "page-006.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-006.png",
+      "relativePath": "data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-006.png"
+    },
+    {
+      "pageNumber": 7,
+      "fileName": "page-007.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-007.png",
+      "relativePath": "data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-007.png"
+    },
+    {
+      "pageNumber": 8,
+      "fileName": "page-008.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-008.png",
+      "relativePath": "data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-008.png"
+    },
+    {
+      "pageNumber": 9,
+      "fileName": "page-009.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-009.png",
+      "relativePath": "data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-009.png"
+    },
+    {
+      "pageNumber": 10,
+      "fileName": "page-010.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-010.png",
+      "relativePath": "data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-010.png"
+    },
+    {
+      "pageNumber": 11,
+      "fileName": "page-011.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-011.png",
+      "relativePath": "data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-011.png"
+    },
+    {
+      "pageNumber": 12,
+      "fileName": "page-012.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-012.png",
+      "relativePath": "data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-012.png"
+    },
+    {
+      "pageNumber": 13,
+      "fileName": "page-013.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-013.png",
+      "relativePath": "data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-013.png"
+    },
+    {
+      "pageNumber": 14,
+      "fileName": "page-014.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-014.png",
+      "relativePath": "data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-014.png"
+    },
+    {
+      "pageNumber": 15,
+      "fileName": "page-015.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-015.png",
+      "relativePath": "data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-015.png"
+    },
+    {
+      "pageNumber": 16,
+      "fileName": "page-016.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-016.png",
+      "relativePath": "data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-016.png"
+    },
+    {
+      "pageNumber": 17,
+      "fileName": "page-017.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-017.png",
+      "relativePath": "data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-017.png"
+    },
+    {
+      "pageNumber": 18,
+      "fileName": "page-018.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-018.png",
+      "relativePath": "data/processed-pdfs-images/FAQ_RoboRail_Calibration_v0.0_290324/images/page-018.png"
+    }
+  ]
+}

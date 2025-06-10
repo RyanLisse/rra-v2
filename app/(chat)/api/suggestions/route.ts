@@ -1,4 +1,4 @@
-import { withAuth } from '@/lib/auth';
+import { getUser, type UserType } from '@/lib/auth/kinde';
 import { getSuggestionsByDocumentId } from '@/lib/db/queries';
 import { ChatSDKError } from '@/lib/errors';
 
@@ -13,6 +13,12 @@ export const GET = withAuth(async (request: Request, session: any) => {
     ).toResponse();
   }
 
+  const user = await getUser();
+
+  if (!user) {
+    return new ChatSDKError('unauthorized:suggestions').toResponse();
+  }
+
   const suggestions = await getSuggestionsByDocumentId({
     documentId,
   });
@@ -23,7 +29,7 @@ export const GET = withAuth(async (request: Request, session: any) => {
     return Response.json([], { status: 200 });
   }
 
-  if (suggestion.userId !== session.user.id) {
+  if (suggestion.userId !== user.id) {
     return new ChatSDKError('forbidden:api').toResponse();
   }
 

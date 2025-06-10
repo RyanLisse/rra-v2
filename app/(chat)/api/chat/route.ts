@@ -5,7 +5,7 @@ import {
   smoothStream,
   streamText,
 } from 'ai';
-import { withAuth, type UserType, type BetterAuthSession } from '@/lib/auth';
+import { getUser, type UserType } from '@/lib/auth/kinde';
 import { type RequestHints, systemPrompt } from '@/lib/ai/prompts';
 import {
   createStreamId,
@@ -65,16 +65,35 @@ export const POST = withAuth(
   async (request: Request, session: BetterAuthSession) => {
     let requestBody: PostRequestBody;
 
-    try {
-      const json = await request.json();
-      requestBody = postRequestBodySchema.parse(json);
-    } catch (_) {
-      return new ChatSDKError('bad_request:api').toResponse();
+  try {
+    const json = await request.json();
+    requestBody = postRequestBodySchema.parse(json);
+  } catch (_) {
+    return new ChatSDKError('bad_request:api').toResponse();
+  }
+
+  try {
+    const { id, message, selectedChatModel, selectedVisibilityType } =
+      requestBody;
+
+    const user = await getUser();
+
+    if (!user) {
+      return new ChatSDKError('unauthorized:chat').toResponse();
     }
 
-    try {
-      const { id, message, selectedChatModel, selectedVisibilityType } =
-        requestBody;
+    // Create session-like object for backward compatibility
+    const session = { user };
+    const userType: UserType = user.type;
+
+    const messageCount = await getMessageCountByUserId({
+      id: user.id,
+      differenceInHours: 24,
+    });
+
+    if (messageCount > entitlementsByUserType[userType].maxMessagesPerDay) {
+      return new ChatSDKError('rate_limit:chat').toResponse();
+    }
 
       const userType: UserType = session.user.type;
 
@@ -83,8 +102,15 @@ export const POST = withAuth(
         differenceInHours: 24,
       });
 
-      if (messageCount > entitlementsByUserType[userType].maxMessagesPerDay) {
-        return new ChatSDKError('rate_limit:chat').toResponse();
+      await saveChat({
+        id,
+        userId: user.id,
+        title,
+        visibility: selectedVisibilityType,
+      });
+    } else {
+      if (chat.userId !== user.id) {
+        return new ChatSDKError('forbidden:chat').toResponse();
       }
 
       const chat = await getChatById({ id });
@@ -249,9 +275,15 @@ export const GET = withAuth(
     const { searchParams } = new URL(request.url);
     const chatId = searchParams.get('chatId');
 
-    if (!chatId) {
-      return new ChatSDKError('bad_request:api').toResponse();
-    }
+  if (!chatId) {
+    return new ChatSDKError('bad_request:api').toResponse();
+  }
+
+  const user = await getUser();
+
+  if (!user) {
+    return new ChatSDKError('unauthorized:chat').toResponse();
+  }
 
     let chat: Chat;
 
@@ -261,9 +293,9 @@ export const GET = withAuth(
       return new ChatSDKError('not_found:chat').toResponse();
     }
 
-    if (!chat) {
-      return new ChatSDKError('not_found:chat').toResponse();
-    }
+  if (chat.visibility === 'private' && chat.userId !== user.id) {
+    return new ChatSDKError('forbidden:chat').toResponse();
+  }
 
     if (chat.visibility === 'private' && chat.userId !== session.user.id) {
       return new ChatSDKError('forbidden:chat').toResponse();
@@ -328,20 +360,17 @@ export const GET = withAuth(
   },
 );
 
-export const DELETE = withAuth(
-  async (request: Request, session: BetterAuthSession) => {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
+  const user = await getUser();
 
-    if (!id) {
-      return new ChatSDKError('bad_request:api').toResponse();
-    }
+  if (!user) {
+    return new ChatSDKError('unauthorized:chat').toResponse();
+  }
 
     const chat = await getChatById({ id });
 
-    if (chat.userId !== session.user.id) {
-      return new ChatSDKError('forbidden:chat').toResponse();
-    }
+  if (chat.userId !== user.id) {
+    return new ChatSDKError('forbidden:chat').toResponse();
+  }
 
     const deletedChat = await deleteChatById({ id });
 

@@ -1,4 +1,5 @@
-import { withAuth } from '@/lib/auth';
+import { getUser, type UserType } from '@/lib/auth/kinde';
+import type { NextRequest } from 'next/server';
 import { getChatsByUserId } from '@/lib/db/queries';
 import { ChatSDKError } from '@/lib/errors';
 
@@ -16,8 +17,14 @@ export const GET = withAuth(async (request: Request, session: any) => {
     ).toResponse();
   }
 
+  const user = await getUser();
+
+  if (!user) {
+    return new ChatSDKError('unauthorized:chat').toResponse();
+  }
+
   const chats = await getChatsByUserId({
-    id: session.user.id,
+    id: user.id,
     limit,
     startingAfter,
     endingBefore,

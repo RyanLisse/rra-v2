@@ -1,0 +1,455 @@
+{
+  "fileName": "Operators manual_RoboRail V2.2_170424.pdf",
+  "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/pdf/Operators manual_RoboRail V2.2_170424.pdf",
+  "convertedAt": "2025-06-08T10:09:48.876Z",
+  "totalPages": 62,
+  "imagesGenerated": 62,
+  "processingTime": 5251,
+  "imageFiles": [
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-001.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-002.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-003.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-004.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-005.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-006.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-007.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-008.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-009.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-010.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-011.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-012.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-013.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-014.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-015.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-016.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-017.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-018.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-019.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-020.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-021.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-022.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-023.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-024.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-025.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-026.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-027.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-028.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-029.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-030.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-031.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-032.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-033.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-034.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-035.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-036.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-037.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-038.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-039.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-040.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-041.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-042.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-043.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-044.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-045.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-046.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-047.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-048.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-049.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-050.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-051.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-052.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-053.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-054.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-055.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-056.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-057.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-058.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-059.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-060.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-061.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-062.png"
+  ],
+  "outputPaths": {
+    "imagesDir": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images",
+    "documentOutputDir": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424"
+  },
+  "conversionSettings": {
+    "outputFormat": "png",
+    "outputFolder": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images",
+    "pagesToProcess": -1
+  },
+  "imageDetails": [
+    {
+      "pageNumber": 1,
+      "fileName": "page-001.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-001.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-001.png"
+    },
+    {
+      "pageNumber": 2,
+      "fileName": "page-002.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-002.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-002.png"
+    },
+    {
+      "pageNumber": 3,
+      "fileName": "page-003.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-003.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-003.png"
+    },
+    {
+      "pageNumber": 4,
+      "fileName": "page-004.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-004.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-004.png"
+    },
+    {
+      "pageNumber": 5,
+      "fileName": "page-005.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-005.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-005.png"
+    },
+    {
+      "pageNumber": 6,
+      "fileName": "page-006.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-006.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-006.png"
+    },
+    {
+      "pageNumber": 7,
+      "fileName": "page-007.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-007.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-007.png"
+    },
+    {
+      "pageNumber": 8,
+      "fileName": "page-008.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-008.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-008.png"
+    },
+    {
+      "pageNumber": 9,
+      "fileName": "page-009.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-009.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-009.png"
+    },
+    {
+      "pageNumber": 10,
+      "fileName": "page-010.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-010.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-010.png"
+    },
+    {
+      "pageNumber": 11,
+      "fileName": "page-011.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-011.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-011.png"
+    },
+    {
+      "pageNumber": 12,
+      "fileName": "page-012.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-012.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-012.png"
+    },
+    {
+      "pageNumber": 13,
+      "fileName": "page-013.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-013.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-013.png"
+    },
+    {
+      "pageNumber": 14,
+      "fileName": "page-014.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-014.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-014.png"
+    },
+    {
+      "pageNumber": 15,
+      "fileName": "page-015.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-015.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-015.png"
+    },
+    {
+      "pageNumber": 16,
+      "fileName": "page-016.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-016.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-016.png"
+    },
+    {
+      "pageNumber": 17,
+      "fileName": "page-017.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-017.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-017.png"
+    },
+    {
+      "pageNumber": 18,
+      "fileName": "page-018.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-018.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-018.png"
+    },
+    {
+      "pageNumber": 19,
+      "fileName": "page-019.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-019.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-019.png"
+    },
+    {
+      "pageNumber": 20,
+      "fileName": "page-020.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-020.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-020.png"
+    },
+    {
+      "pageNumber": 21,
+      "fileName": "page-021.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-021.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-021.png"
+    },
+    {
+      "pageNumber": 22,
+      "fileName": "page-022.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-022.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-022.png"
+    },
+    {
+      "pageNumber": 23,
+      "fileName": "page-023.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-023.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-023.png"
+    },
+    {
+      "pageNumber": 24,
+      "fileName": "page-024.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-024.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-024.png"
+    },
+    {
+      "pageNumber": 25,
+      "fileName": "page-025.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-025.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-025.png"
+    },
+    {
+      "pageNumber": 26,
+      "fileName": "page-026.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-026.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-026.png"
+    },
+    {
+      "pageNumber": 27,
+      "fileName": "page-027.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-027.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-027.png"
+    },
+    {
+      "pageNumber": 28,
+      "fileName": "page-028.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-028.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-028.png"
+    },
+    {
+      "pageNumber": 29,
+      "fileName": "page-029.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-029.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-029.png"
+    },
+    {
+      "pageNumber": 30,
+      "fileName": "page-030.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-030.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-030.png"
+    },
+    {
+      "pageNumber": 31,
+      "fileName": "page-031.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-031.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-031.png"
+    },
+    {
+      "pageNumber": 32,
+      "fileName": "page-032.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-032.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-032.png"
+    },
+    {
+      "pageNumber": 33,
+      "fileName": "page-033.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-033.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-033.png"
+    },
+    {
+      "pageNumber": 34,
+      "fileName": "page-034.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-034.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-034.png"
+    },
+    {
+      "pageNumber": 35,
+      "fileName": "page-035.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-035.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-035.png"
+    },
+    {
+      "pageNumber": 36,
+      "fileName": "page-036.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-036.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-036.png"
+    },
+    {
+      "pageNumber": 37,
+      "fileName": "page-037.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-037.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-037.png"
+    },
+    {
+      "pageNumber": 38,
+      "fileName": "page-038.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-038.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-038.png"
+    },
+    {
+      "pageNumber": 39,
+      "fileName": "page-039.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-039.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-039.png"
+    },
+    {
+      "pageNumber": 40,
+      "fileName": "page-040.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-040.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-040.png"
+    },
+    {
+      "pageNumber": 41,
+      "fileName": "page-041.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-041.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-041.png"
+    },
+    {
+      "pageNumber": 42,
+      "fileName": "page-042.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-042.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-042.png"
+    },
+    {
+      "pageNumber": 43,
+      "fileName": "page-043.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-043.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-043.png"
+    },
+    {
+      "pageNumber": 44,
+      "fileName": "page-044.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-044.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-044.png"
+    },
+    {
+      "pageNumber": 45,
+      "fileName": "page-045.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-045.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-045.png"
+    },
+    {
+      "pageNumber": 46,
+      "fileName": "page-046.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-046.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-046.png"
+    },
+    {
+      "pageNumber": 47,
+      "fileName": "page-047.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-047.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-047.png"
+    },
+    {
+      "pageNumber": 48,
+      "fileName": "page-048.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-048.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-048.png"
+    },
+    {
+      "pageNumber": 49,
+      "fileName": "page-049.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-049.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-049.png"
+    },
+    {
+      "pageNumber": 50,
+      "fileName": "page-050.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-050.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-050.png"
+    },
+    {
+      "pageNumber": 51,
+      "fileName": "page-051.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-051.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-051.png"
+    },
+    {
+      "pageNumber": 52,
+      "fileName": "page-052.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-052.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-052.png"
+    },
+    {
+      "pageNumber": 53,
+      "fileName": "page-053.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-053.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-053.png"
+    },
+    {
+      "pageNumber": 54,
+      "fileName": "page-054.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-054.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-054.png"
+    },
+    {
+      "pageNumber": 55,
+      "fileName": "page-055.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-055.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-055.png"
+    },
+    {
+      "pageNumber": 56,
+      "fileName": "page-056.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-056.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-056.png"
+    },
+    {
+      "pageNumber": 57,
+      "fileName": "page-057.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-057.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-057.png"
+    },
+    {
+      "pageNumber": 58,
+      "fileName": "page-058.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-058.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-058.png"
+    },
+    {
+      "pageNumber": 59,
+      "fileName": "page-059.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-059.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-059.png"
+    },
+    {
+      "pageNumber": 60,
+      "fileName": "page-060.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-060.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-060.png"
+    },
+    {
+      "pageNumber": 61,
+      "fileName": "page-061.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-061.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-061.png"
+    },
+    {
+      "pageNumber": 62,
+      "fileName": "page-062.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-062.png",
+      "relativePath": "data/processed-pdfs-images/Operators manual_RoboRail V2.2_170424/images/page-062.png"
+    }
+  ]
+}

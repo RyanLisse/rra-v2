@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 
-import { getServerSession } from '@/lib/auth';
+import { getUser, type UserType } from '@/lib/auth/kinde';
 import { Chat } from '@/components/chat';
 import { getChatById, getMessagesByChatId } from '@/lib/db/queries';
 import { DataStreamHandler } from '@/components/data-stream-handler';
@@ -18,18 +18,18 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     notFound();
   }
 
-  const session = await getServerSession();
+  const user = await getUser();
 
-  if (!session) {
-    redirect('/login');
+  if (!user) {
+    redirect('/api/auth/guest');
   }
 
   if (chat.visibility === 'private') {
-    if (!session.user) {
+    if (!user) {
       return notFound();
     }
 
-    if (session.user.id !== chat.userId) {
+    if (user.id !== chat.userId) {
       return notFound();
     }
   }
@@ -62,8 +62,8 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
           initialMessages={convertToUIMessages(messagesFromDb)}
           initialChatModel={DEFAULT_CHAT_MODEL}
           initialVisibilityType={chat.visibility}
-          isReadonly={session?.user?.id !== chat.userId}
-          session={session}
+          isReadonly={user?.id !== chat.userId}
+          session={{ user }}
           autoResume={true}
         />
         <DataStreamHandler id={id} />
@@ -78,8 +78,8 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
         initialMessages={convertToUIMessages(messagesFromDb)}
         initialChatModel={chatModelFromCookie.value}
         initialVisibilityType={chat.visibility}
-        isReadonly={session?.user?.id !== chat.userId}
-        session={session}
+        isReadonly={user?.id !== chat.userId}
+        session={{ user }}
         autoResume={true}
       />
       <DataStreamHandler id={id} />

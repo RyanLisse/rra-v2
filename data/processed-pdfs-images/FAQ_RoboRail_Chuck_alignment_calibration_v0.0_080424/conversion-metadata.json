@@ -1,0 +1,35 @@
+{
+  "fileName": "FAQ_RoboRail_Chuck_alignment_calibration_v0.0_080424.pdf",
+  "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/pdf/FAQ_RoboRail_Chuck_alignment_calibration_v0.0_080424.pdf",
+  "convertedAt": "2025-06-08T10:09:43.109Z",
+  "totalPages": 2,
+  "imagesGenerated": 2,
+  "processingTime": 235,
+  "imageFiles": [
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Chuck_alignment_calibration_v0.0_080424/images/page-001.png",
+    "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Chuck_alignment_calibration_v0.0_080424/images/page-002.png"
+  ],
+  "outputPaths": {
+    "imagesDir": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Chuck_alignment_calibration_v0.0_080424/images",
+    "documentOutputDir": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Chuck_alignment_calibration_v0.0_080424"
+  },
+  "conversionSettings": {
+    "outputFormat": "png",
+    "outputFolder": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Chuck_alignment_calibration_v0.0_080424/images",
+    "pagesToProcess": -1
+  },
+  "imageDetails": [
+    {
+      "pageNumber": 1,
+      "fileName": "page-001.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Chuck_alignment_calibration_v0.0_080424/images/page-001.png",
+      "relativePath": "data/processed-pdfs-images/FAQ_RoboRail_Chuck_alignment_calibration_v0.0_080424/images/page-001.png"
+    },
+    {
+      "pageNumber": 2,
+      "fileName": "page-002.png",
+      "filePath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/processed-pdfs-images/FAQ_RoboRail_Chuck_alignment_calibration_v0.0_080424/images/page-002.png",
+      "relativePath": "data/processed-pdfs-images/FAQ_RoboRail_Chuck_alignment_calibration_v0.0_080424/images/page-002.png"
+    }
+  ]
+}

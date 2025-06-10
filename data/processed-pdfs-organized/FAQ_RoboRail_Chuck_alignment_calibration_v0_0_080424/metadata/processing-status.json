@@ -1,0 +1,21 @@
+{
+  "document": {
+    "fileName": "FAQ_RoboRail_Chuck_alignment_calibration_v0.0_080424.pdf",
+    "originalPath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/pdf/FAQ_RoboRail_Chuck_alignment_calibration_v0.0_080424.pdf",
+    "fileSize": 333889,
+    "lastModified": "2025-06-06T19:37:22.212Z"
+  },
+  "processing": {
+    "organizedAt": "2025-06-08T09:59:05.815Z",
+    "textExtracted": true,
+    "imagesConverted": false,
+    "embeddingsGenerated": false,
+    "status": "partially_processed"
+  },
+  "nextSteps": [
+    "Convert PDF pages to images",
+    "Generate vector embeddings for text chunks",
+    "Enable multimodal search capabilities",
+    "Integrate with RAG pipeline"
+  ]
+}

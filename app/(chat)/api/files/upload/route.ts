@@ -2,7 +2,7 @@ import { put } from '@vercel/blob';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
-import { withAuth } from '@/lib/auth';
+import { getUser, type UserType } from '@/lib/auth/kinde';
 
 // Use Blob instead of File since File is not available in Node.js environment
 const FileSchema = z.object({
@@ -17,7 +17,13 @@ const FileSchema = z.object({
     }),
 });
 
-export const POST = withAuth(async (request: Request, session: any) => {
+export async function POST(request: Request) {
+  const user = await getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   if (request.body === null) {
     return new Response('Request body is empty', { status: 400 });
   }

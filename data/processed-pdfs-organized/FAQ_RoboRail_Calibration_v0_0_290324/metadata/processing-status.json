@@ -1,0 +1,21 @@
+{
+  "document": {
+    "fileName": "FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+    "originalPath": "/Users/neo/Developer/HGG/experiments/RRA_V2/data/pdf/FAQ_RoboRail_Calibration_v0.0_290324.pdf",
+    "fileSize": 1012468,
+    "lastModified": "2025-06-06T19:37:22.208Z"
+  },
+  "processing": {
+    "organizedAt": "2025-06-08T09:59:05.809Z",
+    "textExtracted": true,
+    "imagesConverted": false,
+    "embeddingsGenerated": false,
+    "status": "partially_processed"
+  },
+  "nextSteps": [
+    "Convert PDF pages to images",
+    "Generate vector embeddings for text chunks",
+    "Enable multimodal search capabilities",
+    "Integrate with RAG pipeline"
+  ]
+}
