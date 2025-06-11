@@ -91,6 +91,8 @@ export class DocumentProcessor {
             result = await this.processMarkdown(filePath);
           } else if (['.txt', '.log'].includes(extension)) {
             result = await this.processText(filePath);
+          } else if (extension === '.docx') {
+            result = await this.processDOCX(filePath);
           } else {
             result = {
               success: false,
@@ -207,12 +209,37 @@ export class DocumentProcessor {
     filePath: string,
   ): Promise<DocumentProcessingResult> {
     try {
-      // This would require mammoth or similar library
-      // For now, return a placeholder implementation
+      // Dynamically import mammoth to avoid bundling issues
+      const mammoth = await import('mammoth');
+
+      const { value, messages } = await mammoth.extractRawText({
+        path: filePath,
+      });
+
+      if (!value.trim()) {
+        return {
+          success: false,
+          error: 'DOCX file is empty or contains no readable text',
+        };
+      }
+
+      const textQuality = this.assessTextQuality(value);
+      const cleanedText = this.cleanExtractedText(value);
+
+      const warnings = [
+        ...(messages && messages.length > 0
+          ? messages.map((m: any) => m.message)
+          : []),
+        ...textQuality.issues,
+      ];
+
       return {
-        success: false,
-        error:
-          'DOCX processing not yet implemented. Please convert to PDF first.',
+        success: true,
+        text: cleanedText,
+        metadata: {
+          confidence: textQuality.confidence,
+          warnings: warnings.length > 0 ? warnings : undefined,
+        },
       };
     } catch (error) {
       return {
@@ -420,7 +447,7 @@ export class DocumentProcessor {
       'application/pdf',
       'text/plain',
       'text/markdown',
-      // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // DOCX - coming soon
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     ];
   }
 
