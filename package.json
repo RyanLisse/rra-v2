@@ -3,7 +3,8 @@
   "version": "3.0.23",
   "private": true,
   "scripts": {
-    "dev": "bun --bun next dev --turbo",
+    "dev": "bun --bun next dev",
+    "dev:turbo": "bun --bun next dev --turbo",
     "dev:webpack": "bun --bun next dev",
     "build": "if [ \"$SKIP_MIGRATIONS\" != \"true\" ]; then tsx lib/db/migrate; fi && next build",
     "build:vercel": "next build",
