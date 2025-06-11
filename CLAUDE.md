@@ -147,3 +147,7 @@ When working on features, consider which "agent" domain you're operating in and 
 - **Test-Driven Development (TDD)**: Write tests first, fail red, implement green, refactor
 - **TypeScript Everywhere**: Full type safety with Zod runtime validation
 - **Minimal Code**: Keep files under 500 lines, remove all redundancy
+
+## Deployment Workflow
+- Always check the Vercel deployment after a push to see if it's successful
+- If not successful, fix the remaining issues and push again

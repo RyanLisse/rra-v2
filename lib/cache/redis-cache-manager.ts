@@ -11,7 +11,7 @@
  */
 
 import { createClient, type RedisClientType } from 'redis';
-import crypto from 'node:crypto';
+import * as crypto from 'node:crypto';
 import pino from 'pino';
 
 const logger = pino({
@@ -127,11 +127,11 @@ export class RedisCacheManager {
       this.client = createClient({
         url: this.config.url,
         socket: {
-          reconnectStrategy: (retries) => Math.min(retries * 50, 500),
+          reconnectStrategy: (retries: number) => Math.min(retries * 50, 500),
         },
       });
 
-      this.client.on('error', (error) => {
+      this.client.on('error', (error: Error) => {
         logger.error({ error }, 'Redis connection error');
         this.isConnected = false;
         this.metrics.errors++;
@@ -404,7 +404,7 @@ export class RedisCacheManager {
       const parsed: any = {};
       for (const [field, value] of Object.entries(hash)) {
         try {
-          parsed[field] = JSON.parse(value);
+          parsed[field] = JSON.parse(value as string);
         } catch {
           parsed[field] = value;
         }
@@ -493,7 +493,7 @@ export class RedisCacheManager {
     try {
       const values = await this.client?.lRange(cacheKey, start, end);
 
-      return (values || []).map((value) => {
+      return (values || []).map((value: string) => {
         try {
           return JSON.parse(value);
         } catch {

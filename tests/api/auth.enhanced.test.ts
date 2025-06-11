@@ -269,7 +269,7 @@ describe('Enhanced Auth API Routes (Kinde)', () => {
 
     it('should handle large redirect URLs efficiently', async () => {
       // Create a large but valid redirect URL
-      const largeUrl = '/dashboard' + '?param=' + 'x'.repeat(1000);
+      const largeUrl = `/dashboard?param=${'x'.repeat(1000)}`;
       
       const request = createMockRequest(
         `http://localhost:3000/api/auth/guest?redirectUrl=${encodeURIComponent(largeUrl)}`,

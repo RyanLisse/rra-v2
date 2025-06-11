@@ -255,7 +255,7 @@ export class EnvironmentUtils {
     // Proper environment detection that accounts for test environments
     const isTest = process.env.NODE_ENV === 'test' || 
                    process.env.VITEST === 'true' ||
-                   typeof global !== 'undefined' && global.vi !== undefined;
+                   (typeof global !== 'undefined' && (global as any).vi !== undefined);
     
     // Only consider it a browser if window exists AND it's not a test environment
     // Test environments with jsdom can have window but should still allow Neon operations

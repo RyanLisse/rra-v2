@@ -139,7 +139,7 @@ export class SearchConfig {
         },
       });
 
-      this.redisClient.on('error', (error) => {
+      this.redisClient.on('error', (error: Error) => {
         console.error('Redis connection error:', error);
         this.redisClient = null;
       });

@@ -105,10 +105,10 @@ jobs:
         run: bun install --frozen-lockfile
       
       - name: Simulate Vercel build
-        run: npx vercel build
-        env:
-          SKIP_MIGRATIONS: true
-          NEXT_TELEMETRY_DISABLED: 1
+        run: |
+          export SKIP_MIGRATIONS=true
+          export NEXT_TELEMETRY_DISABLED=1
+          bun run build:vercel
 
   security-audit:
     runs-on: ubuntu-latest

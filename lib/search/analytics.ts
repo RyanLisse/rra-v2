@@ -295,16 +295,16 @@ export class SearchAnalytics {
         await Promise.all([
           this.redis
             .hGet(metricsKey, 'cache_hits')
-            .then((val) => Number.parseInt(val || '0')),
+            .then((val: string | null) => Number.parseInt(val || '0')),
           this.redis
             .hGet(metricsKey, 'cache_misses')
-            .then((val) => Number.parseInt(val || '0')),
+            .then((val: string | null) => Number.parseInt(val || '0')),
           this.redis
             .hGet(metricsKey, 'total_response_time')
-            .then((val) => Number.parseInt(val || '0')),
+            .then((val: string | null) => Number.parseInt(val || '0')),
           this.redis
             .hGet(metricsKey, 'total_searches')
-            .then((val) => Number.parseInt(val || '0')),
+            .then((val: string | null) => Number.parseInt(val || '0')),
         ]);
 
       const totalRequests = totalHits + totalMisses;
@@ -355,16 +355,16 @@ export class SearchAnalytics {
         ] = await Promise.all([
           this.redis
             .hGet(metricsKey, 'total_searches')
-            .then((val) => Number.parseInt(val || '0')),
+            .then((val: string | null) => Number.parseInt(val || '0')),
           this.redis
             .hGet(metricsKey, 'total_response_time')
-            .then((val) => Number.parseInt(val || '0')),
+            .then((val: string | null) => Number.parseInt(val || '0')),
           this.redis
             .hGet(metricsKey, 'cache_hits')
-            .then((val) => Number.parseInt(val || '0')),
+            .then((val: string | null) => Number.parseInt(val || '0')),
           this.redis
             .hGet(metricsKey, 'successful_searches')
-            .then((val) => Number.parseInt(val || '0')),
+            .then((val: string | null) => Number.parseInt(val || '0')),
         ]);
 
         trends.push({
@@ -453,19 +453,19 @@ export class SearchAnalytics {
       ] = await Promise.all([
         this.redis
           ?.hGet(globalKey, 'total_queries')
-          .then((val) => Number.parseInt(val || '0')) || 0,
+          .then((val: string | null) => Number.parseInt(val || '0')) || 0,
         this.redis
           ?.hGet(globalKey, 'total_response_time')
-          .then((val) => Number.parseInt(val || '0')) || 0,
+          .then((val: string | null) => Number.parseInt(val || '0')) || 0,
         this.redis
           ?.hGet(globalKey, 'total_errors')
-          .then((val) => Number.parseInt(val || '0')) || 0,
+          .then((val: string | null) => Number.parseInt(val || '0')) || 0,
         this.redis
           ?.hGet(globalKey, 'cache_hits')
-          .then((val) => Number.parseInt(val || '0')) || 0,
+          .then((val: string | null) => Number.parseInt(val || '0')) || 0,
         this.redis
           ?.hGet(globalKey, 'cache_misses')
-          .then((val) => Number.parseInt(val || '0')) || 0,
+          .then((val: string | null) => Number.parseInt(val || '0')) || 0,
       ]);
 
       const avgResponseTime =
@@ -588,7 +588,7 @@ export class SearchAnalytics {
         if (key.startsWith('algorithm_')) {
           const algorithm = key.replace('algorithm_', '');
           algorithmUsage[algorithm] =
-            (algorithmUsage[algorithm] || 0) + Number.parseInt(value);
+            (algorithmUsage[algorithm] || 0) + Number.parseInt(String(value || '0'));
         }
       });
 

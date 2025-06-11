@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
-import { createMockDatabase, createTestUser, createTestDocument, createTestDocumentChunk } from '../utils/test-database';
+import { createTestUser, createTestDocument, createTestDocumentChunk } from '../utils/test-database';
 
 describe('ADE Helpers', () => {
   let testUserId: string;

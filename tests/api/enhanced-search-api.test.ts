@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, } from 'vitest';
 import { NextRequest } from 'next/server';
 
 // Mock the search route directly since we can't easily mock the complex imports
