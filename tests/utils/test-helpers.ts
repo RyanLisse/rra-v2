@@ -99,6 +99,54 @@ export const mockFileSystemSuccess = () => {
   }));
 };
 
+// Comprehensive test environment setup
+export const setupTestEnvironment = () => {
+  // Set environment variables FIRST before any other mocking
+  process.env.POSTGRES_URL = 'postgresql://test:test@localhost:5432/test';
+  process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test';
+  process.env.NODE_ENV = 'test';
+  process.env.KINDE_CLIENT_ID = 'test-client-id';
+  process.env.KINDE_CLIENT_SECRET = 'test-client-secret';
+  process.env.KINDE_ISSUER_URL = 'https://test.kinde.com';
+  process.env.KINDE_SITE_URL = 'http://localhost:3000';
+  process.env.KINDE_POST_LOGOUT_REDIRECT_URL = 'http://localhost:3000';
+  process.env.KINDE_POST_LOGIN_REDIRECT_URL = 'http://localhost:3000';
+  // Mock Kinde auth
+  vi.mock('@kinde-oss/kinde-auth-nextjs/server', () => ({
+    getKindeServerSession: vi.fn(() => ({
+      getUser: vi.fn(() => ({
+        id: 'test-user-id',
+        email: 'test@example.com',
+        given_name: 'Test',
+        family_name: 'User',
+        picture: null,
+      })),
+      isAuthenticated: vi.fn(() => true),
+    })),
+  }));
+
+  // Mock auth helpers
+  vi.mock('@/lib/auth/kinde', () => ({
+    getUser: vi.fn(() => ({
+      id: 'test-user-id',
+      email: 'test@example.com',
+      given_name: 'Test',
+      family_name: 'User',
+      picture: null,
+      type: 'regular',
+    })),
+    requireAuth: vi.fn(() => ({
+      id: 'test-user-id',
+      email: 'test@example.com',
+      given_name: 'Test',
+      family_name: 'User',
+      picture: null,
+      type: 'regular',
+    })),
+    isAuthenticated: vi.fn(() => true),
+  }));
+};
+
 export const mockFileSystemError = (error: Error) => {
   vi.mock('node:fs/promises', () => ({
     writeFile: vi.fn().mockRejectedValue(error),

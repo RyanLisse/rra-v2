@@ -1,24 +1,47 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
-// Mock all modules BEFORE any imports to prevent environment checks
-vi.mock('@/lib/db', () => ({
-  db: {
-    query: {
-      ragDocument: {
-        findFirst: vi.fn(),
-      },
+// Set environment variables in hoisted block
+vi.hoisted(() => {
+  process.env.POSTGRES_URL = 'postgresql://test:test@localhost:5432/test';
+  process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test';
+  process.env.NODE_ENV = 'test';
+  process.env.KINDE_CLIENT_ID = 'test-client-id';
+  process.env.KINDE_CLIENT_SECRET = 'test-client-secret';
+  process.env.KINDE_ISSUER_URL = 'https://test.kinde.com';
+  process.env.KINDE_SITE_URL = 'http://localhost:3000';
+  process.env.KINDE_POST_LOGOUT_REDIRECT_URL = 'http://localhost:3000';
+  process.env.KINDE_POST_LOGIN_REDIRECT_URL = 'http://localhost:3000';
+});
+
+// Mock the database module completely in hoisted block
+const mockDb = vi.hoisted(() => ({
+  query: {
+    ragDocument: {
+      findFirst: vi.fn(),
     },
-    transaction: vi.fn(),
-    insert: vi.fn().mockReturnValue({
-      values: vi.fn().mockResolvedValue(undefined),
-    }),
-    update: vi.fn().mockReturnValue({
-      set: vi.fn().mockReturnValue({
-        where: vi.fn().mockResolvedValue(undefined),
-      }),
-    }),
   },
+  transaction: vi.fn(),
+  insert: vi.fn().mockReturnValue({
+    values: vi.fn().mockResolvedValue(undefined),
+  }),
+  update: vi.fn().mockReturnValue({
+    set: vi.fn().mockReturnValue({
+      where: vi.fn().mockResolvedValue(undefined),
+    }),
+  }),
+}));
+
+vi.mock('@/lib/db', () => ({
+  db: mockDb,
+}));
+
+vi.mock('@/lib/db/config', () => ({
+  db: mockDb,
+}));
+
+vi.mock('@/lib/db/index', () => ({
+  db: mockDb,
 }));
 vi.mock('@/lib/document-processing/document-processor');
 vi.mock('@/lib/document-processing/status-manager');
@@ -35,8 +58,41 @@ vi.mock('@/lib/auth/config', () => ({
   },
 }));
 
-// Set environment variables for any remaining checks
-process.env.POSTGRES_URL = 'postgresql://test:test@localhost:5432/test';
+// Mock Kinde auth
+vi.mock('@kinde-oss/kinde-auth-nextjs/server', () => ({
+  getKindeServerSession: vi.fn(() => ({
+    getUser: vi.fn(() => ({
+      id: 'test-user-id',
+      email: 'test@example.com',
+      given_name: 'Test',
+      family_name: 'User',
+      picture: null,
+    })),
+    isAuthenticated: vi.fn(() => true),
+  })),
+}));
+
+vi.mock('@/lib/auth/kinde', () => ({
+  getUser: vi.fn(() => ({
+    id: 'test-user-id',
+    email: 'test@example.com',
+    given_name: 'Test',
+    family_name: 'User',
+    picture: null,
+    type: 'regular',
+  })),
+  requireAuth: vi.fn(() => ({
+    id: 'test-user-id',
+    email: 'test@example.com',
+    given_name: 'Test',
+    family_name: 'User',
+    picture: null,
+    type: 'regular',
+  })),
+  isAuthenticated: vi.fn(() => true),
+}));
+
+// Additional legacy env vars for any remaining checks
 process.env.BETTER_AUTH_SECRET = 'test-secret';
 process.env.BETTER_AUTH_URL = 'http://localhost:3000';
 
@@ -46,7 +102,7 @@ import { DocumentStatusManager } from '@/lib/document-processing/status-manager'
 import * as fs from 'node:fs/promises';
 import { db } from '@/lib/db';
 
-const mockDb = vi.mocked(db);
+const mockedDb = vi.mocked(db);
 const mockDocumentProcessor = vi.mocked(DocumentProcessor);
 const mockDocumentStatusManager = vi.mocked(DocumentStatusManager);
 const mockFs = vi.mocked(fs);
@@ -91,7 +147,7 @@ describe('/api/documents/extract-text', () => {
     mockDocumentProcessor.mockImplementation(() => mockProcessor as any);
 
     // Mock database transaction
-    mockDb.transaction = vi.fn().mockImplementation(async (callback) => {
+    mockedDb.transaction = vi.fn().mockImplementation(async (callback) => {
       const mockTx = {
         insert: vi.fn().mockReturnValue({
           values: vi.fn().mockResolvedValue(undefined),
@@ -144,7 +200,7 @@ describe('/api/documents/extract-text', () => {
 
   describe('Document Retrieval and Authorization', () => {
     it('should return 404 when document is not found', async () => {
-      mockDb.query = {
+      mockedDb.query = {
         ragDocument: {
           findFirst: vi.fn().mockResolvedValue(null),
         },
@@ -165,7 +221,7 @@ describe('/api/documents/extract-text', () => {
         uploadedBy: 'other-user-456',
       };
 
-      mockDb.query = {
+      mockedDb.query = {
         ragDocument: {
           findFirst: vi.fn().mockResolvedValue(documentOwnedByOther),
         },
@@ -186,7 +242,7 @@ describe('/api/documents/extract-text', () => {
         status: 'text_extracted',
       };
 
-      mockDb.query = {
+      mockedDb.query = {
         ragDocument: {
           findFirst: vi.fn().mockResolvedValue(processedDocument),
         },
@@ -206,7 +262,7 @@ describe('/api/documents/extract-text', () => {
 
   describe('Text Extraction Process', () => {
     beforeEach(() => {
-      mockDb.query = {
+      mockedDb.query = {
         ragDocument: {
           findFirst: vi.fn().mockResolvedValue(mockDocument),
         },
@@ -273,7 +329,7 @@ describe('/api/documents/extract-text', () => {
       );
 
       // Verify database transaction was called
-      expect(mockDb.transaction).toHaveBeenCalled();
+      expect(mockedDb.transaction).toHaveBeenCalled();
     });
 
     it('should handle text extraction failures', async () => {
@@ -344,7 +400,7 @@ describe('/api/documents/extract-text', () => {
 
   describe('Progress Tracking', () => {
     beforeEach(() => {
-      mockDb.query = {
+      mockedDb.query = {
         ragDocument: {
           findFirst: vi.fn().mockResolvedValue(mockDocument),
         },
@@ -390,7 +446,7 @@ describe('/api/documents/extract-text', () => {
 
   describe('Database Operations', () => {
     beforeEach(() => {
-      mockDb.query = {
+      mockedDb.query = {
         ragDocument: {
           findFirst: vi.fn().mockResolvedValue(mockDocument),
         },
@@ -422,7 +478,7 @@ describe('/api/documents/extract-text', () => {
       await POST(request, mockSession);
 
       // Verify database transaction was executed
-      expect(mockDb.transaction).toHaveBeenCalled();
+      expect(mockedDb.transaction).toHaveBeenCalled();
     });
 
     it('should handle database transaction failures', async () => {
@@ -436,7 +492,7 @@ describe('/api/documents/extract-text', () => {
       mockFs.writeFile.mockResolvedValue();
 
       // Mock database transaction failure
-      mockDb.transaction.mockRejectedValue(
+      mockedDb.transaction.mockRejectedValue(
         new Error('Database connection lost'),
       );
 
@@ -453,7 +509,7 @@ describe('/api/documents/extract-text', () => {
 
   describe('Error Recovery', () => {
     beforeEach(() => {
-      mockDb.query = {
+      mockedDb.query = {
         ragDocument: {
           findFirst: vi.fn().mockResolvedValue(mockDocument),
         },
@@ -478,7 +534,7 @@ describe('/api/documents/extract-text', () => {
 
   describe('Integration Scenarios', () => {
     beforeEach(() => {
-      mockDb.query = {
+      mockedDb.query = {
         ragDocument: {
           findFirst: vi.fn().mockResolvedValue(mockDocument),
         },
