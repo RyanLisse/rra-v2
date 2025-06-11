@@ -13,9 +13,10 @@ help:
 	@echo "    make setup-manual  - Manual setup (clean + install + build)"
 	@echo ""
 	@echo "  Development:"
-	@echo "    make dev           - Start development server"
+	@echo "    make dev           - Kill ports and start development server"
 	@echo "    make build         - Build for production"
 	@echo "    make install       - Install dependencies"
+	@echo "    make kill-ports    - Kill processes on development ports"
 	@echo ""
 	@echo "  Code Quality:"
 	@echo "    make lint          - Run linters (format + lint)"
@@ -40,17 +41,29 @@ help:
 	@echo "    make clean         - Clean build artifacts"
 	@echo "    make fresh         - Fresh install (clean + setup)"
 
+# Port management
+kill-ports:
+	@echo "🔄 Killing processes on development ports..."
+	@lsof -ti:3000 | xargs kill -9 2>/dev/null || echo "  Port 3000 is free"
+	@lsof -ti:5432 | xargs kill -9 2>/dev/null || echo "  Port 5432 is free"
+	@lsof -ti:6379 | xargs kill -9 2>/dev/null || echo "  Port 6379 is free"
+	@pkill -f "next dev" 2>/dev/null || echo "  No Next.js dev processes running"
+	@pkill -f "playwright" 2>/dev/null || echo "  No Playwright processes running"
+	@echo "✅ Ports cleared successfully"
+
 # Core commands
 install:
 	bun install
 
-dev:
+dev: kill-ports
+	@echo "🚀 Starting development server with Turbopack..."
 	bun run dev
 
 build:
 	bun run build
 
-start:
+start: kill-ports
+	@echo "🚀 Starting production server..."
 	bun run start
 
 # Linting and formatting
@@ -120,22 +133,28 @@ test-utils:
 test-fixtures:
 	bun run test:fixtures
 
-test-e2e:
+test-e2e: kill-ports
+	@echo "🧪 Running Playwright E2E tests..."
 	bun run test:e2e
 
-test-e2e-ui:
+test-e2e-ui: kill-ports
+	@echo "🧪 Running Playwright E2E tests with UI..."
 	bun run test:e2e:ui
 
-test-e2e-debug:
+test-e2e-debug: kill-ports
+	@echo "🧪 Running Playwright E2E tests in debug mode..."
 	bun run test:e2e:debug
 
-test-e2e-headed:
+test-e2e-headed: kill-ports
+	@echo "🧪 Running Playwright E2E tests in headed mode..."
 	bun run test:e2e:headed
 
-test-all:
+test-all: kill-ports
+	@echo "🧪 Running complete test suite..."
 	bun run test:all
 
-test-ci:
+test-ci: kill-ports
+	@echo "🧪 Running CI test suite..."
 	bun run test:ci
 
 playwright-install:
