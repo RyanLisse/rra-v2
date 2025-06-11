@@ -56,6 +56,21 @@ export default withAuth(
       // Allow access for all authenticated users
       return !!token;
     },
+    onError: (error: Error, request: NextRequest) => {
+      console.error('Kinde Middleware Error:', error.message);
+      
+      // For state errors, clear any problematic cookies and redirect to login
+      if (error.message.includes('State not found')) {
+        const response = NextResponse.redirect(new URL('/api/auth/login', request.url));
+        // Clear problematic Kinde cookies
+        response.cookies.delete('kinde-access-token');
+        response.cookies.delete('kinde-refresh-token');
+        response.cookies.delete('kinde-user');
+        return response;
+      }
+      
+      return NextResponse.redirect(new URL('/?error=auth_error', request.url));
+    },
   },
 );
 
