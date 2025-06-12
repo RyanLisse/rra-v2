@@ -1,6 +1,7 @@
-import { getUser } from '@/lib/auth/kinde';
+import { withAuthRequest } from '@/lib/auth/middleware';
 import { vectorSearchService } from '@/lib/search/vector-search';
 import { geminiRAGService } from '@/lib/ai/gemini-client';
+import { ChatSDKError } from '@/lib/errors';
 import { z } from 'zod';
 
 const ragChatSchema = z.object({
@@ -40,28 +41,17 @@ const ragChatSchema = z.object({
   streaming: z.boolean().default(false),
 });
 
-export async function POST(request: Request) {
+export const POST = withAuthRequest(async (request: Request, user) => {
   try {
-    const user = await getUser();
-    if (!user) {
-      return Response.json(
-        { error: 'Authentication required' },
-        { status: 401 },
-      );
-    }
 
     const body = await request.json();
 
     // Validate input
     const validation = ragChatSchema.safeParse(body);
     if (!validation.success) {
-      return Response.json(
-        {
-          error: 'Invalid chat parameters',
-          details: validation.error.errors,
-        },
-        { status: 400 },
-      );
+      return new ChatSDKError('bad_request:validation', 'Invalid chat parameters', {
+        details: validation.error.errors,
+      }).toResponse();
     }
 
     const {
@@ -335,40 +325,24 @@ export async function POST(request: Request) {
     if (error instanceof Error) {
       // Handle specific errors
       if (error.message.includes('search failed')) {
-        return Response.json(
-          {
-            error: 'Search service unavailable',
-            details: 'Unable to search documents at this time',
-          },
-          { status: 503 },
-        );
+        return new ChatSDKError('service_unavailable:search', 'Unable to search documents at this time').toResponse();
       }
 
       if (error.message.includes('RAG response generation failed')) {
-        return Response.json(
-          {
-            error: 'Response generation failed',
-            details: 'Unable to generate response at this time',
-          },
-          { status: 503 },
-        );
+        return new ChatSDKError('service_unavailable:ai', 'Unable to generate response at this time').toResponse();
       }
     }
 
-    return Response.json(
-      {
-        error: 'Internal server error',
-        debug:
-          process.env.NODE_ENV === 'development'
-            ? error instanceof Error
-              ? error.message
-              : String(error)
-            : undefined,
-      },
-      { status: 500 },
-    );
+    return new ChatSDKError('internal:rag', 'Internal server error', {
+      debug:
+        process.env.NODE_ENV === 'development'
+          ? error instanceof Error
+            ? error.message
+            : String(error)
+          : undefined,
+    }).toResponse();
   }
-}
+});
 
 /**
  * Generate search suggestions when no results are found

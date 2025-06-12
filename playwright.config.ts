@@ -269,6 +269,8 @@ export default defineConfig({
       // Ensure consistent port
       PORT: PORT.toString(),
     },
+    // Add retry logic for server startup
+    retries: 3,
   },
 
   /* Enhanced metadata */

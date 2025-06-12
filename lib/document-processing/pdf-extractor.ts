@@ -5,7 +5,6 @@
  */
 
 import PDFParser from 'pdf-parse';
-import { readFile } from 'node:fs/promises';
 
 /**
  * Result type for PDF text extraction
@@ -20,22 +19,28 @@ export interface PDFExtractionResult {
 }
 
 /**
- * Extract text content from a PDF file path
+ * Extract text content from a PDF file path or URL
  *
- * @param filePath - Path to the PDF file
+ * @param filePathOrUrl - Path to the PDF file or URL
  * @returns Promise<PDFExtractionResult> - The extracted text and metadata
  */
 export async function extractTextFromPDF(
-  filePath: string,
+  filePathOrUrl: string,
 ): Promise<PDFExtractionResult> {
   try {
-    // Validate file path security
-    if (!filePath.startsWith('/uploads/') || filePath.includes('..')) {
-      throw new Error('Invalid file path for security reasons');
-    }
+    let pdfBuffer: Buffer;
 
-    // Read the PDF file
-    const pdfBuffer = await readFile(filePath);
+    // Handle blob URLs
+    if (filePathOrUrl.startsWith('https://')) {
+      const response = await fetch(filePathOrUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch PDF: ${response.statusText}`);
+      }
+      const arrayBuffer = await response.arrayBuffer();
+      pdfBuffer = Buffer.from(arrayBuffer);
+    } else {
+      throw new Error('Only blob URLs are supported for PDF extraction');
+    }
 
     // Parse the PDF using pdf-parse
     const data = await PDFParser(pdfBuffer);

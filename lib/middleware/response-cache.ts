@@ -9,7 +9,7 @@ export interface CacheConfig {
   vary?: string[]; // Headers to vary cache on
 }
 
-// In-memory cache store (in production, use Redis or similar)
+// In-memory cache store with lazy cleanup (for development/testing only)
 const responseCache = new Map<
   string,
   {
@@ -21,19 +21,24 @@ const responseCache = new Map<
   }
 >();
 
-// Cleanup expired entries
-setInterval(() => {
+// Lazy cleanup function - called during cache operations
+function cleanupExpiredResponses() {
   const now = Date.now();
   for (const [key, entry] of responseCache.entries()) {
     if (now - entry.timestamp > entry.ttl * 1000) {
       responseCache.delete(key);
     }
   }
-}, 60000); // Cleanup every minute
+}
 
 export function createResponseCache(config: CacheConfig) {
   return {
     get: async (request: NextRequest): Promise<NextResponse | null> => {
+      // Clean up expired entries if cache gets large
+      if (responseCache.size > 100) {
+        cleanupExpiredResponses();
+      }
+      
       const key = config.keyGenerator
         ? config.keyGenerator(request)
         : getDefaultCacheKey(request);

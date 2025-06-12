@@ -215,7 +215,7 @@ export class AdeClient {
       }
     }
 
-    throw lastError!;
+    throw lastError || new Error('All retry attempts failed');
   }
 
   private async handleResponse(

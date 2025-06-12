@@ -1,15 +1,10 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { getUser } from '@/lib/auth/kinde';
+import { withAuth } from '@/lib/auth/middleware';
 import { getDocumentProcessingStats } from '@/lib/db/queries';
 import { ChatSDKError } from '@/lib/errors';
 
-export async function GET(request: NextRequest) {
+export const GET = withAuth(async (request: NextRequest, user) => {
   try {
-    const user = await getUser();
-
-    if (!user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     const stats = await getDocumentProcessingStats({
       userId: user.id,
@@ -30,4 +25,4 @@ export async function GET(request: NextRequest) {
       { status: 500 },
     );
   }
-}
+});

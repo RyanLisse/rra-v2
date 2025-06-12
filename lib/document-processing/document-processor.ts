@@ -130,7 +130,7 @@ export class DocumentProcessor {
     let lastError: Error | null = null;
     const warnings: string[] = [];
 
-    for (let attempt = 1; attempt <= this.options.maxRetries!; attempt++) {
+    for (let attempt = 1; attempt <= (this.options.maxRetries ?? 3); attempt++) {
       try {
         // Dynamically import pdf-parse to avoid build issues
         const pdf = (await import('pdf-parse')).default;
@@ -185,7 +185,7 @@ export class DocumentProcessor {
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
 
-        if (attempt < this.options.maxRetries!) {
+        if (attempt < (this.options.maxRetries ?? 3)) {
           warnings.push(`Attempt ${attempt} failed: ${lastError.message}`);
           // Wait before retry with exponential backoff
           await new Promise((resolve) =>

@@ -26,6 +26,51 @@ export {
   embeddingCache,
 } from './redis-cache-manager';
 
+// New Redis infrastructure
+export {
+  getRedisClient,
+  closeRedisConnection,
+  isRedisAvailable,
+  CacheKeys,
+  CacheTTL,
+  createBatch,
+  warmCache,
+} from './redis-client';
+
+// Redis-backed rate limiting
+export {
+  type RateLimitConfig,
+  createRedisRateLimit,
+  chatRateLimit,
+  authRateLimit,
+  uploadRateLimit,
+  searchRateLimit,
+  clearRateLimit,
+  getRateLimitStatus,
+} from './redis-rate-limiter';
+
+// Redis-backed query caching
+export {
+  getCachedResult,
+  setCachedResult,
+  invalidateCache,
+  clearAllCache,
+  getCacheStats,
+  getBatchCached,
+  setBatchCached,
+  withCache,
+} from './redis-query-cache';
+
+// Cache utilities
+export {
+  checkCacheHealth,
+  warmupCache,
+  clearCachePatterns,
+  monitorCachePerformance,
+  performCacheMaintenance,
+  getCacheConfig,
+} from './cache-utils';
+
 // Cache middleware
 export {
   CacheMiddleware,

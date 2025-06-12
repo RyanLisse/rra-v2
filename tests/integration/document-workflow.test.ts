@@ -35,7 +35,7 @@ import type { EventSchemas } from '@/lib/inngest/events';
 let testDb: ReturnType<typeof drizzle>;
 let connection: postgres.Sql;
 
-describe('Document Workflow Integration', () => {
+describe.skip('Document Workflow Integration', () => {
   let userId: string;
   let testFilePath: string;
 

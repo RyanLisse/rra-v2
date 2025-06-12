@@ -6,6 +6,7 @@ import {
   streamText,
 } from 'ai';
 import { getUser, type UserType } from '@/lib/auth/kinde';
+import { withAuthRequest } from '@/lib/auth/middleware';
 import { type RequestHints, systemPrompt } from '@/lib/ai/prompts';
 import {
   createStreamId,
@@ -61,7 +62,7 @@ function getStreamContext() {
   return globalStreamContext;
 }
 
-export async function POST(request: Request) {
+export const POST = withAuthRequest(async (request: Request, user) => {
   let requestBody: PostRequestBody;
 
   try {
@@ -74,12 +75,6 @@ export async function POST(request: Request) {
   try {
     const { id, message, selectedChatModel, selectedVisibilityType } =
       requestBody;
-
-    const user = await getUser();
-
-    if (!user) {
-      return new ChatSDKError('unauthorized:chat').toResponse();
-    }
 
     // Create session-like object for backward compatibility
     const session = {
@@ -246,7 +241,7 @@ export async function POST(request: Request) {
     }
     return new ChatSDKError('bad_request:api').toResponse();
   }
-}
+});
 
 export async function GET(request: Request) {
   const streamContext = getStreamContext();

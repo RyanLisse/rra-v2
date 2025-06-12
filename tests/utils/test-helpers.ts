@@ -89,19 +89,11 @@ export const mockDatabaseError = (error: Error) => {
   return vi.fn().mockRejectedValue(error);
 };
 
-// File system mocking
-export const mockFileSystemSuccess = () => {
-  vi.mock('node:fs/promises', () => ({
-    writeFile: vi.fn().mockResolvedValue(undefined),
-    mkdir: vi.fn().mockResolvedValue(undefined),
-    readFile: vi.fn().mockResolvedValue(Buffer.from('test content')),
-    unlink: vi.fn().mockResolvedValue(undefined),
-  }));
-};
+// File system mocking (mock setup handled globally in test-setup.ts)
 
 // Comprehensive test environment setup
 export const setupTestEnvironment = () => {
-  // Set environment variables FIRST before any other mocking
+  // Set environment variables for testing
   process.env.POSTGRES_URL = 'postgresql://test:test@localhost:5432/test';
   process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test';
   process.env.NODE_ENV = 'test';
@@ -111,80 +103,16 @@ export const setupTestEnvironment = () => {
   process.env.KINDE_SITE_URL = 'http://localhost:3000';
   process.env.KINDE_POST_LOGOUT_REDIRECT_URL = 'http://localhost:3000';
   process.env.KINDE_POST_LOGIN_REDIRECT_URL = 'http://localhost:3000';
-  // Mock Kinde auth
-  vi.mock('@kinde-oss/kinde-auth-nextjs/server', () => ({
-    getKindeServerSession: vi.fn(() => ({
-      getUser: vi.fn(() => ({
-        id: 'test-user-id',
-        email: 'test@example.com',
-        given_name: 'Test',
-        family_name: 'User',
-        picture: null,
-      })),
-      isAuthenticated: vi.fn(() => true),
-    })),
-  }));
-
-  // Mock auth helpers
-  vi.mock('@/lib/auth/kinde', () => ({
-    getUser: vi.fn(() => ({
-      id: 'test-user-id',
-      email: 'test@example.com',
-      given_name: 'Test',
-      family_name: 'User',
-      picture: null,
-      type: 'regular',
-    })),
-    requireAuth: vi.fn(() => ({
-      id: 'test-user-id',
-      email: 'test@example.com',
-      given_name: 'Test',
-      family_name: 'User',
-      picture: null,
-      type: 'regular',
-    })),
-    isAuthenticated: vi.fn(() => true),
-  }));
+  
+  // Note: Mock setup is handled globally in test-setup.ts
+  // vi.mock calls must be at module level, not inside functions
 };
 
-export const mockFileSystemError = (error: Error) => {
-  vi.mock('node:fs/promises', () => ({
-    writeFile: vi.fn().mockRejectedValue(error),
-    mkdir: vi.fn().mockRejectedValue(error),
-    readFile: vi.fn().mockRejectedValue(error),
-    unlink: vi.fn().mockRejectedValue(error),
-  }));
-};
+// File system error mocking (removed - mock setup handled globally in test-setup.ts)
 
-// AI/LLM mocking utilities
-export const mockStreamTextSuccess = (responseText: string) => {
-  const mockStream = {
-    consumeStream: vi.fn(),
-    mergeIntoDataStream: vi.fn(),
-  };
+// AI/LLM mocking utilities (removed - mock setup handled globally in test-setup.ts)
 
-  vi.mock('ai', async () => {
-    const actual = await vi.importActual('ai');
-    return {
-      ...actual,
-      streamText: vi.fn().mockReturnValue(mockStream),
-      createDataStream: vi.fn().mockReturnValue(new ReadableStream()),
-    };
-  });
-
-  return mockStream;
-};
-
-// Test environment helpers
-export const setupTestEnvironment = () => {
-  // Set test environment variables
-  process.env.NODE_ENV = 'test';
-  process.env.TEST_DATABASE_URL =
-    'postgresql://test:test@localhost:5432/test_db';
-
-  // Note: External service mocking is handled in test setup files
-  // vi.mock calls should be in individual test files or global setup
-};
+// Test environment helpers - removed duplicate, using the comprehensive one above
 
 // Response assertion helpers
 export const assertSuccessResponse = async (

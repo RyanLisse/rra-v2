@@ -15,8 +15,8 @@ describe('Test Infrastructure Validation', () => {
   it('should have essential environment variables set', () => {
     expect(process.env.NODE_ENV).toBe('test');
     expect(process.env.POSTGRES_URL).toBeDefined();
-    expect(process.env.BETTER_AUTH_SECRET).toBeDefined();
-    expect(process.env.BETTER_AUTH_URL).toBeDefined();
+    expect(process.env.KINDE_CLIENT_ID).toBeDefined();
+    expect(process.env.KINDE_CLIENT_SECRET).toBeDefined();
   });
 
   it('should create database mocks successfully', () => {

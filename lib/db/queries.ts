@@ -31,6 +31,7 @@ import {
   documentContent,
   documentChunk,
   type RAGDocument,
+  documentEmbedding,
 } from './schema';
 import type { ArtifactKind } from '@/components/artifact';
 import { generateUUID } from '../utils';
@@ -38,42 +39,27 @@ import { generateHashedPassword } from '../auth/password-utils';
 import type { VisibilityType } from '@/components/visibility-selector';
 import { ChatSDKError } from '../errors';
 import { db } from './index';
-
-// Simple in-memory cache for frequently accessed data
-const queryCache = new Map<
-  string,
-  { data: any; timestamp: number; ttl: number }
->();
-
-function getCachedResult<T>(key: string): T | null {
-  const cached = queryCache.get(key);
-  if (cached && Date.now() - cached.timestamp < cached.ttl) {
-    return cached.data as T;
-  }
-  queryCache.delete(key);
-  return null;
-}
-
-function setCachedResult<T>(key: string, data: T, ttlMs = 60000): void {
-  queryCache.set(key, { data, timestamp: Date.now(), ttl: ttlMs });
-}
-
-function invalidateCache(pattern: string): void {
-  for (const key of queryCache.keys()) {
-    if (key.includes(pattern)) {
-      queryCache.delete(key);
-    }
-  }
-}
+import {
+  withTransaction,
+  withDeadlockRetry,
+  logTransaction,
+  withReadOnlyTransaction,
+} from './transactions';
+import {
+  getCachedResult,
+  setCachedResult,
+  invalidateCache,
+} from '../cache/redis-query-cache';
+import { CacheKeys, CacheTTL } from '../cache/redis-client';
 
 export async function getUser(email: string): Promise<Array<User>> {
-  const cacheKey = `user:email:${email}`;
+  const cacheKey = CacheKeys.query.user.byEmail(email);
   const cached = getCachedResult<Array<User>>(cacheKey);
   if (cached) return cached;
 
   try {
     const result = await db.select().from(user).where(eq(user.email, email));
-    setCachedResult(cacheKey, result, 300000); // Cache for 5 minutes
+    setCachedResult(cacheKey, result, CacheTTL.query.user * 1000);
     return result;
   } catch (error) {
     throw new ChatSDKError(
@@ -90,7 +76,7 @@ export async function createUser(email: string, password: string) {
     const result = await db
       .insert(user)
       .values({ email, password: hashedPassword });
-    invalidateCache(`user:email:${email}`);
+    invalidateCache(CacheKeys.query.user.byEmail(email));
     return result;
   } catch (error) {
     throw new ChatSDKError('bad_request:database', 'Failed to create user');
@@ -125,36 +111,53 @@ export async function saveChat({
   title: string;
   visibility: VisibilityType;
 }) {
-  try {
-    return await db.insert(chat).values({
+  return withTransaction(async (tx) => {
+    logTransaction('saveChat', { id, userId });
+    
+    const result = await tx.insert(chat).values({
       id,
       createdAt: new Date(),
       userId,
       title,
       visibility,
     });
-  } catch (error) {
-    throw new ChatSDKError('bad_request:database', 'Failed to save chat');
-  }
+    
+    // Invalidate cache for user's chats
+    invalidateCache(CacheKeys.query.chat.pattern);
+    
+    return result;
+  });
 }
 
 export async function deleteChatById({ id }: { id: string }) {
-  try {
-    await db.delete(vote).where(eq(vote.chatId, id));
-    await db.delete(message).where(eq(message.chatId, id));
-    await db.delete(stream).where(eq(stream.chatId, id));
-
-    const [chatsDeleted] = await db
+  return withDeadlockRetry(async (tx) => {
+    logTransaction('deleteChatById', { id });
+    
+    // Delete in correct order to avoid foreign key violations
+    // Using transaction ensures all-or-nothing deletion
+    
+    // 1. Delete votes (references messages)
+    await tx.delete(vote).where(eq(vote.chatId, id));
+    
+    // 2. Delete messages
+    await tx.delete(message).where(eq(message.chatId, id));
+    
+    // 3. Delete streams
+    await tx.delete(stream).where(eq(stream.chatId, id));
+    
+    // 4. Finally delete the chat itself
+    const [deletedChat] = await tx
       .delete(chat)
       .where(eq(chat.id, id))
       .returning();
-    return chatsDeleted;
-  } catch (error) {
-    throw new ChatSDKError(
-      'bad_request:database',
-      'Failed to delete chat by id',
-    );
-  }
+    
+    // Invalidate all related caches
+    invalidateCache(CacheKeys.query.chat.byId(id));
+    invalidateCache(CacheKeys.query.messages.byChatId(id));
+    invalidateCache(CacheKeys.query.chat.pattern);
+    
+    return deletedChat;
+  });
 }
 
 export async function getChatsByUserId({
@@ -234,14 +237,14 @@ export async function getChatsByUserId({
 }
 
 export async function getChatById({ id }: { id: string }) {
-  const cacheKey = `chat:id:${id}`;
+  const cacheKey = CacheKeys.query.chat.byId(id);
   const cached = getCachedResult<Chat>(cacheKey);
   if (cached) return cached;
 
   try {
     const [selectedChat] = await db.select().from(chat).where(eq(chat.id, id));
     if (selectedChat) {
-      setCachedResult(cacheKey, selectedChat, 180000); // Cache for 3 minutes
+      setCachedResult(cacheKey, selectedChat, CacheTTL.query.chat * 1000);
     }
     return selectedChat;
   } catch (error) {
@@ -254,20 +257,24 @@ export async function saveMessages({
 }: {
   messages: Array<DBMessage>;
 }) {
-  try {
-    const result = await db.insert(message).values(messages);
+  return withTransaction(async (tx) => {
+    logTransaction('saveMessages', { count: messages.length });
+    
+    // Insert all messages in a single transaction
+    const result = await tx.insert(message).values(messages);
+    
     // Invalidate message cache for affected chats
-    for (const msg of messages) {
-      invalidateCache(`messages:chat:${msg.chatId}`);
+    const uniqueChatIds = [...new Set(messages.map((msg) => msg.chatId))];
+    for (const chatId of uniqueChatIds) {
+      invalidateCache(CacheKeys.query.messages.byChatId(chatId));
     }
+    
     return result;
-  } catch (error) {
-    throw new ChatSDKError('bad_request:database', 'Failed to save messages');
-  }
+  });
 }
 
 export async function getMessagesByChatId({ id }: { id: string }) {
-  const cacheKey = `messages:chat:${id}`;
+  const cacheKey = CacheKeys.query.messages.byChatId(id);
   const cached = getCachedResult<Array<DBMessage>>(cacheKey);
   if (cached) return cached;
 
@@ -278,7 +285,7 @@ export async function getMessagesByChatId({ id }: { id: string }) {
       .where(eq(message.chatId, id))
       .orderBy(asc(message.createdAt));
 
-    setCachedResult(cacheKey, result, 120000); // Cache for 2 minutes
+    setCachedResult(cacheKey, result, CacheTTL.query.messages * 1000);
     return result;
   } catch (error) {
     throw new ChatSDKError(
@@ -297,26 +304,31 @@ export async function voteMessage({
   messageId: string;
   type: 'up' | 'down';
 }) {
-  try {
-    const [existingVote] = await db
+  return withTransaction(async (tx) => {
+    logTransaction('voteMessage', { chatId, messageId, type });
+    
+    // Check for existing vote
+    const [existingVote] = await tx
       .select()
       .from(vote)
-      .where(and(eq(vote.messageId, messageId)));
+      .where(and(eq(vote.messageId, messageId), eq(vote.chatId, chatId)))
+      .limit(1);
 
     if (existingVote) {
-      return await db
+      // Update existing vote
+      return await tx
         .update(vote)
         .set({ isUpvoted: type === 'up' })
         .where(and(eq(vote.messageId, messageId), eq(vote.chatId, chatId)));
     }
-    return await db.insert(vote).values({
+    
+    // Create new vote
+    return await tx.insert(vote).values({
       chatId,
       messageId,
       isUpvoted: type === 'up',
     });
-  } catch (error) {
-    throw new ChatSDKError('bad_request:database', 'Failed to vote message');
-  }
+  });
 }
 
 export async function getVotesByChatId({ id }: { id: string }) {
@@ -401,8 +413,12 @@ export async function deleteDocumentsByIdAfterTimestamp({
   id: string;
   timestamp: Date;
 }) {
-  try {
-    await db
+  return withTransaction(async (tx) => {
+    logTransaction('deleteDocumentsByIdAfterTimestamp', { id, timestamp });
+    
+    // Delete in correct order due to foreign key constraints
+    // 1. Delete suggestions that reference the documents
+    await tx
       .delete(suggestion)
       .where(
         and(
@@ -411,16 +427,14 @@ export async function deleteDocumentsByIdAfterTimestamp({
         ),
       );
 
-    return await db
+    // 2. Delete the documents themselves
+    const deletedDocuments = await tx
       .delete(document)
       .where(and(eq(document.id, id), gt(document.createdAt, timestamp)))
       .returning();
-  } catch (error) {
-    throw new ChatSDKError(
-      'bad_request:database',
-      'Failed to delete documents by id after timestamp',
-    );
-  }
+      
+    return deletedDocuments;
+  });
 }
 
 export async function saveSuggestions({
@@ -428,14 +442,25 @@ export async function saveSuggestions({
 }: {
   suggestions: Array<Suggestion>;
 }) {
-  try {
-    return await db.insert(suggestion).values(suggestions);
-  } catch (error) {
-    throw new ChatSDKError(
-      'bad_request:database',
-      'Failed to save suggestions',
-    );
-  }
+  return withTransaction(async (tx) => {
+    logTransaction('saveSuggestions', { count: suggestions.length });
+    
+    // Verify all referenced documents exist
+    const documentIds = [...new Set(suggestions.map((s) => s.documentId))];
+    const existingDocs = await tx
+      .select({ id: document.id, createdAt: document.createdAt })
+      .from(document)
+      .where(inArray(document.id, documentIds));
+      
+    if (existingDocs.length !== documentIds.length) {
+      throw new ChatSDKError(
+        'not_found:database',
+        'One or more referenced documents not found',
+      );
+    }
+    
+    return await tx.insert(suggestion).values(suggestions);
+  });
 }
 
 export async function getSuggestionsByDocumentId({
@@ -474,35 +499,43 @@ export async function deleteMessagesByChatIdAfterTimestamp({
   chatId: string;
   timestamp: Date;
 }) {
-  try {
-    const messagesToDelete = await db
+  return withTransaction(async (tx) => {
+    logTransaction('deleteMessagesByChatIdAfterTimestamp', { chatId, timestamp });
+    
+    // First, get the messages to delete
+    const messagesToDelete = await tx
       .select({ id: message.id })
       .from(message)
       .where(
         and(eq(message.chatId, chatId), gte(message.createdAt, timestamp)),
       );
 
-    const messageIds = messagesToDelete.map((message) => message.id);
+    const messageIds = messagesToDelete.map((msg) => msg.id);
 
     if (messageIds.length > 0) {
-      await db
+      // Delete in correct order
+      // 1. Delete votes that reference these messages
+      await tx
         .delete(vote)
         .where(
           and(eq(vote.chatId, chatId), inArray(vote.messageId, messageIds)),
         );
 
-      return await db
+      // 2. Delete the messages themselves
+      const result = await tx
         .delete(message)
         .where(
           and(eq(message.chatId, chatId), inArray(message.id, messageIds)),
         );
+        
+      // Invalidate cache
+      invalidateCache(CacheKeys.query.messages.byChatId(chatId));
+      
+      return result;
     }
-  } catch (error) {
-    throw new ChatSDKError(
-      'bad_request:database',
-      'Failed to delete messages by chat id after timestamp',
-    );
-  }
+    
+    return null;
+  });
 }
 
 export async function updateChatVisiblityById({
@@ -560,16 +593,27 @@ export async function createStreamId({
   streamId: string;
   chatId: string;
 }) {
-  try {
-    await db
+  return withTransaction(async (tx) => {
+    logTransaction('createStreamId', { streamId, chatId });
+    
+    // Verify chat exists before creating stream
+    const [chatExists] = await tx
+      .select({ id: chat.id })
+      .from(chat)
+      .where(eq(chat.id, chatId))
+      .limit(1);
+      
+    if (!chatExists) {
+      throw new ChatSDKError(
+        'not_found:database',
+        `Chat with id ${chatId} not found`,
+      );
+    }
+    
+    await tx
       .insert(stream)
       .values({ id: streamId, chatId, createdAt: new Date() });
-  } catch (error) {
-    throw new ChatSDKError(
-      'bad_request:database',
-      'Failed to create stream id',
-    );
-  }
+  });
 }
 
 export async function getStreamIdsByChatId({ chatId }: { chatId: string }) {
@@ -601,7 +645,7 @@ export async function getRagDocumentsByUserId({
 }): Promise<
   Array<RAGDocument & { chunkCount?: number; hasContent?: boolean }>
 > {
-  const cacheKey = `rag_documents:user:${userId}:limit:${limit}`;
+  const cacheKey = CacheKeys.query.ragDocuments.byUserId(userId, limit);
   const cached =
     getCachedResult<
       Array<RAGDocument & { chunkCount?: number; hasContent?: boolean }>
@@ -638,7 +682,7 @@ export async function getRagDocumentsByUserId({
       hasContent: Number(doc.hasContent) > 0,
     }));
 
-    setCachedResult(cacheKey, result, 60000); // Cache for 1 minute
+    setCachedResult(cacheKey, result, CacheTTL.query.ragDocuments * 1000);
     return result;
   } catch (error) {
     throw new ChatSDKError(
@@ -655,7 +699,7 @@ export async function getRagDocumentById({
   id: string;
   userId: string;
 }): Promise<RAGDocument | null> {
-  const cacheKey = `rag_document:${id}:${userId}`;
+  const cacheKey = CacheKeys.query.ragDocuments.byId(id, userId);
   const cached = getCachedResult<RAGDocument>(cacheKey);
   if (cached) return cached;
 
@@ -666,7 +710,7 @@ export async function getRagDocumentById({
       .where(and(eq(ragDocument.id, id), eq(ragDocument.uploadedBy, userId)));
 
     if (selectedDocument) {
-      setCachedResult(cacheKey, selectedDocument, 300000); // Cache for 5 minutes
+      setCachedResult(cacheKey, selectedDocument, CacheTTL.query.user * 1000); // Use user TTL for document details
     }
     return selectedDocument || null;
   } catch (error) {
@@ -686,8 +730,10 @@ export async function updateRagDocumentStatus({
   status: RAGDocument['status'];
   userId: string;
 }) {
-  try {
-    const result = await db
+  return withTransaction(async (tx) => {
+    logTransaction('updateRagDocumentStatus', { id, status, userId });
+    
+    const [updatedDocument] = await tx
       .update(ragDocument)
       .set({
         status,
@@ -696,17 +742,19 @@ export async function updateRagDocumentStatus({
       .where(and(eq(ragDocument.id, id), eq(ragDocument.uploadedBy, userId)))
       .returning();
 
-    // Invalidate cache for this document and user's document list
-    invalidateCache(`rag_document:${id}:${userId}`);
-    invalidateCache(`rag_documents:user:${userId}`);
+    if (!updatedDocument) {
+      throw new ChatSDKError(
+        'not_found:database',
+        'RAG document not found or access denied',
+      );
+    }
 
-    return result[0] || null;
-  } catch (error) {
-    throw new ChatSDKError(
-      'bad_request:database',
-      'Failed to update RAG document status',
-    );
-  }
+    // Invalidate cache for this document and user's document list
+    invalidateCache(CacheKeys.query.ragDocuments.byId(id, userId));
+    invalidateCache(CacheKeys.query.ragDocuments.pattern);
+
+    return updatedDocument;
+  });
 }
 
 export async function deleteRagDocumentById({
@@ -716,28 +764,40 @@ export async function deleteRagDocumentById({
   id: string;
   userId: string;
 }) {
-  try {
-    // Delete in correct order due to foreign key constraints
-    // Embeddings will cascade delete with chunks
-    // Chunks will cascade delete with document
-    // Content will cascade delete with document
-
-    const [deletedDocument] = await db
-      .delete(ragDocument)
+  return withTransaction(async (tx) => {
+    logTransaction('deleteRagDocumentById', { id, userId });
+    
+    // Verify ownership before deletion
+    const [existingDoc] = await tx
+      .select({ id: ragDocument.id })
+      .from(ragDocument)
       .where(and(eq(ragDocument.id, id), eq(ragDocument.uploadedBy, userId)))
+      .limit(1);
+      
+    if (!existingDoc) {
+      throw new ChatSDKError(
+        'not_found:database',
+        'RAG document not found or access denied',
+      );
+    }
+    
+    // Delete the document - cascades will handle related tables
+    // Due to ON DELETE CASCADE:
+    // - documentContent will be deleted
+    // - documentChunk will be deleted
+    // - documentEmbedding will be deleted (via chunk and image references)
+    // - documentImage will be deleted
+    const [deletedDocument] = await tx
+      .delete(ragDocument)
+      .where(eq(ragDocument.id, id))
       .returning();
 
     // Invalidate cache
-    invalidateCache(`rag_document:${id}:${userId}`);
-    invalidateCache(`rag_documents:user:${userId}`);
+    invalidateCache(CacheKeys.query.ragDocuments.byId(id, userId));
+    invalidateCache(CacheKeys.query.ragDocuments.pattern);
 
     return deletedDocument;
-  } catch (error) {
-    throw new ChatSDKError(
-      'bad_request:database',
-      'Failed to delete RAG document by id',
-    );
-  }
+  });
 }
 
 export async function getDocumentProcessingStats({
@@ -745,12 +805,12 @@ export async function getDocumentProcessingStats({
 }: {
   userId: string;
 }) {
-  const cacheKey = `document_stats:user:${userId}`;
+  const cacheKey = CacheKeys.query.ragDocuments.stats(userId);
   const cached = getCachedResult<any>(cacheKey);
   if (cached) return cached;
 
-  try {
-    const [stats] = await db
+  return withReadOnlyTransaction(async (tx) => {
+    const [stats] = await tx
       .select({
         total: count(),
         uploaded: sum(
@@ -778,12 +838,196 @@ export async function getDocumentProcessingStats({
       .from(ragDocument)
       .where(eq(ragDocument.uploadedBy, userId));
 
-    setCachedResult(cacheKey, stats, 30000); // Cache for 30 seconds
+    setCachedResult(cacheKey, stats, CacheTTL.query.documentStats * 1000);
     return stats;
-  } catch (error) {
-    throw new ChatSDKError(
-      'bad_request:database',
-      'Failed to get document processing stats',
+  });
+}
+
+// Additional transactional operations for complex workflows
+
+/**
+ * Create a complete RAG document with content and initial processing
+ */
+export async function createRagDocumentWithContent({
+  document,
+  content,
+}: {
+  document: Omit<RAGDocument, 'id' | 'createdAt' | 'updatedAt'>;
+  content: {
+    extractedText: string;
+    pageCount: string;
+    charCount: string;
+    metadata?: any;
+  };
+}) {
+  return withTransaction(async (tx) => {
+    logTransaction('createRagDocumentWithContent', { fileName: document.fileName });
+    
+    // 1. Create the document
+    const [createdDoc] = await tx
+      .insert(ragDocument)
+      .values({
+        ...document,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .returning();
+      
+    // 2. Create the content
+    await tx.insert(documentContent).values({
+      documentId: createdDoc.id,
+      extractedText: content.extractedText,
+      pageCount: content.pageCount,
+      charCount: content.charCount,
+      metadata: content.metadata,
+      createdAt: new Date(),
+    });
+    
+    // 3. Update status to text_extracted
+    await tx
+      .update(ragDocument)
+      .set({
+        status: 'text_extracted',
+        updatedAt: new Date(),
+      })
+      .where(eq(ragDocument.id, createdDoc.id));
+      
+    // Invalidate caches
+    invalidateCache(CacheKeys.query.ragDocuments.pattern);
+    
+    return createdDoc;
+  });
+}
+
+/**
+ * Batch create document chunks with embeddings
+ */
+export async function createDocumentChunksWithEmbeddings({
+  documentId,
+  chunks,
+}: {
+  documentId: string;
+  chunks: Array<{
+    content: string;
+    metadata?: any;
+    tokenCount?: string;
+    embedding: string;
+    elementType?: string;
+    pageNumber?: number;
+    bbox?: any;
+    confidence?: string;
+    adeElementId?: string;
+  }>;
+}) {
+  return withTransaction(async (tx) => {
+    logTransaction('createDocumentChunksWithEmbeddings', { 
+      documentId, 
+      chunkCount: chunks.length 
+    });
+    
+    // 1. Create all chunks
+    const createdChunks = await tx
+      .insert(documentChunk)
+      .values(
+        chunks.map((chunk, index) => ({
+          documentId,
+          chunkIndex: index.toString(),
+          content: chunk.content,
+          metadata: chunk.metadata,
+          tokenCount: chunk.tokenCount,
+          elementType: chunk.elementType,
+          pageNumber: chunk.pageNumber,
+          bbox: chunk.bbox,
+          confidence: chunk.confidence,
+          adeElementId: chunk.adeElementId,
+          createdAt: new Date(),
+        })),
+      )
+      .returning();
+      
+    // 2. Create embeddings for all chunks
+    await tx.insert(documentEmbedding).values(
+      createdChunks.map((chunk, index) => ({
+        chunkId: chunk.id,
+        documentId,
+        embedding: chunks[index].embedding,
+        embeddingType: 'text',
+        dimensions: 1024, // Cohere embed-v4.0 dimensions
+        model: 'cohere-embed-v4.0',
+        createdAt: new Date(),
+      })),
     );
-  }
+    
+    // 3. Update document status
+    await tx
+      .update(ragDocument)
+      .set({
+        status: 'embedded',
+        updatedAt: new Date(),
+      })
+      .where(eq(ragDocument.id, documentId));
+      
+    return createdChunks;
+  });
+}
+
+/**
+ * Delete user and all related data (GDPR compliance)
+ */
+export async function deleteUserAndAllData({ userId }: { userId: string }) {
+  return withTransaction(async (tx) => {
+    logTransaction('deleteUserAndAllData', { userId });
+    
+    // Note: Many deletions will cascade due to foreign key constraints
+    // But we'll be explicit for clarity and control
+    
+    // 1. Delete votes (through chats)
+    await tx.delete(vote).where(
+      inArray(
+        vote.chatId,
+        tx.select({ id: chat.id }).from(chat).where(eq(chat.userId, userId)),
+      ),
+    );
+    
+    // 2. Delete messages (through chats)
+    await tx.delete(message).where(
+      inArray(
+        message.chatId,
+        tx.select({ id: chat.id }).from(chat).where(eq(chat.userId, userId)),
+      ),
+    );
+    
+    // 3. Delete streams (through chats)
+    await tx.delete(stream).where(
+      inArray(
+        stream.chatId,
+        tx.select({ id: chat.id }).from(chat).where(eq(chat.userId, userId)),
+      ),
+    );
+    
+    // 4. Delete chats
+    await tx.delete(chat).where(eq(chat.userId, userId));
+    
+    // 5. Delete suggestions
+    await tx.delete(suggestion).where(eq(suggestion.userId, userId));
+    
+    // 6. Delete documents
+    await tx.delete(document).where(eq(document.userId, userId));
+    
+    // 7. Delete RAG documents (cascades will handle related tables)
+    await tx.delete(ragDocument).where(eq(ragDocument.uploadedBy, userId));
+    
+    // 8. Finally delete the user
+    const [deletedUser] = await tx
+      .delete(user)
+      .where(eq(user.id, userId))
+      .returning();
+      
+    // Clear all caches for this user
+    invalidateCache(CacheKeys.query.user.pattern);
+    invalidateCache(CacheKeys.query.chat.pattern);
+    invalidateCache(CacheKeys.query.ragDocuments.pattern);
+    
+    return deletedUser;
+  });
 }

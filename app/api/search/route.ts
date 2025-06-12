@@ -1,11 +1,12 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { getUser } from '@/lib/auth/kinde';
+import { withAuth } from '@/lib/auth/middleware';
 import { vectorSearchService } from '@/lib/search/vector-search';
 import { db } from '@/lib/db';
 import { ragDocument, documentChunk } from '@/lib/db/schema';
 import { sql, eq, and, desc } from 'drizzle-orm';
 import { z } from 'zod';
 import { createClient } from 'redis';
+import { ChatSDKError } from '@/lib/errors';
 
 // Initialize Redis for analytics if available
 const redis: any = process.env.REDIS_URL
@@ -66,14 +67,7 @@ const analyticsSchema = z.object({
     .optional(),
 });
 
-export async function POST(request: NextRequest) {
-  const user = await getUser();
-  if (!user) {
-    return NextResponse.json(
-      { error: 'Authentication required' },
-      { status: 401 },
-    );
-  }
+export const POST = withAuth(async (request: NextRequest, user) => {
 
   const startTime = Date.now();
 
@@ -83,13 +77,9 @@ export async function POST(request: NextRequest) {
     // Validate input
     const validation = searchSchema.safeParse(body);
     if (!validation.success) {
-      return NextResponse.json(
-        {
-          error: 'Invalid search parameters',
-          details: validation.error.errors,
-        },
-        { status: 400 },
-      );
+      return new ChatSDKError('bad_request:validation', 'Invalid search parameters', {
+        details: validation.error.errors,
+      }).toResponse();
     }
 
     const {
@@ -123,12 +113,7 @@ export async function POST(request: NextRequest) {
       searchType === 'hybrid' &&
       Math.abs(vectorWeight + textWeight - 1) > 0.01
     ) {
-      return NextResponse.json(
-        {
-          error: 'Vector weight and text weight must sum to 1.0',
-        },
-        { status: 400 },
-      );
+      return new ChatSDKError('bad_request:weights', 'Vector weight and text weight must sum to 1.0').toResponse();
     }
 
     let searchResponse: any;
@@ -263,43 +248,19 @@ export async function POST(request: NextRequest) {
     if (error instanceof Error) {
       // Handle specific search errors
       if (error.message.includes('Vector search failed')) {
-        return NextResponse.json(
-          {
-            error: 'Search service unavailable',
-            details: 'Vector search is temporarily unavailable',
-          },
-          { status: 503 },
-        );
+        return new ChatSDKError('service_unavailable:search', 'Vector search is temporarily unavailable').toResponse();
       }
 
       if (error.message.includes('embedding')) {
-        return NextResponse.json(
-          {
-            error: 'Query processing failed',
-            details: 'Unable to process search query',
-          },
-          { status: 400 },
-        );
+        return new ChatSDKError('bad_request:embedding', 'Unable to process search query').toResponse();
       }
     }
 
-    return NextResponse.json(
-      {
-        error: 'Internal server error',
-      },
-      { status: 500 },
-    );
+    return new ChatSDKError('internal:search', 'Internal server error').toResponse();
   }
-}
+});
 
-export async function GET(request: NextRequest) {
-  const user = await getUser();
-  if (!user) {
-    return NextResponse.json(
-      { error: 'Authentication required' },
-      { status: 401 },
-    );
-  }
+export const GET = withAuth(async (request: NextRequest, user) => {
 
   try {
     const { searchParams } = new URL(request.url);
@@ -372,14 +333,9 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Search GET endpoint error:', error);
-    return NextResponse.json(
-      {
-        error: 'Search failed',
-      },
-      { status: 500 },
-    );
+    return new ChatSDKError('internal:search', 'Search failed').toResponse();
   }
-}
+});
 
 /**
  * Apply document-level faceted filtering
@@ -518,10 +474,13 @@ async function generateFacetCounts(
     let whereCondition = eq(ragDocument.uploadedBy, userId);
 
     if (documentIds?.length) {
-      whereCondition = and(
+      const newCondition = and(
         whereCondition,
         sql`${ragDocument.id} = ANY(${documentIds})`,
-      )!;
+      );
+      if (newCondition) {
+        whereCondition = newCondition;
+      }
     }
 
     // Get document type counts

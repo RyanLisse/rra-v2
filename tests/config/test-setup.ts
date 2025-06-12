@@ -152,7 +152,7 @@ const setupEnvironmentVariables = () => {
 
   logger.info('test_setup', 'Environment variables configured', {
     databaseUrl: process.env.POSTGRES_URL ? '[CONFIGURED]' : '[MISSING]',
-    authSecret: process.env.BETTER_AUTH_SECRET ? '[CONFIGURED]' : '[MISSING]',
+    kindeClientId: process.env.KINDE_CLIENT_ID ? '[CONFIGURED]' : '[MISSING]',
     testIsolationMode: process.env.TEST_ISOLATION_MODE,
     metricsEnabled: process.env.ENABLE_TEST_METRICS,
   });
@@ -265,22 +265,38 @@ vi.mock('next/navigation', () => ({
 }));
 
 // Mock Kinde auth
-vi.mock('@kinde-oss/kinde-auth-nextjs/server', () => ({
-  getKindeServerSession: vi.fn().mockReturnValue({
-    getUser: vi.fn().mockResolvedValue(null),
-    isAuthenticated: vi.fn().mockResolvedValue(false),
-  }),
-}));
+vi.mock('@kinde-oss/kinde-auth-nextjs/server', async () => {
+  const {
+    mockGetUser,
+    mockIsAuthenticated,
+    mockGetPermission,
+    mockGetPermissions,
+    mockGetOrganization,
+    mockGetToken,
+    mockGetUserOrganizations,
+  } = await import('../mocks/kinde-auth');
+  
+  return {
+    getKindeServerSession: vi.fn(() => ({
+      getUser: mockGetUser,
+      isAuthenticated: mockIsAuthenticated,
+      getPermission: mockGetPermission,
+      getPermissions: mockGetPermissions,
+      getOrganization: mockGetOrganization,
+      getToken: mockGetToken,
+      getUserOrganizations: mockGetUserOrganizations,
+    })),
+  };
+});
 
-// Mock @/lib/auth
-vi.mock('@/lib/auth', () => ({
-  getServerSession: vi.fn(),
-  withAuth: vi.fn().mockImplementation((handler) => {
-    return async (req: any) => {
-      return handler(req, { user: { id: 'test-user' } });
-    };
-  }),
-}));
+// Mock @/lib/auth - let it use the real implementation
+vi.mock('@/lib/auth', async () => {
+  const actual = await vi.importActual('@/lib/auth');
+  return {
+    ...actual,
+    getServerSession: vi.fn(),
+  };
+});
 
 // Mock AI and vector search modules
 vi.mock('ai', () => ({

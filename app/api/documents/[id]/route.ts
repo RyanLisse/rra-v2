@@ -1,21 +1,16 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { getUser } from '@/lib/auth/kinde';
+import { withAuth } from '@/lib/auth/middleware';
 import { getRagDocumentById, deleteRagDocumentById } from '@/lib/db/queries';
 import { ChatSDKError } from '@/lib/errors';
-import fs from 'node:fs/promises';
-import path from 'node:path';
+import { del } from '@vercel/blob';
 
-export async function GET(
+export const GET = withAuth(async (
   request: NextRequest,
+  user,
   { params }: { params: Promise<{ id: string }> },
-) {
+) => {
   const { id } = await params;
   try {
-    const user = await getUser();
-
-    if (!user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     const document = await getRagDocumentById({
       id: id,
@@ -23,10 +18,7 @@ export async function GET(
     });
 
     if (!document) {
-      return NextResponse.json(
-        { error: 'Document not found' },
-        { status: 404 },
-      );
+      return new ChatSDKError('not_found:document', 'Document not found').toResponse();
     }
 
     return NextResponse.json({ document });
@@ -37,24 +29,17 @@ export async function GET(
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
-    return NextResponse.json(
-      { error: 'Failed to fetch document' },
-      { status: 500 },
-    );
+    return new ChatSDKError('internal:fetch', 'Failed to fetch document').toResponse();
   }
-}
+});
 
-export async function DELETE(
+export const DELETE = withAuth(async (
   request: NextRequest,
+  user,
   { params }: { params: Promise<{ id: string }> },
-) {
+) => {
   const { id } = await params;
   try {
-    const user = await getUser();
-
-    if (!user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     // First get the document to access file path
     const document = await getRagDocumentById({
@@ -63,10 +48,7 @@ export async function DELETE(
     });
 
     if (!document) {
-      return NextResponse.json(
-        { error: 'Document not found' },
-        { status: 404 },
-      );
+      return new ChatSDKError('not_found:document', 'Document not found').toResponse();
     }
 
     // Delete the database record (this will cascade delete related records)
@@ -76,26 +58,18 @@ export async function DELETE(
     });
 
     if (!deletedDocument) {
-      return NextResponse.json(
-        { error: 'Failed to delete document' },
-        { status: 400 },
-      );
+      return new ChatSDKError('bad_request:delete', 'Failed to delete document').toResponse();
     }
 
-    // Try to delete the file from disk (non-blocking)
+    // Try to delete the file from blob storage (non-blocking)
     try {
-      if (document.filePath?.startsWith('/uploads/')) {
-        const fullPath = path.join(
-          process.cwd(),
-          'uploads',
-          path.basename(document.filePath),
-        );
-        await fs.unlink(fullPath);
-        console.log(`Deleted file: ${fullPath}`);
+      if (document.filePath?.startsWith('https://')) {
+        await del(document.filePath);
+        console.log(`Deleted blob: ${document.filePath}`);
       }
-    } catch (fileError) {
-      // Log but don't fail the request if file deletion fails
-      console.warn(`Failed to delete file ${document.filePath}:`, fileError);
+    } catch (blobError) {
+      // Log but don't fail the request if blob deletion fails
+      console.warn(`Failed to delete blob ${document.filePath}:`, blobError);
     }
 
     return NextResponse.json({
@@ -110,9 +84,6 @@ export async function DELETE(
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
-    return NextResponse.json(
-      { error: 'Failed to delete document' },
-      { status: 500 },
-    );
+    return new ChatSDKError('internal:delete', 'Failed to delete document').toResponse();
   }
-}
+});

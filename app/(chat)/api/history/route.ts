@@ -1,8 +1,8 @@
-import { getUser } from '@/lib/auth/kinde';
+import { withAuthRequest } from '@/lib/auth/middleware';
 import { getChatsByUserId } from '@/lib/db/queries';
 import { ChatSDKError } from '@/lib/errors';
 
-export async function GET(request: Request) {
+export const GET = withAuthRequest(async (request: Request, user) => {
   const { searchParams } = new URL(request.url);
 
   const limit = Number.parseInt(searchParams.get('limit') || '10');
@@ -16,12 +16,6 @@ export async function GET(request: Request) {
     ).toResponse();
   }
 
-  const user = await getUser();
-
-  if (!user) {
-    return new ChatSDKError('unauthorized:chat').toResponse();
-  }
-
   const chats = await getChatsByUserId({
     id: user.id,
     limit,
@@ -30,4 +24,4 @@ export async function GET(request: Request) {
   });
 
   return Response.json(chats);
-}
+});

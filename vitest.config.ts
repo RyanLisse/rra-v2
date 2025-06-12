@@ -2,10 +2,15 @@ import path from 'node:path';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
 import { loadEnv } from 'vite';
+import { config } from 'dotenv';
+
+// Load test environment variables first
+config({ path: '.env.test' });
+config({ path: '.env.local' });
 
 export default defineConfig(({ mode }) => {
-  // Load environment variables
-  const env = loadEnv(mode, process.cwd(), '');
+  // Load environment variables with Vite's loadEnv (includes .env files)
+  const env = { ...process.env, ...loadEnv(mode, process.cwd(), '') };
 
   // Configure timeouts based on environment
   const isNeonEnabled = env.USE_NEON_BRANCHING === 'true';

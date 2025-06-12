@@ -2,17 +2,10 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { ragDocument } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
-import { getUser } from '@/lib/auth/kinde';
+import { withAuth } from '@/lib/auth/middleware';
 import { DocumentStatusManager } from '@/lib/document-processing/status-manager';
 
-export async function GET(request: NextRequest) {
-  const user = await getUser();
-  if (!user) {
-    return NextResponse.json(
-      { error: 'Authentication required' },
-      { status: 401 },
-    );
-  }
+export const GET = withAuth(async (request: NextRequest, user) => {
 
   try {
     const { searchParams } = new URL(request.url);
@@ -66,17 +59,10 @@ export async function GET(request: NextRequest) {
       { status: 500 },
     );
   }
-}
+});
 
 // Get processing statistics for all documents
-export async function POST(request: NextRequest) {
-  const user = await getUser();
-  if (!user) {
-    return NextResponse.json(
-      { error: 'Authentication required' },
-      { status: 401 },
-    );
-  }
+export const POST = withAuth(async (request: NextRequest, user) => {
 
   try {
     const body = await request.json();
@@ -135,4 +121,4 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     );
   }
-}
+});

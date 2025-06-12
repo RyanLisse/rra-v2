@@ -1,13 +1,12 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'node:fs/promises';
-import { join } from 'node:path';
+import { put } from '@vercel/blob';
 import { nanoid } from 'nanoid';
-import { db } from '@/lib/db';
 import { ragDocument } from '@/lib/db/schema';
+import { withTransaction } from '@/lib/db/transactions';
 import { sendEvent } from '@/lib/inngest/client';
-import { getUser } from '@/lib/auth/kinde';
+import { withAuth } from '@/lib/auth/middleware';
+import { ChatSDKError } from '@/lib/errors';
 
-const UPLOAD_DIR = join(process.cwd(), 'uploads');
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const ALLOWED_TYPES = [
   'application/pdf',
@@ -17,31 +16,14 @@ const ALLOWED_TYPES = [
   'application/msword', // DOC
 ];
 
-async function ensureUploadDirExists() {
-  try {
-    await mkdir(UPLOAD_DIR, { recursive: true });
-  } catch (error) {
-    // Directory might already exist
-  }
-}
-
-export async function POST(request: NextRequest) {
-  const user = await getUser();
-  if (!user) {
-    return NextResponse.json(
-      { error: 'Authentication required' },
-      { status: 401 },
-    );
-  }
+export const POST = withAuth(async (request: NextRequest, user) => {
 
   try {
-    await ensureUploadDirExists();
-
     const formData = await request.formData();
     const files = formData.getAll('files') as File[];
 
     if (!files || files.length === 0) {
-      return NextResponse.json({ error: 'No files uploaded' }, { status: 400 });
+      return new ChatSDKError('bad_request:upload', 'No files uploaded').toResponse();
     }
 
     const uploadedFiles = [];
@@ -68,45 +50,45 @@ export async function POST(request: NextRequest) {
         const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
         const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
         const uniqueFilename = `${nanoid()}-${safeName}`;
-        const filePath = join(UPLOAD_DIR, uniqueFilename);
+        const blobPath = `documents/${user.id}/${uniqueFilename}`;
 
-        // Save file to disk
-        const fileBuffer = Buffer.from(await file.arrayBuffer());
-        await writeFile(filePath, fileBuffer);
+        // Upload to Vercel Blob
+        const blob = await put(blobPath, file, {
+          access: 'public',
+          addRandomSuffix: false,
+          contentType: file.type,
+        });
 
-        // Save to database
-        const [newDocument] = await db
-          .insert(ragDocument)
-          .values({
-            fileName: uniqueFilename,
-            originalName: file.name,
-            filePath: filePath,
-            mimeType: file.type,
-            fileSize: file.size.toString(),
-            status: 'uploaded',
-            uploadedBy: user.id,
-          })
-          .returning();
+        // Save to database and emit event in a transaction
+        const newDocument = await withTransaction(async (tx) => {
+          const [document] = await tx
+            .insert(ragDocument)
+            .values({
+              fileName: uniqueFilename,
+              originalName: file.name,
+              filePath: blob.url,
+              mimeType: file.type,
+              fileSize: file.size.toString(),
+              status: 'uploaded',
+              uploadedBy: user.id,
+            })
+            .returning();
 
-        // Emit Inngest event to trigger text extraction workflow
-        try {
+          // Emit Inngest event within transaction scope
           await sendEvent('document.uploaded', {
-            documentId: newDocument.id,
+            documentId: document.id,
             userId: user.id,
-            filePath: filePath,
+            filePath: blob.url,
             metadata: {
               originalName: file.name,
               fileSize: file.size,
               mimeType: file.type,
+              blobUrl: blob.url,
             },
           });
-        } catch (eventError) {
-          console.error(
-            `Failed to emit upload event for ${file.name}:`,
-            eventError,
-          );
-          // Continue execution - don't fail the upload if event emission fails
-        }
+
+          return document;
+        });
 
         uploadedFiles.push({
           documentId: newDocument.id,
@@ -114,6 +96,7 @@ export async function POST(request: NextRequest) {
           fileName: uniqueFilename,
           size: file.size,
           status: 'uploaded',
+          url: blob.url,
         });
       } catch (error) {
         console.error(`Error processing file ${file.name}:`, error);
@@ -122,13 +105,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (uploadedFiles.length === 0) {
-      return NextResponse.json(
-        {
-          error: 'No files were successfully uploaded',
-          errors,
-        },
-        { status: 400 },
-      );
+      return new ChatSDKError('bad_request:upload', 'No files were successfully uploaded', { errors }).toResponse();
     }
 
     return NextResponse.json({
@@ -138,11 +115,11 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Upload error:', error);
-    return NextResponse.json(
-      {
-        error: 'Internal server error during upload',
-      },
-      { status: 500 },
-    );
+    
+    if (error instanceof ChatSDKError) {
+      return error.toResponse();
+    }
+    
+    return new ChatSDKError('bad_request:upload', 'Internal server error during upload').toResponse();
   }
-}
+});

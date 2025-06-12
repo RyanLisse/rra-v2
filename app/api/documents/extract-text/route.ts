@@ -4,19 +4,12 @@ import { join } from 'node:path';
 import { db } from '@/lib/db';
 import { ragDocument, documentContent } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
-import { getUser } from '@/lib/auth/kinde';
+import { withAuth } from '@/lib/auth/middleware';
 import { DocumentProcessor } from '@/lib/document-processing/document-processor';
 import { DocumentStatusManager } from '@/lib/document-processing/status-manager';
 
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request: NextRequest, user) => {
   try {
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 },
-      );
-    }
 
     const body = await request.json();
     const { documentId } = body;
@@ -169,4 +162,4 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     );
   }
-}
+});

@@ -1,0 +1,133 @@
+import { handleAuth } from '@kinde-oss/kinde-auth-nextjs/server';
+import { NextRequest, NextResponse } from 'next/server';
+
+// Log environment variables (without exposing secrets)
+console.log('Kinde Auth Environment Check:', {
+  hasClientId: !!process.env.KINDE_CLIENT_ID,
+  hasClientSecret: !!process.env.KINDE_CLIENT_SECRET,
+  hasIssuerUrl: !!process.env.KINDE_ISSUER_URL,
+  issuerUrl: process.env.KINDE_ISSUER_URL,
+  siteUrl: process.env.KINDE_SITE_URL,
+});
+
+async function authHandler(request: NextRequest): Promise<NextResponse> {
+  try {
+    // Log the incoming request details for debugging
+    const pathname = request.nextUrl.pathname;
+    const searchParams = request.nextUrl.searchParams.toString();
+    console.log(`Auth handler called: ${pathname}${searchParams ? `?${searchParams}` : ''}`);
+    
+    // Check if we have required environment variables
+    if (!process.env.KINDE_CLIENT_ID || !process.env.KINDE_CLIENT_SECRET || !process.env.KINDE_ISSUER_URL) {
+      console.error('Missing required Kinde environment variables');
+      return NextResponse.redirect(new URL('/?error=missing_env_vars', request.url));
+    }
+    
+    // Create a timeout wrapper for JWKS fetching issues
+    const timeoutPromise = new Promise<NextResponse>((_, reject) => {
+      setTimeout(() => reject(new Error('Auth handler timeout')), 30000); // 30 second timeout
+    });
+    
+    // Check if handleAuth is properly imported and is a function
+    if (!handleAuth || typeof handleAuth !== 'function') {
+      console.error('handleAuth is not properly imported:', typeof handleAuth);
+      return NextResponse.redirect(new URL('/?error=auth_module_error', request.url));
+    }
+    
+    // Try creating the Kinde handler with defensive programming
+    let kindeHandler;
+    try {
+      // Create handler with minimal options first
+      kindeHandler = handleAuth();
+    } catch (handlerError: any) {
+      console.error('Error creating Kinde handler:', handlerError.message, handlerError.stack);
+      
+      // Check for destructuring errors during handler creation
+      if (handlerError.message.includes('destructured') || handlerError.message.includes('Cannot read properties')) {
+        console.log('Destructuring error in handler creation, trying alternative approach');
+        
+        // Try with explicit configuration
+        try {
+          kindeHandler = handleAuth({
+            afterCallback: async (request: NextRequest) => {
+              return NextResponse.redirect(new URL('/', request.url));
+            }
+          });
+        } catch (altError: any) {
+          console.error('Alternative handler creation also failed:', altError.message);
+          return NextResponse.redirect(new URL('/api/auth/clear-session?error=handler_init', request.url));
+        }
+      } else {
+        return NextResponse.redirect(new URL('/?error=auth_init_error', request.url));
+      }
+    }
+    
+    // Verify handler is a function before calling it
+    if (typeof kindeHandler !== 'function') {
+      console.error('Kinde handler is not a function:', typeof kindeHandler);
+      return NextResponse.redirect(new URL('/?error=auth_handler_type', request.url));
+    }
+    
+    // Execute handler with timeout protection
+    let handlerPromise;
+    try {
+      handlerPromise = kindeHandler(request);
+    } catch (callError: any) {
+      console.error('Error calling Kinde handler:', callError.message, callError.stack);
+      
+      // Check for destructuring errors during handler execution
+      if (callError.message.includes('destructured') || callError.message.includes('Cannot read properties')) {
+        return NextResponse.redirect(new URL('/api/auth/clear-session?error=handler_call', request.url));
+      }
+      
+      return NextResponse.redirect(new URL('/?error=auth_call_error', request.url));
+    }
+    
+    // Ensure we always return a response
+    if (!handlerPromise || typeof handlerPromise.then !== 'function') {
+      console.error('Kinde handler did not return a promise');
+      return NextResponse.redirect(new URL('/?error=auth_handler_error', request.url));
+    }
+    
+    const result = await Promise.race([handlerPromise, timeoutPromise]);
+    
+    // Ensure result is a valid NextResponse
+    if (!result || !(result instanceof NextResponse)) {
+      console.error('Invalid response from Kinde handler');
+      return NextResponse.redirect(new URL('/?error=invalid_auth_response', request.url));
+    }
+    
+    return result;
+  } catch (error: any) {
+    console.error('Unhandled auth error:', error.message, error.stack);
+    
+    // Handle destructuring errors at the top level
+    if (error.message.includes('destructured') || error.message.includes('Cannot read properties')) {
+      console.log('Top-level destructuring error, clearing session');
+      return NextResponse.redirect(new URL('/api/auth/clear-session?error=top_level_destructure', request.url));
+    }
+    
+    // Handle timeout errors
+    if (error.message === 'Auth handler timeout') {
+      console.log('Auth handler timed out, clearing session');
+      return NextResponse.redirect(new URL('/api/auth/clear-session', request.url));
+    }
+    
+    // Fallback error handling for uncaught exceptions
+    if (error.message.includes('State not found') || error.message.includes('state')) {
+      return NextResponse.redirect(new URL('/api/auth/clear-session', request.url));
+    }
+    
+    if (error.message.includes('JWKS') || error.message.includes('AbortError') || error.message.includes('fetch')) {
+      const clearUrl = new URL('/api/auth/clear-session', request.url);
+      clearUrl.searchParams.set('retry', 'true');
+      return NextResponse.redirect(clearUrl);
+    }
+    
+    // Default fallback - always return a response
+    return NextResponse.redirect(new URL('/?error=auth_error', request.url));
+  }
+}
+
+export const GET = authHandler;
+export const POST = authHandler;

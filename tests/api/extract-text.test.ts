@@ -16,12 +16,13 @@ vi.hoisted(() => {
 
 // Mock the database module completely in hoisted block
 const mockDb = vi.hoisted(() => ({
-  query: {
-    ragDocument: {
-      findFirst: vi.fn(),
-    },
-  },
-  transaction: vi.fn(),
+  select: vi.fn().mockReturnValue({
+    from: vi.fn().mockReturnValue({
+      where: vi.fn().mockReturnValue({
+        execute: vi.fn().mockResolvedValue([]),
+      }),
+    }),
+  }),
   insert: vi.fn().mockReturnValue({
     values: vi.fn().mockResolvedValue(undefined),
   }),
@@ -30,6 +31,15 @@ const mockDb = vi.hoisted(() => ({
       where: vi.fn().mockResolvedValue(undefined),
     }),
   }),
+  delete: vi.fn().mockReturnValue({
+    where: vi.fn().mockResolvedValue(undefined),
+  }),
+  query: {
+    ragDocument: {
+      findFirst: vi.fn(),
+    },
+  },
+  transaction: vi.fn(),
 }));
 
 vi.mock('@/lib/db', () => ({
@@ -72,29 +82,8 @@ vi.mock('@kinde-oss/kinde-auth-nextjs/server', () => ({
   })),
 }));
 
-vi.mock('@/lib/auth/kinde', () => ({
-  getUser: vi.fn(() => ({
-    id: 'test-user-id',
-    email: 'test@example.com',
-    given_name: 'Test',
-    family_name: 'User',
-    picture: null,
-    type: 'regular',
-  })),
-  requireAuth: vi.fn(() => ({
-    id: 'test-user-id',
-    email: 'test@example.com',
-    given_name: 'Test',
-    family_name: 'User',
-    picture: null,
-    type: 'regular',
-  })),
-  isAuthenticated: vi.fn(() => true),
-}));
+// Use global dynamic mocks from test-setup instead of static mocks
 
-// Additional legacy env vars for any remaining checks
-process.env.BETTER_AUTH_SECRET = 'test-secret';
-process.env.BETTER_AUTH_URL = 'http://localhost:3000';
 
 import { POST } from '@/app/api/documents/extract-text/route';
 import { DocumentProcessor } from '@/lib/document-processing/document-processor';
@@ -163,7 +152,7 @@ describe('/api/documents/extract-text', () => {
   });
 
   afterEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
   const createRequest = (body: any) => {

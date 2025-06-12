@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 export async function GET(request: NextRequest) {
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     cookies: kindeRelatedCookies,
     searchParams: {
       state,
-      code: code ? code.substring(0, 20) + '...' : null,
+      code: code ? `${code.substring(0, 20)}...` : null,
       scope: searchParams.get('scope'),
     },
     headers: Object.fromEntries(request.headers.entries()),
