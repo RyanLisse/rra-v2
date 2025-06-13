@@ -54,16 +54,22 @@ export default async function middleware(request: NextRequest) {
         return !!token;
       },
       onError: (error: Error, request: NextRequest) => {
-        console.error('Kinde Middleware Error:', error.message);
+        // Only log errors in development to prevent streaming issues
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Kinde Middleware Error:', error.message);
+        }
 
         // For state errors or JWKS errors, clear session and redirect
         if (
           error.message.includes('State not found') ||
           error.message.includes('JWKS') ||
           error.message.includes('AbortError') ||
-          error.message.includes('fetch failed')
+          error.message.includes('fetch failed') ||
+          error.message.includes('JSON Parse error')
         ) {
-          console.log('Auth session error, clearing cookies and redirecting');
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Auth session error, clearing cookies and redirecting');
+          }
           const clearUrl = new URL('/api/auth/clear-session', request.url);
 
           // Add retry flag for network-related errors
@@ -103,11 +109,13 @@ export default async function middleware(request: NextRequest) {
         }
 
         // Default error handling with better logging
-        console.error('Unhandled middleware error:', {
-          message: error.message,
-          stack: error.stack,
-          url: request.url,
-        });
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Unhandled middleware error:', {
+            message: error.message,
+            stack: error.stack,
+            url: request.url,
+          });
+        }
 
         return NextResponse.redirect(
           new URL('/?error=auth_error', request.url),

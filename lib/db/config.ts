@@ -232,7 +232,9 @@ export function getConnectionString(): string {
 export function logDatabaseConfig() {
   const config = getDatabaseConfig();
 
-  console.log('Database Configuration:', {
+  // Only log in development to prevent streaming issues
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Database Configuration:', {
     environment: process.env.NODE_ENV,
     connection: {
       maxConnections: config.connection.max,
@@ -252,6 +254,7 @@ export function logDatabaseConfig() {
       connectionMonitoring: config.monitoring.enableConnectionMonitoring,
     },
   });
+  }
 }
 
 /**
@@ -279,8 +282,8 @@ function createDatabaseInstance() {
       prepare: config.connection.prepare,
       transform: config.connection.transform,
       // Add connection error handling
-      onnotice: config.monitoring.enableLogging ? console.log : undefined,
-      debug: config.monitoring.enableLogging ? console.log : undefined,
+      onnotice: config.monitoring.enableLogging && process.env.NODE_ENV === 'development' ? console.log : undefined,
+      debug: config.monitoring.enableLogging && process.env.NODE_ENV === 'development' ? console.log : undefined,
     });
 
     // Create drizzle instance with schema and enable query mode
@@ -289,8 +292,8 @@ function createDatabaseInstance() {
       logger: config.monitoring.enableLogging,
     });
 
-    // Log configuration in development
-    if (config.monitoring.enableLogging) {
+    // Log configuration only in development to prevent streaming issues
+    if (config.monitoring.enableLogging && process.env.NODE_ENV === 'development') {
       logDatabaseConfig();
     }
 

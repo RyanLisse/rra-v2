@@ -16,6 +16,8 @@ export const inngest = new Inngest({
   name: 'RRA V2 RAG Application',
   eventKey: process.env.INNGEST_EVENT_KEY,
   signingKey: process.env.INNGEST_SIGNING_KEY,
+  // Set server kind to 'dev' for local development
+  isDev: process.env.NODE_ENV !== 'production',
 });
 
 /**
