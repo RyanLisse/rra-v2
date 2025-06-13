@@ -68,7 +68,6 @@ const analyticsSchema = z.object({
 });
 
 export const POST = withAuth(async (request: NextRequest, user) => {
-
   const startTime = Date.now();
 
   try {
@@ -77,9 +76,13 @@ export const POST = withAuth(async (request: NextRequest, user) => {
     // Validate input
     const validation = searchSchema.safeParse(body);
     if (!validation.success) {
-      return new ChatSDKError('bad_request:validation', 'Invalid search parameters', {
-        details: validation.error.errors,
-      }).toResponse();
+      return new ChatSDKError(
+        'bad_request:validation',
+        'Invalid search parameters',
+        {
+          details: validation.error.errors,
+        },
+      ).toResponse();
     }
 
     const {
@@ -113,7 +116,10 @@ export const POST = withAuth(async (request: NextRequest, user) => {
       searchType === 'hybrid' &&
       Math.abs(vectorWeight + textWeight - 1) > 0.01
     ) {
-      return new ChatSDKError('bad_request:weights', 'Vector weight and text weight must sum to 1.0').toResponse();
+      return new ChatSDKError(
+        'bad_request:weights',
+        'Vector weight and text weight must sum to 1.0',
+      ).toResponse();
     }
 
     let searchResponse: any;
@@ -248,20 +254,28 @@ export const POST = withAuth(async (request: NextRequest, user) => {
     if (error instanceof Error) {
       // Handle specific search errors
       if (error.message.includes('Vector search failed')) {
-        return new ChatSDKError('service_unavailable:search', 'Vector search is temporarily unavailable').toResponse();
+        return new ChatSDKError(
+          'service_unavailable:search',
+          'Vector search is temporarily unavailable',
+        ).toResponse();
       }
 
       if (error.message.includes('embedding')) {
-        return new ChatSDKError('bad_request:embedding', 'Unable to process search query').toResponse();
+        return new ChatSDKError(
+          'bad_request:embedding',
+          'Unable to process search query',
+        ).toResponse();
       }
     }
 
-    return new ChatSDKError('internal:search', 'Internal server error').toResponse();
+    return new ChatSDKError(
+      'internal:search',
+      'Internal server error',
+    ).toResponse();
   }
 });
 
 export const GET = withAuth(async (request: NextRequest, user) => {
-
   try {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q');

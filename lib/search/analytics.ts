@@ -588,7 +588,8 @@ export class SearchAnalytics {
         if (key.startsWith('algorithm_')) {
           const algorithm = key.replace('algorithm_', '');
           algorithmUsage[algorithm] =
-            (algorithmUsage[algorithm] || 0) + Number.parseInt(String(value || '0'));
+            (algorithmUsage[algorithm] || 0) +
+            Number.parseInt(String(value || '0'));
         }
       });
 

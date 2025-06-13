@@ -40,7 +40,7 @@ function getTestDatabaseUrl(): string {
  */
 function createTestDatabaseInstance() {
   const connectionString = getTestDatabaseUrl();
-  
+
   // Create postgres client with test-optimized configuration
   const client = postgres(connectionString, {
     ...TEST_DB_CONNECTION_CONFIG,

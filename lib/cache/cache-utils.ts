@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { getRedisClient, CacheKeys, CacheTTL, warmCache } from './redis-client';
-import { getCacheStats, } from './redis-query-cache';
+import { getCacheStats } from './redis-query-cache';
 import { logger } from '../monitoring/logger';
 
 /**
@@ -12,7 +12,7 @@ export async function checkCacheHealth() {
     const redis = await getRedisClient();
     const isConnected = !!redis;
     const stats = await getCacheStats();
-    
+
     return {
       healthy: isConnected,
       ...stats,
@@ -35,7 +35,7 @@ export async function checkCacheHealth() {
 export async function warmupCache() {
   try {
     logger.info('Starting cache warmup...');
-    
+
     // Warm up frequently accessed patterns
     await warmCache([
       CacheKeys.query.user.pattern,
@@ -43,7 +43,7 @@ export async function warmupCache() {
       CacheKeys.query.messages.pattern,
       CacheKeys.query.ragDocuments.pattern,
     ]);
-    
+
     logger.info('Cache warmup completed');
   } catch (error) {
     logger.error('Cache warmup failed', error);
@@ -60,7 +60,7 @@ export async function clearCachePatterns(patterns: string[]) {
       logger.warn('Redis not available, cannot clear cache patterns');
       return;
     }
-    
+
     for (const pattern of patterns) {
       const keys = await redis.keys(pattern);
       if (keys.length > 0) {
@@ -78,19 +78,19 @@ export async function clearCachePatterns(patterns: string[]) {
  */
 export async function monitorCachePerformance() {
   const stats = await getCacheStats();
-  
+
   // Log cache stats
   logger.info('Cache performance stats', stats);
-  
+
   // Check if cache is getting too large
   if (stats.redisKeys > 10000) {
     logger.warn('Redis cache has over 10,000 keys, consider cleanup');
   }
-  
+
   if (stats.memoryKeys > 1000) {
     logger.warn('Memory cache has over 1,000 keys, consider cleanup');
   }
-  
+
   return stats;
 }
 
@@ -101,15 +101,15 @@ export async function performCacheMaintenance() {
   try {
     const redis = await getRedisClient();
     if (!redis) return;
-    
+
     // Get all keys with their TTLs
     const keys = await redis.keys('*');
     let expiredCount = 0;
     let nearExpiryCount = 0;
-    
+
     for (const key of keys) {
       const ttl = await redis.ttl(key);
-      
+
       // Remove keys with negative TTL (should not exist but just in case)
       if (ttl < 0) {
         await redis.del(key);
@@ -120,8 +120,10 @@ export async function performCacheMaintenance() {
         nearExpiryCount++;
       }
     }
-    
-    logger.info(`Cache maintenance: removed ${expiredCount} expired keys, ${nearExpiryCount} keys expiring soon`);
+
+    logger.info(
+      `Cache maintenance: removed ${expiredCount} expired keys, ${nearExpiryCount} keys expiring soon`,
+    );
   } catch (error) {
     logger.error('Cache maintenance failed', error);
   }

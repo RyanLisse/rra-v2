@@ -130,7 +130,11 @@ export class DocumentProcessor {
     let lastError: Error | null = null;
     const warnings: string[] = [];
 
-    for (let attempt = 1; attempt <= (this.options.maxRetries ?? 3); attempt++) {
+    for (
+      let attempt = 1;
+      attempt <= (this.options.maxRetries ?? 3);
+      attempt++
+    ) {
       try {
         // Dynamically import pdf-parse to avoid build issues
         const pdf = (await import('pdf-parse')).default;

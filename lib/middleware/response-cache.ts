@@ -38,7 +38,7 @@ export function createResponseCache(config: CacheConfig) {
       if (responseCache.size > 100) {
         cleanupExpiredResponses();
       }
-      
+
       const key = config.keyGenerator
         ? config.keyGenerator(request)
         : getDefaultCacheKey(request);

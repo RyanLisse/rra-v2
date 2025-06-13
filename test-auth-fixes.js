@@ -8,24 +8,36 @@ const tests = [
     description: 'Auth route should return proper HTTP responses',
     test: () => {
       try {
-        const result = execSync('curl -s -I http://localhost:3000/api/auth/login', { encoding: 'utf8' });
-        return result.includes('HTTP/1.1') && (result.includes('307') || result.includes('302'));
+        const result = execSync(
+          'curl -s -I http://localhost:3000/api/auth/login',
+          { encoding: 'utf8' },
+        );
+        return (
+          result.includes('HTTP/1.1') &&
+          (result.includes('307') || result.includes('302'))
+        );
       } catch (error) {
         return false;
       }
-    }
+    },
   },
   {
     name: 'Clear Session Endpoint',
     description: 'Clear session endpoint should work correctly',
     test: () => {
       try {
-        const result = execSync('curl -s -I http://localhost:3000/api/auth/clear-session', { encoding: 'utf8' });
-        return result.includes('HTTP/1.1') && (result.includes('307') || result.includes('302'));
+        const result = execSync(
+          'curl -s -I http://localhost:3000/api/auth/clear-session',
+          { encoding: 'utf8' },
+        );
+        return (
+          result.includes('HTTP/1.1') &&
+          (result.includes('307') || result.includes('302'))
+        );
       } catch (error) {
         return false;
       }
-    }
+    },
   },
   {
     name: 'Kinde Callback Handling',
@@ -33,13 +45,16 @@ const tests = [
     test: () => {
       try {
         // Test callback with invalid state to trigger error handling
-        const result = execSync('curl -s -w "%{http_code}" -o /dev/null "http://localhost:3000/api/auth/kinde_callback?state=invalid&code=test"', { encoding: 'utf8' });
+        const result = execSync(
+          'curl -s -w "%{http_code}" -o /dev/null "http://localhost:3000/api/auth/kinde_callback?state=invalid&code=test"',
+          { encoding: 'utf8' },
+        );
         // Should redirect (307) rather than crash (500)
         return result.trim() === '307';
       } catch (error) {
         return false;
       }
-    }
+    },
   },
   {
     name: 'Auth Error Recovery',
@@ -47,50 +62,61 @@ const tests = [
     test: () => {
       try {
         // Test with malformed auth request
-        const result = execSync('curl -s -w "%{http_code}" -o /dev/null "http://localhost:3000/api/auth/kinde_callback?error=access_denied"', { encoding: 'utf8' });
+        const result = execSync(
+          'curl -s -w "%{http_code}" -o /dev/null "http://localhost:3000/api/auth/kinde_callback?error=access_denied"',
+          { encoding: 'utf8' },
+        );
         // Should handle error and redirect
         return result.trim() === '307' || result.trim() === '302';
       } catch (error) {
         return false;
       }
-    }
+    },
   },
   {
     name: 'Homepage Auth Flow',
     description: 'Homepage should properly redirect to auth',
     test: () => {
       try {
-        const result = execSync('curl -s -I http://localhost:3000/', { encoding: 'utf8' });
+        const result = execSync('curl -s -I http://localhost:3000/', {
+          encoding: 'utf8',
+        });
         return result.includes('307') || result.includes('302');
       } catch (error) {
         return false;
       }
-    }
+    },
   },
   {
     name: 'Protected API Endpoints',
     description: 'Protected endpoints should still require auth',
     test: () => {
       try {
-        const result = execSync('curl -s -w "%{http_code}" -o /dev/null -X POST http://localhost:3000/api/chat -H "Content-Type: application/json" -d \'{"id":"test","message":{"role":"user","content":"test"},"selectedChatModel":"gpt-4o-mini","selectedVisibilityType":"private"}\'', { encoding: 'utf8' });
+        const result = execSync(
+          'curl -s -w "%{http_code}" -o /dev/null -X POST http://localhost:3000/api/chat -H "Content-Type: application/json" -d \'{"id":"test","message":{"role":"user","content":"test"},"selectedChatModel":"gpt-4o-mini","selectedVisibilityType":"private"}\'',
+          { encoding: 'utf8' },
+        );
         return result.trim() === '307'; // Should redirect to auth
       } catch (error) {
         return false;
       }
-    }
+    },
   },
   {
     name: 'Health Endpoint Access',
     description: 'Health endpoint should remain accessible',
     test: () => {
       try {
-        const result = execSync('curl -s -w "%{http_code}" -o /dev/null http://localhost:3000/api/ping', { encoding: 'utf8' });
+        const result = execSync(
+          'curl -s -w "%{http_code}" -o /dev/null http://localhost:3000/api/ping',
+          { encoding: 'utf8' },
+        );
         return result.trim() === '200';
       } catch (error) {
         return false;
       }
-    }
-  }
+    },
+  },
 ];
 
 let passed = 0;
@@ -100,7 +126,7 @@ console.log('🧪 Running Tests...\n');
 
 tests.forEach((test, index) => {
   process.stdout.write(`${index + 1}. ${test.name}: ${test.description}... `);
-  
+
   try {
     const result = test.test();
     if (result) {

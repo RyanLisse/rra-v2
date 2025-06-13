@@ -253,16 +253,18 @@ export class EnvironmentUtils {
     hasNeonCredentials: boolean;
   } {
     // Proper environment detection that accounts for test environments
-    const isTest = process.env.NODE_ENV === 'test' || 
-                   process.env.VITEST === 'true' ||
-                   (typeof global !== 'undefined' && (global as any).vi !== undefined);
-    
+    const isTest =
+      process.env.NODE_ENV === 'test' ||
+      process.env.VITEST === 'true' ||
+      (typeof global !== 'undefined' && (global as any).vi !== undefined);
+
     // Only consider it a browser if window exists AND it's not a test environment
     // Test environments with jsdom can have window but should still allow Neon operations
-    const isBrowser = typeof window !== 'undefined' && 
-                      typeof process === 'undefined' && 
-                      !isTest;
-    
+    const isBrowser =
+      typeof window !== 'undefined' &&
+      typeof process === 'undefined' &&
+      !isTest;
+
     const isProduction = process.env.NODE_ENV === 'production';
     const hasNeonCredentials = !!(
       process.env.NEON_API_KEY || process.env.NEON_PROJECT_ID

@@ -77,7 +77,9 @@ export const getInngestConfig = () => ({
   name: 'RRA V2 RAG Application',
   eventKey: process.env.INNGEST_EVENT_KEY || 'test-event-key',
   signingKey: process.env.INNGEST_SIGNING_KEY || 'test-signing-key',
-  isConfigured: !!(process.env.INNGEST_EVENT_KEY && process.env.INNGEST_SIGNING_KEY),
+  isConfigured: !!(
+    process.env.INNGEST_EVENT_KEY && process.env.INNGEST_SIGNING_KEY
+  ),
   environment: process.env.NODE_ENV || 'development',
   env: process.env.NODE_ENV || 'development', // Alias for test compatibility
   isDev: process.env.NODE_ENV !== 'production',
@@ -88,11 +90,13 @@ export const getInngestConfig = () => ({
  */
 export const validateInngestConfig = () => {
   const config = getInngestConfig();
-  
+
   if (!config.isConfigured && process.env.NODE_ENV === 'production') {
-    throw new Error('Inngest configuration is incomplete for production environment');
+    throw new Error(
+      'Inngest configuration is incomplete for production environment',
+    );
   }
-  
+
   return config;
 };
 

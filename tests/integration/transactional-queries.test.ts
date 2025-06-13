@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { 
-  deleteChatById, 
+import {
+  deleteChatById,
   createRagDocumentWithContent,
   createDocumentChunksWithEmbeddings,
   deleteUserAndAllData,
@@ -8,18 +8,18 @@ import {
   saveMessages,
 } from '@/lib/db/queries';
 import { db } from '@/lib/db';
-import { 
-  user, 
-  chat, 
-  message, 
-  vote, 
+import {
+  user,
+  chat,
+  message,
+  vote,
   stream,
   ragDocument,
   documentContent,
   documentChunk,
   documentEmbedding,
 } from '@/lib/db/schema';
-import { eq, } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { generateUUID } from '@/lib/utils';
 
 describe('Transactional Database Queries', () => {
@@ -85,7 +85,7 @@ describe('Transactional Database Queries', () => {
         .from(message)
         .where(eq(message.chatId, testChatId))
         .limit(1);
-      
+
       if (msg) {
         await db.insert(vote).values({
           chatId: testChatId,
@@ -187,7 +187,7 @@ describe('Transactional Database Queries', () => {
         .select()
         .from(documentContent)
         .where(eq(documentContent.documentId, createdDoc.id));
-      
+
       expect(content).toBeDefined();
       expect(content.extractedText).toBe(contentData.extractedText);
 
@@ -196,7 +196,7 @@ describe('Transactional Database Queries', () => {
         .select()
         .from(ragDocument)
         .where(eq(ragDocument.id, createdDoc.id));
-      
+
       expect(updatedDoc.status).toBe('text_extracted');
 
       // Cleanup
@@ -253,7 +253,7 @@ describe('Transactional Database Queries', () => {
         .select()
         .from(documentChunk)
         .where(eq(documentChunk.documentId, testDocumentId));
-      
+
       expect(dbChunks).toHaveLength(2);
       expect(dbChunks[0].content).toBe(chunks[0].content);
       expect(dbChunks[1].content).toBe(chunks[1].content);
@@ -263,7 +263,7 @@ describe('Transactional Database Queries', () => {
         .select()
         .from(documentEmbedding)
         .where(eq(documentEmbedding.documentId, testDocumentId));
-      
+
       expect(embeddings).toHaveLength(2);
       expect(embeddings[0].embeddingType).toBe('text');
       expect(embeddings[0].model).toBe('cohere-embed-v4.0');
@@ -273,7 +273,7 @@ describe('Transactional Database Queries', () => {
         .select()
         .from(ragDocument)
         .where(eq(ragDocument.id, testDocumentId));
-      
+
       expect(updatedDoc.status).toBe('embedded');
     });
 
@@ -343,19 +343,21 @@ describe('Transactional Database Queries', () => {
   describe('Transaction Rollback', () => {
     it('should rollback all changes on error', async () => {
       const invalidChatId = generateUUID();
-      
+
       // Try to save messages for non-existent chat
       // This should fail due to foreign key constraint
       await expect(
         saveMessages({
-          messages: [{
-            id: generateUUID(),
-            chatId: invalidChatId, // Non-existent chat
-            role: 'user',
-            parts: [{ type: 'text', text: 'This should fail' }],
-            attachments: [],
-            createdAt: new Date(),
-          }],
+          messages: [
+            {
+              id: generateUUID(),
+              chatId: invalidChatId, // Non-existent chat
+              role: 'user',
+              parts: [{ type: 'text', text: 'This should fail' }],
+              attachments: [],
+              createdAt: new Date(),
+            },
+          ],
         }),
       ).rejects.toThrow();
 

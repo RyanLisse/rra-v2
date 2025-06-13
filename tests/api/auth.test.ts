@@ -21,10 +21,9 @@ describe('Auth API Routes', () => {
         session: { token: 'session-token' },
       };
 
-      const mockResponse = new Response(
-        JSON.stringify(mockAuthResponse),
-        { status: 200 }
-      );
+      const mockResponse = new Response(JSON.stringify(mockAuthResponse), {
+        status: 200,
+      });
 
       expect(mockResponse.status).toBe(200);
     });
@@ -51,10 +50,9 @@ describe('Auth API Routes', () => {
         message: 'Authentication failed',
       };
 
-      const response = new Response(
-        JSON.stringify(errorResponse),
-        { status: 401 }
-      );
+      const response = new Response(JSON.stringify(errorResponse), {
+        status: 401,
+      });
 
       expect(response.status).toBe(401);
     });

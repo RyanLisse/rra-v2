@@ -11,7 +11,7 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
     it('should validate session structure', () => {
       const validSession = {
         id: 'session-123',
-        userId: 'user-123', 
+        userId: 'user-123',
         token: 'token-abc',
         expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour from now
         ipAddress: '127.0.0.1',
@@ -29,7 +29,7 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
 
     it('should detect expired sessions', () => {
       const now = new Date();
-      
+
       const expiredSession = {
         id: 'session-expired',
         expiresAt: new Date(now.getTime() - 1000), // 1 second ago
@@ -45,11 +45,7 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
     });
 
     it('should validate session token format', () => {
-      const validTokens = [
-        'token-abc123',
-        'session_xyz789',
-        'kinde-token-456',
-      ];
+      const validTokens = ['token-abc123', 'session_xyz789', 'kinde-token-456'];
 
       const invalidTokens = [
         '',
@@ -59,13 +55,13 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
         '   ', // only spaces
       ];
 
-      validTokens.forEach(token => {
+      validTokens.forEach((token) => {
         expect(token).toBeTruthy();
         expect(typeof token).toBe('string');
         expect(token.length).toBeGreaterThan(0);
       });
 
-      invalidTokens.forEach(token => {
+      invalidTokens.forEach((token) => {
         if (token === null || token === undefined) {
           expect(token).toBeFalsy();
         } else if (typeof token === 'string') {
@@ -86,11 +82,11 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
       const stateChangingMethods = ['POST', 'PUT', 'DELETE', 'PATCH'];
       const safeMethods = ['GET', 'HEAD', 'OPTIONS'];
 
-      stateChangingMethods.forEach(method => {
+      stateChangingMethods.forEach((method) => {
         expect(stateChangingMethods.includes(method)).toBe(true);
       });
 
-      safeMethods.forEach(method => {
+      safeMethods.forEach((method) => {
         expect(stateChangingMethods.includes(method)).toBe(false);
       });
     });
@@ -116,10 +112,10 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
 
       // Valid CSRF token
       expect(sessionToken === providedToken).toBe(true);
-      
+
       // Invalid CSRF token
       expect(sessionToken === wrongToken).toBe(false);
-      
+
       // Missing CSRF token
       expect(sessionToken === null).toBe(false);
       expect(sessionToken === undefined).toBe(false);
@@ -173,7 +169,7 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
       // Add some requests
       for (let i = 0; i < 5; i++) {
         requestLog.push({
-          timestamp: now - (i * 10 * 60 * 1000), // Every 10 minutes
+          timestamp: now - i * 10 * 60 * 1000, // Every 10 minutes
           userId: 'user-123',
         });
       }
@@ -181,11 +177,13 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
       // Count requests in current window
       const windowStart = now - windowSize;
       const requestsInWindow = requestLog.filter(
-        req => req.timestamp >= windowStart
+        (req) => req.timestamp >= windowStart,
       );
 
       expect(requestsInWindow.length).toBe(5);
-      expect(requestsInWindow.every(req => req.userId === 'user-123')).toBe(true);
+      expect(requestsInWindow.every((req) => req.userId === 'user-123')).toBe(
+        true,
+      );
     });
   });
 
@@ -208,7 +206,8 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
       const checkUserPermission = (userType: string, requiredType: string) => {
         const hierarchy = { guest: 0, regular: 1, premium: 2, admin: 3 };
         const userLevel = hierarchy[userType as keyof typeof hierarchy] || 0;
-        const requiredLevel = hierarchy[requiredType as keyof typeof hierarchy] || 0;
+        const requiredLevel =
+          hierarchy[requiredType as keyof typeof hierarchy] || 0;
         return userLevel >= requiredLevel;
       };
 
@@ -266,7 +265,7 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
       ];
 
       testPaths.forEach(({ path, expected }) => {
-        const isProtected = protectedPaths.some(p => path.startsWith(p));
+        const isProtected = protectedPaths.some((p) => path.startsWith(p));
         const type = isProtected ? 'protected' : 'public';
         expect(type).toBe(expected);
       });
@@ -276,9 +275,17 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
   describe('Error Response Handling', () => {
     it('should format authentication errors correctly', () => {
       const errors = [
-        { type: 'unauthorized', status: 401, message: 'Authentication required' },
+        {
+          type: 'unauthorized',
+          status: 401,
+          message: 'Authentication required',
+        },
         { type: 'forbidden', status: 403, message: 'Insufficient permissions' },
-        { type: 'invalid_token', status: 401, message: 'Invalid or expired token' },
+        {
+          type: 'invalid_token',
+          status: 401,
+          message: 'Invalid or expired token',
+        },
         { type: 'rate_limited', status: 429, message: 'Too many requests' },
       ];
 
@@ -319,12 +326,12 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
       const startTime = Date.now();
 
       // Simulate multiple concurrent validations
-      const validations = Array.from({ length: 10 }, (_, i) => 
+      const validations = Array.from({ length: 10 }, (_, i) =>
         Promise.resolve({
           userId: `user-${i}`,
           isValid: i % 2 === 0, // Every other one is valid
           timestamp: Date.now(),
-        })
+        }),
       );
 
       const results = await Promise.all(validations);
@@ -332,7 +339,7 @@ describe('Auth Middleware Integration Tests (Simplified)', () => {
 
       expect(results.length).toBe(10);
       expect(duration).toBeLessThan(100); // Should be very fast for mock operations
-      expect(results.filter(r => r.isValid).length).toBe(5);
+      expect(results.filter((r) => r.isValid).length).toBe(5);
     });
 
     it('should optimize session lookup patterns', () => {

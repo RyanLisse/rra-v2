@@ -113,7 +113,7 @@ export async function saveChat({
 }) {
   return withTransaction(async (tx) => {
     logTransaction('saveChat', { id, userId });
-    
+
     const result = await tx.insert(chat).values({
       id,
       createdAt: new Date(),
@@ -121,10 +121,10 @@ export async function saveChat({
       title,
       visibility,
     });
-    
+
     // Invalidate cache for user's chats
     invalidateCache(CacheKeys.query.chat.pattern);
-    
+
     return result;
   });
 }
@@ -132,30 +132,30 @@ export async function saveChat({
 export async function deleteChatById({ id }: { id: string }) {
   return withDeadlockRetry(async (tx) => {
     logTransaction('deleteChatById', { id });
-    
+
     // Delete in correct order to avoid foreign key violations
     // Using transaction ensures all-or-nothing deletion
-    
+
     // 1. Delete votes (references messages)
     await tx.delete(vote).where(eq(vote.chatId, id));
-    
+
     // 2. Delete messages
     await tx.delete(message).where(eq(message.chatId, id));
-    
+
     // 3. Delete streams
     await tx.delete(stream).where(eq(stream.chatId, id));
-    
+
     // 4. Finally delete the chat itself
     const [deletedChat] = await tx
       .delete(chat)
       .where(eq(chat.id, id))
       .returning();
-    
+
     // Invalidate all related caches
     invalidateCache(CacheKeys.query.chat.byId(id));
     invalidateCache(CacheKeys.query.messages.byChatId(id));
     invalidateCache(CacheKeys.query.chat.pattern);
-    
+
     return deletedChat;
   });
 }
@@ -259,16 +259,16 @@ export async function saveMessages({
 }) {
   return withTransaction(async (tx) => {
     logTransaction('saveMessages', { count: messages.length });
-    
+
     // Insert all messages in a single transaction
     const result = await tx.insert(message).values(messages);
-    
+
     // Invalidate message cache for affected chats
     const uniqueChatIds = [...new Set(messages.map((msg) => msg.chatId))];
     for (const chatId of uniqueChatIds) {
       invalidateCache(CacheKeys.query.messages.byChatId(chatId));
     }
-    
+
     return result;
   });
 }
@@ -306,7 +306,7 @@ export async function voteMessage({
 }) {
   return withTransaction(async (tx) => {
     logTransaction('voteMessage', { chatId, messageId, type });
-    
+
     // Check for existing vote
     const [existingVote] = await tx
       .select()
@@ -321,7 +321,7 @@ export async function voteMessage({
         .set({ isUpvoted: type === 'up' })
         .where(and(eq(vote.messageId, messageId), eq(vote.chatId, chatId)));
     }
-    
+
     // Create new vote
     return await tx.insert(vote).values({
       chatId,
@@ -415,7 +415,7 @@ export async function deleteDocumentsByIdAfterTimestamp({
 }) {
   return withTransaction(async (tx) => {
     logTransaction('deleteDocumentsByIdAfterTimestamp', { id, timestamp });
-    
+
     // Delete in correct order due to foreign key constraints
     // 1. Delete suggestions that reference the documents
     await tx
@@ -432,7 +432,7 @@ export async function deleteDocumentsByIdAfterTimestamp({
       .delete(document)
       .where(and(eq(document.id, id), gt(document.createdAt, timestamp)))
       .returning();
-      
+
     return deletedDocuments;
   });
 }
@@ -444,21 +444,21 @@ export async function saveSuggestions({
 }) {
   return withTransaction(async (tx) => {
     logTransaction('saveSuggestions', { count: suggestions.length });
-    
+
     // Verify all referenced documents exist
     const documentIds = [...new Set(suggestions.map((s) => s.documentId))];
     const existingDocs = await tx
       .select({ id: document.id, createdAt: document.createdAt })
       .from(document)
       .where(inArray(document.id, documentIds));
-      
+
     if (existingDocs.length !== documentIds.length) {
       throw new ChatSDKError(
         'not_found:database',
         'One or more referenced documents not found',
       );
     }
-    
+
     return await tx.insert(suggestion).values(suggestions);
   });
 }
@@ -500,8 +500,11 @@ export async function deleteMessagesByChatIdAfterTimestamp({
   timestamp: Date;
 }) {
   return withTransaction(async (tx) => {
-    logTransaction('deleteMessagesByChatIdAfterTimestamp', { chatId, timestamp });
-    
+    logTransaction('deleteMessagesByChatIdAfterTimestamp', {
+      chatId,
+      timestamp,
+    });
+
     // First, get the messages to delete
     const messagesToDelete = await tx
       .select({ id: message.id })
@@ -527,13 +530,13 @@ export async function deleteMessagesByChatIdAfterTimestamp({
         .where(
           and(eq(message.chatId, chatId), inArray(message.id, messageIds)),
         );
-        
+
       // Invalidate cache
       invalidateCache(CacheKeys.query.messages.byChatId(chatId));
-      
+
       return result;
     }
-    
+
     return null;
   });
 }
@@ -595,21 +598,21 @@ export async function createStreamId({
 }) {
   return withTransaction(async (tx) => {
     logTransaction('createStreamId', { streamId, chatId });
-    
+
     // Verify chat exists before creating stream
     const [chatExists] = await tx
       .select({ id: chat.id })
       .from(chat)
       .where(eq(chat.id, chatId))
       .limit(1);
-      
+
     if (!chatExists) {
       throw new ChatSDKError(
         'not_found:database',
         `Chat with id ${chatId} not found`,
       );
     }
-    
+
     await tx
       .insert(stream)
       .values({ id: streamId, chatId, createdAt: new Date() });
@@ -732,7 +735,7 @@ export async function updateRagDocumentStatus({
 }) {
   return withTransaction(async (tx) => {
     logTransaction('updateRagDocumentStatus', { id, status, userId });
-    
+
     const [updatedDocument] = await tx
       .update(ragDocument)
       .set({
@@ -766,21 +769,21 @@ export async function deleteRagDocumentById({
 }) {
   return withTransaction(async (tx) => {
     logTransaction('deleteRagDocumentById', { id, userId });
-    
+
     // Verify ownership before deletion
     const [existingDoc] = await tx
       .select({ id: ragDocument.id })
       .from(ragDocument)
       .where(and(eq(ragDocument.id, id), eq(ragDocument.uploadedBy, userId)))
       .limit(1);
-      
+
     if (!existingDoc) {
       throw new ChatSDKError(
         'not_found:database',
         'RAG document not found or access denied',
       );
     }
-    
+
     // Delete the document - cascades will handle related tables
     // Due to ON DELETE CASCADE:
     // - documentContent will be deleted
@@ -861,8 +864,10 @@ export async function createRagDocumentWithContent({
   };
 }) {
   return withTransaction(async (tx) => {
-    logTransaction('createRagDocumentWithContent', { fileName: document.fileName });
-    
+    logTransaction('createRagDocumentWithContent', {
+      fileName: document.fileName,
+    });
+
     // 1. Create the document
     const [createdDoc] = await tx
       .insert(ragDocument)
@@ -872,7 +877,7 @@ export async function createRagDocumentWithContent({
         updatedAt: new Date(),
       })
       .returning();
-      
+
     // 2. Create the content
     await tx.insert(documentContent).values({
       documentId: createdDoc.id,
@@ -882,7 +887,7 @@ export async function createRagDocumentWithContent({
       metadata: content.metadata,
       createdAt: new Date(),
     });
-    
+
     // 3. Update status to text_extracted
     await tx
       .update(ragDocument)
@@ -891,10 +896,10 @@ export async function createRagDocumentWithContent({
         updatedAt: new Date(),
       })
       .where(eq(ragDocument.id, createdDoc.id));
-      
+
     // Invalidate caches
     invalidateCache(CacheKeys.query.ragDocuments.pattern);
-    
+
     return createdDoc;
   });
 }
@@ -920,11 +925,11 @@ export async function createDocumentChunksWithEmbeddings({
   }>;
 }) {
   return withTransaction(async (tx) => {
-    logTransaction('createDocumentChunksWithEmbeddings', { 
-      documentId, 
-      chunkCount: chunks.length 
+    logTransaction('createDocumentChunksWithEmbeddings', {
+      documentId,
+      chunkCount: chunks.length,
     });
-    
+
     // 1. Create all chunks
     const createdChunks = await tx
       .insert(documentChunk)
@@ -944,7 +949,7 @@ export async function createDocumentChunksWithEmbeddings({
         })),
       )
       .returning();
-      
+
     // 2. Create embeddings for all chunks
     await tx.insert(documentEmbedding).values(
       createdChunks.map((chunk, index) => ({
@@ -957,7 +962,7 @@ export async function createDocumentChunksWithEmbeddings({
         createdAt: new Date(),
       })),
     );
-    
+
     // 3. Update document status
     await tx
       .update(ragDocument)
@@ -966,7 +971,7 @@ export async function createDocumentChunksWithEmbeddings({
         updatedAt: new Date(),
       })
       .where(eq(ragDocument.id, documentId));
-      
+
     return createdChunks;
   });
 }
@@ -977,57 +982,63 @@ export async function createDocumentChunksWithEmbeddings({
 export async function deleteUserAndAllData({ userId }: { userId: string }) {
   return withTransaction(async (tx) => {
     logTransaction('deleteUserAndAllData', { userId });
-    
+
     // Note: Many deletions will cascade due to foreign key constraints
     // But we'll be explicit for clarity and control
-    
+
     // 1. Delete votes (through chats)
-    await tx.delete(vote).where(
-      inArray(
-        vote.chatId,
-        tx.select({ id: chat.id }).from(chat).where(eq(chat.userId, userId)),
-      ),
-    );
-    
+    await tx
+      .delete(vote)
+      .where(
+        inArray(
+          vote.chatId,
+          tx.select({ id: chat.id }).from(chat).where(eq(chat.userId, userId)),
+        ),
+      );
+
     // 2. Delete messages (through chats)
-    await tx.delete(message).where(
-      inArray(
-        message.chatId,
-        tx.select({ id: chat.id }).from(chat).where(eq(chat.userId, userId)),
-      ),
-    );
-    
+    await tx
+      .delete(message)
+      .where(
+        inArray(
+          message.chatId,
+          tx.select({ id: chat.id }).from(chat).where(eq(chat.userId, userId)),
+        ),
+      );
+
     // 3. Delete streams (through chats)
-    await tx.delete(stream).where(
-      inArray(
-        stream.chatId,
-        tx.select({ id: chat.id }).from(chat).where(eq(chat.userId, userId)),
-      ),
-    );
-    
+    await tx
+      .delete(stream)
+      .where(
+        inArray(
+          stream.chatId,
+          tx.select({ id: chat.id }).from(chat).where(eq(chat.userId, userId)),
+        ),
+      );
+
     // 4. Delete chats
     await tx.delete(chat).where(eq(chat.userId, userId));
-    
+
     // 5. Delete suggestions
     await tx.delete(suggestion).where(eq(suggestion.userId, userId));
-    
+
     // 6. Delete documents
     await tx.delete(document).where(eq(document.userId, userId));
-    
+
     // 7. Delete RAG documents (cascades will handle related tables)
     await tx.delete(ragDocument).where(eq(ragDocument.uploadedBy, userId));
-    
+
     // 8. Finally delete the user
     const [deletedUser] = await tx
       .delete(user)
       .where(eq(user.id, userId))
       .returning();
-      
+
     // Clear all caches for this user
     invalidateCache(CacheKeys.query.user.pattern);
     invalidateCache(CacheKeys.query.chat.pattern);
     invalidateCache(CacheKeys.query.ragDocuments.pattern);
-    
+
     return deletedUser;
   });
 }

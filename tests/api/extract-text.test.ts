@@ -84,7 +84,6 @@ vi.mock('@kinde-oss/kinde-auth-nextjs/server', () => ({
 
 // Use global dynamic mocks from test-setup instead of static mocks
 
-
 import { POST } from '@/app/api/documents/extract-text/route';
 import { DocumentProcessor } from '@/lib/document-processing/document-processor';
 import { DocumentStatusManager } from '@/lib/document-processing/status-manager';

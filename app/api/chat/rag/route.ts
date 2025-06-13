@@ -43,15 +43,18 @@ const ragChatSchema = z.object({
 
 export const POST = withAuthRequest(async (request: Request, user) => {
   try {
-
     const body = await request.json();
 
     // Validate input
     const validation = ragChatSchema.safeParse(body);
     if (!validation.success) {
-      return new ChatSDKError('bad_request:validation', 'Invalid chat parameters', {
-        details: validation.error.errors,
-      }).toResponse();
+      return new ChatSDKError(
+        'bad_request:validation',
+        'Invalid chat parameters',
+        {
+          details: validation.error.errors,
+        },
+      ).toResponse();
     }
 
     const {
@@ -325,11 +328,17 @@ export const POST = withAuthRequest(async (request: Request, user) => {
     if (error instanceof Error) {
       // Handle specific errors
       if (error.message.includes('search failed')) {
-        return new ChatSDKError('service_unavailable:search', 'Unable to search documents at this time').toResponse();
+        return new ChatSDKError(
+          'service_unavailable:search',
+          'Unable to search documents at this time',
+        ).toResponse();
       }
 
       if (error.message.includes('RAG response generation failed')) {
-        return new ChatSDKError('service_unavailable:ai', 'Unable to generate response at this time').toResponse();
+        return new ChatSDKError(
+          'service_unavailable:ai',
+          'Unable to generate response at this time',
+        ).toResponse();
       }
     }
 

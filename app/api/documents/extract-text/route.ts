@@ -10,7 +10,6 @@ import { DocumentStatusManager } from '@/lib/document-processing/status-manager'
 
 export const POST = withAuth(async (request: NextRequest, user) => {
   try {
-
     const body = await request.json();
     const { documentId } = body;
 

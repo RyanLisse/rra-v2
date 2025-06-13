@@ -118,7 +118,10 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Access-Control-Allow-Origin',
-            value: process.env.NODE_ENV === 'development' ? '*' : 'https://rra-v2.vercel.app',
+            value:
+              process.env.NODE_ENV === 'development'
+                ? '*'
+                : 'https://rra-v2.vercel.app',
           },
           {
             key: 'Access-Control-Allow-Methods',

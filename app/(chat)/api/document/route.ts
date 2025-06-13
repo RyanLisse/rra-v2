@@ -91,7 +91,6 @@ export const DELETE = withAuthRequest(async (request: Request, user) => {
     ).toResponse();
   }
 
-
   const documents = await getDocumentsById({ id });
 
   const [document] = documents;

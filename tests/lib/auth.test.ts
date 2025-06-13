@@ -192,20 +192,23 @@ describe('API Route Protection', () => {
         };
       };
 
-      const mockHandler = vi.fn().mockResolvedValue({ 
+      const mockHandler = vi.fn().mockResolvedValue({
         status: 200,
-        json: () => ({ message: 'Success' })
+        json: () => ({ message: 'Success' }),
       });
       const protectedHandler = mockWithAuth(mockHandler);
 
       const mockRequest = { headers: {} };
       const result = await protectedHandler(mockRequest);
-      
-      expect(mockHandler).toHaveBeenCalledWith(mockRequest, expect.objectContaining({
-        id: 'kinde-user-123',
-        email: 'user@example.com',
-        type: 'regular',
-      }));
+
+      expect(mockHandler).toHaveBeenCalledWith(
+        mockRequest,
+        expect.objectContaining({
+          id: 'kinde-user-123',
+          email: 'user@example.com',
+          type: 'regular',
+        }),
+      );
       expect(result.status).toBe(200);
     });
 
@@ -255,7 +258,8 @@ describe('API Route Protection', () => {
       const checkUserPermission = (userType: string, requiredType: string) => {
         const hierarchy = { guest: 0, regular: 1, premium: 2, admin: 3 };
         const userLevel = hierarchy[userType as keyof typeof hierarchy] || 0;
-        const requiredLevel = hierarchy[requiredType as keyof typeof hierarchy] || 0;
+        const requiredLevel =
+          hierarchy[requiredType as keyof typeof hierarchy] || 0;
         return userLevel >= requiredLevel;
       };
 

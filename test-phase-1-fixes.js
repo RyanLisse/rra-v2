@@ -10,10 +10,13 @@ async function testPhase1Fixes() {
       name: 'Homepage Access (Auth Fix)',
       test: async () => {
         const response = await fetch('http://localhost:3000', {
-          redirect: 'manual'
+          redirect: 'manual',
         });
-        return response.status === 200 && response.headers.get('content-type').includes('text/html');
-      }
+        return (
+          response.status === 200 &&
+          response.headers.get('content-type').includes('text/html')
+        );
+      },
     },
     {
       name: 'Health Endpoint Access',
@@ -21,19 +24,19 @@ async function testPhase1Fixes() {
         const response = await fetch('http://localhost:3000/api/health');
         const data = await response.json();
         return response.status === 200 && data.status !== undefined;
-      }
+      },
     },
     {
       name: 'No Redirect Loop',
       test: async () => {
         let redirectCount = 0;
         let url = 'http://localhost:3000';
-        
+
         while (redirectCount < 10) {
           const response = await fetch(url, {
-            redirect: 'manual'
+            redirect: 'manual',
           });
-          
+
           if (response.status >= 300 && response.status < 400) {
             url = response.headers.get('location');
             redirectCount++;
@@ -41,19 +44,19 @@ async function testPhase1Fixes() {
             break;
           }
         }
-        
+
         return redirectCount < 10;
-      }
+      },
     },
     {
       name: 'Database Connection',
       test: async () => {
         const response = await fetch('http://localhost:3000/api/health');
         const data = await response.json();
-        const dbCheck = data.checks?.find(c => c.name === 'database');
+        const dbCheck = data.checks?.find((c) => c.name === 'database');
         return dbCheck?.status === 'healthy';
-      }
-    }
+      },
+    },
   ];
 
   let passed = 0;
@@ -76,7 +79,7 @@ async function testPhase1Fixes() {
   }
 
   console.log(`\n📊 Results: ${passed} passed, ${failed} failed`);
-  
+
   if (failed === 0) {
     console.log('\n🎉 All Phase 1 fixes are working correctly!');
   } else {

@@ -17,13 +17,15 @@ const ALLOWED_TYPES = [
 ];
 
 export const POST = withAuth(async (request: NextRequest, user) => {
-
   try {
     const formData = await request.formData();
     const files = formData.getAll('files') as File[];
 
     if (!files || files.length === 0) {
-      return new ChatSDKError('bad_request:upload', 'No files uploaded').toResponse();
+      return new ChatSDKError(
+        'bad_request:upload',
+        'No files uploaded',
+      ).toResponse();
     }
 
     const uploadedFiles = [];
@@ -105,7 +107,11 @@ export const POST = withAuth(async (request: NextRequest, user) => {
     }
 
     if (uploadedFiles.length === 0) {
-      return new ChatSDKError('bad_request:upload', 'No files were successfully uploaded', { errors }).toResponse();
+      return new ChatSDKError(
+        'bad_request:upload',
+        'No files were successfully uploaded',
+        { errors },
+      ).toResponse();
     }
 
     return NextResponse.json({
@@ -115,11 +121,14 @@ export const POST = withAuth(async (request: NextRequest, user) => {
     });
   } catch (error) {
     console.error('Upload error:', error);
-    
+
     if (error instanceof ChatSDKError) {
       return error.toResponse();
     }
-    
-    return new ChatSDKError('bad_request:upload', 'Internal server error during upload').toResponse();
+
+    return new ChatSDKError(
+      'bad_request:upload',
+      'Internal server error during upload',
+    ).toResponse();
   }
 });

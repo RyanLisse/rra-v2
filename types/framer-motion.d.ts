@@ -14,7 +14,20 @@ declare module 'framer-motion' {
     on(event: string, callback: (value: T) => void): () => void;
   }
 
-  export interface MotionStyle extends Omit<CSSProperties, 'x' | 'y' | 'z' | 'rotate' | 'scale' | 'rotateX' | 'rotateY' | 'rotateZ' | 'scaleX' | 'scaleY'> {
+  export interface MotionStyle
+    extends Omit<
+      CSSProperties,
+      | 'x'
+      | 'y'
+      | 'z'
+      | 'rotate'
+      | 'scale'
+      | 'rotateX'
+      | 'rotateY'
+      | 'rotateZ'
+      | 'scaleX'
+      | 'scaleY'
+    > {
     x?: number | string | MotionValue;
     y?: number | string | MotionValue;
     z?: number | string | MotionValue;
@@ -28,7 +41,7 @@ declare module 'framer-motion' {
     opacity?: number | MotionValue;
   }
 
-  export type MotionDragEventHandler = (event: any, info: PanInfo) => void
+  export type MotionDragEventHandler = (event: any, info: PanInfo) => void;
 
   export interface MotionProps {
     animate?: any;
@@ -71,8 +84,16 @@ declare module 'framer-motion' {
     mode?: 'wait' | 'sync' | 'popLayout';
   }
 
-  type MotionComponentProps<T extends keyof JSX.IntrinsicElements> = MotionProps & Omit<ComponentProps<T>, 
-    'onDrag' | 'onDragStart' | 'onDragEnd' | 'onAnimationStart' | 'onAnimationEnd'>;
+  type MotionComponentProps<T extends keyof JSX.IntrinsicElements> =
+    MotionProps &
+      Omit<
+        ComponentProps<T>,
+        | 'onDrag'
+        | 'onDragStart'
+        | 'onDragEnd'
+        | 'onAnimationStart'
+        | 'onAnimationEnd'
+      >;
 
   export const motion: {
     div: React.ForwardRefExoticComponent<MotionComponentProps<'div'>>;
@@ -96,8 +117,15 @@ declare module 'framer-motion' {
   export const AnimatePresence: React.FC<AnimatePresenceProps>;
   export const useAnimation: () => any;
   export const useMotionValue: <T = any>(initial: T) => MotionValue<T>;
-  export const useTransform: <T = any>(value: MotionValue, input: number[], output: T[]) => MotionValue<T>;
-  export const useSpring: (value: MotionValue | number, config?: any) => MotionValue;
+  export const useTransform: <T = any>(
+    value: MotionValue,
+    input: number[],
+    output: T[],
+  ) => MotionValue<T>;
+  export const useSpring: (
+    value: MotionValue | number,
+    config?: any,
+  ) => MotionValue;
   export const useDragControls: () => any;
   export const useAnimationControls: () => any;
 }

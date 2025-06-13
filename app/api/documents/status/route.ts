@@ -6,7 +6,6 @@ import { withAuth } from '@/lib/auth/middleware';
 import { DocumentStatusManager } from '@/lib/document-processing/status-manager';
 
 export const GET = withAuth(async (request: NextRequest, user) => {
-
   try {
     const { searchParams } = new URL(request.url);
     const documentId = searchParams.get('documentId');
@@ -63,7 +62,6 @@ export const GET = withAuth(async (request: NextRequest, user) => {
 
 // Get processing statistics for all documents
 export const POST = withAuth(async (request: NextRequest, user) => {
-
   try {
     const body = await request.json();
     const action = body.action;

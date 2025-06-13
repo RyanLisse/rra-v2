@@ -192,11 +192,14 @@ describe.skip('Auth Middleware Unit Tests', () => {
       });
 
       const protectedHandler = withAuth(testHandler);
-      const request = new NextRequest('http://localhost:3000/api/test?param=value', {
-        method: 'POST',
-        body: JSON.stringify({ test: 'data' }),
-        headers: { 'Content-Type': 'application/json' },
-      });
+      const request = new NextRequest(
+        'http://localhost:3000/api/test?param=value',
+        {
+          method: 'POST',
+          body: JSON.stringify({ test: 'data' }),
+          headers: { 'Content-Type': 'application/json' },
+        },
+      );
 
       const response = await protectedHandler(request);
 
@@ -208,7 +211,9 @@ describe.skip('Auth Middleware Unit Tests', () => {
 
       const responseData = await response.json();
       expect(responseData.method).toBe('POST');
-      expect(responseData.url).toBe('http://localhost:3000/api/test?param=value');
+      expect(responseData.url).toBe(
+        'http://localhost:3000/api/test?param=value',
+      );
       expect(responseData.userId).toBe('test-user');
     });
   });
@@ -232,7 +237,8 @@ describe.skip('Auth Middleware Unit Tests', () => {
       {
         email: 'admin@company.com',
         expectedType: 'regular',
-        description: 'admin user (type determined by database, defaults to regular)',
+        description:
+          'admin user (type determined by database, defaults to regular)',
       },
       {
         email: 'premium_guest@guest.domain',

@@ -1,4 +1,4 @@
-import { describe, it, expect, } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { NextRequest } from 'next/server';
 
 // Mock the search route directly since we can't easily mock the complex imports
@@ -33,13 +33,13 @@ const createMockSearchResponse = (facets: any = {}) => ({
 const mockPOST = async (request: NextRequest) => {
   try {
     const body = await request.json();
-    
+
     // Validate request structure
     if (!body.query || typeof body.query !== 'string') {
-      return new Response(
-        JSON.stringify({ error: 'Query is required' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Query is required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     // Validate spatial search bbox if present
@@ -48,23 +48,23 @@ const mockPOST = async (request: NextRequest) => {
       if (!Array.isArray(bbox) || bbox.length !== 4) {
         return new Response(
           JSON.stringify({ error: 'Invalid search parameters' }),
-          { status: 400, headers: { 'Content-Type': 'application/json' } }
+          { status: 400, headers: { 'Content-Type': 'application/json' } },
         );
       }
     }
 
     // Return mock response with applied facets
     const responseData = createMockSearchResponse(body.facets || {});
-    
-    return new Response(
-      JSON.stringify(responseData),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
+
+    return new Response(JSON.stringify(responseData), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: 'Invalid JSON' }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 };
 

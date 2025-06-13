@@ -4,39 +4,32 @@ import { motion } from 'framer-motion';
 import { Button } from './ui/button';
 import { memo } from 'react';
 import type { UseChatHelpers } from '@ai-sdk/react';
-import type { VisibilityType } from './visibility-selector';
-
 interface SuggestedActionsProps {
   chatId: string;
   append: UseChatHelpers['append'];
-  selectedVisibilityType: VisibilityType;
 }
 
-function PureSuggestedActions({
-  chatId,
-  append,
-  selectedVisibilityType,
-}: SuggestedActionsProps) {
+function PureSuggestedActions({ chatId, append }: SuggestedActionsProps) {
   const suggestedActions = [
     {
-      title: 'What are the advantages',
-      label: 'of using Next.js?',
-      action: 'What are the advantages of using Next.js?',
+      title: 'How do I calibrate',
+      label: 'the RoboRail system?',
+      action: 'How do I calibrate the RoboRail system?',
     },
     {
-      title: 'Write code to',
-      label: `demonstrate djikstra's algorithm`,
-      action: `Write code to demonstrate djikstra's algorithm`,
+      title: 'Troubleshoot PMAC',
+      label: 'connection issues',
+      action: 'Help me troubleshoot PMAC controller connection issues',
     },
     {
-      title: 'Help me write an essay',
-      label: `about silicon valley`,
-      action: `Help me write an essay about silicon valley`,
+      title: 'Explain chuck alignment',
+      label: 'calibration procedure',
+      action: 'Explain the chuck alignment calibration procedure for RoboRail',
     },
     {
-      title: 'What is the weather',
-      label: 'in San Francisco?',
-      action: 'What is the weather in San Francisco?',
+      title: 'What are the safety',
+      label: 'procedures for RoboRail?',
+      action: 'What are the safety procedures for RoboRail operations?',
     },
   ];
 
@@ -82,8 +75,6 @@ export const SuggestedActions = memo(
   PureSuggestedActions,
   (prevProps, nextProps) => {
     if (prevProps.chatId !== nextProps.chatId) return false;
-    if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType)
-      return false;
 
     return true;
   },

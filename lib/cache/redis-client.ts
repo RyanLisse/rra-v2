@@ -97,7 +97,7 @@ export async function isRedisAvailable(): Promise<boolean> {
   try {
     const client = await getRedisClient();
     if (!client) return false;
-    
+
     const pong = await client.ping();
     return pong === 'PONG';
   } catch (error) {
@@ -112,7 +112,7 @@ export async function isRedisAvailable(): Promise<boolean> {
 export const CacheKeys = {
   // Rate limiting keys
   rateLimit: (key: string) => `rate_limit:${key}`,
-  
+
   // Query cache keys
   query: {
     user: {
@@ -129,13 +129,15 @@ export const CacheKeys = {
       pattern: 'query:messages:*',
     },
     ragDocuments: {
-      byUserId: (userId: string, limit: number) => `query:rag_documents:user:${userId}:limit:${limit}`,
-      byId: (id: string, userId: string) => `query:rag_document:${id}:${userId}`,
+      byUserId: (userId: string, limit: number) =>
+        `query:rag_documents:user:${userId}:limit:${limit}`,
+      byId: (id: string, userId: string) =>
+        `query:rag_document:${id}:${userId}`,
       stats: (userId: string) => `query:document_stats:user:${userId}`,
       pattern: 'query:rag_document*',
     },
   },
-  
+
   // Session/auth keys
   auth: {
     session: (sessionId: string) => `auth:session:${sessionId}`,
@@ -155,7 +157,7 @@ export const CacheTTL = {
     upload: 60, // 1 minute
     search: 60, // 1 minute
   },
-  
+
   // Query cache TTLs
   query: {
     user: 300, // 5 minutes
@@ -164,7 +166,7 @@ export const CacheTTL = {
     ragDocuments: 60, // 1 minute
     documentStats: 30, // 30 seconds
   },
-  
+
   // Session TTLs
   auth: {
     session: 3600, // 1 hour
@@ -177,11 +179,11 @@ export const CacheTTL = {
  */
 export class RedisBatch {
   private pipeline: any;
-  
+
   constructor(private client: RedisType) {
     this.pipeline = client.pipeline();
   }
-  
+
   set(key: string, value: string, ttl?: number): this {
     if (ttl) {
       this.pipeline.setex(key, ttl, value);
@@ -190,22 +192,22 @@ export class RedisBatch {
     }
     return this;
   }
-  
+
   get(key: string): this {
     this.pipeline.get(key);
     return this;
   }
-  
+
   del(key: string): this {
     this.pipeline.del(key);
     return this;
   }
-  
+
   expire(key: string, ttl: number): this {
     this.pipeline.expire(key, ttl);
     return this;
   }
-  
+
   async exec(): Promise<any[]> {
     return await this.pipeline.exec();
   }
@@ -226,7 +228,7 @@ export async function createBatch(): Promise<RedisBatch | null> {
 export async function warmCache(patterns: string[]): Promise<void> {
   const client = await getRedisClient();
   if (!client) return;
-  
+
   try {
     for (const pattern of patterns) {
       const keys = await client.keys(pattern);

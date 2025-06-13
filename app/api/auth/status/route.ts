@@ -18,18 +18,18 @@ let failedRequests = 0;
 export async function GET(request: NextRequest) {
   try {
     totalRequests++;
-    
+
     // Check authentication status
     let authenticated = false;
     let user = null;
-    
+
     try {
       user = await getUser();
       authenticated = !!user;
     } catch (error) {
       console.error('Auth status check error:', error);
     }
-    
+
     // Check cookies
     const cookieStore = await cookies();
     const authCookies = {
@@ -39,9 +39,9 @@ export async function GET(request: NextRequest) {
       'kinde-id-token': !!cookieStore.get('kinde-id-token'),
       'ac-state-key': !!cookieStore.get('ac-state-key'),
     };
-    
-    const hasCookies = Object.values(authCookies).some(v => v);
-    
+
+    const hasCookies = Object.values(authCookies).some((v) => v);
+
     // Check environment configuration
     const config = {
       hasClientId: !!process.env.KINDE_CLIENT_ID,
@@ -51,18 +51,24 @@ export async function GET(request: NextRequest) {
       issuerUrl: process.env.KINDE_ISSUER_URL,
       siteUrl: process.env.KINDE_SITE_URL,
     };
-    
-    const configValid = config.hasClientId && config.hasClientSecret && config.hasIssuerUrl && config.hasSiteUrl;
-    
+
+    const configValid =
+      config.hasClientId &&
+      config.hasClientSecret &&
+      config.hasIssuerUrl &&
+      config.hasSiteUrl;
+
     // Build status response
     const status = {
       timestamp: new Date().toISOString(),
       authenticated,
-      user: user ? {
-        id: user.id,
-        email: user.email,
-        type: user.type,
-      } : null,
+      user: user
+        ? {
+            id: user.id,
+            email: user.email,
+            type: user.type,
+          }
+        : null,
       cookies: authCookies,
       hasCookies,
       config: {
@@ -75,30 +81,41 @@ export async function GET(request: NextRequest) {
         totalRequests,
         failedRequests,
         pendingRequests,
-        errorRate: totalRequests > 0 ? (failedRequests / totalRequests) * 100 : 0,
+        errorRate:
+          totalRequests > 0 ? (failedRequests / totalRequests) * 100 : 0,
       },
       health: {
-        overall: authenticated && configValid && circuitBreakerState.state !== 'open' ? 'healthy' : 'unhealthy',
+        overall:
+          authenticated && configValid && circuitBreakerState.state !== 'open'
+            ? 'healthy'
+            : 'unhealthy',
         auth: authenticated ? 'healthy' : 'unhealthy',
         config: configValid ? 'healthy' : 'unhealthy',
-        circuitBreaker: circuitBreakerState.state === 'closed' ? 'healthy' : 
-                       circuitBreakerState.state === 'half-open' ? 'degraded' : 'unhealthy',
-      }
+        circuitBreaker:
+          circuitBreakerState.state === 'closed'
+            ? 'healthy'
+            : circuitBreakerState.state === 'half-open'
+              ? 'degraded'
+              : 'unhealthy',
+      },
     };
-    
+
     return NextResponse.json(status, {
       headers: {
         'Cache-Control': 'no-store, no-cache, must-revalidate',
-        'Pragma': 'no-cache',
-      }
+        Pragma: 'no-cache',
+      },
     });
   } catch (error: any) {
     console.error('Auth status endpoint error:', error);
-    return NextResponse.json({
-      error: 'Failed to get auth status',
-      message: error.message,
-      timestamp: new Date().toISOString(),
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: 'Failed to get auth status',
+        message: error.message,
+        timestamp: new Date().toISOString(),
+      },
+      { status: 500 },
+    );
   }
 }
 
@@ -107,9 +124,12 @@ export function recordAuthFailure() {
   failedRequests++;
   circuitBreakerState.failures++;
   circuitBreakerState.lastFailure = new Date();
-  
+
   // Open circuit breaker after 5 failures
-  if (circuitBreakerState.failures >= 5 && circuitBreakerState.state === 'closed') {
+  if (
+    circuitBreakerState.failures >= 5 &&
+    circuitBreakerState.state === 'closed'
+  ) {
     circuitBreakerState.state = 'open';
     circuitBreakerState.nextAttempt = new Date(Date.now() + 60000); // Try again in 1 minute
     console.error('Circuit breaker OPENED due to repeated auth failures');

@@ -5,7 +5,6 @@ import { ChatSDKError } from '@/lib/errors';
 
 export const GET = withAuth(async (request: NextRequest, user) => {
   try {
-
     const stats = await getDocumentProcessingStats({
       userId: user.id,
     });

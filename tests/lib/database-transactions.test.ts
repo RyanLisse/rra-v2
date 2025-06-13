@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { 
-  withTransaction, 
+import {
+  withTransaction,
   withDeadlockRetry,
   withReadOnlyTransaction,
   withSerializableTransaction,
@@ -32,7 +32,7 @@ describe('Database Transaction Utilities', () => {
     it('should execute transaction successfully', async () => {
       const mockResult = { id: '123', data: 'test' };
       const mockTx = { execute: vi.fn() };
-      
+
       vi.mocked(db.transaction).mockImplementation(async (fn) => {
         return fn(mockTx);
       });
@@ -48,7 +48,7 @@ describe('Database Transaction Utilities', () => {
 
     it('should rollback transaction on error', async () => {
       const mockError = new Error('Transaction failed');
-      
+
       vi.mocked(db.transaction).mockRejectedValueOnce(mockError);
 
       await expect(
@@ -63,16 +63,16 @@ describe('Database Transaction Utilities', () => {
     it('should retry on retryable errors', async () => {
       const mockResult = { success: true };
       const deadlockError = new Error('deadlock detected');
-      
+
       vi.mocked(db.transaction)
         .mockRejectedValueOnce(deadlockError)
         .mockRejectedValueOnce(deadlockError)
         .mockImplementation(async (fn) => fn({}));
 
-      const result = await withTransaction(
-        async () => mockResult,
-        { retries: 3, retryDelay: 10 },
-      );
+      const result = await withTransaction(async () => mockResult, {
+        retries: 3,
+        retryDelay: 10,
+      });
 
       expect(result).toBe(mockResult);
       expect(db.transaction).toHaveBeenCalledTimes(3);
@@ -80,14 +80,14 @@ describe('Database Transaction Utilities', () => {
 
     it('should fail after max retries', async () => {
       const deadlockError = new Error('deadlock detected');
-      
+
       vi.mocked(db.transaction).mockRejectedValue(deadlockError);
 
       await expect(
-        withTransaction(
-          async () => ({ data: 'test' }),
-          { retries: 2, retryDelay: 10 },
-        ),
+        withTransaction(async () => ({ data: 'test' }), {
+          retries: 2,
+          retryDelay: 10,
+        }),
       ).rejects.toThrow('Transaction failed after 3 attempts');
 
       expect(db.transaction).toHaveBeenCalledTimes(3);
@@ -95,16 +95,15 @@ describe('Database Transaction Utilities', () => {
 
     it('should use correct isolation level', async () => {
       const mockTx = { execute: vi.fn() };
-      
+
       vi.mocked(db.transaction).mockImplementation(async (fn, options) => {
         expect(options?.isolationLevel).toBe('serializable');
         return fn(mockTx);
       });
 
-      await withTransaction(
-        async () => ({ data: 'test' }),
-        { isolationLevel: 'serializable' },
-      );
+      await withTransaction(async () => ({ data: 'test' }), {
+        isolationLevel: 'serializable',
+      });
 
       expect(db.transaction).toHaveBeenCalledTimes(1);
     });
@@ -114,7 +113,7 @@ describe('Database Transaction Utilities', () => {
     it('should retry deadlock errors with correct settings', async () => {
       const mockResult = { id: '456' };
       const deadlockError = new Error('deadlock detected');
-      
+
       vi.mocked(db.transaction)
         .mockRejectedValueOnce(deadlockError)
         .mockImplementation(async (fn) => fn({}));
@@ -129,7 +128,7 @@ describe('Database Transaction Utilities', () => {
   describe('withReadOnlyTransaction', () => {
     it('should set read-only access mode', async () => {
       const mockTx = { execute: vi.fn() };
-      
+
       vi.mocked(db.transaction).mockImplementation(async (fn, options) => {
         expect(options?.accessMode).toBe('read only');
         expect(options?.isolationLevel).toBe('repeatable read');
@@ -145,7 +144,7 @@ describe('Database Transaction Utilities', () => {
   describe('withSerializableTransaction', () => {
     it('should use serializable isolation with retries', async () => {
       const mockTx = { execute: vi.fn() };
-      
+
       vi.mocked(db.transaction).mockImplementation(async (fn, options) => {
         expect(options?.isolationLevel).toBe('serializable');
         return fn(mockTx);
@@ -209,10 +208,10 @@ describe('Database Transaction Utilities', () => {
           .mockRejectedValueOnce(error)
           .mockImplementation(async (fn) => fn({}));
 
-        await withTransaction(
-          async () => ({ success: true }),
-          { retries: 1, retryDelay: 10 },
-        );
+        await withTransaction(async () => ({ success: true }), {
+          retries: 1,
+          retryDelay: 10,
+        });
 
         expect(db.transaction).toHaveBeenCalledTimes(2);
         vi.clearAllMocks();
@@ -230,10 +229,10 @@ describe('Database Transaction Utilities', () => {
         vi.mocked(db.transaction).mockRejectedValue(error);
 
         await expect(
-          withTransaction(
-            async () => ({ success: true }),
-            { retries: 2, retryDelay: 10 },
-          ),
+          withTransaction(async () => ({ success: true }), {
+            retries: 2,
+            retryDelay: 10,
+          }),
         ).rejects.toThrow(ChatSDKError);
 
         expect(db.transaction).toHaveBeenCalledTimes(1);

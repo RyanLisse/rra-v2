@@ -52,9 +52,10 @@ for (const [key, value] of Object.entries(required)) {
     console.log(`❌ ${key}: NOT SET`);
     hasErrors = true;
   } else {
-    const displayValue = key.includes('SECRET') || key.includes('KEY') 
-      ? `***${value.slice(-4)}` 
-      : value.substring(0, 50) + (value.length > 50 ? '...' : '');
+    const displayValue =
+      key.includes('SECRET') || key.includes('KEY')
+        ? `***${value.slice(-4)}`
+        : value.substring(0, 50) + (value.length > 50 ? '...' : '');
     console.log(`✅ ${key}: ${displayValue}`);
   }
 }
@@ -64,8 +65,8 @@ for (const [key, value] of Object.entries(optional)) {
   if (!value) {
     console.log(`⚠️  ${key}: not set`);
   } else {
-    const displayValue = key.includes('KEY') 
-      ? `***${value.slice(-4)}` 
+    const displayValue = key.includes('KEY')
+      ? `***${value.slice(-4)}`
       : value.substring(0, 50) + (value.length > 50 ? '...' : '');
     console.log(`✅ ${key}: ${displayValue}`);
   }
@@ -74,18 +75,26 @@ for (const [key, value] of Object.entries(optional)) {
 // Check for test-specific overrides
 console.log('\nTest configuration:');
 console.log(`🧪 NODE_ENV: ${process.env.NODE_ENV || 'not set'}`);
-console.log(`📊 ENABLE_TEST_METRICS: ${process.env.ENABLE_TEST_METRICS || 'true (default)'}`);
-console.log(`🔍 TEST_LOG_LEVEL: ${process.env.TEST_LOG_LEVEL || 'info (default)'}`);
-console.log(`🏃 TEST_ISOLATION_MODE: ${process.env.TEST_ISOLATION_MODE || 'branch (default)'}`);
+console.log(
+  `📊 ENABLE_TEST_METRICS: ${process.env.ENABLE_TEST_METRICS || 'true (default)'}`,
+);
+console.log(
+  `🔍 TEST_LOG_LEVEL: ${process.env.TEST_LOG_LEVEL || 'info (default)'}`,
+);
+console.log(
+  `🏃 TEST_ISOLATION_MODE: ${process.env.TEST_ISOLATION_MODE || 'branch (default)'}`,
+);
 
 if (hasErrors) {
   console.log('\n❌ Test environment validation failed!');
-  console.log('Please ensure all required environment variables are set in .env.test');
+  console.log(
+    'Please ensure all required environment variables are set in .env.test',
+  );
   process.exit(1);
 } else {
   console.log('\n✅ Test environment validation passed!');
   console.log('All required environment variables are configured.');
-  
+
   // Test database connection
   if (process.env.POSTGRES_URL) {
     console.log('\n🔗 Testing database connection...');
@@ -95,7 +104,9 @@ if (hasErrors) {
       console.log('✅ Database connection successful!');
     } catch (error) {
       console.log('❌ Database connection failed:', error.message);
-      console.log('   Make sure your POSTGRES_URL is correct and the database is accessible.');
+      console.log(
+        '   Make sure your POSTGRES_URL is correct and the database is accessible.',
+      );
     }
   }
 }

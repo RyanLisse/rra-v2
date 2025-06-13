@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { getRedisClient, } from './redis-client';
+import { getRedisClient } from './redis-client';
 import { logger } from '../monitoring/logger';
 
 // In-memory fallback cache with lazy cleanup
@@ -25,13 +25,14 @@ function cleanupExpiredEntries() {
 export async function getCachedResult<T>(key: string): Promise<T | null> {
   try {
     const redis = await getRedisClient();
-    
+
     if (!redis) {
       // Clean up expired entries before checking memory cache
-      if (memoryCache.size > 100) { // Only cleanup when cache grows large
+      if (memoryCache.size > 100) {
+        // Only cleanup when cache grows large
         cleanupExpiredEntries();
       }
-      
+
       // Fallback to memory cache
       const cached = memoryCache.get(key);
       if (cached && Date.now() - cached.timestamp < cached.ttl) {
@@ -40,10 +41,10 @@ export async function getCachedResult<T>(key: string): Promise<T | null> {
       memoryCache.delete(key);
       return null;
     }
-    
+
     const result = await redis.get(key);
     if (!result) return null;
-    
+
     try {
       return JSON.parse(result) as T;
     } catch (error) {
@@ -53,7 +54,7 @@ export async function getCachedResult<T>(key: string): Promise<T | null> {
     }
   } catch (error) {
     logger.error('Redis cache get error', { key, error });
-    
+
     // Fallback to memory cache
     const cached = memoryCache.get(key);
     if (cached && Date.now() - cached.timestamp < cached.ttl) {
@@ -73,23 +74,23 @@ export async function setCachedResult<T>(
 ): Promise<void> {
   try {
     const redis = await getRedisClient();
-    
+
     if (!redis) {
       // Fallback to memory cache
       memoryCache.set(key, { data, timestamp: Date.now(), ttl: ttlMs });
       return;
     }
-    
+
     const ttlSec = Math.ceil(ttlMs / 1000);
     const serialized = JSON.stringify(data);
-    
+
     await redis.setex(key, ttlSec, serialized);
-    
+
     // Also set in memory cache for faster access
     memoryCache.set(key, { data, timestamp: Date.now(), ttl: ttlMs });
   } catch (error) {
     logger.error('Redis cache set error', { key, error });
-    
+
     // Fallback to memory cache
     memoryCache.set(key, { data, timestamp: Date.now(), ttl: ttlMs });
   }
@@ -101,7 +102,7 @@ export async function setCachedResult<T>(
 export async function invalidateCache(pattern: string): Promise<void> {
   try {
     const redis = await getRedisClient();
-    
+
     if (!redis) {
       // Fallback to memory cache
       for (const key of memoryCache.keys()) {
@@ -111,15 +112,15 @@ export async function invalidateCache(pattern: string): Promise<void> {
       }
       return;
     }
-    
+
     // Use SCAN instead of KEYS for better performance
     const stream = redis.scanStream({
       match: `*${pattern}*`,
       count: 100,
     });
-    
+
     const pipeline = redis.pipeline();
-    
+
     stream.on('data', (keys: string[]) => {
       if (keys.length) {
         keys.forEach((key) => {
@@ -128,18 +129,18 @@ export async function invalidateCache(pattern: string): Promise<void> {
         });
       }
     });
-    
+
     stream.on('end', async () => {
       await pipeline.exec();
       logger.info(`Cache invalidated for pattern: ${pattern}`);
     });
-    
+
     stream.on('error', (error) => {
       logger.error('Cache invalidation error', { pattern, error });
     });
   } catch (error) {
     logger.error('Redis cache invalidation error', { pattern, error });
-    
+
     // Fallback to memory cache invalidation
     for (const key of memoryCache.keys()) {
       if (key.includes(pattern)) {
@@ -155,12 +156,12 @@ export async function invalidateCache(pattern: string): Promise<void> {
 export async function clearAllCache(): Promise<void> {
   try {
     const redis = await getRedisClient();
-    
+
     if (!redis) {
       memoryCache.clear();
       return;
     }
-    
+
     await redis.flushdb();
     memoryCache.clear();
     logger.info('All cache cleared');
@@ -184,7 +185,7 @@ export async function getCacheStats(): Promise<{
     let redisKeys = 0;
     let redisMemoryUsage = 'N/A';
     let isRedisConnected = false;
-    
+
     if (redis) {
       try {
         redisKeys = await redis.dbsize();
@@ -196,7 +197,7 @@ export async function getCacheStats(): Promise<{
         logger.error('Failed to get Redis stats', error);
       }
     }
-    
+
     return {
       redisKeys,
       memoryKeys: memoryCache.size,
@@ -221,10 +222,10 @@ export async function getBatchCached<T>(
   keys: string[],
 ): Promise<Map<string, T>> {
   const results = new Map<string, T>();
-  
+
   try {
     const redis = await getRedisClient();
-    
+
     if (!redis) {
       // Fallback to memory cache
       for (const key of keys) {
@@ -235,9 +236,9 @@ export async function getBatchCached<T>(
       }
       return results;
     }
-    
+
     const values = await redis.mget(...keys);
-    
+
     values.forEach((value, index) => {
       if (value) {
         try {
@@ -250,7 +251,7 @@ export async function getBatchCached<T>(
         }
       }
     });
-    
+
     // Fill missing values from memory cache
     for (const key of keys) {
       if (!results.has(key)) {
@@ -260,11 +261,11 @@ export async function getBatchCached<T>(
         }
       }
     }
-    
+
     return results;
   } catch (error) {
     logger.error('Batch cache get error', error);
-    
+
     // Fallback to memory cache
     for (const key of keys) {
       const cached = memoryCache.get(key);
@@ -284,7 +285,7 @@ export async function setBatchCached<T>(
 ): Promise<void> {
   try {
     const redis = await getRedisClient();
-    
+
     if (!redis) {
       // Fallback to memory cache
       for (const { key, data, ttlMs = 60000 } of entries) {
@@ -292,22 +293,22 @@ export async function setBatchCached<T>(
       }
       return;
     }
-    
+
     const pipeline = redis.pipeline();
-    
+
     for (const { key, data, ttlMs = 60000 } of entries) {
       const ttlSec = Math.ceil(ttlMs / 1000);
       const serialized = JSON.stringify(data);
       pipeline.setex(key, ttlSec, serialized);
-      
+
       // Also set in memory cache
       memoryCache.set(key, { data, timestamp: Date.now(), ttl: ttlMs });
     }
-    
+
     await pipeline.exec();
   } catch (error) {
     logger.error('Batch cache set error', error);
-    
+
     // Fallback to memory cache
     for (const { key, data, ttlMs = 60000 } of entries) {
       memoryCache.set(key, { data, timestamp: Date.now(), ttl: ttlMs });
@@ -330,19 +331,19 @@ export function withCache<T extends (...args: any[]) => Promise<any>>(
     const key = options.namespace
       ? `${options.namespace}:${options.keyGenerator(...args)}`
       : options.keyGenerator(...args);
-    
+
     // Try to get from cache
     const cached = await getCachedResult<ReturnType<T>>(key);
     if (cached !== null) {
       return cached;
     }
-    
+
     // Execute function
     const result = await fn(...args);
-    
+
     // Cache the result
     await setCachedResult(key, result, options.ttlMs);
-    
+
     return result;
   }) as T;
 }

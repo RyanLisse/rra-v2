@@ -103,7 +103,10 @@ describe('Auth Middleware Integration Tests (Kinde)', () => {
     });
 
     it('should handle different user permission levels', () => {
-      const checkPermission = (userType: string, requiredPermission: string) => {
+      const checkPermission = (
+        userType: string,
+        requiredPermission: string,
+      ) => {
         const permissions = {
           guest: ['read'],
           regular: ['read', 'write'],
@@ -111,7 +114,8 @@ describe('Auth Middleware Integration Tests (Kinde)', () => {
           admin: ['read', 'write', 'premium', 'admin'],
         };
 
-        const userPerms = permissions[userType as keyof typeof permissions] || [];
+        const userPerms =
+          permissions[userType as keyof typeof permissions] || [];
         return userPerms.includes(requiredPermission);
       };
 
@@ -129,7 +133,7 @@ describe('Auth Middleware Integration Tests (Kinde)', () => {
         if (!token || token.length < 10) {
           return { valid: false, reason: 'Token too short' };
         }
-        
+
         if (!token.startsWith('kinde_')) {
           return { valid: false, reason: 'Invalid token format' };
         }
@@ -137,14 +141,16 @@ describe('Auth Middleware Integration Tests (Kinde)', () => {
         return { valid: true };
       };
 
-      expect(validateKindeToken('kinde_valid_token_123')).toEqual({ valid: true });
-      expect(validateKindeToken('invalid_token')).toEqual({ 
-        valid: false, 
-        reason: 'Invalid token format' 
+      expect(validateKindeToken('kinde_valid_token_123')).toEqual({
+        valid: true,
       });
-      expect(validateKindeToken('short')).toEqual({ 
-        valid: false, 
-        reason: 'Token too short' 
+      expect(validateKindeToken('invalid_token')).toEqual({
+        valid: false,
+        reason: 'Invalid token format',
+      });
+      expect(validateKindeToken('short')).toEqual({
+        valid: false,
+        reason: 'Token too short',
       });
     });
 
@@ -207,9 +213,13 @@ describe('Auth Middleware Integration Tests (Kinde)', () => {
 
   describe('CSRF Protection Integration', () => {
     it('should validate CSRF tokens for state-changing requests', () => {
-      const validateCSRF = (method: string, csrfToken?: string, sessionToken?: string) => {
+      const validateCSRF = (
+        method: string,
+        csrfToken?: string,
+        sessionToken?: string,
+      ) => {
         const stateChangingMethods = ['POST', 'PUT', 'DELETE', 'PATCH'];
-        
+
         if (!stateChangingMethods.includes(method)) {
           return { valid: true, reason: 'Safe method' };
         }
@@ -230,12 +240,20 @@ describe('Auth Middleware Integration Tests (Kinde)', () => {
         return { valid: false, reason: 'CSRF token mismatch' };
       };
 
-      expect(validateCSRF('GET')).toEqual({ valid: true, reason: 'Safe method' });
-      expect(validateCSRF('POST')).toEqual({ valid: false, reason: 'CSRF token required' });
-      expect(validateCSRF('POST', 'token123', 'token123')).toEqual({ valid: true });
-      expect(validateCSRF('POST', 'token123', 'different')).toEqual({ 
-        valid: false, 
-        reason: 'CSRF token mismatch' 
+      expect(validateCSRF('GET')).toEqual({
+        valid: true,
+        reason: 'Safe method',
+      });
+      expect(validateCSRF('POST')).toEqual({
+        valid: false,
+        reason: 'CSRF token required',
+      });
+      expect(validateCSRF('POST', 'token123', 'token123')).toEqual({
+        valid: true,
+      });
+      expect(validateCSRF('POST', 'token123', 'different')).toEqual({
+        valid: false,
+        reason: 'CSRF token mismatch',
       });
     });
 
@@ -245,7 +263,7 @@ describe('Auth Middleware Integration Tests (Kinde)', () => {
       };
 
       const headersWithCSRF = { 'x-csrf-token': 'token123' };
-      const headersWithoutCSRF = { 'authorization': 'Bearer abc' };
+      const headersWithoutCSRF = { authorization: 'Bearer abc' };
 
       expect(extractCSRFToken(headersWithCSRF)).toBe('token123');
       expect(extractCSRFToken(headersWithoutCSRF)).toBeNull();
@@ -262,7 +280,8 @@ describe('Auth Middleware Integration Tests (Kinde)', () => {
           invalid_token: { status: 401, code: 'INVALID_TOKEN' },
         };
 
-        const config = errorMap[type as keyof typeof errorMap] || errorMap.unauthorized;
+        const config =
+          errorMap[type as keyof typeof errorMap] || errorMap.unauthorized;
 
         return {
           status: config.status,
@@ -274,12 +293,18 @@ describe('Auth Middleware Integration Tests (Kinde)', () => {
         };
       };
 
-      const unauthorizedError = createAuthError('unauthorized', 'Authentication required');
+      const unauthorizedError = createAuthError(
+        'unauthorized',
+        'Authentication required',
+      );
       expect(unauthorizedError.status).toBe(401);
       expect(unauthorizedError.body.code).toBe('UNAUTHORIZED');
       expect(unauthorizedError.body.error).toBe('Authentication required');
 
-      const rateLimitError = createAuthError('rate_limited', 'Too many requests');
+      const rateLimitError = createAuthError(
+        'rate_limited',
+        'Too many requests',
+      );
       expect(rateLimitError.status).toBe(429);
       expect(rateLimitError.body.code).toBe('RATE_LIMITED');
     });
@@ -330,7 +355,7 @@ describe('Auth Middleware Integration Tests (Kinde)', () => {
 
         try {
           // Simulate auth check
-          await new Promise(resolve => setTimeout(resolve, 1));
+          await new Promise((resolve) => setTimeout(resolve, 1));
           return { success: true, userId };
         } catch (error) {
           performanceTracker.errors++;
@@ -349,20 +374,20 @@ describe('Auth Middleware Integration Tests (Kinde)', () => {
     });
 
     it('should handle concurrent auth requests efficiently', async () => {
-      const concurrentAuthChecks = Array.from({ length: 10 }, (_, i) => 
+      const concurrentAuthChecks = Array.from({ length: 10 }, (_, i) =>
         Promise.resolve({
           userId: `user-${i}`,
           authenticated: true,
           timestamp: Date.now(),
-        })
+        }),
       );
 
       const results = await Promise.all(concurrentAuthChecks);
 
       expect(results.length).toBe(10);
-      expect(results.every(r => r.authenticated)).toBe(true);
-      expect(results.map(r => r.userId)).toEqual(
-        Array.from({ length: 10 }, (_, i) => `user-${i}`)
+      expect(results.every((r) => r.authenticated)).toBe(true);
+      expect(results.map((r) => r.userId)).toEqual(
+        Array.from({ length: 10 }, (_, i) => `user-${i}`),
       );
     });
   });

@@ -11,9 +11,12 @@ describe('Auth API Routes (Kinde)', () => {
 
   describe('Guest Auth Route', () => {
     it('should handle GET requests for guest authentication', async () => {
-      const request = createMockRequest('http://localhost:3000/api/auth/guest', {
-        method: 'GET',
-      });
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/guest',
+        {
+          method: 'GET',
+        },
+      );
 
       const response = await GET(request);
 
@@ -23,9 +26,12 @@ describe('Auth API Routes (Kinde)', () => {
     });
 
     it('should handle POST requests for guest authentication', async () => {
-      const request = createMockRequest('http://localhost:3000/api/auth/guest', {
-        method: 'POST',
-      });
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/guest',
+        {
+          method: 'POST',
+        },
+      );
 
       const response = await POST(request);
 
@@ -39,7 +45,7 @@ describe('Auth API Routes (Kinde)', () => {
         'http://localhost:3000/api/auth/guest?redirectUrl=/dashboard',
         {
           method: 'GET',
-        }
+        },
       );
 
       const response = await GET(request);
@@ -51,9 +57,12 @@ describe('Auth API Routes (Kinde)', () => {
 
     it('should handle auth errors gracefully', async () => {
       // Test normal response since we can't easily mock errors in this test setup
-      const request = createMockRequest('http://localhost:3000/api/auth/guest', {
-        method: 'GET',
-      });
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/guest',
+        {
+          method: 'GET',
+        },
+      );
 
       const response = await GET(request);
 
@@ -72,7 +81,7 @@ describe('Auth API Routes (Kinde)', () => {
             'user-agent': 'test-browser',
             'x-forwarded-for': '127.0.0.1',
           },
-        }
+        },
       );
 
       expect(validRequest.method).toBe('GET');
@@ -85,7 +94,7 @@ describe('Auth API Routes (Kinde)', () => {
         'http://localhost:3000/api/auth/guest?redirectUrl=/dashboard&source=header',
         {
           method: 'GET',
-        }
+        },
       );
 
       const url = new URL(requestWithParams.url);
@@ -96,16 +105,19 @@ describe('Auth API Routes (Kinde)', () => {
 
   describe('Response Validation', () => {
     it('should return proper redirect responses', async () => {
-      const request = createMockRequest('http://localhost:3000/api/auth/guest', {
-        method: 'GET',
-      });
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/guest',
+        {
+          method: 'GET',
+        },
+      );
 
       const response = await GET(request);
 
       // Check redirect response structure
       expect([302, 307].includes(response.status)).toBe(true);
       expect(response.headers.has('location')).toBe(true);
-      
+
       const location = response.headers.get('location');
       expect(location).toBeTruthy();
       expect(location).toContain('/login');
@@ -113,15 +125,21 @@ describe('Auth API Routes (Kinde)', () => {
 
     it('should return proper error responses', async () => {
       // Test response structure for normal requests (can't easily mock errors)
-      const request = createMockRequest('http://localhost:3000/api/auth/guest', {
-        method: 'GET',
-      });
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/guest',
+        {
+          method: 'GET',
+        },
+      );
 
       const response = await GET(request);
 
       // Should return valid response with proper headers
       expect([302, 307, 500].includes(response.status)).toBe(true);
-      expect(response.headers.has('location') || response.headers.get('content-type')).toBeTruthy();
+      expect(
+        response.headers.has('location') ||
+          response.headers.get('content-type'),
+      ).toBeTruthy();
     });
   });
 });

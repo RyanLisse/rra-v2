@@ -49,10 +49,13 @@ export const mockKindeAuth = (user?: KindeUser | null) => {
   return vi.fn().mockImplementation((handler) => {
     return async (request: NextRequest) => {
       if (!user) {
-        return new Response(JSON.stringify({ error: 'Authentication required' }), {
-          status: 401,
-          headers: { 'Content-Type': 'application/json' },
-        });
+        return new Response(
+          JSON.stringify({ error: 'Authentication required' }),
+          {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' },
+          },
+        );
       }
       return handler(request, user);
     };
@@ -103,7 +106,7 @@ export const setupTestEnvironment = () => {
   process.env.KINDE_SITE_URL = 'http://localhost:3000';
   process.env.KINDE_POST_LOGOUT_REDIRECT_URL = 'http://localhost:3000';
   process.env.KINDE_POST_LOGIN_REDIRECT_URL = 'http://localhost:3000';
-  
+
   // Note: Mock setup is handled globally in test-setup.ts
   // vi.mock calls must be at module level, not inside functions
 };

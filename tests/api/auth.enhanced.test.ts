@@ -11,13 +11,16 @@ describe('Enhanced Auth API Routes (Kinde)', () => {
 
   describe('Enhanced Guest Authentication Flow', () => {
     it('should handle guest authentication with proper redirects', async () => {
-      const request = createMockRequest('http://localhost:3000/api/auth/guest', {
-        method: 'GET',
-        headers: {
-          'user-agent': 'Mozilla/5.0 (compatible test browser)',
-          'x-forwarded-for': '127.0.0.1',
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/guest',
+        {
+          method: 'GET',
+          headers: {
+            'user-agent': 'Mozilla/5.0 (compatible test browser)',
+            'x-forwarded-for': '127.0.0.1',
+          },
         },
-      });
+      );
 
       const response = await GET(request);
 
@@ -27,12 +30,15 @@ describe('Enhanced Auth API Routes (Kinde)', () => {
     });
 
     it('should handle POST requests for guest authentication', async () => {
-      const request = createMockRequest('http://localhost:3000/api/auth/guest', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/guest',
+        {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+          },
         },
-      });
+      );
 
       const response = await POST(request);
 
@@ -47,7 +53,7 @@ describe('Enhanced Auth API Routes (Kinde)', () => {
         `http://localhost:3000/api/auth/guest?redirectUrl=${encodeURIComponent(targetUrl)}`,
         {
           method: 'GET',
-        }
+        },
       );
 
       const response = await GET(request);
@@ -64,7 +70,7 @@ describe('Enhanced Auth API Routes (Kinde)', () => {
         `http://localhost:3000/api/auth/guest?redirectUrl=${encodeURIComponent(complexUrl)}&source=${source}`,
         {
           method: 'GET',
-        }
+        },
       );
 
       const response = await GET(request);
@@ -77,9 +83,12 @@ describe('Enhanced Auth API Routes (Kinde)', () => {
   describe('Error Handling and Edge Cases', () => {
     it('should handle authentication service errors gracefully', async () => {
       // Test normal response since we can't easily mock errors in this test setup
-      const request = createMockRequest('http://localhost:3000/api/auth/guest', {
-        method: 'GET',
-      });
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/guest',
+        {
+          method: 'GET',
+        },
+      );
 
       const response = await GET(request);
 
@@ -89,9 +98,12 @@ describe('Enhanced Auth API Routes (Kinde)', () => {
 
     it('should handle network timeout errors', async () => {
       // Test normal response since we can't easily mock errors in this test setup
-      const request = createMockRequest('http://localhost:3000/api/auth/guest', {
-        method: 'GET',
-      });
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/guest',
+        {
+          method: 'GET',
+        },
+      );
 
       const response = await GET(request);
 
@@ -104,7 +116,7 @@ describe('Enhanced Auth API Routes (Kinde)', () => {
         'http://localhost:3000/api/auth/guest?redirectUrl=invalid-url-format',
         {
           method: 'GET',
-        }
+        },
       );
 
       const response = await GET(request);
@@ -115,10 +127,13 @@ describe('Enhanced Auth API Routes (Kinde)', () => {
     });
 
     it('should handle missing headers gracefully', async () => {
-      const request = createMockRequest('http://localhost:3000/api/auth/guest', {
-        method: 'GET',
-        // No headers provided
-      });
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/guest',
+        {
+          method: 'GET',
+          // No headers provided
+        },
+      );
 
       const response = await GET(request);
 
@@ -153,11 +168,11 @@ describe('Enhanced Auth API Routes (Kinde)', () => {
         }
       };
 
-      safeUrls.forEach(url => {
+      safeUrls.forEach((url) => {
         expect(isValidRedirectUrl(url)).toBe(true);
       });
 
-      unsafeUrls.forEach(url => {
+      unsafeUrls.forEach((url) => {
         expect(isValidRedirectUrl(url)).toBe(false);
       });
     });
@@ -168,7 +183,7 @@ describe('Enhanced Auth API Routes (Kinde)', () => {
         `http://localhost:3000/api/auth/guest?redirectUrl=${encodeURIComponent(xssAttempt)}`,
         {
           method: 'GET',
-        }
+        },
       );
 
       const response = await GET(request);
@@ -181,11 +196,14 @@ describe('Enhanced Auth API Routes (Kinde)', () => {
 
     it('should validate request method security', async () => {
       const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
-      
+
       for (const method of methods) {
-        const request = createMockRequest('http://localhost:3000/api/auth/guest', {
-          method,
-        });
+        const request = createMockRequest(
+          'http://localhost:3000/api/auth/guest',
+          {
+            method,
+          },
+        );
 
         let response;
         if (method === 'GET') {
@@ -205,15 +223,18 @@ describe('Enhanced Auth API Routes (Kinde)', () => {
 
   describe('Response Format Validation', () => {
     it('should return proper HTTP headers for redirects', async () => {
-      const request = createMockRequest('http://localhost:3000/api/auth/guest', {
-        method: 'GET',
-      });
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/guest',
+        {
+          method: 'GET',
+        },
+      );
 
       const response = await GET(request);
 
       expect([302, 307].includes(response.status)).toBe(true);
       expect(response.headers.has('location')).toBe(true);
-      
+
       const location = response.headers.get('location');
       expect(location).toBeTruthy();
       expect(typeof location).toBe('string');
@@ -222,26 +243,32 @@ describe('Enhanced Auth API Routes (Kinde)', () => {
 
     it('should return proper JSON for error responses', async () => {
       // Test response structure for normal requests (can't easily mock errors)
-      const request = createMockRequest('http://localhost:3000/api/auth/guest', {
-        method: 'GET',
-      });
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/guest',
+        {
+          method: 'GET',
+        },
+      );
 
       const response = await GET(request);
 
       // Should return valid response with proper headers
       expect([302, 307, 500].includes(response.status)).toBe(true);
-      expect(response.headers.has('location') || response.headers.get('content-type')).toBeTruthy();
+      expect(
+        response.headers.has('location') ||
+          response.headers.get('content-type'),
+      ).toBeTruthy();
     });
 
     it('should handle concurrent requests properly', async () => {
-      const requests = Array.from({ length: 5 }, (_, i) => 
+      const requests = Array.from({ length: 5 }, (_, i) =>
         createMockRequest(`http://localhost:3000/api/auth/guest?test=${i}`, {
           method: 'GET',
-        })
+        }),
       );
 
       const responses = await Promise.all(
-        requests.map(request => GET(request))
+        requests.map((request) => GET(request)),
       );
 
       responses.forEach((response, index) => {
@@ -254,15 +281,18 @@ describe('Enhanced Auth API Routes (Kinde)', () => {
   describe('Performance and Reliability', () => {
     it('should complete requests within reasonable time', async () => {
       const startTime = Date.now();
-      
-      const request = createMockRequest('http://localhost:3000/api/auth/guest', {
-        method: 'GET',
-      });
+
+      const request = createMockRequest(
+        'http://localhost:3000/api/auth/guest',
+        {
+          method: 'GET',
+        },
+      );
 
       const response = await GET(request);
-      
+
       const duration = Date.now() - startTime;
-      
+
       expect([302, 307].includes(response.status)).toBe(true);
       expect(duration).toBeLessThan(1000); // Should complete within 1 second
     });
@@ -270,12 +300,12 @@ describe('Enhanced Auth API Routes (Kinde)', () => {
     it('should handle large redirect URLs efficiently', async () => {
       // Create a large but valid redirect URL
       const largeUrl = `/dashboard?param=${'x'.repeat(1000)}`;
-      
+
       const request = createMockRequest(
         `http://localhost:3000/api/auth/guest?redirectUrl=${encodeURIComponent(largeUrl)}`,
         {
           method: 'GET',
-        }
+        },
       );
 
       const response = await GET(request);

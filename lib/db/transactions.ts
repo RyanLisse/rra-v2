@@ -1,6 +1,6 @@
 /**
  * Database Transaction Utilities
- * 
+ *
  * Provides robust transaction handling with automatic rollback,
  * retry logic, and comprehensive error handling for multi-step
  * database operations.
@@ -18,7 +18,11 @@ import { ChatSDKError } from '../errors';
 export async function withTransaction<T>(
   fn: (tx: PostgresJsDatabase<typeof schema>) => Promise<T>,
   options?: {
-    isolationLevel?: 'read uncommitted' | 'read committed' | 'repeatable read' | 'serializable';
+    isolationLevel?:
+      | 'read uncommitted'
+      | 'read committed'
+      | 'repeatable read'
+      | 'serializable';
     accessMode?: 'read write' | 'read only';
     retries?: number;
     retryDelay?: number;
@@ -34,7 +38,9 @@ export async function withTransaction<T>(
         async (tx) => {
           // Log transaction start in development
           if (process.env.NODE_ENV === 'development') {
-            console.log(`[Transaction] Starting transaction (attempt ${attempt + 1}/${maxRetries + 1})`);
+            console.log(
+              `[Transaction] Starting transaction (attempt ${attempt + 1}/${maxRetries + 1})`,
+            );
           }
 
           const result = await fn(tx);
@@ -57,7 +63,10 @@ export async function withTransaction<T>(
 
       // Log transaction failure
       if (process.env.NODE_ENV === 'development') {
-        console.error(`[Transaction] Transaction failed (attempt ${attempt + 1}/${maxRetries + 1}):`, error);
+        console.error(
+          `[Transaction] Transaction failed (attempt ${attempt + 1}/${maxRetries + 1}):`,
+          error,
+        );
       }
 
       // Check if error is retryable
@@ -109,9 +118,7 @@ export async function withParallelTransaction<T extends readonly unknown[]>(
   options?: Parameters<typeof withTransaction>[1],
 ): Promise<T> {
   return withTransaction(async (tx) => {
-    const results = await Promise.all(
-      fns.map((fn) => fn(tx)),
-    );
+    const results = await Promise.all(fns.map((fn) => fn(tx)));
     return results as T;
   }, options);
 }
@@ -123,7 +130,10 @@ export function logTransaction(
   operation: string,
   details?: Record<string, unknown>,
 ): void {
-  if (process.env.NODE_ENV === 'development' || process.env.DB_ENABLE_TRANSACTION_LOGGING === 'true') {
+  if (
+    process.env.NODE_ENV === 'development' ||
+    process.env.DB_ENABLE_TRANSACTION_LOGGING === 'true'
+  ) {
     console.log(`[Transaction:${operation}]`, {
       timestamp: new Date().toISOString(),
       ...details,
@@ -142,12 +152,12 @@ export async function withSavepoint<T>(
   try {
     // Create savepoint
     await tx.execute(`SAVEPOINT ${name}`);
-    
+
     const result = await fn();
-    
+
     // Release savepoint on success
     await tx.execute(`RELEASE SAVEPOINT ${name}`);
-    
+
     return result;
   } catch (error) {
     // Rollback to savepoint on error

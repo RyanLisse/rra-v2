@@ -1,4 +1,4 @@
-import { test, } from '@playwright/test';
+import { test } from '@playwright/test';
 import { join } from 'node:path';
 
 test.describe('Complete Auth Flow with Visual Evidence', () => {
@@ -12,12 +12,16 @@ test.describe('Complete Auth Flow with Visual Evidence', () => {
       console.error(`[Page Error]:`, error.message);
     });
 
-    page.on('requestfailed', request => {
-      console.error(`[Request Failed]: ${request.url()} - ${request.failure()?.errorText}`);
+    page.on('requestfailed', (request) => {
+      console.error(
+        `[Request Failed]: ${request.url()} - ${request.failure()?.errorText}`,
+      );
     });
   });
 
-  test('Complete auth flow from login to chat interaction', async ({ page }) => {
+  test('Complete auth flow from login to chat interaction', async ({
+    page,
+  }) => {
     const screenshotDir = 'test-results/auth-flow-screenshots';
     let screenshotIndex = 0;
 
@@ -26,7 +30,7 @@ test.describe('Complete Auth Flow with Visual Evidence', () => {
       const filename = `${screenshotIndex.toString().padStart(2, '0')}-${name}.png`;
       await page.screenshot({
         path: join(screenshotDir, filename),
-        fullPage: true
+        fullPage: true,
       });
       console.log(`📸 Screenshot: ${filename}`);
     };
@@ -36,17 +40,17 @@ test.describe('Complete Auth Flow with Visual Evidence', () => {
     // Step 1: Visit homepage
     console.log('Step 1: Visiting homepage...');
     try {
-      await page.goto('http://localhost:3000/', { 
+      await page.goto('http://localhost:3000/', {
         waitUntil: 'domcontentloaded',
-        timeout: 30000 
+        timeout: 30000,
       });
       await takeScreenshot('homepage-initial');
-      
+
       // Wait for any redirects
       await page.waitForTimeout(2000);
       const currentUrl = page.url();
       console.log(`Current URL: ${currentUrl}`);
-      
+
       if (currentUrl.includes('kinde.com') || currentUrl.includes('/login')) {
         console.log('✅ Correctly redirected to auth');
         await takeScreenshot('auth-redirect');
@@ -59,7 +63,9 @@ test.describe('Complete Auth Flow with Visual Evidence', () => {
     // Step 2: Check auth status endpoint
     console.log('\nStep 2: Checking auth status endpoint...');
     try {
-      const statusResponse = await page.request.get('http://localhost:3000/api/auth/status');
+      const statusResponse = await page.request.get(
+        'http://localhost:3000/api/auth/status',
+      );
       const statusData = await statusResponse.json();
       console.log('Auth status:', JSON.stringify(statusData, null, 2));
     } catch (error) {
@@ -71,25 +77,31 @@ test.describe('Complete Auth Flow with Visual Evidence', () => {
     try {
       await page.goto('http://localhost:3000/api/auth/login', {
         waitUntil: 'domcontentloaded',
-        timeout: 30000
+        timeout: 30000,
       });
       await page.waitForTimeout(2000);
       await takeScreenshot('login-endpoint');
-      
+
       const loginUrl = page.url();
       console.log(`Login redirect URL: ${loginUrl}`);
-      
+
       if (loginUrl.includes('kinde.com')) {
         console.log('✅ Successfully redirected to Kinde OAuth');
-        
+
         // Check for Kinde login form elements
         await page.waitForTimeout(3000);
         await takeScreenshot('kinde-login-page');
-        
+
         // Look for login form elements
-        const emailInput = await page.locator('input[type="email"], input[name="email"], input[id*="email"]').count();
-        const passwordInput = await page.locator('input[type="password"], input[name="password"]').count();
-        
+        const emailInput = await page
+          .locator(
+            'input[type="email"], input[name="email"], input[id*="email"]',
+          )
+          .count();
+        const passwordInput = await page
+          .locator('input[type="password"], input[name="password"]')
+          .count();
+
         if (emailInput > 0 || passwordInput > 0) {
           console.log('✅ Kinde login form detected');
           await takeScreenshot('kinde-login-form');
@@ -104,15 +116,18 @@ test.describe('Complete Auth Flow with Visual Evidence', () => {
     console.log('\nStep 4: Testing auth callback error handling...');
     try {
       // Test with invalid state to ensure error handling works
-      await page.goto('http://localhost:3000/api/auth/kinde_callback?state=invalid&code=test', {
-        waitUntil: 'networkidle',
-        timeout: 10000
-      });
+      await page.goto(
+        'http://localhost:3000/api/auth/kinde_callback?state=invalid&code=test',
+        {
+          waitUntil: 'networkidle',
+          timeout: 10000,
+        },
+      );
       await takeScreenshot('callback-error-handling');
-      
+
       const callbackUrl = page.url();
       console.log(`Callback error redirect: ${callbackUrl}`);
-      
+
       if (!callbackUrl.includes('500')) {
         console.log('✅ Callback error handled gracefully');
       } else {
@@ -127,14 +142,17 @@ test.describe('Complete Auth Flow with Visual Evidence', () => {
     try {
       await page.goto('http://localhost:3000/api/auth/clear-session', {
         waitUntil: 'networkidle',
-        timeout: 10000
+        timeout: 10000,
       });
       await takeScreenshot('clear-session');
-      
+
       const clearUrl = page.url();
       console.log(`Clear session redirect: ${clearUrl}`);
-      
-      if (clearUrl.includes('/api/auth/login') || clearUrl.includes('kinde.com')) {
+
+      if (
+        clearUrl.includes('/api/auth/login') ||
+        clearUrl.includes('kinde.com')
+      ) {
         console.log('✅ Session cleared and redirected correctly');
       }
     } catch (error) {
@@ -144,9 +162,13 @@ test.describe('Complete Auth Flow with Visual Evidence', () => {
     // Step 6: Test protected API endpoints
     console.log('\nStep 6: Testing protected API endpoints...');
     const protectedEndpoints = [
-      { url: '/api/chat', method: 'POST', body: { id: 'test', message: { role: 'user', content: 'test' } } },
+      {
+        url: '/api/chat',
+        method: 'POST',
+        body: { id: 'test', message: { role: 'user', content: 'test' } },
+      },
       { url: '/api/documents/upload', method: 'POST' },
-      { url: '/api/search?q=test', method: 'GET' }
+      { url: '/api/search?q=test', method: 'GET' },
     ];
 
     for (const endpoint of protectedEndpoints) {
@@ -154,12 +176,12 @@ test.describe('Complete Auth Flow with Visual Evidence', () => {
         console.log(`Testing ${endpoint.url}...`);
         const response = await page.request[endpoint.method.toLowerCase()](
           `http://localhost:3000${endpoint.url}`,
-          endpoint.body ? { data: endpoint.body } : {}
+          endpoint.body ? { data: endpoint.body } : {},
         );
-        
+
         const status = response.status();
         console.log(`${endpoint.url}: Status ${status}`);
-        
+
         if (status === 307 || status === 302) {
           console.log('✅ Correctly requires authentication');
         } else {
@@ -173,12 +195,14 @@ test.describe('Complete Auth Flow with Visual Evidence', () => {
     // Step 7: Test public endpoints
     console.log('\nStep 7: Testing public endpoints...');
     try {
-      const pingResponse = await page.request.get('http://localhost:3000/api/ping');
+      const pingResponse = await page.request.get(
+        'http://localhost:3000/api/ping',
+      );
       const pingStatus = pingResponse.status();
       const pingText = await pingResponse.text();
-      
+
       console.log(`Ping endpoint: Status ${pingStatus}, Response: ${pingText}`);
-      
+
       if (pingStatus === 200 && pingText === 'pong') {
         console.log('✅ Public endpoints accessible');
       }
@@ -208,12 +232,14 @@ test.describe('Complete Auth Flow with Visual Evidence', () => {
 
     while (Date.now() - startTime < monitoringDuration) {
       try {
-        const response = await page.request.get('http://localhost:3000/api/auth/status');
+        const response = await page.request.get(
+          'http://localhost:3000/api/auth/status',
+        );
         const status = await response.json();
-        
+
         healthChecks.push({
           timestamp: new Date().toISOString(),
-          ...status
+          ...status,
         });
 
         console.log(`Health check at ${new Date().toISOString()}:`);
@@ -221,11 +247,12 @@ test.describe('Complete Auth Flow with Visual Evidence', () => {
         console.log(`- Circuit breaker: ${status.circuitBreaker.state}`);
         console.log(`- Pending requests: ${status.pendingRequests}`);
         console.log(`- Has cookies: ${status.hasCookies}`);
-        
-        if (status.circuitBreaker.state === 'open') {
-          console.warn('⚠️  Circuit breaker is OPEN - auth system is protecting itself');
-        }
 
+        if (status.circuitBreaker.state === 'open') {
+          console.warn(
+            '⚠️  Circuit breaker is OPEN - auth system is protecting itself',
+          );
+        }
       } catch (error) {
         console.error('Health check failed:', error);
       }
@@ -236,8 +263,10 @@ test.describe('Complete Auth Flow with Visual Evidence', () => {
     // Analyze health check results
     console.log('\n📈 Health Monitoring Summary:');
     console.log(`Total health checks: ${healthChecks.length}`);
-    
-    const openCircuitCount = healthChecks.filter(h => h.circuitBreaker?.state === 'open').length;
+
+    const openCircuitCount = healthChecks.filter(
+      (h) => h.circuitBreaker?.state === 'open',
+    ).length;
     if (openCircuitCount > 0) {
       console.warn(`⚠️  Circuit breaker was open ${openCircuitCount} times`);
     } else {

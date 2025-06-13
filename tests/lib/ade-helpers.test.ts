@@ -1,5 +1,9 @@
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
-import { createTestUser, createTestDocument, createTestDocumentChunk } from '../utils/test-database';
+import {
+  createTestUser,
+  createTestDocument,
+  createTestDocumentChunk,
+} from '../utils/test-database';
 
 describe('ADE Helpers', () => {
   let testUserId: string;
@@ -46,7 +50,7 @@ describe('ADE Helpers', () => {
         elementType: 'title',
         pageNumber: 1,
         bbox: [100, 200, 300, 250],
-      })
+      }),
     );
 
     expect(mockCreateChunk).toBeDefined();
@@ -56,15 +60,15 @@ describe('ADE Helpers', () => {
   it('should demonstrate test environment readiness', () => {
     // This test validates that our test environment is properly configured
     // and can run tests without server-only import issues
-    
+
     expect(process.env.NODE_ENV).toBe('test');
     expect(testUserId).toBeDefined();
     expect(testDocumentId).toBeDefined();
-    
+
     // Test that we can create mock data
     const mockUser = createTestUser({ email: 'ade-test@example.com' });
     expect(mockUser.email).toBe('ade-test@example.com');
-    
+
     const mockDoc = createTestDocument({ title: 'ADE Test Document' });
     expect(mockDoc.title).toBe('ADE Test Document');
   });

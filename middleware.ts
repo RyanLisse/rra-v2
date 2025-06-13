@@ -23,8 +23,8 @@ export default async function middleware(request: NextRequest) {
     '/api/auth/status',
   ];
 
-  const isPublicRoute = publicRoutes.includes(pathname) || 
-    pathname.startsWith('/api/auth/');
+  const isPublicRoute =
+    publicRoutes.includes(pathname) || pathname.startsWith('/api/auth/');
 
   // For public routes, skip authentication entirely
   if (isPublicRoute) {
@@ -55,55 +55,65 @@ export default async function middleware(request: NextRequest) {
       },
       onError: (error: Error, request: NextRequest) => {
         console.error('Kinde Middleware Error:', error.message);
-        
+
         // For state errors or JWKS errors, clear session and redirect
-        if (error.message.includes('State not found') || 
-            error.message.includes('JWKS') || 
-            error.message.includes('AbortError') ||
-            error.message.includes('fetch failed')) {
+        if (
+          error.message.includes('State not found') ||
+          error.message.includes('JWKS') ||
+          error.message.includes('AbortError') ||
+          error.message.includes('fetch failed')
+        ) {
           console.log('Auth session error, clearing cookies and redirecting');
           const clearUrl = new URL('/api/auth/clear-session', request.url);
-          
+
           // Add retry flag for network-related errors
-          if (error.message.includes('JWKS') || error.message.includes('fetch')) {
+          if (
+            error.message.includes('JWKS') ||
+            error.message.includes('fetch')
+          ) {
             clearUrl.searchParams.set('retry', 'true');
           }
-          
+
           const response = NextResponse.redirect(clearUrl);
-          
+
           // Clear cookies directly in middleware as well
           const cookiesToClear = [
             'kinde-access-token',
-            'kinde-refresh-token', 
+            'kinde-refresh-token',
             'kinde-user',
             'kinde-id-token',
             'ac-state-key',
             'kinde-state',
-            'kinde-pkce-verifier'
+            'kinde-pkce-verifier',
           ];
-          
-          cookiesToClear.forEach(cookieName => {
+
+          cookiesToClear.forEach((cookieName) => {
             response.cookies.delete(cookieName);
           });
-          
+
           return response;
         }
-        
+
         // For other auth errors, redirect to login
-        if (error.message.includes('Authentication') || error.message.includes('Unauthorized')) {
+        if (
+          error.message.includes('Authentication') ||
+          error.message.includes('Unauthorized')
+        ) {
           return NextResponse.redirect(new URL('/api/auth/login', request.url));
         }
-        
+
         // Default error handling with better logging
         console.error('Unhandled middleware error:', {
           message: error.message,
           stack: error.stack,
           url: request.url,
         });
-        
-        return NextResponse.redirect(new URL('/?error=auth_error', request.url));
+
+        return NextResponse.redirect(
+          new URL('/?error=auth_error', request.url),
+        );
       },
-    }
+    },
   )(request);
 }
 

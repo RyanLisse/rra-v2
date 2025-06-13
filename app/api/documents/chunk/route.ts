@@ -8,7 +8,6 @@ import { DocumentStatusManager } from '@/lib/document-processing/status-manager'
 import { readFile } from 'node:fs/promises';
 
 export const POST = withAuth(async (request: NextRequest, user) => {
-
   try {
     const body = await request.json();
     const { documentId } = body;

@@ -6,29 +6,31 @@ async function formatBytes(bytes: number): Promise<string> {
   const units = ['B', 'KB', 'MB', 'GB'];
   let size = bytes;
   let unitIndex = 0;
-  
+
   while (size >= 1024 && unitIndex < units.length - 1) {
     size /= 1024;
     unitIndex++;
   }
-  
+
   return `${size.toFixed(2)} ${units[unitIndex]}`;
 }
 
 async function monitorLoop() {
   console.clear();
   console.log('📊 Redis Cache Monitor - Press Ctrl+C to exit\n');
-  
+
   const stats = await getCacheStats();
   const redis = await getRedisClient();
-  
+
   console.log('🔸 Cache Statistics');
   console.log('━'.repeat(50));
-  console.log(`Redis Status: ${stats.isRedisConnected ? '🟢 Connected' : '🔴 Disconnected'}`);
+  console.log(
+    `Redis Status: ${stats.isRedisConnected ? '🟢 Connected' : '🔴 Disconnected'}`,
+  );
   console.log(`Redis Keys: ${stats.redisKeys.toLocaleString()}`);
   console.log(`Redis Memory: ${stats.redisMemoryUsage}`);
   console.log(`Fallback Keys: ${stats.memoryKeys.toLocaleString()}`);
-  
+
   if (redis && stats.isRedisConnected) {
     // Get more detailed Redis info
     try {
@@ -37,18 +39,18 @@ async function monitorLoop() {
       const opsMatch = info.match(/instantaneous_ops_per_sec:(\d+)/);
       const hitRateMatch = info.match(/keyspace_hits:(\d+)/);
       const missRateMatch = info.match(/keyspace_misses:(\d+)/);
-      
+
       console.log('\n🔸 Performance Metrics');
       console.log('━'.repeat(50));
-      
+
       if (cpuMatch) {
         console.log(`CPU Usage: ${cpuMatch[1]}s`);
       }
-      
+
       if (opsMatch) {
         console.log(`Operations/sec: ${opsMatch[1]}`);
       }
-      
+
       if (hitRateMatch && missRateMatch) {
         const hits = Number.parseInt(hitRateMatch[1]);
         const misses = Number.parseInt(missRateMatch[1]);
@@ -58,11 +60,11 @@ async function monitorLoop() {
         console.log(`Total Hits: ${hits.toLocaleString()}`);
         console.log(`Total Misses: ${misses.toLocaleString()}`);
       }
-      
+
       // Get key distribution
       console.log('\n🔸 Key Distribution');
       console.log('━'.repeat(50));
-      
+
       const patterns = [
         'query:user:*',
         'query:chat:*',
@@ -70,20 +72,19 @@ async function monitorLoop() {
         'query:rag_document*',
         'rate_limit:*',
       ];
-      
+
       for (const pattern of patterns) {
         const keys = await redis.keys(pattern);
         console.log(`${pattern}: ${keys.length} keys`);
       }
-      
     } catch (error) {
       console.error('\nError getting detailed stats:', error);
     }
   }
-  
+
   console.log('\n🔸 Recommendations');
   console.log('━'.repeat(50));
-  
+
   if (!stats.isRedisConnected) {
     console.log('⚠️  Redis is not connected - using fallback cache');
     console.log('   Consider starting Redis for better performance');
@@ -96,14 +97,14 @@ async function monitorLoop() {
   } else {
     console.log('✅ Cache system operating normally');
   }
-  
+
   console.log('\nRefreshing in 5 seconds...');
 }
 
 async function main() {
   // Initial monitoring
   await monitorLoop();
-  
+
   // Refresh every 5 seconds
   setInterval(async () => {
     await monitorLoop();

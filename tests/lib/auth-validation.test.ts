@@ -22,12 +22,12 @@ describe('Auth Validation', () => {
   describe('Session validation logic', () => {
     it('should validate session expiration', () => {
       const now = new Date();
-      
+
       // Valid session (future expiration)
       const validSession = {
         expiresAt: new Date(now.getTime() + 60 * 60 * 1000), // 1 hour from now
       };
-      
+
       // Expired session
       const expiredSession = {
         expiresAt: new Date(now.getTime() - 1000), // 1 second ago
@@ -44,10 +44,10 @@ describe('Auth Validation', () => {
 
       // Valid CSRF token
       expect(sessionToken).toBe(providedToken);
-      
+
       // Invalid CSRF token
       expect(sessionToken).not.toBe(wrongToken);
-      
+
       // Missing CSRF token
       expect(sessionToken).not.toBe(null);
       expect(sessionToken).not.toBe(undefined);
@@ -92,11 +92,11 @@ describe('Auth Validation', () => {
       const stateChangingMethods = ['POST', 'PUT', 'DELETE', 'PATCH'];
       const safeMethods = ['GET', 'HEAD', 'OPTIONS'];
 
-      stateChangingMethods.forEach(method => {
+      stateChangingMethods.forEach((method) => {
         expect(stateChangingMethods.includes(method)).toBe(true);
       });
 
-      safeMethods.forEach(method => {
+      safeMethods.forEach((method) => {
         expect(stateChangingMethods.includes(method)).toBe(false);
       });
     });
@@ -134,10 +134,10 @@ describe('Auth Validation', () => {
 
       expect(authError.status).toBe(401);
       expect(authError.error).toBe('Authentication required');
-      
+
       expect(authFailedError.status).toBe(500);
       expect(authFailedError.error).toBe('Authentication failed');
-      
+
       expect(forbiddenError.status).toBe(403);
       expect(forbiddenError.error).toBe('Admin access required');
     });
@@ -163,7 +163,9 @@ describe('Auth Validation', () => {
       expect(validUser.updatedAt).toBeInstanceOf(Date);
 
       // Type validation
-      expect(['guest', 'regular', 'premium', 'admin']).toContain(validUser.type);
+      expect(['guest', 'regular', 'premium', 'admin']).toContain(
+        validUser.type,
+      );
       expect(typeof validUser.emailVerified).toBe('boolean');
       expect(typeof validUser.isAnonymous).toBe('boolean');
     });

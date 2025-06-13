@@ -2,9 +2,9 @@
 
 /**
  * Cache Warmup Script
- * 
+ *
  * Pre-populates cache with frequently accessed data
- * 
+ *
  * Usage: bun run cache:warm
  */
 
@@ -42,7 +42,7 @@ async function main() {
       .from(user)
       .orderBy(desc(user.createdAt))
       .limit(100);
-    
+
     for (const u of recentUsers) {
       const cacheKey = CacheKeys.query.user.byEmail(u.email);
       await setCachedResult(cacheKey, [u], CacheTTL.query.user * 1000);
@@ -56,7 +56,7 @@ async function main() {
       .from(chat)
       .orderBy(desc(chat.createdAt))
       .limit(50);
-    
+
     for (const c of recentChats) {
       const cacheKey = CacheKeys.query.chat.byId(c.id);
       await setCachedResult(cacheKey, c, CacheTTL.query.chat * 1000);
@@ -71,7 +71,7 @@ async function main() {
         totalUsers: sql<number>`count(distinct ${ragDocument.uploadedBy})`,
       })
       .from(ragDocument);
-    
+
     console.log(`   ✓ Total documents: ${docStats.totalDocs}`);
     console.log(`   ✓ Total users with documents: ${docStats.totalUsers}\n`);
 
@@ -86,9 +86,12 @@ async function main() {
       .groupBy(ragDocument.id)
       .orderBy(desc(sql`count(*)`))
       .limit(20);
-    
+
     for (const { document: doc } of popularDocs) {
-      const cacheKey = CacheKeys.query.ragDocuments.byId(doc.id, doc.uploadedBy);
+      const cacheKey = CacheKeys.query.ragDocuments.byId(
+        doc.id,
+        doc.uploadedBy,
+      );
       await setCachedResult(cacheKey, doc, CacheTTL.query.user * 1000);
     }
     console.log(`   ✓ Loaded ${popularDocs.length} popular documents\n`);
@@ -99,7 +102,6 @@ async function main() {
     console.log('- Recent chats');
     console.log('- Document statistics');
     console.log('- Popular documents');
-
   } catch (error) {
     console.error('❌ Error during cache warmup:', error);
     process.exit(1);

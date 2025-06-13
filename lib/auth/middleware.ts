@@ -53,10 +53,7 @@ export function withAuthRequest<T extends any[]>(
       return await handler(request, user, ...args);
     } catch (error) {
       console.error('Auth middleware error:', error);
-      return Response.json(
-        { error: 'Authentication failed' },
-        { status: 500 },
-      );
+      return Response.json({ error: 'Authentication failed' }, { status: 500 });
     }
   };
 }

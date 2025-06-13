@@ -23,7 +23,6 @@ export default async function Page() {
         id={id}
         initialMessages={[]}
         initialChatModel={modelId}
-        initialVisibilityType="private"
         isReadonly={false}
         session={user ? { user } : undefined}
         autoResume={false}

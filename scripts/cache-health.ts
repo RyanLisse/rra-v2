@@ -2,9 +2,9 @@
 
 /**
  * Cache Health Check Script
- * 
+ *
  * Checks the health of the Redis cache system and provides diagnostics
- * 
+ *
  * Usage: bun run cache:health
  */
 
@@ -17,11 +17,13 @@ async function main() {
   // Check Redis availability
   console.log('1. Checking Redis connection...');
   const isAvailable = await isRedisAvailable();
-  
+
   if (!isAvailable) {
     console.error('❌ Redis is not available!');
     console.log('\nTroubleshooting steps:');
-    console.log('1. Ensure Redis is installed: brew install redis (macOS) or apt-get install redis-server (Ubuntu)');
+    console.log(
+      '1. Ensure Redis is installed: brew install redis (macOS) or apt-get install redis-server (Ubuntu)',
+    );
     console.log('2. Start Redis: redis-server');
     console.log('3. Check Redis connection settings in .env:');
     console.log('   REDIS_HOST=localhost');
@@ -36,7 +38,7 @@ async function main() {
   // Get cache health stats
   console.log('\n2. Getting cache statistics...');
   const health = await checkCacheHealth();
-  
+
   console.log('\nCache Health Status:');
   console.log('━'.repeat(50));
   console.log(`Redis Connected: ${health.isRedisConnected ? '✅' : '❌'}`);
@@ -48,7 +50,7 @@ async function main() {
   // Show cache configuration
   console.log('\n3. Cache Configuration:');
   const config = getCacheConfig();
-  
+
   console.log('\nTTL Settings (seconds):');
   Object.entries(config.ttl).forEach(([category, ttls]) => {
     console.log(`\n${category}:`);

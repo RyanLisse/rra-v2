@@ -24,7 +24,9 @@ process.env.NODE_ENV = 'test';
 
 // Ensure required environment variables are set for tests
 if (!process.env.POSTGRES_URL) {
-  console.warn('POSTGRES_URL not found in environment, setting fallback for tests');
+  console.warn(
+    'POSTGRES_URL not found in environment, setting fallback for tests',
+  );
   process.env.POSTGRES_URL = 'postgresql://test:test@localhost:5432/test_db';
 }
 
@@ -275,7 +277,7 @@ vi.mock('@kinde-oss/kinde-auth-nextjs/server', async () => {
     mockGetToken,
     mockGetUserOrganizations,
   } = await import('../mocks/kinde-auth');
-  
+
   return {
     getKindeServerSession: vi.fn(() => ({
       getUser: mockGetUser,
@@ -322,7 +324,10 @@ vi.mock('@/tests/fixtures/test-data', () => ({
   }),
   createTestFormData: vi.fn().mockImplementation(() => {
     const formData = new FormData();
-    formData.append('file', new Blob(['test content'], { type: 'application/pdf' }));
+    formData.append(
+      'file',
+      new Blob(['test content'], { type: 'application/pdf' }),
+    );
     return formData;
   }),
 }));

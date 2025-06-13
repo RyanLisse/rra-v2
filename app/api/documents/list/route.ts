@@ -5,7 +5,6 @@ import { ChatSDKError } from '@/lib/errors';
 
 export const GET = withAuth(async (request: NextRequest, user) => {
   try {
-
     const { searchParams } = new URL(request.url);
     const limit = Number.parseInt(searchParams.get('limit') || '50');
 
