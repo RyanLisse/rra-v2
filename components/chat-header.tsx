@@ -29,7 +29,7 @@ function PureChatHeader({
   const { width: windowWidth } = useWindowSize();
 
   return (
-    <header className="flex sticky top-0 bg-background py-1.5 items-center px-2 md:px-2 gap-2">
+    <header className="flex sticky top-0 bg-background py-1.5 items-center px-2 gap-1 md:gap-2 min-h-[44px]">
       <SidebarToggle />
 
       {(!open || windowWidth < 768) && (
@@ -37,14 +37,15 @@ function PureChatHeader({
           <TooltipTrigger asChild>
             <Button
               variant="outline"
-              className="order-2 md:order-1 md:px-2 px-2 md:h-fit ml-auto md:ml-0"
+              size="sm"
+              className="order-3 md:order-1 h-8 px-2 ml-auto md:ml-0"
               onClick={() => {
                 router.push('/');
                 router.refresh();
               }}
             >
-              <PlusIcon />
-              <span className="md:sr-only">{t('new_chat')}</span>
+              <PlusIcon className="h-3 w-3" />
+              <span className="sr-only md:not-sr-only ml-1 text-xs">{t('new_chat')}</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent>{t('new_chat')}</TooltipContent>
@@ -52,14 +53,15 @@ function PureChatHeader({
       )}
 
       {!isReadonly && (
-        <ModelSelector
-          session={session}
-          selectedModelId={selectedModelId}
-          className="order-1 md:order-2"
-        />
+        <div className="flex items-center gap-1 md:gap-2 order-1 md:order-2 flex-1">
+          <ModelSelector
+            session={session}
+            selectedModelId={selectedModelId}
+            className="flex-1 max-w-[120px] md:max-w-[200px]"
+          />
+          <DatabaseSelector className="flex-1 max-w-[100px] md:max-w-[160px]" />
+        </div>
       )}
-
-      {!isReadonly && <DatabaseSelector className="order-1 md:order-3" />}
     </header>
   );
 }

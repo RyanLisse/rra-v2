@@ -37,7 +37,23 @@ const nextConfig: NextConfig = {
   // Webpack configuration (only used when not using Turbopack)
   // Keep this for backward compatibility when running without --turbo flag
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-    // Only apply webpack configurations when not using Turbopack
+    // Handle Kinde/expo-secure-store compatibility issues
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      'expo-secure-store': false,
+      'expo-constants': false,
+      'expo-file-system': false,
+      '@expo/vector-icons': false,
+    };
+
+    // Ignore specific modules that cause issues with Kinde
+    config.plugins.push(
+      new webpack.IgnorePlugin({
+        resourceRegExp: /^expo-secure-store$/,
+      })
+    );
+
+    // Only apply additional webpack configurations when not using Turbopack
     if (process.env.TURBOPACK !== '1') {
       if (!dev && !isServer) {
         // Code splitting optimizations

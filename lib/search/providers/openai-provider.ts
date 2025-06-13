@@ -70,6 +70,22 @@ export class OpenAIVectorSearchProvider extends BaseVectorSearchProvider {
    */
   private async ensureVectorStore(): Promise<void> {
     try {
+      // Check if we have a vector store ID from environment
+      const envVectorStoreId = process.env.OPENAI_VECTOR_STORE_ID || process.env.OPENAI_VECTORSTORE;
+      
+      if (envVectorStoreId) {
+        // Verify the vector store exists
+        try {
+          await this.openai.beta.vectorStores.retrieve(envVectorStoreId);
+          this.vectorStoreId = envVectorStoreId;
+          console.log('Using existing vector store:', envVectorStoreId);
+          return;
+        } catch (error) {
+          console.warn('Failed to retrieve vector store from environment:', error);
+          // Continue to try creating/finding one
+        }
+      }
+
       // List existing vector stores to find our index
       const stores = await this.openai.beta.vectorStores.list();
       let existingStore = stores.data.find(store => store.name === this.config.indexName);
