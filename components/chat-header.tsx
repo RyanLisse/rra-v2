@@ -10,6 +10,7 @@ import { useSidebar } from './ui/sidebar';
 import { memo } from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { DatabaseSelector } from './database-selector';
+import { t } from '@/lib/translations/dutch';
 
 function PureChatHeader({
   chatId,
@@ -43,10 +44,10 @@ function PureChatHeader({
               }}
             >
               <PlusIcon />
-              <span className="md:sr-only">New Chat</span>
+              <span className="md:sr-only">{t('new_chat')}</span>
             </Button>
           </TooltipTrigger>
-          <TooltipContent>New Chat</TooltipContent>
+          <TooltipContent>{t('new_chat')}</TooltipContent>
         </Tooltip>
       )}
 

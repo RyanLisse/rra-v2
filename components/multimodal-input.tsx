@@ -26,6 +26,7 @@ import type { UseChatHelpers } from '@ai-sdk/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowDown } from 'lucide-react';
 import { useScrollToBottom } from '@/hooks/use-scroll-to-bottom';
+import { t } from '@/lib/translations/dutch';
 
 function PureMultimodalInput({
   chatId,
@@ -258,7 +259,7 @@ function PureMultimodalInput({
       <Textarea
         data-testid="multimodal-input"
         ref={textareaRef}
-        placeholder="Send a message..."
+        placeholder={t('type_message')}
         value={input}
         onChange={handleInput}
         className={cx(

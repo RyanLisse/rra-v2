@@ -229,6 +229,150 @@ export interface SearchStatus {
   dbStatus: 'connected' | 'disconnected' | 'error';
 }
 
+// Vector Search Provider Abstraction Interfaces
+export interface VectorSearchProvider {
+  // Core search methods
+  vectorSearch(
+    query: string,
+    userId: string,
+    options?: VectorSearchOptions,
+  ): Promise<SearchResponse>;
+
+  hybridSearch(
+    query: string,
+    userId: string,
+    options?: HybridSearchOptions,
+  ): Promise<HybridSearchResponse>;
+
+  contextAwareSearch(
+    query: string,
+    userId: string,
+    conversationContext: Array<{ role: 'user' | 'assistant'; content: string }>,
+    options?: VectorSearchOptions & {
+      contextWeight?: number;
+    },
+  ): Promise<HybridSearchResponse>;
+
+  multiStepSearch(
+    query: string,
+    userId: string,
+    options?: VectorSearchOptions & {
+      maxSteps?: number;
+      minResultsPerStep?: number;
+    },
+  ): Promise<HybridSearchResponse>;
+
+  // Document management methods
+  indexDocument(
+    documentId: string,
+    chunks: DocumentChunk[],
+    userId: string,
+  ): Promise<IndexingResult>;
+
+  updateDocumentIndex(
+    documentId: string,
+    chunks: DocumentChunk[],
+    userId: string,
+  ): Promise<IndexingResult>;
+
+  deleteDocumentIndex(documentId: string, userId: string): Promise<boolean>;
+
+  // Analytics and monitoring
+  getSearchAnalytics(
+    userId: string,
+    timeRange: 'day' | 'week' | 'month',
+  ): Promise<SearchAnalytics>;
+
+  // Cache management
+  clearCache(userId?: string): Promise<boolean>;
+  getCacheStats(): Promise<CacheStats>;
+
+  // Health and status
+  getStatus(): Promise<SearchStatus>;
+  validateConfiguration(): Promise<ConfigValidationResult>;
+}
+
+export interface DocumentChunk {
+  id: string;
+  content: string;
+  chunkIndex: number;
+  metadata?: any;
+  elementType?: string | null;
+  pageNumber?: number | null;
+  bbox?: any;
+}
+
+export interface IndexingResult {
+  success: boolean;
+  documentId: string;
+  chunksIndexed: number;
+  errorCount: number;
+  errors?: string[];
+  timeMs: number;
+}
+
+export interface CacheStats {
+  totalKeys: number;
+  memoryUsage: string;
+  hitRate: number;
+}
+
+export interface ConfigValidationResult {
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+}
+
+export interface VectorProviderConfig {
+  type: 'neondb' | 'openai' | 'pinecone' | 'custom';
+  connectionString?: string;
+  apiKey?: string;
+  indexName?: string;
+  embeddingModel?: string;
+  dimensions?: number;
+  customConfig?: Record<string, any>;
+}
+
+export interface VectorSearchProviderFactory {
+  createProvider(config: VectorProviderConfig): VectorSearchProvider;
+  getAvailableProviders(): string[];
+  validateProviderConfig(config: VectorProviderConfig): ConfigValidationResult;
+}
+
+// Provider-specific interfaces
+export interface NeonDBProviderConfig extends VectorProviderConfig {
+  type: 'neondb';
+  connectionString: string;
+  embeddingModel: string;
+  dimensions: number;
+}
+
+export interface OpenAIProviderConfig extends VectorProviderConfig {
+  type: 'openai';
+  apiKey: string;
+  indexName: string;
+  embeddingModel: string;
+  dimensions: number;
+}
+
+// Context-aware search interfaces (enhanced)
+export interface ContextAwareSearchOptions extends VectorSearchOptions {
+  conversationHistory?: Array<{ role: string; content: string }>;
+  userPreferences?: Record<string, any>;
+  sessionContext?: Record<string, any>;
+  domainSpecific?: boolean;
+  contextWeight?: number;
+}
+
+// Multi-step search interfaces (enhanced)
+export interface MultiStepSearchOptions extends VectorSearchOptions {
+  maxSteps?: number;
+  stepThreshold?: number;
+  contextWindowSize?: number;
+  refinementStrategy?: 'additive' | 'replacement' | 'hybrid';
+  minResultsPerStep?: number;
+}
+
 // Internal utility types
 export type SearchResultWithScore = SearchResult & {
   _score: number;

@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/kinde';
 import { redirect } from 'next/navigation';
 import { DocumentUploader } from '@/components/document-uploader';
 import { DocumentList } from '@/components/document-list';
+import { t } from '@/lib/translations/dutch';
 
 export default async function DocumentsPage() {
   const user = await getUser();
@@ -15,10 +16,10 @@ export default async function DocumentsPage() {
     <div className="flex flex-1 flex-col space-y-8 p-8">
       <div className="flex items-center space-y-2">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Documents</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t('documents')}</h2>
           <p className="text-muted-foreground">
-            Upload and manage your PDF documents for intelligent chat
-            conversations.
+            Upload en beheer uw PDF documenten voor intelligente chat
+            gesprekken.
           </p>
         </div>
       </div>
@@ -29,7 +30,7 @@ export default async function DocumentsPage() {
         </div>
 
         <div className="space-y-6">
-          <Suspense fallback={<div>Loading documents...</div>}>
+          <Suspense fallback={<div>{t('loading')} documenten...</div>}>
             <DocumentList userId={user.id || ''} />
           </Suspense>
         </div>

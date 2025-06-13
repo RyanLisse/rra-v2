@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { t } from '@/lib/translations/dutch';
 
 export function AppSidebar({ user }: { user: any }) {
   const router = useRouter();
@@ -35,7 +36,7 @@ export function AppSidebar({ user }: { user: any }) {
               className="flex flex-row gap-3 items-center"
             >
               <span className="text-lg font-semibold px-2 hover:bg-muted rounded-md cursor-pointer">
-                Chatbot
+                RoboRail Assistent
               </span>
             </Link>
             <Tooltip>
@@ -53,7 +54,7 @@ export function AppSidebar({ user }: { user: any }) {
                   <PlusIcon />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent align="end">New Chat</TooltipContent>
+              <TooltipContent align="end">{t('new_chat')}</TooltipContent>
             </Tooltip>
           </div>
         </SidebarMenu>
@@ -67,7 +68,7 @@ export function AppSidebar({ user }: { user: any }) {
               className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
             >
               <FileText className="h-4 w-4" />
-              Documents
+              {t('documents')}
             </Link>
           </div>
         </SidebarMenu>

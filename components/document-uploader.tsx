@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { Upload, FileText, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { t } from '@/lib/translations/dutch';
 
 interface UploadedFile {
   documentId: string;
@@ -243,7 +244,7 @@ export function DocumentUploader() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Upload className="h-5 w-5" />
-            Upload Documents
+{t('documents')} {t('upload')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -261,14 +262,14 @@ export function DocumentUploader() {
             <input {...getInputProps()} />
             <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
             {isDragActive ? (
-              <p className="text-lg">Drop the PDF files here...</p>
+              <p className="text-lg">Sleep de PDF bestanden hier...</p>
             ) : (
               <div>
                 <p className="text-lg mb-2">
-                  Drag & drop PDF files here, or click to select
+{t('drag_drop')}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Max 50MB per file
+                  Max 50MB per bestand
                 </p>
               </div>
             )}
@@ -276,7 +277,7 @@ export function DocumentUploader() {
 
           {files.length > 0 && (
             <div className="space-y-2">
-              <h4 className="font-medium">Selected Files:</h4>
+              <h4 className="font-medium">Geselecteerde Bestanden:</h4>
               {files.map((file, index) => (
                 <div
                   key={`${file.name}-${file.size}-${index}`}
@@ -306,7 +307,7 @@ export function DocumentUploader() {
             disabled={files.length === 0 || uploading}
             className="w-full"
           >
-            {uploading ? 'Uploading...' : `Upload ${files.length} file(s)`}
+{uploading ? t('uploading') : `${t('upload')} ${files.length} bestand${files.length !== 1 ? 'en' : ''}`}
           </Button>
         </CardContent>
       </Card>
@@ -314,7 +315,7 @@ export function DocumentUploader() {
       {processing.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Processing Status</CardTitle>
+            <CardTitle>{t('processing')} Status</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {processing.map((file) => (

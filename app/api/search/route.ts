@@ -1,12 +1,14 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@/lib/auth/middleware';
 import { vectorSearchService } from '@/lib/search/vector-search';
+import { vectorSearchFactory } from '@/lib/search/providers/factory';
 import { db } from '@/lib/db';
 import { ragDocument, documentChunk } from '@/lib/db/schema';
 import { sql, eq, and, desc } from 'drizzle-orm';
 import { z } from 'zod';
 import { createClient } from 'redis';
 import { ChatSDKError } from '@/lib/errors';
+import type { VectorSearchProvider } from '@/lib/search/types';
 
 // Initialize Redis for analytics if available
 const redis: any = process.env.REDIS_URL
@@ -28,6 +30,9 @@ const searchSchema = z.object({
   useRerank: z.boolean().default(true),
   vectorWeight: z.number().min(0).max(1).default(0.7),
   textWeight: z.number().min(0).max(1).default(0.3),
+  // Database provider context
+  providerId: z.string().optional(),
+  providerType: z.enum(['neondb', 'openai', 'pinecone']).optional(),
   // Faceted search options
   facets: z
     .object({
@@ -99,6 +104,8 @@ export const POST = withAuth(async (request: NextRequest, user) => {
       includeAnalytics,
       embeddingModel,
       scoringAlgorithm,
+      providerId,
+      providerType,
     } = validation.data;
 
     // Apply document filters based on facets
@@ -120,6 +127,74 @@ export const POST = withAuth(async (request: NextRequest, user) => {
         'bad_request:weights',
         'Vector weight and text weight must sum to 1.0',
       ).toResponse();
+    }
+
+    // Select the appropriate vector search provider
+    let searchProvider: VectorSearchProvider;
+    
+    if (providerId && providerType) {
+      try {
+        // Create provider config based on type and ID
+        let providerConfig: any;
+        
+        switch (providerType) {
+          case 'neondb':
+            providerConfig = {
+              type: 'neondb' as const,
+              connectionString: process.env.POSTGRES_URL || '',
+              embeddingModel: embeddingModel === 'v4.0' ? 'embed-english-v4.0' : 'embed-english-v3.0',
+              dimensions: embeddingModel === 'v4.0' ? 1024 : 1024,
+            };
+            break;
+          
+          case 'openai':
+            providerConfig = {
+              type: 'openai' as const,
+              apiKey: process.env.OPENAI_API_KEY || '',
+              indexName: providerId.includes('calibration') ? 'roborail-calibration' : 'roborail-docs',
+              embeddingModel: 'text-embedding-3-large',
+              dimensions: 3072,
+            };
+            break;
+          
+          default:
+            throw new Error(`Unsupported provider type: ${providerType}`);
+        }
+
+        // Validate the provider configuration
+        const validation = vectorSearchFactory.validateProviderConfig(providerConfig);
+        if (!validation.isValid) {
+          console.warn('Provider config validation warnings:', validation.warnings);
+          if (validation.errors.length > 0) {
+            throw new Error(`Provider configuration error: ${validation.errors.join(', ')}`);
+          }
+        }
+
+        // Create the provider instance
+        const provider = vectorSearchFactory.createProvider(providerConfig);
+        
+        // Check provider health
+        const status = await provider.getStatus();
+        if (!status.isHealthy) {
+          throw new Error(`Provider ${providerId} is not healthy: ${status.error || 'Unknown error'}`);
+        }
+        
+        searchProvider = provider;
+        
+        // Update the vectorSearchService to use this provider
+        vectorSearchService.setProvider(searchProvider);
+        
+        console.log(`Using vector search provider: ${providerId} (${providerType})`);
+      } catch (error) {
+        console.error(`Failed to initialize provider ${providerId}:`, error);
+        
+        // Fall back to default provider
+        searchProvider = vectorSearchService.getProvider();
+        console.log('Falling back to default vector search provider');
+      }
+    } else {
+      // Use the default provider
+      searchProvider = vectorSearchService.getProvider();
     }
 
     let searchResponse: any;
@@ -246,6 +321,11 @@ export const POST = withAuth(async (request: NextRequest, user) => {
         searchTime: searchResponse.searchTimeMs,
         facetTime: facets ? responseTime - searchResponse.searchTimeMs : 0,
         cacheUsed: searchResponse.cacheHit || false,
+      },
+      provider: {
+        id: providerId || 'default',
+        type: providerType || 'neondb',
+        status: 'connected',
       },
     });
   } catch (error) {

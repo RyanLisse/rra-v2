@@ -14,6 +14,7 @@ import {
   Bookmark,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { t } from '@/lib/translations/dutch';
 import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
@@ -27,6 +28,8 @@ import {
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { DatabaseSelector } from '@/components/database-selector';
+import { useDatabaseSearch } from '@/hooks/use-database-search';
 
 interface SearchFilters {
   dateRange: 'all' | 'today' | 'week' | 'month' | 'custom';
@@ -58,16 +61,20 @@ interface EnhancedSearchProps {
   }>;
   suggestions?: SearchSuggestion[];
   isLoading?: boolean;
+  showDatabaseSelector?: boolean;
+  onDatabaseChange?: (database: string) => void;
 }
 
 export function EnhancedSearch({
-  placeholder = 'Search documents and conversations...',
+  placeholder = t('search'),
   onSearch,
   onSuggestionSelect,
   recentSearches = [],
   savedSearches = [],
   suggestions = [],
   isLoading = false,
+  showDatabaseSelector = true,
+  onDatabaseChange,
 }: EnhancedSearchProps) {
   const [query, setQuery] = useState('');
   const [filters, setFilters] = useState<SearchFilters>({
@@ -78,6 +85,9 @@ export function EnhancedSearch({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  
+  // Database search integration
+  const { isSearchAvailable, currentDatabase, error: searchError } = useDatabaseSearch();
 
   const handleSearch = () => {
     if (query.trim()) {
@@ -133,6 +143,27 @@ export function EnhancedSearch({
 
   return (
     <div className="relative w-full max-w-2xl">
+      {/* Database Selector */}
+      {showDatabaseSelector && (
+        <div className="mb-4">
+          <DatabaseSelector
+            compact={true}
+            onDatabaseChange={onDatabaseChange}
+            className="flex justify-start"
+          />
+          {searchError && (
+            <div className="mt-2 text-sm text-red-600">
+              Database connection error: {searchError}
+            </div>
+          )}
+          {currentDatabase && (
+            <div className="mt-1 text-xs text-muted-foreground">
+              Searching in: <strong>{currentDatabase.name}</strong>
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
@@ -166,7 +197,7 @@ export function EnhancedSearch({
             onClick={handleSearch}
             size="sm"
             className="h-7"
-            disabled={isLoading || !query.trim()}
+            disabled={isLoading || !query.trim() || !isSearchAvailable}
           >
             {isLoading ? (
               <motion.div

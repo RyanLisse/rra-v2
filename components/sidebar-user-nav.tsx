@@ -21,6 +21,7 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { LoaderIcon } from './icons';
+import { t } from '@/lib/translations/dutch';
 
 export function SidebarUserNav({ user }: { user: KindeUser }) {
   const { isLoading } = useKindeBrowserClient();
@@ -106,7 +107,7 @@ export function SidebarUserNav({ user }: { user: KindeUser }) {
                   handleAuth();
                 }}
               >
-                {isGuest ? 'Login to your account' : 'Sign out'}
+                {isGuest ? 'Inloggen op uw account' : t('sign_out')}
               </button>
             </DropdownMenuItem>
           </DropdownMenuContent>
