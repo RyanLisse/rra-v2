@@ -123,13 +123,13 @@ export const config = {
      * Match specific routes that need authentication handling:
      * - Root page
      * - Chat pages
-     * - API routes (except health endpoints)
+     * - API routes (except health, ping, and inngest endpoints)
      * - Auth pages
      * - Documents page
      */
     '/',
     '/chat/:path*',
-    '/api/((?!ping|health).*)', // Exclude ping and health from auth
+    '/api/((?!ping|health|inngest).*)', // Exclude ping, health, and inngest from auth
     '/login',
     '/register',
     '/documents',
