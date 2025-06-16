@@ -182,7 +182,7 @@
     "react-day-picker": "8.10.1",
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.8",
-    "react-markdown": "^9.0.1",
+    "react-markdown": "^10.1.0",
     "react-resizable-panels": "^2.1.7",
     "redis": "^5.0.0",
     "remark-gfm": "^4.0.0",
