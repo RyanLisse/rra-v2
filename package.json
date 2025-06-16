@@ -183,7 +183,7 @@
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.8",
     "react-markdown": "^9.0.1",
-    "react-resizable-panels": "^2.1.7",
+    "react-resizable-panels": "^3.0.3",
     "redis": "^5.0.0",
     "remark-gfm": "^4.0.0",
     "resumable-stream": "^2.0.0",
