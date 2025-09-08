@@ -83,7 +83,7 @@ jobs:
         run: bun run db:migrate
       
       - name: Create deployment comment
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const branchId = '${{ steps.create_branch.outputs.branch_id || steps.check_existing.outputs.branch_id }}';
@@ -241,7 +241,7 @@ jobs:
       
       - name: Post result comment
         if: always()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const command = '${{ steps.parse_command.outputs.command }}';
@@ -292,7 +292,7 @@ jobs:
           fi
       
       - name: Post cleanup comment
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const body = `🧹 PR test environment has been cleaned up.`;
