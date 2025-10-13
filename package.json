@@ -195,7 +195,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.9.4",
+    "@biomejs/biome": "2.2.6",
     "@faker-js/faker": "^9.8.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "@playwright/test": "^1.50.1",
