@@ -34,7 +34,7 @@ jobs:
       branch_name: ${{ steps.create_branch.outputs.branch_name }}
       database_url: ${{ steps.create_branch.outputs.database_url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - uses: oven-sh/setup-bun@v1
         with:
@@ -104,7 +104,7 @@ jobs:
       matrix:
         shard: [1, 2, 3, 4]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - uses: oven-sh/setup-bun@v1
         with:
@@ -143,7 +143,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.test_type == 'all' || github.event.inputs.test_type == 'integration' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - uses: oven-sh/setup-bun@v1
         with:
@@ -185,7 +185,7 @@ jobs:
       matrix:
         browser: [chromium, firefox, webkit]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - uses: oven-sh/setup-bun@v1
         with:
@@ -243,7 +243,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.test_type == 'all' || github.event.inputs.test_type == 'performance' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - uses: oven-sh/setup-bun@v1
         with:
@@ -330,7 +330,7 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Download all test results
         uses: actions/download-artifact@v4
@@ -376,7 +376,7 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - uses: oven-sh/setup-bun@v1
         with:
